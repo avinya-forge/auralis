@@ -1,0 +1,3 @@
+"""
+Auralis - GUI components package
+""" 

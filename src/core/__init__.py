@@ -1,0 +1,3 @@
+"""
+Auralis - Core functionality package
+""" 
