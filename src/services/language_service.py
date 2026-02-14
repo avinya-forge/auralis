@@ -81,57 +81,58 @@ LANGUAGE_NAMES = {
     'zh-tw': 'Chinese_Traditional'
 }
 
+
 class LanguageDetectionService:
     """Service for detecting spoken language in audio files"""
-    
+
     def __init__(self):
         """Initialize the language detection service"""
         self.available = HAS_LANGUAGE_DETECTION
         if not self.available:
             logger.warning("Language detection dependencies not installed. "
-                          "Please install: speech_recognition, langdetect, pydub")
-    
+                           "Please install: speech_recognition, langdetect, pydub")
+
     def detect_language(self, file_path, sample_duration=30):
         """
         Detect the spoken language in an audio file
-        
+
         Args:
             file_path (str): Path to the audio file
             sample_duration (int): Duration in seconds to sample from the audio for detection
-            
+
         Returns:
             tuple: (language_code, language_name) or ('unknown', 'Unknown')
         """
         if not self.available:
             logger.warning("Language detection not available")
             return 'unknown', 'Unknown'
-        
+
         try:
             # Load audio file
             audio_path = Path(file_path)
             if not audio_path.exists():
                 logger.error(f"File does not exist: {file_path}")
                 return 'unknown', 'Unknown'
-            
+
             # Extract a segment for processing
             logger.info(f"Processing {file_path} for language detection")
-            
+
             # Convert to WAV for speech recognition
             with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_wav:
                 temp_path = temp_wav.name
-            
+
             # Load audio and extract a sample for processing
             try:
                 audio = AudioSegment.from_file(file_path)
-                
+
                 # Take a sample from the middle of the file (more likely to contain speech)
                 middle = len(audio) // 2
                 start_pos = max(0, middle - (sample_duration * 1000) // 2)
                 end_pos = min(len(audio), start_pos + (sample_duration * 1000))
-                
+
                 audio_sample = audio[start_pos:end_pos]
                 audio_sample.export(temp_path, format="wav")
-                
+
                 # Perform speech recognition
                 recognizer = sr.Recognizer()
                 with sr.AudioFile(temp_path) as source:
@@ -145,10 +146,10 @@ class LanguageDetectionService:
                     except sr.RequestError:
                         logger.error("API unavailable for speech recognition")
                         return 'unknown', 'Unknown'
-                
+
                 # Clean up temporary file
                 os.unlink(temp_path)
-                
+
                 # Detect language from text
                 if text and len(text.strip()) > 5:
                     lang_code = langdetect.detect(text)
@@ -156,16 +157,17 @@ class LanguageDetectionService:
                     logger.info(f"Detected language: {lang_name} ({lang_code}) in {file_path}")
                     return lang_code, lang_name
                 else:
-                    logger.warning(f"Not enough text extracted for language detection in {file_path}")
+                    logger.warning(
+                        f"Not enough text extracted for language detection in {file_path}")
                     return 'unknown', 'Unknown'
-                
+
             except Exception as e:
                 logger.error(f"Error processing audio: {str(e)}")
                 # Clean up temporary file if it exists
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
                 return 'unknown', 'Unknown'
-                
+
         except Exception as e:
             logger.error(f"Language detection failed: {str(e)}")
             return 'unknown', 'Unknown'
@@ -173,11 +175,11 @@ class LanguageDetectionService:
     def get_language_folder(self, file_path, default="Unknown"):
         """
         Get the appropriate language folder name for an audio file
-        
+
         Args:
             file_path (str): Path to the audio file
             default (str): Default folder name if language detection fails
-            
+
         Returns:
             str: Folder name based on detected language
         """
@@ -186,17 +188,21 @@ class LanguageDetectionService:
             return default
         return lang_name
 
+
 # Singleton instance
 language_service = LanguageDetectionService()
+
 
 def detect_language(file_path):
     """Detect the language of an audio file"""
     return language_service.detect_language(file_path)
 
+
 def get_language_folder(file_path, default="Unknown"):
     """Get the appropriate language folder for an audio file"""
     return language_service.get_language_folder(file_path, default)
 
+
 def is_available():
     """Check if language detection is available"""
-    return language_service.available 
+    return language_service.available
