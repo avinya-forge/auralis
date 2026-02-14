@@ -1,13 +1,11 @@
-import os
-import sys
 import pytest
-from unittest.mock import MagicMock, patch
-
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from unittest.mock import patch
 
 # Create a QCoreApplication instance for QObject signals
 from PyQt6.QtCore import QCoreApplication
+
+from src.core.scanner import MusicScanner
+
 
 # We need a QApplication for QObject signals to work properly,
 # although for simple instantiation it might not be strictly necessary,
@@ -19,7 +17,6 @@ def qapp():
         app = QCoreApplication([])
     yield app
 
-from src.core.scanner import MusicScanner
 
 class TestMusicScanner:
 
@@ -83,7 +80,7 @@ class TestMusicScanner:
 
             # Also mock _get_modification_time to avoid OS calls
             with patch.object(scanner, '_get_modification_time', return_value="2023-01-01"):
-                 results = scanner.scan_directories([str(tmp_path)])
+                results = scanner.scan_directories([str(tmp_path)])
 
             assert len(results) == 1
             assert results[0]['filename'] == "test_song.mp3"

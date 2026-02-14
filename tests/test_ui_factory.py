@@ -3,12 +3,25 @@ import sys
 import pytest
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Add project root to path if needed, but usually pytest handles this.
+# If we must keep it, we can put it in a try/except or just assume environment is set.
+# To satisfy E402, we can put this after imports if we suppress the error,
+# or we can assume that we don't need it if running via `python -m pytest`.
 
 from src.gui.ui_factory import UIFactory, get_ui_framework
 
+
 class TestUIFactory:
+
+    @pytest.fixture(autouse=True)
+    def mock_pyqt6(self):
+        """Mock PyQt6 to avoid ImportError in CI environment"""
+        with patch.dict('sys.modules', {
+            'PyQt6': MagicMock(),
+            'PyQt6.QtWidgets': MagicMock(),
+            'src.gui.pyqt.main_window': MagicMock(),
+        }):
+            yield
 
     def test_get_ui_framework_default(self):
         # Ensure environment variable is not set for this test
@@ -20,18 +33,25 @@ class TestUIFactory:
             assert get_ui_framework() == 'wxpython'
 
     @patch('src.gui.ui_factory.get_ui_framework')
-    @patch('PyQt6.QtWidgets.QApplication')
-    def test_create_app_pyqt6(self, mock_qapp, mock_framework):
+    def test_create_app_pyqt6(self, mock_framework):
         mock_framework.return_value = 'pyqt6'
+
+        # We need to patch where it's imported in the function,
+        # BUT since we masked sys.modules in the fixture,
+        # the import inside create_app will get the Mock from sys.modules.
+
+        # We can configure that mock to return what we want.
+        mock_qapp_cls = sys.modules['PyQt6.QtWidgets'].QApplication
+
         UIFactory.create_app([])
-        mock_qapp.assert_called_once()
+        mock_qapp_cls.assert_called_once()
 
     @patch('src.gui.ui_factory.get_ui_framework')
     def test_create_app_wxpython_not_installed(self, mock_framework):
         mock_framework.return_value = 'wxpython'
         # Simulate wx not being installed
         with patch.dict('sys.modules', {'wx': None}):
-             with pytest.raises(ImportError):
+            with pytest.raises(ImportError):
                 UIFactory.create_app([])
 
     @patch('src.gui.ui_factory.get_ui_framework')
@@ -41,11 +61,14 @@ class TestUIFactory:
             UIFactory.create_app([])
 
     @patch('src.gui.ui_factory.get_ui_framework')
-    @patch('src.gui.pyqt.main_window.MainWindow')
-    def test_create_main_window_pyqt6(self, mock_mw, mock_framework):
+    def test_create_main_window_pyqt6(self, mock_framework):
         mock_framework.return_value = 'pyqt6'
+
+        # Access the mock from sys.modules
+        mock_mw_cls = sys.modules['src.gui.pyqt.main_window'].MainWindow
+
         UIFactory.create_main_window()
-        mock_mw.assert_called_once()
+        mock_mw_cls.assert_called_once()
 
     @patch('src.gui.ui_factory.get_ui_framework')
     def test_create_main_window_wxpython(self, mock_framework):
