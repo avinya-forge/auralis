@@ -5,7 +5,7 @@
 - [x] Refactor `src/gui/ui_factory.py` to support multiple UI backends (PyQt6, wxPython).
 - [x] Add unit tests for `src/gui/ui_factory.py`.
 - [x] Add unit tests for `src/core/scanner.py` covering core logic.
-- [ ] Add unit tests for `src/core/organizer.py` covering core logic.
+- [x] Add unit tests for `src/core/organizer.py` covering core logic.
 
 ## Medium Priority
 
