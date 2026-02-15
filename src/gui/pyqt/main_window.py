@@ -4,9 +4,10 @@ Auralis - PyQt6 Main Window Implementation
 
 import os
 import time
+from typing import Any, Dict
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtGui import QCloseEvent, QFont, QIcon
 from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -89,7 +90,7 @@ class MainWindow(QMainWindow):
         # Worker thread
         self.worker_thread = None
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent):
         """Handle window close event"""
         # Stop system monitoring
         self.system_monitor.stop_monitoring()
@@ -389,7 +390,7 @@ class MainWindow(QMainWindow):
         sb = self.log_text.verticalScrollBar()
         sb.setValue(sb.maximum())
 
-    def processing_completed(self, results):
+    def processing_completed(self, results: Dict[str, Any]):
         """Handle completion of processing"""
         # Check for errors
         if "error" in results:

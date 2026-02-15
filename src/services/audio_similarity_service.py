@@ -7,7 +7,7 @@ audio content similarity rather than just metadata or filenames.
 
 import logging
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -74,7 +74,11 @@ class AudioSimilarityService:
             fingerprint = np.mean(log_mel_spec, axis=1)
 
             # Normalize fingerprint
-            fingerprint = (fingerprint - np.mean(fingerprint)) / np.std(fingerprint)
+            std_dev = np.std(fingerprint)
+            if std_dev > 0:
+                fingerprint = (fingerprint - np.mean(fingerprint)) / std_dev
+            else:
+                fingerprint = fingerprint - np.mean(fingerprint)
 
             # Cache the fingerprint
             self.fingerprint_cache[file_path] = fingerprint
@@ -113,6 +117,103 @@ class AudioSimilarityService:
             logger.error(f"Error computing similarity: {str(e)}")
             return 0.0
 
+    def _get_duration(self, file_info: Dict) -> float:
+        """
+        Get duration from metadata or compute it using pydub
+
+        Args:
+            file_info (dict): File information dictionary
+
+        Returns:
+            float: Duration in seconds, or 0 if determination failed
+        """
+        duration = file_info.get("metadata", {}).get("duration", 0)
+        if duration:
+            return duration
+
+        try:
+            if "pydub" in globals():
+                audio = pydub.AudioSegment.from_file(file_info["path"])
+                return len(audio) / 1000  # convert to seconds
+        except Exception:
+            pass
+
+        return 0
+
+    def _group_files_by_duration(self, music_files: List[Dict]) -> Dict[float, List[Dict]]:
+        """
+        Group files by approximate duration to reduce comparisons
+
+        Args:
+            music_files (list): List of file info dictionaries
+
+        Returns:
+            dict: Dictionary mapping rounded duration to list of files
+        """
+        duration_groups = {}
+        for file_info in music_files:
+            duration = self._get_duration(file_info)
+            if not duration:
+                continue
+
+            # Round duration to nearest 5 seconds to group similar-length
+            rounded_duration = round(duration / 5) * 5
+            if rounded_duration not in duration_groups:
+                duration_groups[rounded_duration] = []
+            duration_groups[rounded_duration].append(file_info)
+
+        return duration_groups
+
+    def _find_duplicates_in_group(
+        self, files: List[Dict], processed_files: Set[str]
+    ) -> List[List[Dict]]:
+        """
+        Find duplicates within a group of files with similar duration
+
+        Args:
+            files (list): List of files in the group
+            processed_files (set): Set of paths of already processed files
+
+        Returns:
+            list: List of duplicate groups found in this duration group
+        """
+        duplicates = []
+
+        for i, file1 in enumerate(files):
+            if file1["path"] in processed_files:
+                continue
+
+            fingerprint1 = self.compute_fingerprint(file1["path"])
+            if fingerprint1 is None:
+                continue
+
+            current_duplicates = [file1]
+
+            for j in range(i + 1, len(files)):
+                file2 = files[j]
+                if file2["path"] in processed_files:
+                    continue
+
+                fingerprint2 = self.compute_fingerprint(file2["path"])
+                if fingerprint2 is None:
+                    continue
+
+                similarity = self.compute_similarity(fingerprint1, fingerprint2)
+
+                if similarity >= self.similarity_threshold:
+                    current_duplicates.append(file2)
+
+            if len(current_duplicates) > 1:
+                # Sort duplicates by quality (prefer higher bitrate)
+                sorted_duplicates = self._sort_by_quality(current_duplicates)
+                duplicates.append(sorted_duplicates)
+
+                # Mark all duplicates as processed to avoid re-checking
+                for dup in sorted_duplicates:
+                    processed_files.add(dup["path"])
+
+        return duplicates
+
     def find_duplicates(self, music_files: List[Dict]) -> List[List[Dict]]:
         """
         Find duplicate audio files based on content similarity
@@ -130,66 +231,17 @@ class AudioSimilarityService:
         processed_files = set()
 
         try:
-            # Compute fingerprints for all files
             logger.info(f"Computing fingerprints for {len(music_files)} files")
 
-            # Group files by approximate duration first to reduce comparisons
-            duration_groups = {}
-            for file_info in music_files:
-                # Get duration from metadata or compute it
-                duration = file_info.get("metadata", {}).get("duration", 0)
-                if not duration:
-                    try:
-                        audio = pydub.AudioSegment.from_file(file_info["path"])
-                        duration = len(audio) / 1000  # convert to seconds
-                    except Exception:  # noqa: E722
-                        # If we can't get duration, skip this file
-                        continue
-
-                # Round duration to nearest 5 seconds to group similar-length
-                rounded_duration = round(duration / 5) * 5
-                if rounded_duration not in duration_groups:
-                    duration_groups[rounded_duration] = []
-                duration_groups[rounded_duration].append(file_info)
+            duration_groups = self._group_files_by_duration(music_files)
 
             # Process each duration group
             for duration, files in duration_groups.items():
                 if len(files) < 2:
                     continue  # Skip groups with only one file
 
-                # Compare files within the same duration group
-                for i, file1 in enumerate(files):
-                    if file1["path"] in processed_files:
-                        continue
-
-                    fingerprint1 = self.compute_fingerprint(file1["path"])
-                    if fingerprint1 is None:
-                        continue
-
-                    current_duplicates = [file1]
-
-                    for j in range(i + 1, len(files)):
-                        file2 = files[j]
-                        if file2["path"] in processed_files:
-                            continue
-
-                        fingerprint2 = self.compute_fingerprint(file2["path"])
-                        if fingerprint2 is None:
-                            continue
-
-                        similarity = self.compute_similarity(fingerprint1, fingerprint2)
-
-                        if similarity >= self.similarity_threshold:
-                            current_duplicates.append(file2)
-
-                    if len(current_duplicates) > 1:
-                        # Sort duplicates by quality (prefer higher bitrate)
-                        sorted_duplicates = self._sort_by_quality(current_duplicates)
-                        duplicates.append(sorted_duplicates)
-
-                        # Mark all but the best quality file as processed
-                        for dup in sorted_duplicates[1:]:
-                            processed_files.add(dup["path"])
+                group_duplicates = self._find_duplicates_in_group(files, processed_files)
+                duplicates.extend(group_duplicates)
 
             return duplicates
 
