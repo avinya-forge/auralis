@@ -1,3 +1,3 @@
 """
 Auralis - Utilities package
-""" 
+"""
