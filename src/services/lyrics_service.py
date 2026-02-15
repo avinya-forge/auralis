@@ -5,15 +5,16 @@ This module provides functionality to fetch lyrics for audio files and
 embed them in the file's metadata.
 """
 
-import logging
 import json
+import logging
 import re
-import requests
 from pathlib import Path
 from typing import Dict, Optional
 
+import requests
+
 # Set up logging
-logger = logging.getLogger('auralis.lyrics')
+logger = logging.getLogger("auralis.lyrics")
 
 
 class LyricsService:
@@ -25,9 +26,7 @@ class LyricsService:
         self.user_agent = "Auralis/1.0"
         self.cache = {}
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': self.user_agent
-        })
+        self.session.headers.update({"User-Agent": self.user_agent})
 
     def fetch_lyrics(self, artist: str, title: str) -> Optional[str]:
         """
@@ -86,7 +85,7 @@ class LyricsService:
             file_path = Path(file_path)
             extension = file_path.suffix.lower()
 
-            if extension == '.mp3':
+            if extension == ".mp3":
                 # For MP3 files, use ID3 tags
                 try:
                     tags = ID3(file_path)
@@ -95,16 +94,11 @@ class LyricsService:
 
                 # Remove existing lyrics
                 for key in list(tags.keys()):
-                    if key.startswith('USLT'):
+                    if key.startswith("USLT"):
                         del tags[key]
 
                 # Add new lyrics
-                tags['USLT::eng'] = USLT(
-                    encoding=3,
-                    lang='eng',
-                    desc='',
-                    text=lyrics
-                )
+                tags["USLT::eng"] = USLT(encoding=3, lang="eng", desc="", text=lyrics)
 
                 tags.save(file_path)
                 logger.info(f"Embedded lyrics in {file_path}")
@@ -119,16 +113,16 @@ class LyricsService:
                     return False
 
                 # Different files have different tag names for lyrics
-                if hasattr(audio, 'tags'):
-                    if extension == '.flac':
-                        audio['lyrics'] = lyrics
-                    elif extension == '.m4a' or extension == '.mp4':
-                        audio['\xa9lyr'] = lyrics
-                    elif extension in ['.ogg', '.oga', '.opus']:
-                        audio['LYRICS'] = lyrics
+                if hasattr(audio, "tags"):
+                    if extension == ".flac":
+                        audio["lyrics"] = lyrics
+                    elif extension == ".m4a" or extension == ".mp4":
+                        audio["\xa9lyr"] = lyrics
+                    elif extension in [".ogg", ".oga", ".opus"]:
+                        audio["LYRICS"] = lyrics
                     else:
                         # Try a common approach for other formats
-                        audio['lyrics'] = lyrics
+                        audio["lyrics"] = lyrics
 
                     audio.save()
                     logger.info(f"Embedded lyrics in {file_path}")
@@ -150,21 +144,21 @@ class LyricsService:
             return ""
 
         # Remove featuring artists
-        name = re.sub(r'\(feat\..*?\)', '', name)
-        name = re.sub(r'\bft\..*?$', '', name)
-        name = re.sub(r'\bfeat\..*?$', '', name)
+        name = re.sub(r"\(feat\..*?\)", "", name)
+        name = re.sub(r"\bft\..*?$", "", name)
+        name = re.sub(r"\bfeat\..*?$", "", name)
 
         # Remove version info
-        name = re.sub(r'\(.*?version\)', '', name, flags=re.IGNORECASE)
-        name = re.sub(r'\(.*?remix\)', '', name, flags=re.IGNORECASE)
-        name = re.sub(r'\(.*?edit\)', '', name, flags=re.IGNORECASE)
+        name = re.sub(r"\(.*?version\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\(.*?remix\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\(.*?edit\)", "", name, flags=re.IGNORECASE)
 
         # Remove other common suffixes in parentheses
-        name = re.sub(r'\(.*?\)', '', name)
-        name = re.sub(r'\[.*?\]', '', name)
+        name = re.sub(r"\(.*?\)", "", name)
+        name = re.sub(r"\[.*?\]", "", name)
 
         # Clean up whitespace
-        name = re.sub(r'\s+', ' ', name)
+        name = re.sub(r"\s+", " ", name)
         name = name.strip()
 
         return name
@@ -174,7 +168,7 @@ class LyricsService:
         try:
             # Search for the song
             search_url = f"https://genius.com/api/search/multi?q={artist} {title}"
-            search_url = search_url.replace(' ', '%20')
+            search_url = search_url.replace(" ", "%20")
 
             response = self.session.get(search_url, timeout=10)
             if response.status_code != 200:
@@ -183,12 +177,12 @@ class LyricsService:
             data = response.json()
 
             # Find the first song hit
-            sections = data.get('response', {}).get('sections', [])
+            sections = data.get("response", {}).get("sections", [])
             for section in sections:
-                if section.get('type') == 'song':
-                    hits = section.get('hits', [])
+                if section.get("type") == "song":
+                    hits = section.get("hits", [])
                     if hits:
-                        song_path = hits[0].get('result', {}).get('path')
+                        song_path = hits[0].get("result", {}).get("path")
                         if song_path:
                             # Get the lyrics page
                             lyrics_url = f"https://genius.com{song_path}"
@@ -200,44 +194,50 @@ class LyricsService:
 
                                 # Look for the lyrics div
                                 lyrics_match = re.search(
-                                    r'<div class="lyrics">(.+?)</div>', html, re.DOTALL)
+                                    r'<div class="lyrics">(.+?)</div>', html, re.DOTALL
+                                )
                                 if lyrics_match:
                                     lyrics = lyrics_match.group(1)
                                 else:
                                     # Newer Genius format
                                     lyrics_json = re.search(
-                                        r'__PRELOADED_STATE__ = JSON.parse\((.+?)\);</script>', html)
+                                        r"__PRELOADED_STATE__ = JSON.parse\((.+?)\);</script>", html
+                                    )
                                     if lyrics_json:
                                         json_str = lyrics_json.group(1).strip("'")
                                         try:
                                             json_data = json.loads(json_str)
-                                            song_data = json_data.get(
-                                                'songPage', {}).get('lyricsData', {})
-                                            lyrics = song_data.get('body', {}).get('html', '')
+                                            song_data = json_data.get("songPage", {}).get(
+                                                "lyricsData", {}
+                                            )
+                                            lyrics = song_data.get("body", {}).get("html", "")
                                         except BaseException:
                                             return None
                                     else:
                                         # Try another approach
                                         lyrics_container = re.search(
-                                            r'<div[^>]*class="[^"]*Lyrics__Container[^"]*"[^>]*>(.+?)</div>\s*</div>', html, re.DOTALL)
+                                            r'<div[^>]*class="[^"]*Lyrics__Container[^"]*"[^>]*>(.+?)</div>\s*</div>',
+                                            html,
+                                            re.DOTALL,
+                                        )
                                         if lyrics_container:
                                             lyrics = lyrics_container.group(1)
                                         else:
                                             return None
 
                                 # Clean up HTML tags
-                                lyrics = re.sub(r'<[^>]+>', '', lyrics)
+                                lyrics = re.sub(r"<[^>]+>", "", lyrics)
                                 # Remove [Verse], [Chorus], etc.
-                                lyrics = re.sub(r'\[.*?\]', '', lyrics)
+                                lyrics = re.sub(r"\[.*?\]", "", lyrics)
 
                                 # Fix HTML entities
-                                lyrics = lyrics.replace('&amp;', '&')
-                                lyrics = lyrics.replace('&lt;', '<')
-                                lyrics = lyrics.replace('&gt;', '>')
-                                lyrics = lyrics.replace('&quot;', '"')
+                                lyrics = lyrics.replace("&amp;", "&")
+                                lyrics = lyrics.replace("&lt;", "<")
+                                lyrics = lyrics.replace("&gt;", ">")
+                                lyrics = lyrics.replace("&quot;", '"')
 
                                 # Clean up whitespace
-                                lyrics = re.sub(r'\n{3,}', '\n\n', lyrics)
+                                lyrics = re.sub(r"\n{3,}", "\n\n", lyrics)
                                 lyrics = lyrics.strip()
 
                                 return lyrics
@@ -252,7 +252,7 @@ class LyricsService:
         """Fetch lyrics from Musixmatch (limited without API key)"""
         try:
             # Search for the song
-            search_term = f"{artist} {title}".replace(' ', '%20')
+            search_term = f"{artist} {title}".replace(" ", "%20")
             search_url = f"https://www.musixmatch.com/search/{search_term}"
 
             response = self.session.get(search_url, timeout=10)
@@ -277,29 +277,31 @@ class LyricsService:
             # Extract lyrics using regex
             html = lyrics_response.text
             lyrics_match = re.search(
-                r'<span class="lyrics__content__ok">(.+?)</span>', html, re.DOTALL)
+                r'<span class="lyrics__content__ok">(.+?)</span>', html, re.DOTALL
+            )
 
             if not lyrics_match:
                 # Try another pattern
                 lyrics_match = re.search(
                     r'<div class="mxm-lyrics"><span class="lyrics__content__[^"]*">(.+?)</span></div>',
                     html,
-                    re.DOTALL)
+                    re.DOTALL,
+                )
 
             if lyrics_match:
                 lyrics = lyrics_match.group(1)
 
                 # Clean up HTML tags
-                lyrics = re.sub(r'<[^>]+>', '\n', lyrics)
+                lyrics = re.sub(r"<[^>]+>", "\n", lyrics)
 
                 # Fix HTML entities
-                lyrics = lyrics.replace('&amp;', '&')
-                lyrics = lyrics.replace('&lt;', '<')
-                lyrics = lyrics.replace('&gt;', '>')
-                lyrics = lyrics.replace('&quot;', '"')
+                lyrics = lyrics.replace("&amp;", "&")
+                lyrics = lyrics.replace("&lt;", "<")
+                lyrics = lyrics.replace("&gt;", ">")
+                lyrics = lyrics.replace("&quot;", '"')
 
                 # Clean up whitespace
-                lyrics = re.sub(r'\n{3,}', '\n\n', lyrics)
+                lyrics = re.sub(r"\n{3,}", "\n\n", lyrics)
                 lyrics = lyrics.strip()
 
                 return lyrics
@@ -336,8 +338,8 @@ def fetch_and_embed_lyrics(file_path: str, metadata: Dict) -> bool:
     Returns:
         bool: True if successful, False otherwise
     """
-    artist = metadata.get('artist', '')
-    title = metadata.get('title', '')
+    artist = metadata.get("artist", "")
+    title = metadata.get("title", "")
 
     if not artist or not title:
         logger.warning(f"Missing artist or title for lyrics lookup: {file_path}")

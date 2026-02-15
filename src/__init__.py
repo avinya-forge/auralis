@@ -1,3 +1,3 @@
 """
-Auralis - Main package
-""" 
+Auralis source package
+"""

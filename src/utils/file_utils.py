@@ -2,10 +2,10 @@
 Auralis - File Utilities Module
 """
 
-import os
-import shutil
 import hashlib
+import os
 import re
+import shutil
 
 
 def ensure_dir_exists(path):
@@ -55,7 +55,7 @@ def move_file(src, dest, copy_only=False):
         return False
 
 
-def calculate_file_hash(file_path, block_size=65536, algorithm='md5'):
+def calculate_file_hash(file_path, block_size=65536, algorithm="md5"):
     """
     Calculate hash of a file
 
@@ -68,16 +68,16 @@ def calculate_file_hash(file_path, block_size=65536, algorithm='md5'):
         str: Hash of the file
     """
     try:
-        if algorithm == 'md5':
+        if algorithm == "md5":
             hasher = hashlib.md5()
-        elif algorithm == 'sha1':
+        elif algorithm == "sha1":
             hasher = hashlib.sha1()
-        elif algorithm == 'sha256':
+        elif algorithm == "sha256":
             hasher = hashlib.sha256()
         else:
             raise ValueError(f"Unsupported hash algorithm: {algorithm}")
 
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             buf = f.read(block_size)
             while len(buf) > 0:
                 hasher.update(buf)
@@ -140,43 +140,43 @@ def clean_string(text):
     text = text.strip()
 
     # Remove track numbers at beginning (e.g. "01 - ", "01.", "01 ", "[01]", etc.)
-    text = re.sub(r'^(\d+[\s\.\-\[\]_]*)', '', text)
+    text = re.sub(r"^(\d+[\s\.\-\[\]_]*)", "", text)
 
     # Remove unnecessary brackets and parentheses along with their content
-    text = re.sub(r'\([^\)]*\)', '', text)  # Remove (anything)
-    text = re.sub(r'\[[^\]]*\]', '', text)  # Remove [anything]
-    text = re.sub(r'\{[^\}]*\}', '', text)  # Remove {anything}
+    text = re.sub(r"\([^\)]*\)", "", text)  # Remove (anything)
+    text = re.sub(r"\[[^\]]*\]", "", text)  # Remove [anything]
+    text = re.sub(r"\{[^\}]*\}", "", text)  # Remove {anything}
 
     # Remove common suffixes like "Official Video", "HD", "HQ", etc.
     suffixes = [
-        r'official\s*video',
-        r'official\s*audio',
-        r'official\s*music\s*video',
-        r'lyrics\s*video',
-        r'lyric\s*video',
-        r'audio\s*only',
-        r'full\s*album',
-        r'full\s*song',
-        r'original\s*soundtrack',
-        r'hd',
-        r'hq',
-        r'high\s*quality',
-        r'remastered',
-        r'320\s*kbps',
-        r'128\s*kbps',
-        r'mp3',
-        r'flac'
+        r"official\s*video",
+        r"official\s*audio",
+        r"official\s*music\s*video",
+        r"lyrics\s*video",
+        r"lyric\s*video",
+        r"audio\s*only",
+        r"full\s*album",
+        r"full\s*song",
+        r"original\s*soundtrack",
+        r"hd",
+        r"hq",
+        r"high\s*quality",
+        r"remastered",
+        r"320\s*kbps",
+        r"128\s*kbps",
+        r"mp3",
+        r"flac",
     ]
     for suffix in suffixes:
-        text = re.sub(rf'(?i)[-\s]+{suffix}[-\s]*$', '', text)
+        text = re.sub(rf"(?i)[-\s]+{suffix}[-\s]*$", "", text)
 
     # Remove double spaces
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"\s+", " ", text)
 
     # Remove extra spaces around common separators
-    text = re.sub(r'\s*-\s*', '-', text)  # Remove spaces around hyphens
-    text = re.sub(r'\s*_\s*', '_', text)  # Remove spaces around underscores
-    text = re.sub(r'\s*\.\s*', '.', text)  # Remove spaces around periods
+    text = re.sub(r"\s*-\s*", "-", text)  # Remove spaces around hyphens
+    text = re.sub(r"\s*_\s*", "_", text)  # Remove spaces around underscores
+    text = re.sub(r"\s*\.\s*", ".", text)  # Remove spaces around periods
 
     # Final trim
     text = text.strip()
@@ -203,16 +203,16 @@ def sanitize_filename(name):
     # Strictly enforce alphanumeric characters only, with limited separators
     # Keep only alphanumeric (0-9, a-z, A-Z) and specific separator characters
     allowed_chars = r"a-zA-Z0-9\-_ "
-    name = re.sub(f"[^{allowed_chars}]", '', name)
+    name = re.sub(f"[^{allowed_chars}]", "", name)
 
     # Replace spaces with underscores for better compatibility
-    name = name.replace(' ', '_')
+    name = name.replace(" ", "_")
 
     # Replace multiple separators with a single one
-    name = re.sub(r'[-_]{2,}', '_', name)
+    name = re.sub(r"[-_]{2,}", "_", name)
 
     # Remove leading and trailing separators
-    name = name.strip('-_')
+    name = name.strip("-_")
 
     # Limit length
     if len(name) > 100:
@@ -256,7 +256,7 @@ def format_filename(title, artist=None, movie=None, extension=None):
 
     # Add extension if provided
     if extension:
-        if not extension.startswith('.'):
+        if not extension.startswith("."):
             extension = f".{extension}"
         filename = f"{filename}{extension}"
 

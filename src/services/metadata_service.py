@@ -4,19 +4,20 @@ Auralis - Metadata Service Module
 Handles fetching and updating metadata from online sources
 """
 
-import os
-import time
-import musicbrainzngs
-import discogs_client
-from PyQt6.QtCore import QObject, pyqtSignal
-import acoustid
-import mutagen
-import threading
 import json
+import os
+import threading
+import time
 from pathlib import Path
 
+import acoustid
+import discogs_client
+import musicbrainzngs
+import mutagen
+from PyQt6.QtCore import QObject, pyqtSignal
+
 # Import lyrics service
-from src.services.lyrics_service import fetch_lyrics, embed_lyrics
+from src.services.lyrics_service import embed_lyrics, fetch_lyrics
 
 
 class MetadataSource:
@@ -50,19 +51,20 @@ class MetadataSource:
         self.success_rate = self.success_count / self.total_count if self.total_count > 0 else 0.0
 
         # Update average response time
-        self.avg_response_time = self.total_response_time / \
-            self.total_count if self.total_count > 0 else 0.0
+        self.avg_response_time = (
+            self.total_response_time / self.total_count if self.total_count > 0 else 0.0
+        )
 
     def get_stats(self):
         """Get source statistics"""
         return {
-            'name': self.name,
-            'success_count': self.success_count,
-            'failure_count': self.failure_count,
-            'total_count': self.total_count,
-            'success_rate': self.success_rate,
-            'avg_response_time': self.avg_response_time,
-            'enabled': self.enabled
+            "name": self.name,
+            "success_count": self.success_count,
+            "failure_count": self.failure_count,
+            "total_count": self.total_count,
+            "success_rate": self.success_rate,
+            "avg_response_time": self.avg_response_time,
+            "enabled": self.enabled,
         }
 
 
@@ -73,11 +75,7 @@ class MusicBrainzSource(MetadataSource):
         super().__init__("MusicBrainz/AcoustID")
 
         # Set up MusicBrainz client
-        musicbrainzngs.set_useragent(
-            "Auralis",
-            "0.1",
-            "https://github.com/patternseekers/auralis"
-        )
+        musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/patternseekers/auralis")
 
         # AcoustID API key (should be configurable)
         self.acoustid_api_key = "1vOwZtEn"  # Example API key, register at https://acoustid.org/
@@ -87,10 +85,10 @@ class MusicBrainzSource(MetadataSource):
         """Check if audio fingerprinting is available"""
         try:
             import subprocess
-            result = subprocess.run(["fpcalc", "--version"],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    shell=True)
+
+            result = subprocess.run(
+                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+            )
             return result.returncode == 0
         except BaseException:
             return False
@@ -112,56 +110,66 @@ class MusicBrainzSource(MetadataSource):
             if self.fingerprinting_available:
                 try:
                     # Try acoustic fingerprinting
-                    duration, fp_encoded = acoustid.fingerprint_file(file_info['path'])
+                    duration, fp_encoded = acoustid.fingerprint_file(file_info["path"])
 
                     # Look up fingerprint
                     results = acoustid.lookup(self.acoustid_api_key, fp_encoded, duration)
 
                     for result in results:
-                        if result.get('recordings'):
-                            recording = result['recordings'][0]
+                        if result.get("recordings"):
+                            recording = result["recordings"][0]
 
                             # Extract metadata
                             metadata = {}
 
                             # Basic info
-                            if 'title' in recording:
-                                metadata['title'] = recording['title']
+                            if "title" in recording:
+                                metadata["title"] = recording["title"]
 
-                            if 'artists' in recording and recording['artists']:
-                                metadata['artist'] = recording['artists'][0]['name']
+                            if "artists" in recording and recording["artists"]:
+                                metadata["artist"] = recording["artists"][0]["name"]
 
                             # Try to get more detailed info from MusicBrainz
-                            if 'id' in recording:
-                                mb_id = recording['id']
+                            if "id" in recording:
+                                mb_id = recording["id"]
                                 mb_data = musicbrainzngs.get_recording_by_id(
-                                    mb_id, includes=['releases', 'artists'])
+                                    mb_id, includes=["releases", "artists"]
+                                )
 
-                                if 'recording' in mb_data:
-                                    mb_recording = mb_data['recording']
+                                if "recording" in mb_data:
+                                    mb_recording = mb_data["recording"]
 
                                     # Artist
-                                    if 'artist-credit' in mb_recording and mb_recording['artist-credit']:
-                                        metadata['artist'] = mb_recording['artist-credit'][0]['artist']['name']
+                                    if (
+                                        "artist-credit" in mb_recording
+                                        and mb_recording["artist-credit"]
+                                    ):
+                                        artist_credit = mb_recording["artist-credit"][0]
+                                        metadata["artist"] = artist_credit["artist"]["name"]
 
                                     # Album and other info
-                                    if 'release-list' in mb_recording and mb_recording['release-list']:
-                                        release = mb_recording['release-list'][0]
+                                    if (
+                                        "release-list" in mb_recording
+                                        and mb_recording["release-list"]
+                                    ):
+                                        release = mb_recording["release-list"][0]
 
-                                        if 'title' in release:
-                                            metadata['album'] = release['title']
+                                        if "title" in release:
+                                            metadata["album"] = release["title"]
 
-                                        if 'date' in release:
-                                            metadata['year'] = release['date'][:4]  # Extract year
+                                        if "date" in release:
+                                            metadata["year"] = release["date"][:4]  # Extract year
 
-                                        if 'medium-list' in release and release['medium-list']:
-                                            medium = release['medium-list'][0]
+                                        if "medium-list" in release and release["medium-list"]:
+                                            medium = release["medium-list"][0]
 
-                                            if 'track-list' in medium:
-                                                for track in medium['track-list']:
-                                                    if track.get('recording', {}).get(
-                                                            'id') == mb_id:
-                                                        metadata['track'] = str(track['position'])
+                                            if "track-list" in medium:
+                                                for track in medium["track-list"]:
+                                                    if (
+                                                        track.get("recording", {}).get("id")
+                                                        == mb_id
+                                                    ):
+                                                        metadata["track"] = str(track["position"])
                                                         break
 
                             response_time = time.time() - start_time
@@ -171,33 +179,33 @@ class MusicBrainzSource(MetadataSource):
                     # Continue with search-based approach
 
             # Fall back to basic search if fingerprinting fails
-            metadata = file_info.get('metadata', {})
+            metadata = file_info.get("metadata", {})
 
-            if 'artist' in metadata and 'title' in metadata:
+            if "artist" in metadata and "title" in metadata:
                 query = f'artist:"{metadata["artist"]}" AND recording:"{metadata["title"]}"'
                 results = musicbrainzngs.search_recordings(query=query, limit=1)
 
-                if results and 'recording-list' in results and results['recording-list']:
-                    recording = results['recording-list'][0]
+                if results and "recording-list" in results and results["recording-list"]:
+                    recording = results["recording-list"][0]
 
                     new_metadata = {}
 
                     # Basic info
-                    if 'title' in recording:
-                        new_metadata['title'] = recording['title']
+                    if "title" in recording:
+                        new_metadata["title"] = recording["title"]
 
-                    if 'artist-credit' in recording and recording['artist-credit']:
-                        new_metadata['artist'] = recording['artist-credit'][0]['artist']['name']
+                    if "artist-credit" in recording and recording["artist-credit"]:
+                        new_metadata["artist"] = recording["artist-credit"][0]["artist"]["name"]
 
                     # Album and other info
-                    if 'release-list' in recording and recording['release-list']:
-                        release = recording['release-list'][0]
+                    if "release-list" in recording and recording["release-list"]:
+                        release = recording["release-list"][0]
 
-                        if 'title' in release:
-                            new_metadata['album'] = release['title']
+                        if "title" in release:
+                            new_metadata["album"] = release["title"]
 
-                        if 'date' in release:
-                            new_metadata['year'] = release['date'][:4]  # Extract year
+                        if "date" in release:
+                            new_metadata["year"] = release["date"][:4]  # Extract year
 
                     response_time = time.time() - start_time
                     return new_metadata, True, response_time
@@ -223,10 +231,7 @@ class DiscogsSource(MetadataSource):
 
         # Set up Discogs client
         try:
-            self.client = discogs_client.Client(
-                'Auralis/0.1',
-                user_token=self.discogs_token
-            )
+            self.client = discogs_client.Client("Auralis/0.1", user_token=self.discogs_token)
             self.available = True
         except Exception as e:
             print(f"Error initializing Discogs client: {str(e)}")
@@ -250,25 +255,25 @@ class DiscogsSource(MetadataSource):
                 return {}, False, response_time
 
             # Get metadata from file info
-            metadata = file_info.get('metadata', {})
+            metadata = file_info.get("metadata", {})
 
             # We need at least an artist or title to search
-            if not metadata.get('artist') and not metadata.get('title'):
+            if not metadata.get("artist") and not metadata.get("title"):
                 response_time = time.time() - start_time
                 return {}, False, response_time
 
             # Prepare search query
-            query = ''
-            if metadata.get('artist'):
-                query += metadata['artist']
-            if metadata.get('title'):
+            query = ""
+            if metadata.get("artist"):
+                query += metadata["artist"]
+            if metadata.get("title"):
                 if query:
-                    query += ' - '
-                query += metadata['title']
+                    query += " - "
+                query += metadata["title"]
 
             # Perform search
             try:
-                results = self.client.search(query, type='release')
+                results = self.client.search(query, type="release")
 
                 if results and len(results) > 0:
                     # Get the first result
@@ -278,30 +283,30 @@ class DiscogsSource(MetadataSource):
                     new_metadata = {}
 
                     # Basic info
-                    if hasattr(release, 'title'):
+                    if hasattr(release, "title"):
                         # Split title by delimiter if it contains artist and title
-                        title_parts = release.title.split(' - ', 1)
+                        title_parts = release.title.split(" - ", 1)
                         if len(title_parts) > 1:
-                            if not metadata.get('artist'):
-                                new_metadata['artist'] = title_parts[0]
-                            if not metadata.get('title'):
-                                new_metadata['title'] = title_parts[1]
+                            if not metadata.get("artist"):
+                                new_metadata["artist"] = title_parts[0]
+                            if not metadata.get("title"):
+                                new_metadata["title"] = title_parts[1]
                         else:
                             # If only title is available, use it as is
-                            if not metadata.get('title'):
-                                new_metadata['title'] = release.title
+                            if not metadata.get("title"):
+                                new_metadata["title"] = release.title
 
                     # Artists
-                    if hasattr(release, 'artists') and release.artists:
-                        if not metadata.get('artist') and not new_metadata.get('artist'):
-                            new_metadata['artist'] = release.artists[0].name
+                    if hasattr(release, "artists") and release.artists:
+                        if not metadata.get("artist") and not new_metadata.get("artist"):
+                            new_metadata["artist"] = release.artists[0].name
 
                     # Additional info
-                    if hasattr(release, 'year'):
-                        new_metadata['year'] = str(release.year)
+                    if hasattr(release, "year"):
+                        new_metadata["year"] = str(release.year)
 
-                    if hasattr(release, 'genres') and release.genres:
-                        new_metadata['genre'] = release.genres[0]
+                    if hasattr(release, "genres") and release.genres:
+                        new_metadata["genre"] = release.genres[0]
 
                     response_time = time.time() - start_time
                     return new_metadata, True, response_time
@@ -309,7 +314,7 @@ class DiscogsSource(MetadataSource):
             except Exception as e:
                 error_msg = str(e)
                 if "401" in error_msg or "Invalid consumer token" in error_msg:
-                    print(f"Discogs authentication failed. Service disabled.")
+                    print("Discogs authentication failed. Service disabled.")
                     self.available = False
                 else:
                     print(f"Discogs search error: {error_msg}")
@@ -321,7 +326,7 @@ class DiscogsSource(MetadataSource):
         except Exception as e:
             error_msg = str(e)
             if "401" in error_msg or "Invalid consumer token" in error_msg:
-                print(f"Discogs authentication failed. Service disabled.")
+                print("Discogs authentication failed. Service disabled.")
                 self.available = False
             else:
                 print(f"Error getting Discogs metadata for {file_info['path']}: {error_msg}")
@@ -372,30 +377,32 @@ class MetadataService(QObject):
     def _load_stats(self):
         """Load saved source statistics"""
         try:
-            stats_file = Path.home() / '.auralis' / 'source_stats.json'
+            stats_file = Path.home() / ".auralis" / "source_stats.json"
 
             if stats_file.exists():
-                with open(stats_file, 'r') as f:
+                with open(stats_file, "r") as f:
                     stats = json.load(f)
 
                 # Update source statistics
                 for source_name, source_stats in stats.items():
                     if source_name in self.sources:
                         source = self.sources[source_name]
-                        source.success_count = source_stats.get('success_count', 0)
-                        source.failure_count = source_stats.get('failure_count', 0)
-                        source.total_count = source_stats.get('total_count', 0)
-                        source.success_rate = source_stats.get('success_rate', 0.0)
-                        source.avg_response_time = source_stats.get('avg_response_time', 0.0)
+                        source.success_count = source_stats.get("success_count", 0)
+                        source.failure_count = source_stats.get("failure_count", 0)
+                        source.total_count = source_stats.get("total_count", 0)
+                        source.success_rate = source_stats.get("success_rate", 0.0)
+                        source.avg_response_time = source_stats.get("avg_response_time", 0.0)
                         source.total_response_time = source.avg_response_time * source.total_count
-                        source.enabled = source_stats.get('enabled', True)
+                        source.enabled = source_stats.get("enabled", True)
 
                 # Sort sources by success rate
                 self._sort_sources()
 
                 # Disable learning phase if we have enough data
-                if sum(source.total_count for source in self.sources.values()
-                       ) >= self.learning_threshold:
+                if (
+                    sum(source.total_count for source in self.sources.values())
+                    >= self.learning_threshold
+                ):
                     self.learning_phase = False
 
         except Exception as e:
@@ -405,17 +412,17 @@ class MetadataService(QObject):
         """Save source statistics"""
         try:
             # Create directory if it doesn't exist
-            stats_dir = Path.home() / '.auralis'
+            stats_dir = Path.home() / ".auralis"
             stats_dir.mkdir(exist_ok=True)
 
             # Save statistics
-            stats_file = stats_dir / 'source_stats.json'
+            stats_file = stats_dir / "source_stats.json"
 
             stats = {}
             for source_name, source in self.sources.items():
                 stats[source_name] = source.get_stats()
 
-            with open(stats_file, 'w') as f:
+            with open(stats_file, "w") as f:
                 json.dump(stats, f, indent=2)
 
         except Exception as e:
@@ -426,9 +433,7 @@ class MetadataService(QObject):
         with self.stats_lock:
             # Sort by success rate (descending)
             self.source_order = sorted(
-                self.sources.keys(),
-                key=lambda x: self.sources[x].success_rate,
-                reverse=True
+                self.sources.keys(), key=lambda x: self.sources[x].success_rate, reverse=True
             )
 
     def update_metadata(self, music_files, options, max_threads=4):
@@ -444,7 +449,7 @@ class MetadataService(QObject):
             list: Updated music files
         """
         # Use cache to avoid re-processing files
-        cache_file = Path.home() / '.auralis' / 'metadata_cache.json'
+        cache_file = Path.home() / ".auralis" / "metadata_cache.json"
         metadata_cache = {}
 
         # Ensure cache directory exists
@@ -453,26 +458,25 @@ class MetadataService(QObject):
         # Load cache if it exists
         if cache_file.exists():
             try:
-                with open(cache_file, 'r') as f:
+                with open(cache_file, "r") as f:
                     metadata_cache = json.load(f)
             except Exception as e:
                 print(f"Error loading metadata cache: {str(e)}")
 
         # Update API keys if provided in options
-        if 'acoustid_api_key' in options and options['acoustid_api_key']:
+        if "acoustid_api_key" in options and options["acoustid_api_key"]:
             for source_name, source in self.sources.items():
                 if source_name == "MusicBrainz/AcoustID":
-                    source.acoustid_api_key = options['acoustid_api_key']
+                    source.acoustid_api_key = options["acoustid_api_key"]
 
-        if 'discogs_token' in options and options['discogs_token']:
+        if "discogs_token" in options and options["discogs_token"]:
             for source_name, source in self.sources.items():
                 if source_name == "Discogs":
-                    source.discogs_token = options['discogs_token']
+                    source.discogs_token = options["discogs_token"]
                     # Re-initialize Discogs client with new token
                     try:
                         source.client = discogs_client.Client(
-                            'Auralis/0.1',
-                            user_token=source.discogs_token
+                            "Auralis/0.1", user_token=source.discogs_token
                         )
                         source.available = True
                     except Exception as e:
@@ -486,15 +490,15 @@ class MetadataService(QObject):
         files_to_process = []
         for i, file_info in enumerate(music_files):
             # Check if file hash exists in cache and has sufficient metadata
-            file_hash = file_info.get('hash')
-            if file_hash and file_hash in metadata_cache and not options.get('force_update', False):
+            file_hash = file_info.get("hash")
+            if file_hash and file_hash in metadata_cache and not options.get("force_update", False):
                 cached_metadata = metadata_cache[file_hash]
                 # Update file_info with cached metadata
-                file_info['metadata'].update(cached_metadata)
+                file_info["metadata"].update(cached_metadata)
                 self.file_updated.emit(f"Using cached metadata for: {file_info['path']}")
                 processed_files[0] += 1
                 self.progress_updated.emit(processed_files[0], total_files)
-            elif not self._has_sufficient_metadata(file_info) or options.get('force_update', False):
+            elif not self._has_sufficient_metadata(file_info) or options.get("force_update", False):
                 # File needs metadata update
                 files_to_process.append((i, file_info))
             else:
@@ -512,8 +516,17 @@ class MetadataService(QObject):
             # Create thread for processing
             thread = threading.Thread(
                 target=self._process_file_with_cache,
-                args=(file_info, options, i, results, thread_semaphore, processed_files,
-                      total_files, orig_index, metadata_cache)
+                args=(
+                    file_info,
+                    options,
+                    i,
+                    results,
+                    thread_semaphore,
+                    processed_files,
+                    total_files,
+                    orig_index,
+                    metadata_cache,
+                ),
             )
             threads.append(thread)
             thread.start()
@@ -530,7 +543,7 @@ class MetadataService(QObject):
 
         # Save cache
         try:
-            with open(cache_file, 'w') as f:
+            with open(cache_file, "w") as f:
                 json.dump(metadata_cache, f)
         except Exception as e:
             print(f"Error saving metadata cache: {str(e)}")
@@ -544,8 +557,18 @@ class MetadataService(QObject):
 
         return music_files
 
-    def _process_file_with_cache(self, file_info, options, index, results, semaphore,
-                                 processed_files, total_files, orig_index, metadata_cache):
+    def _process_file_with_cache(
+        self,
+        file_info,
+        options,
+        index,
+        results,
+        semaphore,
+        processed_files,
+        total_files,
+        orig_index,
+        metadata_cache,
+    ):
         """Process a file with caching support"""
         # Acquire semaphore
         semaphore.acquire()
@@ -553,13 +576,14 @@ class MetadataService(QObject):
         try:
             # Process the file
             updated_file_info = self._process_file_internal(
-                file_info, options, processed_files, total_files)
+                file_info, options, processed_files, total_files
+            )
 
             # Update cache with new metadata
-            if updated_file_info and 'hash' in updated_file_info:
-                file_hash = updated_file_info['hash']
-                if file_hash and 'metadata' in updated_file_info:
-                    metadata_cache[file_hash] = updated_file_info['metadata']
+            if updated_file_info and "hash" in updated_file_info:
+                file_hash = updated_file_info["hash"]
+                if file_hash and "metadata" in updated_file_info:
+                    metadata_cache[file_hash] = updated_file_info["metadata"]
 
             # Store result
             results[index] = (orig_index, updated_file_info)
@@ -577,31 +601,34 @@ class MetadataService(QObject):
     def _process_file_internal(self, file_info, options, processed_files, total_files):
         """Internal method to process a single file"""
         # Emit signal to indicate which file is being processed
-        self.file_updated.emit(file_info['path'])
+        self.file_updated.emit(file_info["path"])
 
         # Skip if file already has sufficient metadata
-        if self._has_sufficient_metadata(file_info) and not options.get('force_update', False):
+        if self._has_sufficient_metadata(file_info) and not options.get("force_update", False):
             processed_files[0] += 1
             self.progress_updated.emit(processed_files[0], total_files)
             return file_info
 
         # Get existing metadata
-        metadata = file_info.get('metadata', {})
+        metadata = file_info.get("metadata", {})
 
         # Determine which sources to use
         source_names = []
-        if options.get('use_musicbrainz', True):
-            source_names.append('MusicBrainz/AcoustID')
-        if options.get('use_discogs', True):
-            source_names.append('Discogs')
+        if options.get("use_musicbrainz", True):
+            source_names.append("MusicBrainz/AcoustID")
+        if options.get("use_discogs", True):
+            source_names.append("Discogs")
 
         # If in learning phase, use all sources
         if self.learning_phase:
             active_sources = [self.sources[name] for name in source_names if name in self.sources]
         else:
             # Use sources in order of success rate
-            active_sources = [self.sources[name] for name in self.source_order
-                              if name in source_names and name in self.sources]
+            active_sources = [
+                self.sources[name]
+                for name in self.source_order
+                if name in source_names and name in self.sources
+            ]
 
         # Try each source until we get metadata
         new_metadata = {}
@@ -622,7 +649,7 @@ class MetadataService(QObject):
                 new_metadata.update(source_metadata)
 
                 # If we have sufficient metadata, stop trying other sources
-                if self._has_sufficient_metadata({'metadata': {**metadata, **new_metadata}}):
+                if self._has_sufficient_metadata({"metadata": {**metadata, **new_metadata}}):
                     break
 
         # Update learning phase counter
@@ -637,19 +664,19 @@ class MetadataService(QObject):
         if new_metadata:
             # Merge with existing metadata, prioritizing new data
             updated_metadata = {**metadata, **new_metadata}
-            file_info['metadata'] = updated_metadata
+            file_info["metadata"] = updated_metadata
 
             # Apply metadata to file
             self.file_updated.emit(f"{file_info['path']} (updating file)")
-            self._apply_metadata_to_file(file_info['path'], updated_metadata)
+            self._apply_metadata_to_file(file_info["path"], updated_metadata)
 
             # Fetch and embed lyrics if enabled
-            if options.get('fetch_lyrics', False):
+            if options.get("fetch_lyrics", False):
                 self.file_updated.emit(f"{file_info['path']} (fetching lyrics)")
-                self._fetch_and_embed_lyrics(file_info['path'], updated_metadata)
+                self._fetch_and_embed_lyrics(file_info["path"], updated_metadata)
 
             # Emit signal
-            self.metadata_updated.emit(file_info['path'], updated_metadata)
+            self.metadata_updated.emit(file_info["path"], updated_metadata)
 
         # Update progress
         processed_files[0] += 1
@@ -667,13 +694,16 @@ class MetadataService(QObject):
         Returns:
             bool: True if file has sufficient metadata
         """
-        metadata = file_info.get('metadata', {})
+        metadata = file_info.get("metadata", {})
 
         # Check for essential fields
-        essential_fields = ['artist', 'title', 'album']
+        essential_fields = ["artist", "title", "album"]
         for field in essential_fields:
-            if field not in metadata or not metadata[field] or metadata[field].lower(
-            ) == f"unknown {field}":
+            if (
+                field not in metadata
+                or not metadata[field]
+                or metadata[field].lower() == f"unknown {field}"
+            ):
                 return False
 
         return True
@@ -698,38 +728,38 @@ class MetadataService(QObject):
             # Apply metadata based on file type
             if isinstance(audio, mutagen.mp3.MP3):
                 # MP3 files (ID3 tags)
-                if 'artist' in metadata:
-                    audio['TPE1'] = mutagen.id3.TPE1(encoding=3, text=metadata['artist'])
-                if 'title' in metadata:
-                    audio['TIT2'] = mutagen.id3.TIT2(encoding=3, text=metadata['title'])
-                if 'album' in metadata:
-                    audio['TALB'] = mutagen.id3.TALB(encoding=3, text=metadata['album'])
-                if 'year' in metadata:
-                    audio['TDRC'] = mutagen.id3.TDRC(encoding=3, text=metadata['year'])
-                if 'genre' in metadata:
-                    audio['TCON'] = mutagen.id3.TCON(encoding=3, text=metadata['genre'])
-                if 'track' in metadata:
-                    audio['TRCK'] = mutagen.id3.TRCK(encoding=3, text=metadata['track'])
+                if "artist" in metadata:
+                    audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
+                if "title" in metadata:
+                    audio["TIT2"] = mutagen.id3.TIT2(encoding=3, text=metadata["title"])
+                if "album" in metadata:
+                    audio["TALB"] = mutagen.id3.TALB(encoding=3, text=metadata["album"])
+                if "year" in metadata:
+                    audio["TDRC"] = mutagen.id3.TDRC(encoding=3, text=metadata["year"])
+                if "genre" in metadata:
+                    audio["TCON"] = mutagen.id3.TCON(encoding=3, text=metadata["genre"])
+                if "track" in metadata:
+                    audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
 
             elif isinstance(audio, mutagen.flac.FLAC):
                 # FLAC files
-                if 'artist' in metadata:
-                    audio['artist'] = metadata['artist']
-                if 'title' in metadata:
-                    audio['title'] = metadata['title']
-                if 'album' in metadata:
-                    audio['album'] = metadata['album']
-                if 'year' in metadata:
-                    audio['date'] = metadata['year']
-                if 'genre' in metadata:
-                    audio['genre'] = metadata['genre']
-                if 'track' in metadata:
-                    audio['tracknumber'] = metadata['track']
+                if "artist" in metadata:
+                    audio["artist"] = metadata["artist"]
+                if "title" in metadata:
+                    audio["title"] = metadata["title"]
+                if "album" in metadata:
+                    audio["album"] = metadata["album"]
+                if "year" in metadata:
+                    audio["date"] = metadata["year"]
+                if "genre" in metadata:
+                    audio["genre"] = metadata["genre"]
+                if "track" in metadata:
+                    audio["tracknumber"] = metadata["track"]
 
             else:
                 # Generic approach for other formats
                 for key, value in metadata.items():
-                    if key in ['artist', 'title', 'album', 'year', 'genre', 'track']:
+                    if key in ["artist", "title", "album", "year", "genre", "track"]:
                         audio[key] = value
 
             audio.save()
@@ -750,8 +780,8 @@ class MetadataService(QObject):
         Returns:
             bool: True if successful
         """
-        artist = metadata.get('artist', '')
-        title = metadata.get('title', '')
+        artist = metadata.get("artist", "")
+        title = metadata.get("title", "")
 
         if not artist or not title:
             self.lyrics_updated.emit(file_path, False)
@@ -768,7 +798,7 @@ class MetadataService(QObject):
 
         # Save lyrics to metadata
         if success:
-            metadata['lyrics'] = lyrics
+            metadata["lyrics"] = lyrics
 
         self.lyrics_updated.emit(file_path, success)
         return success
@@ -790,10 +820,10 @@ class MetadataService(QObject):
         # 3. Use metadata like genre or artist country
 
         for file_info in music_files:
-            metadata = file_info.get('metadata', {})
+            metadata = file_info.get("metadata", {})
 
             # Check if language is already set
-            if 'language' in metadata:
+            if "language" in metadata:
                 continue
 
             # Try to detect language based on metadata
@@ -801,29 +831,29 @@ class MetadataService(QObject):
             language = "Unknown"
 
             # Check genre for clues
-            genre = metadata.get('genre', '').lower()
+            genre = metadata.get("genre", "").lower()
             if genre:
-                if any(kw in genre for kw in ['j-pop', 'j-rock', 'jpop', 'japanese']):
+                if any(kw in genre for kw in ["j-pop", "j-rock", "jpop", "japanese"]):
                     language = "Japanese"
-                elif any(kw in genre for kw in ['k-pop', 'k-rock', 'kpop', 'korean']):
+                elif any(kw in genre for kw in ["k-pop", "k-rock", "kpop", "korean"]):
                     language = "Korean"
-                elif any(kw in genre for kw in ['mandopop', 'c-pop', 'chinese']):
+                elif any(kw in genre for kw in ["mandopop", "c-pop", "chinese"]):
                     language = "Chinese"
-                elif any(kw in genre for kw in ['bollywood', 'bhangra', 'hindi']):
+                elif any(kw in genre for kw in ["bollywood", "bhangra", "hindi"]):
                     language = "Hindi"
-                elif any(kw in genre for kw in ['latin', 'salsa', 'reggaeton', 'spanish']):
+                elif any(kw in genre for kw in ["latin", "salsa", "reggaeton", "spanish"]):
                     language = "Spanish"
-                elif any(kw in genre for kw in ['chanson', 'french']):
+                elif any(kw in genre for kw in ["chanson", "french"]):
                     language = "French"
-                elif any(kw in genre for kw in ['schlager', 'german']):
+                elif any(kw in genre for kw in ["schlager", "german"]):
                     language = "German"
-                elif genre == 'instrumental':
+                elif genre == "instrumental":
                     language = "Instrumental"
                 else:
                     language = "English"  # Default to English for most Western music
 
             # Update metadata
-            metadata['language'] = language
-            file_info['metadata'] = metadata
+            metadata["language"] = language
+            file_info["metadata"] = metadata
 
         return music_files
