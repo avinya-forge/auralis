@@ -5,19 +5,21 @@ This module provides functionality to detect duplicate audio files based on
 audio content similarity rather than just metadata or filenames.
 """
 
-import os
 import logging
-import numpy as np
+import os
 from typing import Dict, List, Optional
+
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Set up logging
-logger = logging.getLogger('auralis.similarity')
+logger = logging.getLogger("auralis.similarity")
 
 # Try to import optional dependencies
 try:
     import librosa
     import pydub
+
     HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
     HAS_AUDIO_FINGERPRINTING = False
@@ -72,9 +74,7 @@ class AudioSimilarityService:
             fingerprint = np.mean(log_mel_spec, axis=1)
 
             # Normalize fingerprint
-            fingerprint = (
-                (fingerprint - np.mean(fingerprint)) / np.std(fingerprint)
-            )
+            fingerprint = (fingerprint - np.mean(fingerprint)) / np.std(fingerprint)
 
             # Cache the fingerprint
             self.fingerprint_cache[file_path] = fingerprint
@@ -82,13 +82,10 @@ class AudioSimilarityService:
             return fingerprint
 
         except Exception as e:
-            logger.error(
-                f"Error computing fingerprint for {file_path}: {str(e)}")
+            logger.error(f"Error computing fingerprint for {file_path}: {str(e)}")
             return None
 
-    def compute_similarity(
-        self, fingerprint1: np.ndarray, fingerprint2: np.ndarray
-    ) -> float:
+    def compute_similarity(self, fingerprint1: np.ndarray, fingerprint2: np.ndarray) -> float:
         """
         Compute similarity between two audio fingerprints
 
@@ -140,10 +137,10 @@ class AudioSimilarityService:
             duration_groups = {}
             for file_info in music_files:
                 # Get duration from metadata or compute it
-                duration = file_info.get('metadata', {}).get('duration', 0)
+                duration = file_info.get("metadata", {}).get("duration", 0)
                 if not duration:
                     try:
-                        audio = pydub.AudioSegment.from_file(file_info['path'])
+                        audio = pydub.AudioSegment.from_file(file_info["path"])
                         duration = len(audio) / 1000  # convert to seconds
                     except Exception:  # noqa: E722
                         # If we can't get duration, skip this file
@@ -162,10 +159,10 @@ class AudioSimilarityService:
 
                 # Compare files within the same duration group
                 for i, file1 in enumerate(files):
-                    if file1['path'] in processed_files:
+                    if file1["path"] in processed_files:
                         continue
 
-                    fingerprint1 = self.compute_fingerprint(file1['path'])
+                    fingerprint1 = self.compute_fingerprint(file1["path"])
                     if fingerprint1 is None:
                         continue
 
@@ -173,28 +170,26 @@ class AudioSimilarityService:
 
                     for j in range(i + 1, len(files)):
                         file2 = files[j]
-                        if file2['path'] in processed_files:
+                        if file2["path"] in processed_files:
                             continue
 
-                        fingerprint2 = self.compute_fingerprint(file2['path'])
+                        fingerprint2 = self.compute_fingerprint(file2["path"])
                         if fingerprint2 is None:
                             continue
 
-                        similarity = self.compute_similarity(
-                            fingerprint1, fingerprint2)
+                        similarity = self.compute_similarity(fingerprint1, fingerprint2)
 
                         if similarity >= self.similarity_threshold:
                             current_duplicates.append(file2)
 
                     if len(current_duplicates) > 1:
                         # Sort duplicates by quality (prefer higher bitrate)
-                        sorted_duplicates = self._sort_by_quality(
-                            current_duplicates)
+                        sorted_duplicates = self._sort_by_quality(current_duplicates)
                         duplicates.append(sorted_duplicates)
 
                         # Mark all but the best quality file as processed
                         for dup in sorted_duplicates[1:]:
-                            processed_files.add(dup['path'])
+                            processed_files.add(dup["path"])
 
             return duplicates
 
@@ -212,41 +207,41 @@ class AudioSimilarityService:
         Returns:
             list: Sorted list with best quality first
         """
+
         def quality_score(file_info):
             # Higher score = better quality
             score = 0
 
             # Format preference
-            extension = os.path.splitext(file_info['path'])[1].lower()
+            extension = os.path.splitext(file_info["path"])[1].lower()
             format_scores = {
-                '.flac': 50,
-                '.wav': 45,
-                '.aiff': 40,
-                '.m4a': 30,
-                '.ogg': 25,
-                '.mp3': 20,
-                '.aac': 15,
-                '.wma': 10
+                ".flac": 50,
+                ".wav": 45,
+                ".aiff": 40,
+                ".m4a": 30,
+                ".ogg": 25,
+                ".mp3": 20,
+                ".aac": 15,
+                ".wma": 10,
             }
             score += format_scores.get(extension, 0)
 
             # Bitrate (higher is better)
-            bitrate = file_info.get('metadata', {}).get('bitrate', 0)
+            bitrate = file_info.get("metadata", {}).get("bitrate", 0)
             if bitrate:
                 score += min(bitrate / 32000, 30)  # max 30 points for bitrate
 
             # File size (larger is generally better for same duration)
-            size_mb = file_info.get('size', 0) / (1024 * 1024)
+            size_mb = file_info.get("size", 0) / (1024 * 1024)
             score += min(size_mb, 10)  # max 10 points for size
 
             # Duration (longer version is generally preferred)
-            duration = file_info.get('metadata', {}).get('duration', 0)
+            duration = file_info.get("metadata", {}).get("duration", 0)
             score += min(duration / 60, 5)  # max 5 points for duration
 
             # Complete metadata is a good sign
-            metadata = file_info.get('metadata', {})
-            if metadata.get('artist') and metadata.get('title') and \
-                    metadata.get('album'):
+            metadata = file_info.get("metadata", {})
+            if metadata.get("artist") and metadata.get("title") and metadata.get("album"):
                 score += 5
 
             return score

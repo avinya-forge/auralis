@@ -2,11 +2,9 @@
 Stage 3: Metadata Tab
 """
 
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QPushButton,
-    QLabel, QGroupBox, QCheckBox
-)
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QCheckBox, QGroupBox, QLabel, QPushButton, QVBoxLayout, QWidget
+
 from src.utils.config import get_config
 
 
@@ -47,12 +45,14 @@ class MetadataTab(QWidget):
         self.lyrics_check = QCheckBox("Fetch and Embed Lyrics")
         self.lyrics_check.setChecked(get_config("FETCH_LYRICS", True))
         self.lyrics_check.setToolTip(
-            "Fetch lyrics from online sources and embed them in the audio files")
+            "Fetch lyrics from online sources and embed them in the audio files"
+        )
         lyrics_layout.addWidget(self.lyrics_check)
 
         lyrics_info = QLabel(
             "Lyrics will be embedded in the audio files so they can be "
-            "displayed in music players like Apple Music.")
+            "displayed in music players like Apple Music."
+        )
         lyrics_info.setWordWrap(True)
         lyrics_layout.addWidget(lyrics_info)
 
@@ -66,7 +66,7 @@ class MetadataTab(QWidget):
     def get_options(self):
         """Get options relevant to this tab"""
         return {
-            'use_musicbrainz': self.mb_check.isChecked(),
-            'use_discogs': self.discogs_check.isChecked(),
-            'fetch_lyrics': self.lyrics_check.isChecked(),
+            "use_musicbrainz": self.mb_check.isChecked(),
+            "use_discogs": self.discogs_check.isChecked(),
+            "fetch_lyrics": self.lyrics_check.isChecked(),
         }

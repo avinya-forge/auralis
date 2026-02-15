@@ -20,10 +20,10 @@ class DiscogsService:
 
         try:
             # Extract existing metadata
-            metadata = file_info.get('metadata', {})
-            artist = metadata.get('artist', '')
-            title = metadata.get('title', '')
-            album = metadata.get('album', '')
+            metadata = file_info.get("metadata", {})
+            artist = metadata.get("artist", "")
+            title = metadata.get("title", "")
+            album = metadata.get("album", "")
 
             if not artist and not title:
                 return {}, False, time.time() - start_time

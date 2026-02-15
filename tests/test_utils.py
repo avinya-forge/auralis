@@ -5,11 +5,7 @@ Auralis - Utils Test Module
 import unittest
 from pathlib import Path
 
-from src.utils.file_utils import (
-    sanitize_filename,
-    format_filename,
-    ensure_unique_filename
-)
+from src.utils.file_utils import ensure_unique_filename, format_filename, sanitize_filename
 
 
 class TestFileUtils(unittest.TestCase):
@@ -19,7 +15,7 @@ class TestFileUtils(unittest.TestCase):
         """Test filename sanitization"""
         # Test with invalid characters
         # Special characters are removed, spaces replaced by underscores
-        self.assertEqual(sanitize_filename("test<>:\"/\\|?*"), "test")
+        self.assertEqual(sanitize_filename('test<>:"/\\|?*'), "test")
 
         # Test with leading/trailing spaces
         self.assertEqual(sanitize_filename(" test "), "test")
@@ -37,19 +33,18 @@ class TestFileUtils(unittest.TestCase):
         # Spaces become underscores, hyphen separates title and artist
         self.assertEqual(
             format_filename(title="Song Title", artist="Artist Name", extension=".mp3"),
-            "Song_Title-Artist_Name.mp3"
+            "Song_Title-Artist_Name.mp3",
         )
 
         # Test with missing artist
         self.assertEqual(
-            format_filename(title="Song Title", artist=None, extension=".mp3"),
-            "Song_Title.mp3"
+            format_filename(title="Song Title", artist=None, extension=".mp3"), "Song_Title.mp3"
         )
 
         # Test with movie instead of artist
         self.assertEqual(
             format_filename(title="Song Title", artist=None, movie="Movie Name", extension=".mp3"),
-            "Song_Title-Movie_Name.mp3"
+            "Song_Title-Movie_Name.mp3",
         )
 
     def test_ensure_unique_filename(self):

@@ -2,28 +2,35 @@
 Auralis - PyQt6 Main Window Implementation
 """
 
-from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout,
-    QLabel, QMessageBox, QTabWidget,
-    QHBoxLayout, QListWidget, QGroupBox,
-    QTextEdit, QSplitter, QProgressBar, QPushButton
-)
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QIcon
-
 import os
 import time
-from src.core.scanner import MusicScanner
-from src.core.organizer import MusicOrganizer
-from src.utils.system_utils import SystemMonitor
-from src.utils.config import (
-    get_config, create_env_example
+
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtWidgets import (
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QSplitter,
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 
-from src.gui.pyqt.worker import WorkerThread
-from src.gui.pyqt.tabs.scan_tab import ScanTab
-from src.gui.pyqt.tabs.organize_tab import OrganizeTab
+from src.core.organizer import MusicOrganizer
+from src.core.scanner import MusicScanner
 from src.gui.pyqt.tabs.metadata_tab import MetadataTab
+from src.gui.pyqt.tabs.organize_tab import OrganizeTab
+from src.gui.pyqt.tabs.scan_tab import ScanTab
+from src.gui.pyqt.worker import WorkerThread
+from src.utils.config import create_env_example, get_config
+from src.utils.system_utils import SystemMonitor
 
 
 class MainWindow(QMainWindow):
@@ -37,10 +44,11 @@ class MainWindow(QMainWindow):
 
         # Set window icon
         icon_path = os.path.join(
-            os.path.dirname(
-                os.path.dirname(
-                    os.path.dirname(os.path.dirname(__file__)))),
-            "resources", "icons", "auralis.png")
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+            "resources",
+            "icons",
+            "auralis.png",
+        )
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
@@ -51,7 +59,7 @@ class MainWindow(QMainWindow):
 
         # Initialize data structures
         self.scanned_files = []  # List of scanned file info dictionaries
-        self.file_errors = {}    # Dict to track errors by file path
+        self.file_errors = {}  # Dict to track errors by file path
 
         # Current stage tracking
         self.current_stage = 1  # Start at stage 1
@@ -235,8 +243,7 @@ class MainWindow(QMainWindow):
         options.update(self.metadata_tab.get_options())
         return options
 
-    def prepare_worker_thread(self, dry_run=False, start_stage=1,
-                              end_stage=3):
+    def prepare_worker_thread(self, dry_run=False, start_stage=1, end_stage=3):
         """Prepare the worker thread with current settings"""
         # Collect source directories
         source_dirs = self.collect_source_dirs()
@@ -249,14 +256,19 @@ class MainWindow(QMainWindow):
 
         # Get file limit for test mode
         limit_files = None
-        if options.get('test_mode'):
-            limit_files = options.get('test_file_count')
+        if options.get("test_mode"):
+            limit_files = options.get("test_file_count")
 
         # Create worker thread
         self.worker_thread = WorkerThread(
-            source_dirs, dest_dir, options, self.system_monitor,
-            limit_files=limit_files, dry_run=dry_run,
-            start_stage=start_stage, end_stage=end_stage
+            source_dirs,
+            dest_dir,
+            options,
+            self.system_monitor,
+            limit_files=limit_files,
+            dry_run=dry_run,
+            start_stage=start_stage,
+            end_stage=end_stage,
         )
 
         # Connect signals
@@ -289,8 +301,7 @@ class MainWindow(QMainWindow):
         self.add_log_message("Starting dry run (no files will be moved)...")
 
         # Prepare and start worker thread
-        if self.prepare_worker_thread(dry_run=True, start_stage=2,
-                                      end_stage=2):
+        if self.prepare_worker_thread(dry_run=True, start_stage=2, end_stage=2):
             self.worker_thread.start()
 
     def start_organize(self):
@@ -323,7 +334,10 @@ class MainWindow(QMainWindow):
 
     def run_all_stages(self):
         """Run all stages of the process"""
-        if not self.scan_tab.validate_source_directories() or not self.organize_tab.validate_destination():
+        if (
+            not self.scan_tab.validate_source_directories()
+            or not self.organize_tab.validate_destination()
+        ):
             return
 
         # Prepare UI
@@ -339,10 +353,11 @@ class MainWindow(QMainWindow):
         """Stop the current processing"""
         if self.worker_thread and self.worker_thread.isRunning():
             reply = QMessageBox.question(
-                self, "Stop Processing",
+                self,
+                "Stop Processing",
                 "Are you sure you want to stop the current process?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No
+                QMessageBox.StandardButton.No,
             )
 
             if reply == QMessageBox.StandardButton.Yes:
@@ -355,8 +370,7 @@ class MainWindow(QMainWindow):
         if total > 0:
             percent = int(current / total * 100)
             self.progress_bar.setValue(percent)
-            self.stage_label.setText(
-                f"{stage}: {current}/{total} ({percent}%)")
+            self.stage_label.setText(f"{stage}: {current}/{total} ({percent}%)")
 
     def update_status(self, message):
         """Update status label"""
@@ -378,17 +392,13 @@ class MainWindow(QMainWindow):
     def processing_completed(self, results):
         """Handle completion of processing"""
         # Check for errors
-        if 'error' in results:
+        if "error" in results:
             self.add_log_message(f"Error: {results['error']}")
-            QMessageBox.critical(self, "Error",
-                                 f"Processing failed: {results['error']}")
+            QMessageBox.critical(self, "Error", f"Processing failed: {results['error']}")
             return
 
         # Log completion
         self.add_log_message("Processing completed successfully!")
 
         # Show summary
-        QMessageBox.information(
-            self, "Processing Complete",
-            "Processing completed successfully!"
-        )
+        QMessageBox.information(self, "Processing Complete", "Processing completed successfully!")

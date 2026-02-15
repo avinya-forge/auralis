@@ -5,80 +5,81 @@ This module provides functionality to detect the spoken language in audio files.
 It uses speech recognition to extract text from audio, then performs language detection.
 """
 
+import logging
 import os
 import tempfile
-import logging
 from pathlib import Path
 
 # Import optional dependencies for language detection
 try:
-    import speech_recognition as sr
     import langdetect
+    import speech_recognition as sr
     from pydub import AudioSegment
+
     HAS_LANGUAGE_DETECTION = True
 except ImportError:
     HAS_LANGUAGE_DETECTION = False
 
 # Set up logging
-logger = logging.getLogger('auralis.language')
+logger = logging.getLogger("auralis.language")
 
 # Language name mapping for better display and folder names
 LANGUAGE_NAMES = {
-    'af': 'Afrikaans',
-    'ar': 'Arabic',
-    'bg': 'Bulgarian',
-    'bn': 'Bengali',
-    'ca': 'Catalan',
-    'cs': 'Czech',
-    'cy': 'Welsh',
-    'da': 'Danish',
-    'de': 'German',
-    'el': 'Greek',
-    'en': 'English',
-    'es': 'Spanish',
-    'et': 'Estonian',
-    'fa': 'Persian',
-    'fi': 'Finnish',
-    'fr': 'French',
-    'gu': 'Gujarati',
-    'he': 'Hebrew',
-    'hi': 'Hindi',
-    'hr': 'Croatian',
-    'hu': 'Hungarian',
-    'id': 'Indonesian',
-    'it': 'Italian',
-    'ja': 'Japanese',
-    'kn': 'Kannada',
-    'ko': 'Korean',
-    'lt': 'Lithuanian',
-    'lv': 'Latvian',
-    'mk': 'Macedonian',
-    'ml': 'Malayalam',
-    'mr': 'Marathi',
-    'ne': 'Nepali',
-    'nl': 'Dutch',
-    'no': 'Norwegian',
-    'pa': 'Punjabi',
-    'pl': 'Polish',
-    'pt': 'Portuguese',
-    'ro': 'Romanian',
-    'ru': 'Russian',
-    'sk': 'Slovak',
-    'sl': 'Slovenian',
-    'so': 'Somali',
-    'sq': 'Albanian',
-    'sv': 'Swedish',
-    'sw': 'Swahili',
-    'ta': 'Tamil',
-    'te': 'Telugu',
-    'th': 'Thai',
-    'tl': 'Tagalog',
-    'tr': 'Turkish',
-    'uk': 'Ukrainian',
-    'ur': 'Urdu',
-    'vi': 'Vietnamese',
-    'zh-cn': 'Chinese_Simplified',
-    'zh-tw': 'Chinese_Traditional'
+    "af": "Afrikaans",
+    "ar": "Arabic",
+    "bg": "Bulgarian",
+    "bn": "Bengali",
+    "ca": "Catalan",
+    "cs": "Czech",
+    "cy": "Welsh",
+    "da": "Danish",
+    "de": "German",
+    "el": "Greek",
+    "en": "English",
+    "es": "Spanish",
+    "et": "Estonian",
+    "fa": "Persian",
+    "fi": "Finnish",
+    "fr": "French",
+    "gu": "Gujarati",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "hr": "Croatian",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "kn": "Kannada",
+    "ko": "Korean",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "mk": "Macedonian",
+    "ml": "Malayalam",
+    "mr": "Marathi",
+    "ne": "Nepali",
+    "nl": "Dutch",
+    "no": "Norwegian",
+    "pa": "Punjabi",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "so": "Somali",
+    "sq": "Albanian",
+    "sv": "Swedish",
+    "sw": "Swahili",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "th": "Thai",
+    "tl": "Tagalog",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ur": "Urdu",
+    "vi": "Vietnamese",
+    "zh-cn": "Chinese_Simplified",
+    "zh-tw": "Chinese_Traditional",
 }
 
 
@@ -89,8 +90,10 @@ class LanguageDetectionService:
         """Initialize the language detection service"""
         self.available = HAS_LANGUAGE_DETECTION
         if not self.available:
-            logger.warning("Language detection dependencies not installed. "
-                           "Please install: speech_recognition, langdetect, pydub")
+            logger.warning(
+                "Language detection dependencies not installed. "
+                "Please install: speech_recognition, langdetect, pydub"
+            )
 
     def detect_language(self, file_path, sample_duration=30):
         """
@@ -105,20 +108,20 @@ class LanguageDetectionService:
         """
         if not self.available:
             logger.warning("Language detection not available")
-            return 'unknown', 'Unknown'
+            return "unknown", "Unknown"
 
         try:
             # Load audio file
             audio_path = Path(file_path)
             if not audio_path.exists():
                 logger.error(f"File does not exist: {file_path}")
-                return 'unknown', 'Unknown'
+                return "unknown", "Unknown"
 
             # Extract a segment for processing
             logger.info(f"Processing {file_path} for language detection")
 
             # Convert to WAV for speech recognition
-            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_wav:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
                 temp_path = temp_wav.name
 
             # Load audio and extract a sample for processing
@@ -142,10 +145,10 @@ class LanguageDetectionService:
                         text = recognizer.recognize_google(audio_data)
                     except sr.UnknownValueError:
                         logger.warning(f"Could not understand audio in {file_path}")
-                        return 'unknown', 'Unknown'
+                        return "unknown", "Unknown"
                     except sr.RequestError:
                         logger.error("API unavailable for speech recognition")
-                        return 'unknown', 'Unknown'
+                        return "unknown", "Unknown"
 
                 # Clean up temporary file
                 os.unlink(temp_path)
@@ -158,19 +161,20 @@ class LanguageDetectionService:
                     return lang_code, lang_name
                 else:
                     logger.warning(
-                        f"Not enough text extracted for language detection in {file_path}")
-                    return 'unknown', 'Unknown'
+                        f"Not enough text extracted for language detection in {file_path}"
+                    )
+                    return "unknown", "Unknown"
 
             except Exception as e:
                 logger.error(f"Error processing audio: {str(e)}")
                 # Clean up temporary file if it exists
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
-                return 'unknown', 'Unknown'
+                return "unknown", "Unknown"
 
         except Exception as e:
             logger.error(f"Language detection failed: {str(e)}")
-            return 'unknown', 'Unknown'
+            return "unknown", "Unknown"
 
     def get_language_folder(self, file_path, default="Unknown"):
         """
@@ -184,7 +188,7 @@ class LanguageDetectionService:
             str: Folder name based on detected language
         """
         lang_code, lang_name = self.detect_language(file_path)
-        if lang_code == 'unknown':
+        if lang_code == "unknown":
             return default
         return lang_name
 

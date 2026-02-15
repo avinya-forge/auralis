@@ -2,12 +2,22 @@
 Stage 1: Scan & Rename Tab
 """
 
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QListWidget, QGroupBox, QCheckBox,
-    QSpinBox, QLineEdit, QFileDialog, QMessageBox
-)
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QFileDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMessageBox,
+    QPushButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
+
 from src.utils.config import get_config
 
 
@@ -51,7 +61,8 @@ class ScanTab(QWidget):
         ext_layout = QHBoxLayout()
         ext_layout.addWidget(QLabel("File Extensions:"))
         self.extensions_edit = QLineEdit(
-            get_config("FILE_EXTENSIONS", "mp3,flac,m4a,wav,aac,ogg,wma"))
+            get_config("FILE_EXTENSIONS", "mp3,flac,m4a,wav,aac,ogg,wma")
+        )
         ext_layout.addWidget(self.extensions_edit)
         options_layout.addLayout(ext_layout)
 
@@ -61,8 +72,7 @@ class ScanTab(QWidget):
         options_layout.addWidget(self.rename_check)
 
         # Test mode
-        self.test_mode_check = QCheckBox(
-            "Test Mode (Process only a subset of files)")
+        self.test_mode_check = QCheckBox("Test Mode (Process only a subset of files)")
         self.test_mode_check.setChecked(get_config("TEST_MODE_ENABLED", True))
         options_layout.addWidget(self.test_mode_check)
 
@@ -85,8 +95,7 @@ class ScanTab(QWidget):
 
     def add_source_directory(self):
         """Add a source directory to scan"""
-        directory = QFileDialog.getExistingDirectory(
-            self, "Select Source Directory")
+        directory = QFileDialog.getExistingDirectory(self, "Select Source Directory")
         if directory:
             self.add_directory(directory)
 
@@ -108,9 +117,7 @@ class ScanTab(QWidget):
     def validate_source_directories(self):
         """Validate that source directories are selected"""
         if self.source_list.count() == 0:
-            QMessageBox.warning(
-                self, "Missing Source",
-                "Please add at least one source directory.")
+            QMessageBox.warning(self, "Missing Source", "Please add at least one source directory.")
             return False
         return True
 
@@ -124,8 +131,8 @@ class ScanTab(QWidget):
     def get_options(self):
         """Get options relevant to this tab"""
         return {
-            'rename_files': self.rename_check.isChecked(),
-            'file_extensions': self.extensions_edit.text().split(','),
-            'test_mode': self.test_mode_check.isChecked(),
-            'test_file_count': self.test_files_spin.value()
+            "rename_files": self.rename_check.isChecked(),
+            "file_extensions": self.extensions_edit.text().split(","),
+            "test_mode": self.test_mode_check.isChecked(),
+            "test_file_count": self.test_files_spin.value(),
         }

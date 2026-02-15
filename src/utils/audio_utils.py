@@ -3,11 +3,12 @@ Auralis - Audio Utilities Module
 """
 
 import os
-import mutagen
-from mutagen.id3 import ID3, APIC
-from mutagen.flac import FLAC, Picture
+
 import acoustid
+import mutagen
 import requests
+from mutagen.flac import FLAC, Picture
+from mutagen.id3 import APIC, ID3
 
 
 def get_audio_metadata(file_path):
@@ -31,60 +32,60 @@ def get_audio_metadata(file_path):
         # Extract metadata based on file type
         if isinstance(audio, mutagen.mp3.MP3):
             # MP3 files (ID3 tags)
-            if 'TPE1' in audio:  # Artist
-                metadata['artist'] = str(audio['TPE1'])
-            if 'TIT2' in audio:  # Title
-                metadata['title'] = str(audio['TIT2'])
-            if 'TALB' in audio:  # Album
-                metadata['album'] = str(audio['TALB'])
-            if 'TDRC' in audio:  # Year
-                metadata['year'] = str(audio['TDRC'])
-            if 'TCON' in audio:  # Genre
-                metadata['genre'] = str(audio['TCON'])
-            if 'TRCK' in audio:  # Track number
-                metadata['track'] = str(audio['TRCK'])
+            if "TPE1" in audio:  # Artist
+                metadata["artist"] = str(audio["TPE1"])
+            if "TIT2" in audio:  # Title
+                metadata["title"] = str(audio["TIT2"])
+            if "TALB" in audio:  # Album
+                metadata["album"] = str(audio["TALB"])
+            if "TDRC" in audio:  # Year
+                metadata["year"] = str(audio["TDRC"])
+            if "TCON" in audio:  # Genre
+                metadata["genre"] = str(audio["TCON"])
+            if "TRCK" in audio:  # Track number
+                metadata["track"] = str(audio["TRCK"])
 
             # Get bitrate
             if audio.info:
-                metadata['bitrate'] = audio.info.bitrate
-                metadata['length'] = audio.info.length
-                metadata['sample_rate'] = audio.info.sample_rate
+                metadata["bitrate"] = audio.info.bitrate
+                metadata["length"] = audio.info.length
+                metadata["sample_rate"] = audio.info.sample_rate
 
         elif isinstance(audio, mutagen.flac.FLAC):
             # FLAC files
-            if 'artist' in audio:
-                metadata['artist'] = str(audio['artist'][0])
-            if 'title' in audio:
-                metadata['title'] = str(audio['title'][0])
-            if 'album' in audio:
-                metadata['album'] = str(audio['album'][0])
-            if 'date' in audio:
-                metadata['year'] = str(audio['date'][0])
-            if 'genre' in audio:
-                metadata['genre'] = str(audio['genre'][0])
-            if 'tracknumber' in audio:
-                metadata['track'] = str(audio['tracknumber'][0])
+            if "artist" in audio:
+                metadata["artist"] = str(audio["artist"][0])
+            if "title" in audio:
+                metadata["title"] = str(audio["title"][0])
+            if "album" in audio:
+                metadata["album"] = str(audio["album"][0])
+            if "date" in audio:
+                metadata["year"] = str(audio["date"][0])
+            if "genre" in audio:
+                metadata["genre"] = str(audio["genre"][0])
+            if "tracknumber" in audio:
+                metadata["track"] = str(audio["tracknumber"][0])
 
             # Get bitrate (approximate for FLAC)
             if audio.info:
-                metadata['bitrate'] = audio.info.bits_per_sample * audio.info.sample_rate
-                metadata['length'] = audio.info.length
-                metadata['sample_rate'] = audio.info.sample_rate
+                metadata["bitrate"] = audio.info.bits_per_sample * audio.info.sample_rate
+                metadata["length"] = audio.info.length
+                metadata["sample_rate"] = audio.info.sample_rate
 
         else:
             # Generic approach for other formats
-            for key in ['artist', 'title', 'album', 'date', 'genre', 'tracknumber']:
+            for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
                 if key in audio:
                     metadata[key] = str(audio[key][0])
 
             # Try to get audio info
-            if hasattr(audio, 'info'):
-                if hasattr(audio.info, 'bitrate'):
-                    metadata['bitrate'] = audio.info.bitrate
-                if hasattr(audio.info, 'length'):
-                    metadata['length'] = audio.info.length
-                if hasattr(audio.info, 'sample_rate'):
-                    metadata['sample_rate'] = audio.info.sample_rate
+            if hasattr(audio, "info"):
+                if hasattr(audio.info, "bitrate"):
+                    metadata["bitrate"] = audio.info.bitrate
+                if hasattr(audio.info, "length"):
+                    metadata["length"] = audio.info.length
+                if hasattr(audio.info, "sample_rate"):
+                    metadata["sample_rate"] = audio.info.sample_rate
 
         return metadata
 
@@ -113,38 +114,38 @@ def set_audio_metadata(file_path, metadata):
         # Apply metadata based on file type
         if isinstance(audio, mutagen.mp3.MP3):
             # MP3 files (ID3 tags)
-            if 'artist' in metadata:
-                audio['TPE1'] = mutagen.id3.TPE1(encoding=3, text=metadata['artist'])
-            if 'title' in metadata:
-                audio['TIT2'] = mutagen.id3.TIT2(encoding=3, text=metadata['title'])
-            if 'album' in metadata:
-                audio['TALB'] = mutagen.id3.TALB(encoding=3, text=metadata['album'])
-            if 'year' in metadata:
-                audio['TDRC'] = mutagen.id3.TDRC(encoding=3, text=metadata['year'])
-            if 'genre' in metadata:
-                audio['TCON'] = mutagen.id3.TCON(encoding=3, text=metadata['genre'])
-            if 'track' in metadata:
-                audio['TRCK'] = mutagen.id3.TRCK(encoding=3, text=metadata['track'])
+            if "artist" in metadata:
+                audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
+            if "title" in metadata:
+                audio["TIT2"] = mutagen.id3.TIT2(encoding=3, text=metadata["title"])
+            if "album" in metadata:
+                audio["TALB"] = mutagen.id3.TALB(encoding=3, text=metadata["album"])
+            if "year" in metadata:
+                audio["TDRC"] = mutagen.id3.TDRC(encoding=3, text=metadata["year"])
+            if "genre" in metadata:
+                audio["TCON"] = mutagen.id3.TCON(encoding=3, text=metadata["genre"])
+            if "track" in metadata:
+                audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
 
         elif isinstance(audio, mutagen.flac.FLAC):
             # FLAC files
-            if 'artist' in metadata:
-                audio['artist'] = metadata['artist']
-            if 'title' in metadata:
-                audio['title'] = metadata['title']
-            if 'album' in metadata:
-                audio['album'] = metadata['album']
-            if 'year' in metadata:
-                audio['date'] = metadata['year']
-            if 'genre' in metadata:
-                audio['genre'] = metadata['genre']
-            if 'track' in metadata:
-                audio['tracknumber'] = metadata['track']
+            if "artist" in metadata:
+                audio["artist"] = metadata["artist"]
+            if "title" in metadata:
+                audio["title"] = metadata["title"]
+            if "album" in metadata:
+                audio["album"] = metadata["album"]
+            if "year" in metadata:
+                audio["date"] = metadata["year"]
+            if "genre" in metadata:
+                audio["genre"] = metadata["genre"]
+            if "track" in metadata:
+                audio["tracknumber"] = metadata["track"]
 
         else:
             # Generic approach for other formats
             for key, value in metadata.items():
-                if key in ['artist', 'title', 'album', 'year', 'genre', 'track']:
+                if key in ["artist", "title", "album", "year", "genre", "track"]:
                     audio[key] = value
 
         audio.save()
@@ -201,30 +202,32 @@ def set_album_art(file_path, image_url=None, image_data=None):
         ext = ext.lower()
 
         # Apply album art based on file type
-        if ext == '.mp3':
+        if ext == ".mp3":
             # MP3 files
             audio = ID3(file_path)
 
             # Add album art
-            audio.add(APIC(
-                encoding=3,  # UTF-8
-                mime='image/jpeg',
-                type=3,  # Cover (front)
-                desc='Cover',
-                data=image_data
-            ))
+            audio.add(
+                APIC(
+                    encoding=3,  # UTF-8
+                    mime="image/jpeg",
+                    type=3,  # Cover (front)
+                    desc="Cover",
+                    data=image_data,
+                )
+            )
 
             audio.save()
 
-        elif ext == '.flac':
+        elif ext == ".flac":
             # FLAC files
             audio = FLAC(file_path)
 
             # Create picture
             picture = Picture()
             picture.type = 3  # Cover (front)
-            picture.mime = 'image/jpeg'
-            picture.desc = 'Cover'
+            picture.mime = "image/jpeg"
+            picture.desc = "Cover"
             picture.data = image_data
 
             # Add picture
@@ -259,16 +262,16 @@ def get_album_art(file_path):
         ext = ext.lower()
 
         # Extract album art based on file type
-        if ext == '.mp3':
+        if ext == ".mp3":
             # MP3 files
             audio = ID3(file_path)
 
             # Find album art
             for tag in audio.values():
-                if tag.FrameID == 'APIC':
+                if tag.FrameID == "APIC":
                     return tag.data
 
-        elif ext == '.flac':
+        elif ext == ".flac":
             # FLAC files
             audio = FLAC(file_path)
 
@@ -294,9 +297,7 @@ def is_audio_file(file_path):
         bool: True if file is a supported audio file
     """
     # Supported extensions
-    supported_extensions = {
-        '.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'
-    }
+    supported_extensions = {".mp3", ".flac", ".wav", ".aac", ".ogg", ".m4a", ".wma", ".aiff"}
 
     # Check extension
     _, ext = os.path.splitext(file_path)
