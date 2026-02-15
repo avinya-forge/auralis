@@ -1,3 +1,3 @@
 """
 Auralis - Core functionality package
-""" 
+"""

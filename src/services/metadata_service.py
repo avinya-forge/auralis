@@ -141,11 +141,14 @@ class MusicBrainzSource(MetadataSource):
                                     mb_recording = mb_data['recording']
 
                                     # Artist
-                                    if 'artist-credit' in mb_recording and mb_recording['artist-credit']:
-                                        metadata['artist'] = mb_recording['artist-credit'][0]['artist']['name']
+                                    if 'artist-credit' in mb_recording and \
+                                            mb_recording['artist-credit']:
+                                        artist_credit = mb_recording['artist-credit'][0]
+                                        metadata['artist'] = artist_credit['artist']['name']
 
                                     # Album and other info
-                                    if 'release-list' in mb_recording and mb_recording['release-list']:
+                                    if 'release-list' in mb_recording and \
+                                            mb_recording['release-list']:
                                         release = mb_recording['release-list'][0]
 
                                         if 'title' in release:
@@ -309,7 +312,7 @@ class DiscogsSource(MetadataSource):
             except Exception as e:
                 error_msg = str(e)
                 if "401" in error_msg or "Invalid consumer token" in error_msg:
-                    print(f"Discogs authentication failed. Service disabled.")
+                    print("Discogs authentication failed. Service disabled.")
                     self.available = False
                 else:
                     print(f"Discogs search error: {error_msg}")
@@ -321,7 +324,7 @@ class DiscogsSource(MetadataSource):
         except Exception as e:
             error_msg = str(e)
             if "401" in error_msg or "Invalid consumer token" in error_msg:
-                print(f"Discogs authentication failed. Service disabled.")
+                print("Discogs authentication failed. Service disabled.")
                 self.available = False
             else:
                 print(f"Error getting Discogs metadata for {file_info['path']}: {error_msg}")

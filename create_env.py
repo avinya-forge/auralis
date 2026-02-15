@@ -1,39 +1,38 @@
-#!/usr/bin/env python3
-"""
-Script to create a .env file for Auralis
-"""
-
 import os
+import shutil
+import requests
+import zipfile
+
+# Environment variables
+ENV_EXAMPLE_PATH = ".env.example"
+ENV_PATH = ".env"
+REQUIRED_VARS = {
+    "UI_FRAMEWORK": "pyqt6",
+    "MUSIC_DIR": "",
+    "OUTPUT_DIR": "",
+    "ACOUSTID_API_KEY": "",
+    "DISCOGS_TOKEN": ""
+}
+
 
 def create_env_file():
-    """Create a .env file with basic configuration"""
-    env_content = """# Auralis Configuration
+    """Create .env file from .env.example or with default values"""
+    if os.path.exists(ENV_PATH):
+        print(f"{ENV_PATH} already exists.")
+        return
 
-# UI Configuration
-UI_FRAMEWORK=pyqt6
-WINDOW_WIDTH=1200
-WINDOW_HEIGHT=800
+    if os.path.exists(ENV_EXAMPLE_PATH):
+        print(f"Creating {ENV_PATH} from {ENV_EXAMPLE_PATH}...")
+        shutil.copy(ENV_EXAMPLE_PATH, ENV_PATH)
+    else:
+        print(f"Creating {ENV_PATH} with default values...")
+        with open(ENV_PATH, "w") as f:
+            for key, value in REQUIRED_VARS.items():
+                f.write(f"{key}={value}\n")
 
-# API Keys
-ACOUSTID_API_KEY=1vOwZtEn
-DISCOGS_CONSUMER_KEY=RZdEfCsofXBPZDLXkKHr
-DISCOGS_CONSUMER_SECRET=AmqQvwMQzTJHVhxHtTUVLHlyeKGcldYh
+    print(f"{ENV_PATH} created successfully.")
+    print("Please edit the file and add your API keys.")
 
-# File Organization Settings
-ORGANIZE_BY_LANGUAGE=true
-HANDLE_DUPLICATES=true
-RENAME_FILES=true
-"""
-    
-    # Write the .env file
-    try:
-        with open(".env", "w") as f:
-            f.write(env_content)
-        print("Created .env file successfully")
-        return True
-    except Exception as e:
-        print(f"Error creating .env file: {str(e)}")
-        return False
 
 if __name__ == "__main__":
-    create_env_file() 
+    create_env_file()

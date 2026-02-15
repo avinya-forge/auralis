@@ -1,5 +1,12 @@
 import sys
-from unittest.mock import MagicMock
+import os
+from unittest.mock import MagicMock, patch
+import pytest
+from PyQt6.QtCore import QCoreApplication
+
+# Import the class to test
+from src.core.organizer import MusicOrganizer
+
 
 # Mock external dependencies that might be missing in the test environment
 # We do this aggressively to ensure tests can run even without heavy dependencies
@@ -29,6 +36,7 @@ if 'PyQt6' not in sys.modules:
     # Mock QCoreApplication
     class MockQCoreApplication:
         _instance = None
+
         def __init__(self, args):
             MockQCoreApplication._instance = self
 
@@ -59,16 +67,6 @@ for module in modules_to_mock:
         sys.modules[module] = MagicMock()
 
 
-import pytest
-import os
-import shutil
-from unittest.mock import patch
-from PyQt6.QtCore import QCoreApplication
-
-# Import the class to test
-from src.core.organizer import MusicOrganizer
-
-
 @pytest.fixture(scope="session")
 def qapp():
     """Create a QCoreApplication instance for QObject signals"""
@@ -83,18 +81,18 @@ class TestMusicOrganizer:
     @pytest.fixture
     def mock_services(self):
         """Mock external services imported in organizer.py"""
-        with patch('src.core.organizer.is_language_detection_available', return_value=True) as mock_lang_avail, \
-             patch('src.core.organizer.get_language_folder', return_value="English") as mock_get_lang, \
-             patch('src.core.organizer.is_audio_similarity_available', return_value=True) as mock_audio_avail, \
-             patch('src.core.organizer.find_similar_audio', return_value=[]) as mock_find_similar, \
-             patch('src.core.organizer.get_best_quality_version', return_value=None) as mock_best_quality:
+        with patch('src.core.organizer.is_language_detection_available', return_value=True) as m1, \
+             patch('src.core.organizer.get_language_folder', return_value="English") as m2, \
+             patch('src.core.organizer.is_audio_similarity_available', return_value=True) as m3, \
+             patch('src.core.organizer.find_similar_audio', return_value=[]) as m4, \
+             patch('src.core.organizer.get_best_quality_version', return_value=None) as m5:
 
             yield {
-                'lang_avail': mock_lang_avail,
-                'get_lang': mock_get_lang,
-                'audio_avail': mock_audio_avail,
-                'find_similar': mock_find_similar,
-                'best_quality': mock_best_quality
+                'lang_avail': m1,
+                'get_lang': m2,
+                'audio_avail': m3,
+                'find_similar': m4,
+                'best_quality': m5
             }
 
     @pytest.fixture
@@ -257,7 +255,7 @@ class TestMusicOrganizer:
             'filename': "2.mp3",
             'extension': ".mp3",
             'size': 200,
-            'hash': "hash2", # Different hash but same metadata
+            'hash': "hash2",  # Different hash but same metadata
             'metadata': {'title': 'Song', 'artist': 'Artist', 'bitrate': 320000}
         }
 
@@ -279,8 +277,8 @@ class TestMusicOrganizer:
 
             result = organizer.organize_files([file2, file1], dest_root, options)
 
-            assert result['organized_files'] == 1 # Only file2 organized
-            assert result['metadata_duplicates'] == 1 # file1 is duplicate
+            assert result['organized_files'] == 1  # Only file2 organized
+            assert result['metadata_duplicates'] == 1  # file1 is duplicate
             assert result['duplicates'] == 1
 
     def test_manual_review(self, organizer, tmp_path):
@@ -291,7 +289,7 @@ class TestMusicOrganizer:
             'extension': ".mp3",
             'size': 100,
             'hash': "hash1",
-            'metadata': {'title': '', 'artist': ''} # Missing metadata
+            'metadata': {'title': '', 'artist': ''}  # Missing metadata
         }
 
         dest_root = str(tmp_path / "Output")
