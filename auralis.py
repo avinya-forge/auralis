@@ -39,8 +39,8 @@ def main():
     # Set application icon if available
     icon_path = UIFactory.get_icon_path("auralis.png")
     if icon_path:
-        # Implementation depends on UI framework
-        pass
+        from PyQt6.QtGui import QIcon
+        app.setWindowIcon(QIcon(icon_path))
 
     # Create and show main window
     try:
