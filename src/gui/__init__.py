@@ -1,3 +1,3 @@
 """
-Auralis - GUI components package
+GUI modules for Auralis
 """

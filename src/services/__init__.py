@@ -1,3 +1,3 @@
 """
-Auralis - Services package
+Services for Auralis
 """

@@ -5,7 +5,8 @@ This module provides a factory for creating UI components, supporting multiple b
 """
 
 import os
-from src.utils.config import is_windows, is_macos
+
+from src.utils.config import is_macos, is_windows
 
 # Default UI framework
 DEFAULT_FRAMEWORK = "pyqt6"
@@ -25,10 +26,12 @@ class UIFactory:
         framework = get_ui_framework()
         if framework == "pyqt6":
             from PyQt6.QtWidgets import QApplication
+
             return QApplication(*args, **kwargs)
         elif framework == "wxpython":
             try:
                 import wx
+
                 return wx.App(*args, **kwargs)
             except ImportError:
                 raise ImportError(
@@ -43,6 +46,7 @@ class UIFactory:
         framework = get_ui_framework()
         if framework == "pyqt6":
             from src.gui.pyqt.main_window import MainWindow
+
             return MainWindow()
         elif framework == "wxpython":
             # Placeholder for wxPython support
@@ -55,11 +59,9 @@ class UIFactory:
         """Get platform-specific icon path"""
         # Base path for icons
         base_path = os.path.join(
-            os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            ),
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             "resources",
-            "icons"
+            "icons",
         )
 
         # Platform-specific formats
@@ -76,6 +78,7 @@ class UIFactory:
         if is_windows():
             try:
                 import ctypes
+
                 app_id = "PatternSeekers.Auralis.1.0"
                 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
             except Exception:

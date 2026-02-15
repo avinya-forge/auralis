@@ -1,3 +1,3 @@
 """
-Auralis - PyQt6 UI Implementation Package
+PyQt6 implementation of the GUI
 """

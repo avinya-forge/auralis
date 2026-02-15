@@ -4,19 +4,26 @@ Auralis - Music Organizer Module
 
 import os
 import shutil
+
 from PyQt6.QtCore import QObject, pyqtSignal
-from src.utils.file_utils import (
-    format_filename, ensure_unique_filename,
-    remove_empty_directories, sanitize_filename
+
+# Import audio similarity service
+from src.services.audio_similarity_service import find_duplicates as find_similar_audio
+from src.services.audio_similarity_service import (
+    get_best_quality_version,
 )
+from src.services.audio_similarity_service import is_available as is_audio_similarity_available
+
 # Import language detection service
 from src.services.language_service import (
-    get_language_folder, is_available as is_language_detection_available
+    get_language_folder,
 )
-# Import audio similarity service
-from src.services.audio_similarity_service import (
-    find_duplicates as find_similar_audio,
-    get_best_quality_version, is_available as is_audio_similarity_available
+from src.services.language_service import is_available as is_language_detection_available
+from src.utils.file_utils import (
+    ensure_unique_filename,
+    format_filename,
+    remove_empty_directories,
+    sanitize_filename,
 )
 
 
@@ -73,7 +80,7 @@ class MusicOrganizer(QObject):
         manual_review_files = []
 
         # Check for audio content similarity if enabled and available
-        if self.options.get('detect_audio_similarity', False) and self.audio_similarity_available:
+        if self.options.get("detect_audio_similarity", False) and self.audio_similarity_available:
             self.progress_updated.emit(0, total_files)
             self.file_organized.emit("", "Analyzing audio content for similarities...")
 
@@ -88,19 +95,21 @@ class MusicOrganizer(QObject):
 
                     # Add other versions to audio duplicates
                     for duplicate in group:
-                        if duplicate['path'] != best_version['path']:
-                            audio_duplicates.append({
-                                'original_path': best_version['path'],
-                                'duplicate_path': duplicate['path'],
-                                'reason': 'audio_similarity'
-                            })
+                        if duplicate["path"] != best_version["path"]:
+                            audio_duplicates.append(
+                                {
+                                    "original_path": best_version["path"],
+                                    "duplicate_path": duplicate["path"],
+                                    "reason": "audio_similarity",
+                                }
+                            )
                             # Emit signal for duplicate found
-                            self.duplicate_found.emit(best_version['path'], duplicate['path'])
+                            self.duplicate_found.emit(best_version["path"], duplicate["path"])
 
             # Filter out audio duplicates from music_files to process
-            if not options.get('keep_all_duplicates', False):
-                duplicate_paths = set(d['duplicate_path'] for d in audio_duplicates)
-                music_files = [f for f in music_files if f['path'] not in duplicate_paths]
+            if not options.get("keep_all_duplicates", False):
+                duplicate_paths = set(d["duplicate_path"] for d in audio_duplicates)
+                music_files = [f for f in music_files if f["path"] not in duplicate_paths]
 
                 # Update total_files count
                 total_files = len(music_files)
@@ -110,8 +119,8 @@ class MusicOrganizer(QObject):
             try:
                 # Check if this is a metadata duplicate
                 # (only if we're not checking audio similarity)
-                should_check_dupes = self.options.get('handle_duplicates', True)
-                is_audio_sim = self.options.get('detect_audio_similarity', False)
+                should_check_dupes = self.options.get("handle_duplicates", True)
+                is_audio_sim = self.options.get("detect_audio_similarity", False)
                 if should_check_dupes and not is_audio_sim:
                     duplicate = self._check_duplicate(file_info, organized_files)
 
@@ -119,11 +128,13 @@ class MusicOrganizer(QObject):
                         # If we're handling duplicates, check quality
                         if not self._is_higher_quality(file_info, duplicate):
                             # Skip this file, it's lower quality
-                            duplicates.append({
-                                'original_path': file_info['path'],
-                                'duplicate_path': duplicate['path'],
-                                'reason': 'lower_quality'
-                            })
+                            duplicates.append(
+                                {
+                                    "original_path": file_info["path"],
+                                    "duplicate_path": duplicate["path"],
+                                    "reason": "lower_quality",
+                                }
+                            )
                             processed_files += 1
                             self.progress_updated.emit(processed_files, total_files)
                             continue
@@ -141,12 +152,12 @@ class MusicOrganizer(QObject):
 
             except Exception as e:
                 # Capture any errors that occur during processing this file
-                file_errors[file_info['path']] = f"Error processing file: {str(e)}"
+                file_errors[file_info["path"]] = f"Error processing file: {str(e)}"
                 processed_files += 1
                 self.progress_updated.emit(processed_files, total_files)
 
         # Clean up by removing empty directories
-        if not self.dry_run and options.get('remove_empty_dirs', True):
+        if not self.dry_run and options.get("remove_empty_dirs", True):
             try:
                 removed_count = remove_empty_directories(self.dest_root)
                 print(f"Removed {removed_count} empty directories")
@@ -160,13 +171,13 @@ class MusicOrganizer(QObject):
 
         # Return summary
         return {
-            'total_files': total_files + len(audio_duplicates),
-            'organized_files': len(organized_files),
-            'duplicates': len(all_duplicates),
-            'audio_duplicates': len(audio_duplicates),
-            'metadata_duplicates': len(duplicates),
-            'manual_review': len(manual_review_files),
-            'file_errors': file_errors
+            "total_files": total_files + len(audio_duplicates),
+            "organized_files": len(organized_files),
+            "duplicates": len(all_duplicates),
+            "audio_duplicates": len(audio_duplicates),
+            "metadata_duplicates": len(duplicates),
+            "manual_review": len(manual_review_files),
+            "file_errors": file_errors,
         }
 
     def _handle_manual_review(self, file_info, manual_review_files, file_errors):
@@ -176,7 +187,7 @@ class MusicOrganizer(QObject):
             os.makedirs(manual_review_path, exist_ok=True)
 
         # Use original filename for manual review
-        dest_filename = file_info['filename']
+        dest_filename = file_info["filename"]
         dest_file_path = os.path.join(manual_review_path, dest_filename)
 
         # Ensure unique filename
@@ -185,20 +196,19 @@ class MusicOrganizer(QObject):
         # Move file
         if not self.dry_run:
             try:
-                shutil.copy2(file_info['path'], dest_file_path)
+                shutil.copy2(file_info["path"], dest_file_path)
             except Exception as e:
-                file_errors[file_info['path']] = f"Error copying to manual review: {str(e)}"
+                file_errors[file_info["path"]] = f"Error copying to manual review: {str(e)}"
 
-        manual_review_files.append({
-            'original_path': file_info['path'],
-            'review_path': dest_file_path
-        })
+        manual_review_files.append(
+            {"original_path": file_info["path"], "review_path": dest_file_path}
+        )
 
         # Track processed file
-        self.processed_files.append(file_info['path'])
+        self.processed_files.append(file_info["path"])
 
         # Emit signal for dry run tracking
-        self.file_organized.emit(file_info['path'], dest_file_path)
+        self.file_organized.emit(file_info["path"], dest_file_path)
 
     def _handle_file_move(self, file_info, dest_path, organized_files, file_errors):
         # Create destination directory if it doesn't exist
@@ -206,26 +216,26 @@ class MusicOrganizer(QObject):
             try:
                 os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             except Exception as e:
-                file_errors[file_info['path']] = f"Error creating directory: {str(e)}"
+                file_errors[file_info["path"]] = f"Error creating directory: {str(e)}"
                 return
 
         # Move file
         if not self.dry_run:
             try:
-                shutil.copy2(file_info['path'], dest_path)
+                shutil.copy2(file_info["path"], dest_path)
             except Exception as e:
-                file_errors[file_info['path']] = f"Error copying file: {str(e)}"
+                file_errors[file_info["path"]] = f"Error copying file: {str(e)}"
                 return
 
         # Update organized files list
-        file_info['new_path'] = dest_path
+        file_info["new_path"] = dest_path
         organized_files.append(file_info)
 
         # Track processed file
-        self.processed_files.append(file_info['path'])
+        self.processed_files.append(file_info["path"])
 
         # Emit signal for dry run tracking
-        self.file_organized.emit(file_info['path'], dest_path)
+        self.file_organized.emit(file_info["path"], dest_path)
 
     def _create_destination_dirs(self):
         """Create necessary destination directories"""
@@ -237,7 +247,7 @@ class MusicOrganizer(QObject):
 
         # For language-based organization, we'll create directories dynamically as needed
         # rather than pre-creating a fixed set of language folders
-        if self.options.get('organize_by_language', True):
+        if self.options.get("organize_by_language", True):
             # Create just the Unknown folder as a fallback
             os.makedirs(os.path.join(self.dest_root, "Unknown"), exist_ok=True)
 
@@ -251,19 +261,19 @@ class MusicOrganizer(QObject):
         Returns:
             str: Destination path
         """
-        metadata = file_info.get('metadata', {})
+        metadata = file_info.get("metadata", {})
 
         # Use a flatter directory structure
         # If language organization is enabled, use language as the top-level directory
-        if self.options.get('organize_by_language', True):
+        if self.options.get("organize_by_language", True):
             # If language detection is available and enabled, use it to detect the language
-            use_audio_lang = self.options.get('use_audio_language_detection', True)
+            use_audio_lang = self.options.get("use_audio_language_detection", True)
             if self.language_detection_available and use_audio_lang:
                 # Get the language folder based on audio content
-                language_folder = get_language_folder(file_info['path'], default="Unknown")
+                language_folder = get_language_folder(file_info["path"], default="Unknown")
             else:
                 # Fallback to metadata-based language (usually not reliable)
-                language = metadata.get('language', 'Unknown')
+                language = metadata.get("language", "Unknown")
                 # Ensure language folder names follow the strict naming conventions
                 language_folder = sanitize_filename(language)
 
@@ -278,20 +288,17 @@ class MusicOrganizer(QObject):
 
         # Generate filename according to new pattern: "songname - artistname"
         # or "songname - moviename"
-        if self.options.get('rename_files', True):
-            title = metadata.get('title', 'Unknown Title')
-            artist = metadata.get('artist', None)
-            album = metadata.get('album', None)  # Use album as potential "movie name"
+        if self.options.get("rename_files", True):
+            title = metadata.get("title", "Unknown Title")
+            artist = metadata.get("artist", None)
+            album = metadata.get("album", None)  # Use album as potential "movie name"
 
             # Format filename using the new pattern
             filename = format_filename(
-                title=title,
-                artist=artist,
-                movie=album,
-                extension=file_info['extension']
+                title=title, artist=artist, movie=album, extension=file_info["extension"]
             )
         else:
-            filename = file_info['filename']
+            filename = file_info["filename"]
 
         # Full destination path
         dest_path = os.path.join(base_dir, filename)
@@ -312,19 +319,19 @@ class MusicOrganizer(QObject):
         """
         # Check by hash (exact duplicate)
         for org_file in organized_files:
-            if file_info['hash'] == org_file['hash']:
+            if file_info["hash"] == org_file["hash"]:
                 return org_file
 
         # Check by metadata
-        metadata = file_info.get('metadata', {})
-        artist = metadata.get('artist')
-        title = metadata.get('title')
+        metadata = file_info.get("metadata", {})
+        artist = metadata.get("artist")
+        title = metadata.get("title")
 
         if artist and title:
             for org_file in organized_files:
-                org_metadata = org_file.get('metadata', {})
-                org_artist = org_metadata.get('artist')
-                org_title = org_metadata.get('title')
+                org_metadata = org_file.get("metadata", {})
+                org_artist = org_metadata.get("artist")
+                org_title = org_metadata.get("title")
 
                 if artist == org_artist and title == org_title:
                     return org_file
@@ -344,18 +351,18 @@ class MusicOrganizer(QObject):
         """
         # Check format preference
         format_preference = {
-            '.flac': 5,
-            '.wav': 4,
-            '.aiff': 3,
-            '.m4a': 2,
-            '.mp3': 1,
-            '.ogg': 1,
-            '.aac': 1,
-            '.wma': 0
+            ".flac": 5,
+            ".wav": 4,
+            ".aiff": 3,
+            ".m4a": 2,
+            ".mp3": 1,
+            ".ogg": 1,
+            ".aac": 1,
+            ".wma": 0,
         }
 
-        file_format = file_info['extension'].lower()
-        other_format = other_file['extension'].lower()
+        file_format = file_info["extension"].lower()
+        other_format = other_file["extension"].lower()
 
         if format_preference.get(file_format, 0) > format_preference.get(other_format, 0):
             return True
@@ -363,8 +370,8 @@ class MusicOrganizer(QObject):
             return False
 
         # Check bitrate
-        file_bitrate = file_info.get('metadata', {}).get('bitrate', 0)
-        other_bitrate = other_file.get('metadata', {}).get('bitrate', 0)
+        file_bitrate = file_info.get("metadata", {}).get("bitrate", 0)
+        other_bitrate = other_file.get("metadata", {}).get("bitrate", 0)
 
         if file_bitrate > other_bitrate:
             return True
@@ -372,7 +379,7 @@ class MusicOrganizer(QObject):
             return False
 
         # Check file size
-        return file_info['size'] > other_file['size']
+        return file_info["size"] > other_file["size"]
 
     def _needs_manual_review(self, file_info):
         """
@@ -384,13 +391,13 @@ class MusicOrganizer(QObject):
         Returns:
             bool: True if file needs manual review
         """
-        metadata = file_info.get('metadata', {})
+        metadata = file_info.get("metadata", {})
 
         # Check if both artist and title are missing or unknown
-        artist = metadata.get('artist', '').lower()
-        title = metadata.get('title', '').lower()
+        artist = metadata.get("artist", "").lower()
+        title = metadata.get("title", "").lower()
 
-        if not artist or artist == 'unknown artist' or not title or title == 'unknown title':
+        if not artist or artist == "unknown artist" or not title or title == "unknown title":
             return True
 
         return False

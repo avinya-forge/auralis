@@ -2,11 +2,12 @@
 Auralis - Music Scanner Module
 """
 
-import os
 import hashlib
-from PyQt6.QtCore import QObject, pyqtSignal
-import mutagen
+import os
 import time
+
+import mutagen
+from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class MusicScanner(QObject):
@@ -21,21 +22,19 @@ class MusicScanner(QObject):
     scan_completed = pyqtSignal(list)  # list of music files
 
     # Default supported music file extensions
-    DEFAULT_EXTENSIONS = {
-        '.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'
-    }
+    DEFAULT_EXTENSIONS = {".mp3", ".flac", ".wav", ".aac", ".ogg", ".m4a", ".wma", ".aiff"}
 
     # Default directory exclusion patterns
     DEFAULT_EXCLUDE_PATTERNS = [
-        '$RECYCLE.BIN',
-        'System Volume Information',
-        'Windows',
-        '.git',
-        '.vscode',
-        'node_modules',
-        '.idea',
-        'tmp',
-        'temp'
+        "$RECYCLE.BIN",
+        "System Volume Information",
+        "Windows",
+        ".git",
+        ".vscode",
+        "node_modules",
+        ".idea",
+        "tmp",
+        "temp",
     ]
 
     def __init__(self):
@@ -76,9 +75,7 @@ class MusicScanner(QObject):
 
         # Second pass: process files
         for directory in directories:
-            for file_info in self._process_directory(
-                directory, processed_files, total_files
-            ):
+            for file_info in self._process_directory(directory, processed_files, total_files):
                 self.files.append(file_info)
                 processed_files += 1
                 self.progress_updated.emit(processed_files, total_files)
@@ -92,27 +89,27 @@ class MusicScanner(QObject):
             return
 
         # Set supported extensions
-        if 'file_extensions' in options:
-            exts = options['file_extensions']
+        if "file_extensions" in options:
+            exts = options["file_extensions"]
             if isinstance(exts, str):
                 # Convert comma-separated string to list
-                exts = [ext.strip() for ext in exts.split(',')]
+                exts = [ext.strip() for ext in exts.split(",")]
 
             # Ensure extensions start with a dot
             self.supported_extensions = {f".{ext.lstrip('.')}" for ext in exts}
 
         # Set exclude patterns
-        if 'exclude_patterns' in options:
-            patterns = options['exclude_patterns']
+        if "exclude_patterns" in options:
+            patterns = options["exclude_patterns"]
             if isinstance(patterns, str):
                 # Convert comma-separated string to list
-                patterns = [p.strip() for p in patterns.split(',')]
+                patterns = [p.strip() for p in patterns.split(",")]
 
             self.exclude_patterns = patterns
 
         # Set max scan depth
-        if 'max_scan_depth' in options:
-            self.max_scan_depth = int(options['max_scan_depth'])
+        if "max_scan_depth" in options:
+            self.max_scan_depth = int(options["max_scan_depth"])
 
     def _count_music_files(self, directory):
         """
@@ -132,7 +129,7 @@ class MusicScanner(QObject):
 
                 # Check scan depth
                 rel_path = os.path.relpath(root, directory)
-                depth = len(rel_path.split(os.sep)) if rel_path != '.' else 0
+                depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
                 if depth > self.max_scan_depth:
                     dirs[:] = []  # Stop descending
                     continue
@@ -165,7 +162,7 @@ class MusicScanner(QObject):
 
                 # Check scan depth
                 rel_path = os.path.relpath(root, directory)
-                depth = len(rel_path.split(os.sep)) if rel_path != '.' else 0
+                depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
                 if depth > self.max_scan_depth:
                     dirs[:] = []  # Stop descending
                     continue
@@ -182,15 +179,16 @@ class MusicScanner(QObject):
                         file_info = self._extract_file_info(file_path)
                         if file_info:
                             # Add file modification date
-                            file_info['modified_date'] = \
-                                self._get_modification_time(file_path)
+                            file_info["modified_date"] = self._get_modification_time(file_path)
 
                             # Add initial processing history
-                            file_info['processing_history'] = [{
-                                'stage': 'Scan',
-                                'action': 'File discovered',
-                                'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
-                            }]
+                            file_info["processing_history"] = [
+                                {
+                                    "stage": "Scan",
+                                    "action": "File discovered",
+                                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                                }
+                            ]
 
                             # Emit signal for file discovery with the complete file info
                             self.file_found.emit(file_info)
@@ -211,7 +209,7 @@ class MusicScanner(QObject):
             bool: True if directory should be excluded
         """
         # Check if directory starts with a dot (hidden)
-        if dirname.startswith('.'):
+        if dirname.startswith("."):
             return True
 
         # Check against exclude patterns
@@ -246,12 +244,12 @@ class MusicScanner(QObject):
         """
         try:
             file_info = {
-                'path': file_path,
-                'filename': os.path.basename(file_path),
-                'extension': os.path.splitext(file_path)[1].lower(),
-                'size': os.path.getsize(file_path),
-                'hash': self._calculate_file_hash(file_path),
-                'metadata': {}
+                "path": file_path,
+                "filename": os.path.basename(file_path),
+                "extension": os.path.splitext(file_path)[1].lower(),
+                "size": os.path.getsize(file_path),
+                "hash": self._calculate_file_hash(file_path),
+                "metadata": {},
             }
 
             self._extract_metadata(file_path, file_info)
@@ -269,76 +267,75 @@ class MusicScanner(QObject):
                 metadata = {}
                 self._parse_audio_tags(audio, metadata)
 
-                file_info['metadata'] = metadata
+                file_info["metadata"] = metadata
 
                 # Try to extract artist and title from filename if not in metadata
-                if 'artist' not in metadata or 'title' not in metadata:
-                    artist, title = self._parse_filename(file_info['filename'])
-                    if artist and 'artist' not in metadata:
-                        metadata['artist'] = artist
-                    if title and 'title' not in metadata:
-                        metadata['title'] = title
+                if "artist" not in metadata or "title" not in metadata:
+                    artist, title = self._parse_filename(file_info["filename"])
+                    if artist and "artist" not in metadata:
+                        metadata["artist"] = artist
+                    if title and "title" not in metadata:
+                        metadata["title"] = title
 
         except Exception:
             # If metadata extraction fails, try to parse from filename
-            artist, title = self._parse_filename(file_info['filename'])
+            artist, title = self._parse_filename(file_info["filename"])
             if artist or title:
-                file_info['metadata'] = {
-                    'artist': artist if artist else 'Unknown Artist',
-                    'title': title if title else 'Unknown Title'
+                file_info["metadata"] = {
+                    "artist": artist if artist else "Unknown Artist",
+                    "title": title if title else "Unknown Title",
                 }
 
     def _parse_audio_tags(self, audio, metadata):
         """Parse tags from mutagen audio object"""
         # MP3 files (ID3 tags)
         if isinstance(audio, mutagen.mp3.MP3):
-            if 'TPE1' in audio:  # Artist
-                metadata['artist'] = str(audio['TPE1'])
-            if 'TIT2' in audio:  # Title
-                metadata['title'] = str(audio['TIT2'])
-            if 'TALB' in audio:  # Album
-                metadata['album'] = str(audio['TALB'])
-            if 'TDRC' in audio:  # Year
-                metadata['year'] = str(audio['TDRC'])
-            if 'TCON' in audio:  # Genre
-                metadata['genre'] = str(audio['TCON'])
-            if 'TRCK' in audio:  # Track number
-                metadata['track'] = str(audio['TRCK'])
+            if "TPE1" in audio:  # Artist
+                metadata["artist"] = str(audio["TPE1"])
+            if "TIT2" in audio:  # Title
+                metadata["title"] = str(audio["TIT2"])
+            if "TALB" in audio:  # Album
+                metadata["album"] = str(audio["TALB"])
+            if "TDRC" in audio:  # Year
+                metadata["year"] = str(audio["TDRC"])
+            if "TCON" in audio:  # Genre
+                metadata["genre"] = str(audio["TCON"])
+            if "TRCK" in audio:  # Track number
+                metadata["track"] = str(audio["TRCK"])
 
             # Get bitrate
             if audio.info:
-                metadata['bitrate'] = audio.info.bitrate
+                metadata["bitrate"] = audio.info.bitrate
 
         # FLAC files
         elif isinstance(audio, mutagen.flac.FLAC):
-            if 'artist' in audio:
-                metadata['artist'] = str(audio['artist'][0])
-            if 'title' in audio:
-                metadata['title'] = str(audio['title'][0])
-            if 'album' in audio:
-                metadata['album'] = str(audio['album'][0])
-            if 'date' in audio:
-                metadata['year'] = str(audio['date'][0])
-            if 'genre' in audio:
-                metadata['genre'] = str(audio['genre'][0])
-            if 'tracknumber' in audio:
-                metadata['track'] = str(audio['tracknumber'][0])
+            if "artist" in audio:
+                metadata["artist"] = str(audio["artist"][0])
+            if "title" in audio:
+                metadata["title"] = str(audio["title"][0])
+            if "album" in audio:
+                metadata["album"] = str(audio["album"][0])
+            if "date" in audio:
+                metadata["year"] = str(audio["date"][0])
+            if "genre" in audio:
+                metadata["genre"] = str(audio["genre"][0])
+            if "tracknumber" in audio:
+                metadata["track"] = str(audio["tracknumber"][0])
 
             # Get bitrate (approximate for FLAC)
             if audio.info:
-                metadata['bitrate'] = \
-                    audio.info.bits_per_sample * audio.info.sample_rate
+                metadata["bitrate"] = audio.info.bits_per_sample * audio.info.sample_rate
 
         # Generic approach for other formats
         else:
             # Try to get common tag fields
-            for key in ['artist', 'title', 'album', 'date', 'genre', 'tracknumber']:
+            for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
                 if key in audio:
                     metadata[key] = str(audio[key][0])
 
             # Try to get bitrate info
-            if hasattr(audio.info, 'bitrate'):
-                metadata['bitrate'] = audio.info.bitrate
+            if hasattr(audio.info, "bitrate"):
+                metadata["bitrate"] = audio.info.bitrate
 
     def _calculate_file_hash(self, file_path, block_size=65536):
         """
@@ -353,7 +350,7 @@ class MusicScanner(QObject):
         """
         try:
             hasher = hashlib.md5()
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 buf = f.read(block_size)
                 while len(buf) > 0:
                     hasher.update(buf)
@@ -377,15 +374,12 @@ class MusicScanner(QObject):
         name_without_ext = os.path.splitext(filename)[0]
 
         # Common patterns: "Artist - Title" or "Artist_-_Title"
-        if ' - ' in name_without_ext:
-            parts = name_without_ext.split(' - ', 1)
+        if " - " in name_without_ext:
+            parts = name_without_ext.split(" - ", 1)
             return parts[0].strip(), parts[1].strip()
-        elif '_-_' in name_without_ext:
-            parts = name_without_ext.split('_-_', 1)
-            return (
-                parts[0].replace('_', ' ').strip(),
-                parts[1].replace('_', ' ').strip()
-            )
+        elif "_-_" in name_without_ext:
+            parts = name_without_ext.split("_-_", 1)
+            return (parts[0].replace("_", " ").strip(), parts[1].replace("_", " ").strip())
 
         # No pattern match
         return None, None
