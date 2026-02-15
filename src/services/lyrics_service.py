@@ -213,13 +213,15 @@ class LyricsService:
                                             json_data = json.loads(json_str)
                                             song_data = json_data.get(
                                                 'songPage', {}).get('lyricsData', {})
-                                            lyrics = song_data.get('body', {}).get('html', '')
+                                            lyrics = song_data.get(
+                                                'body', {}).get('html', '')
                                         except BaseException:
                                             return None
                                     else:
                                         # Try another approach
                                         lyrics_container = re.search(
-                                            r'<div[^>]*class="[^"]*Lyrics__Container[^"]*"[^>]*>(.+?)</div>\s*</div>', html, re.DOTALL)
+                                            r'<div[^>]*class="[^"]*Lyrics__Container[^"]*"[^>]*>(.+?)</div>\s*</div>',
+                                            html, re.DOTALL)
                                         if lyrics_container:
                                             lyrics = lyrics_container.group(1)
                                         else:

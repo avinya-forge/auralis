@@ -52,7 +52,7 @@ class DiscogsService:
             # If we get an authentication error, disable the service
             if "401: Invalid consumer token" in str(e):
                 self.available = False
-                print(f"Discogs authentication failed. Service disabled.")
+                print("Discogs authentication failed. Service disabled.")
             else:
                 print(f"Discogs search error: {str(e)}")
             return {}, False, time.time() - start_time

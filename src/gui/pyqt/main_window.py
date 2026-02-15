@@ -15,7 +15,6 @@ import os
 import time
 from src.core.scanner import MusicScanner
 from src.core.organizer import MusicOrganizer
-from src.services.metadata_service import MetadataService
 from src.utils.system_utils import SystemMonitor
 from src.utils.config import (
     get_config, create_env_example
