@@ -21,7 +21,7 @@ try:
     import librosa
     import soundfile as sf
     from sklearn.metrics.pairwise import cosine_similarity
-    import pydub
+    import mutagen
     HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
     HAS_AUDIO_FINGERPRINTING = False
@@ -34,7 +34,7 @@ class AudioSimilarityService:
         self.available = HAS_AUDIO_FINGERPRINTING
         if not self.available:
             logger.warning("Audio similarity detection dependencies not installed. "
-                          "Please install: librosa, soundfile, scikit-learn, pydub")
+                          "Please install: librosa, soundfile, scikit-learn, mutagen")
         
         # Cache for fingerprints to avoid recomputing
         self.fingerprint_cache = {}
@@ -139,9 +139,14 @@ class AudioSimilarityService:
                 duration = file_info.get('metadata', {}).get('duration', 0)
                 if not duration:
                     try:
-                        audio = pydub.AudioSegment.from_file(file_info['path'])
-                        duration = len(audio) / 1000  # convert to seconds
-                    except:
+                        audio = mutagen.File(file_info['path'])
+                        if audio and audio.info:
+                            duration = audio.info.length
+                        else:
+                            # If we can't get duration, skip this file
+                            continue
+                    except Exception as e:
+                        logger.error(f"Error getting duration for {file_info['path']}: {str(e)}")
                         # If we can't get duration, skip this file
                         continue
                 
