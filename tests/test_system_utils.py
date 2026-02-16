@@ -3,7 +3,7 @@ Auralis - System Utilities Test Module
 """
 
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 from src.utils.system_utils import SystemMonitor
 
@@ -98,7 +98,7 @@ class TestSystemUtils(unittest.TestCase):
                 return mock_temp_dir
             if arg is mock_cache_dir:
                 return mock_cache_dir
-            return MagicMock() # Return a generic mock for other paths
+            return MagicMock()  # Return a generic mock for other paths
 
         mock_path.side_effect = side_effect
 
