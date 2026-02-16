@@ -7,7 +7,7 @@ audio content similarity rather than just metadata or filenames.
 
 import logging
 import os
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, cast
 
 import numpy as np  # type: ignore
 from sklearn.metrics.pairwise import cosine_similarity  # type: ignore
@@ -60,7 +60,7 @@ class AudioSimilarityService:
         try:
             # Check cache first
             if file_path in self.fingerprint_cache:
-                return self.fingerprint_cache[file_path]
+                return cast("np.ndarray", self.fingerprint_cache[file_path])
 
             # Load audio file
             y, sr = librosa.load(file_path, sr=22050, mono=True, duration=60)
@@ -84,7 +84,7 @@ class AudioSimilarityService:
             # Cache the fingerprint
             self.fingerprint_cache[file_path] = fingerprint
 
-            return fingerprint
+            return cast("np.ndarray", fingerprint)
 
         except Exception as e:
             logger.error(f"Error computing fingerprint for {file_path}: {str(e)}")
