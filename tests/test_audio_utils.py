@@ -3,10 +3,9 @@ Auralis - Audio Utilities Test Module
 """
 
 import unittest
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 from src.utils.audio_utils import (
-    get_album_art,
     get_audio_fingerprint,
     get_audio_metadata,
     is_audio_file,
@@ -30,13 +29,20 @@ class TestAudioUtils(unittest.TestCase):
             mock_mutagen.File.return_value = mock_mp3
 
             # Setup mock MP3 class
-            class MockMP3: pass
+            class MockMP3:
+                pass
+
             mock_mutagen.mp3.MP3 = MockMP3
             mock_mp3.__class__ = MockMP3
 
             # Configure mock_mp3 behavior
             mock_mp3.__contains__.side_effect = lambda key: key in {
-                "TPE1", "TIT2", "TALB", "TDRC", "TCON", "TRCK",
+                "TPE1",
+                "TIT2",
+                "TALB",
+                "TDRC",
+                "TCON",
+                "TRCK",
             }
             mock_mp3.__getitem__.side_effect = lambda key: {
                 "TPE1": ["Artist"],
@@ -71,17 +77,26 @@ class TestAudioUtils(unittest.TestCase):
             mock_mutagen.File.return_value = mock_flac
 
             # Setup mock FLAC class
-            class MockFLAC: pass
+            class MockFLAC:
+                pass
+
             mock_mutagen.flac.FLAC = MockFLAC
             mock_flac.__class__ = MockFLAC
 
             # Also setup MP3 class to be a valid type for isinstance check
-            class MockMP3: pass
+            class MockMP3:
+                pass
+
             mock_mutagen.mp3.MP3 = MockMP3
 
             # Configure mock_flac behavior
             mock_flac.__contains__.side_effect = lambda key: key in {
-                "artist", "title", "album", "date", "genre", "tracknumber",
+                "artist",
+                "title",
+                "album",
+                "date",
+                "genre",
+                "tracknumber",
             }
             mock_flac.__getitem__.side_effect = lambda key: {
                 "artist": ["Artist"],
@@ -124,8 +139,12 @@ class TestAudioUtils(unittest.TestCase):
 
             # Setup mock MP3 class
             class MockMP3:
-                def save(self): pass
-                def __setitem__(self, k, v): pass
+                def save(self):
+                    pass
+
+                def __setitem__(self, k, v):
+                    pass
+
             mock_mutagen.mp3.MP3 = MockMP3
             mock_mp3.__class__ = MockMP3
 

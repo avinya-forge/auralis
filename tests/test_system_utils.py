@@ -80,6 +80,7 @@ class TestSystemUtils(unittest.TestCase):
 
         def mock_join(path, *paths):
             return f"{path}/{paths[0]}"
+
         mock_os.path.join.side_effect = mock_join
 
         mock_os.path.isfile.side_effect = lambda p: "directory" not in p
@@ -117,7 +118,7 @@ class TestSystemUtils(unittest.TestCase):
                 "pid": i,
                 "name": f"proc{i}",
                 "cpu_percent": i * 5,  # 0, 5, 10, 15... 45
-                "memory_percent": 10
+                "memory_percent": 10,
             }
             mock_procs.append(p)
 
@@ -134,6 +135,7 @@ class TestSystemUtils(unittest.TestCase):
         self.assertEqual(len(result), 5)
         self.assertEqual(result[0]["cpu_percent"], 45)
         self.assertEqual(result[4]["cpu_percent"], 25)
+
 
 if __name__ == "__main__":
     unittest.main()
