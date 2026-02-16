@@ -109,106 +109,19 @@ class MusicBrainzSource(MetadataSource):
             # Check if fingerprinting is available
             if self.fingerprinting_available:
                 try:
-                    # Try acoustic fingerprinting
-                    duration, fp_encoded = acoustid.fingerprint_file(file_info["path"])
-
-                    # Look up fingerprint
-                    results = acoustid.lookup(self.acoustid_api_key, fp_encoded, duration)
-
-                    for result in results:
-                        if result.get("recordings"):
-                            recording = result["recordings"][0]
-
-                            # Extract metadata
-                            metadata = {}
-
-                            # Basic info
-                            if "title" in recording:
-                                metadata["title"] = recording["title"]
-
-                            if "artists" in recording and recording["artists"]:
-                                metadata["artist"] = recording["artists"][0]["name"]
-
-                            # Try to get more detailed info from MusicBrainz
-                            if "id" in recording:
-                                mb_id = recording["id"]
-                                mb_data = musicbrainzngs.get_recording_by_id(
-                                    mb_id, includes=["releases", "artists"]
-                                )
-
-                                if "recording" in mb_data:
-                                    mb_recording = mb_data["recording"]
-
-                                    # Artist
-                                    if (
-                                        "artist-credit" in mb_recording
-                                        and mb_recording["artist-credit"]
-                                    ):
-                                        artist_credit = mb_recording["artist-credit"][0]
-                                        metadata["artist"] = artist_credit["artist"]["name"]
-
-                                    # Album and other info
-                                    if (
-                                        "release-list" in mb_recording
-                                        and mb_recording["release-list"]
-                                    ):
-                                        release = mb_recording["release-list"][0]
-
-                                        if "title" in release:
-                                            metadata["album"] = release["title"]
-
-                                        if "date" in release:
-                                            metadata["year"] = release["date"][:4]  # Extract year
-
-                                        if "medium-list" in release and release["medium-list"]:
-                                            medium = release["medium-list"][0]
-
-                                            if "track-list" in medium:
-                                                for track in medium["track-list"]:
-                                                    if (
-                                                        track.get("recording", {}).get("id")
-                                                        == mb_id
-                                                    ):
-                                                        metadata["track"] = str(track["position"])
-                                                        break
-
-                            response_time = time.time() - start_time
-                            return metadata, True, response_time
+                    metadata = self._get_metadata_by_fingerprint(file_info)
+                    if metadata:
+                        response_time = time.time() - start_time
+                        return metadata, True, response_time
                 except Exception as e:
                     print(f"Fingerprinting error: {str(e)}")
                     # Continue with search-based approach
 
             # Fall back to basic search if fingerprinting fails
-            metadata = file_info.get("metadata", {})
-
-            if "artist" in metadata and "title" in metadata:
-                query = f'artist:"{metadata["artist"]}" AND recording:"{metadata["title"]}"'
-                results = musicbrainzngs.search_recordings(query=query, limit=1)
-
-                if results and "recording-list" in results and results["recording-list"]:
-                    recording = results["recording-list"][0]
-
-                    new_metadata = {}
-
-                    # Basic info
-                    if "title" in recording:
-                        new_metadata["title"] = recording["title"]
-
-                    if "artist-credit" in recording and recording["artist-credit"]:
-                        new_metadata["artist"] = recording["artist-credit"][0]["artist"]["name"]
-
-                    # Album and other info
-                    if "release-list" in recording and recording["release-list"]:
-                        release = recording["release-list"][0]
-
-                        if "title" in release:
-                            new_metadata["album"] = release["title"]
-
-                        if "date" in release:
-                            new_metadata["year"] = release["date"][:4]  # Extract year
-
-                    response_time = time.time() - start_time
-                    return new_metadata, True, response_time
+            metadata = self._get_metadata_by_search(file_info)
+            if metadata:
+                response_time = time.time() - start_time
+                return metadata, True, response_time
 
             response_time = time.time() - start_time
             return {}, False, response_time
@@ -217,6 +130,103 @@ class MusicBrainzSource(MetadataSource):
             print(f"Error getting MusicBrainz metadata for {file_info['path']}: {str(e)}")
             response_time = time.time() - start_time
             return {}, False, response_time
+
+    def _get_metadata_by_fingerprint(self, file_info):
+        """Get metadata using audio fingerprinting"""
+        # Try acoustic fingerprinting
+        duration, fp_encoded = acoustid.fingerprint_file(file_info["path"])
+
+        # Look up fingerprint
+        results = acoustid.lookup(self.acoustid_api_key, fp_encoded, duration)
+
+        for result in results:
+            if result.get("recordings"):
+                recording = result["recordings"][0]
+
+                # Extract metadata
+                metadata = {}
+
+                # Basic info
+                if "title" in recording:
+                    metadata["title"] = recording["title"]
+
+                if "artists" in recording and recording["artists"]:
+                    metadata["artist"] = recording["artists"][0]["name"]
+
+                # Try to get more detailed info from MusicBrainz
+                if "id" in recording:
+                    mb_id = recording["id"]
+                    mb_metadata = self._fetch_musicbrainz_details(mb_id)
+                    metadata.update(mb_metadata)
+
+                return metadata
+        return None
+
+    def _fetch_musicbrainz_details(self, mb_id):
+        """Fetch detailed metadata from MusicBrainz by ID"""
+        metadata = {}
+        try:
+            mb_data = musicbrainzngs.get_recording_by_id(mb_id, includes=["releases", "artists"])
+
+            if "recording" in mb_data:
+                mb_recording = mb_data["recording"]
+                metadata = self._parse_musicbrainz_response(mb_recording)
+
+                # Add track info which depends on the release structure
+                if "release-list" in mb_recording and mb_recording["release-list"]:
+                    release = mb_recording["release-list"][0]
+                    if "medium-list" in release and release["medium-list"]:
+                        medium = release["medium-list"][0]
+                        if "track-list" in medium:
+                            for track in medium["track-list"]:
+                                if track.get("recording", {}).get("id") == mb_id:
+                                    metadata["track"] = str(track["position"])
+                                    break
+        except Exception as e:
+            print(f"Error fetching MusicBrainz details: {str(e)}")
+
+        return metadata
+
+    def _get_metadata_by_search(self, file_info):
+        """Get metadata using text search"""
+        metadata = file_info.get("metadata", {})
+
+        if "artist" in metadata and "title" in metadata:
+            query = f'artist:"{metadata["artist"]}" AND recording:"{metadata["title"]}"'
+            results = musicbrainzngs.search_recordings(query=query, limit=1)
+
+            if results and "recording-list" in results and results["recording-list"]:
+                recording = results["recording-list"][0]
+                return self._parse_musicbrainz_response(recording)
+
+        return None
+
+    def _parse_musicbrainz_response(self, recording):
+        """Parse MusicBrainz recording data into metadata dict"""
+        new_metadata = {}
+
+        # Basic info
+        if "title" in recording:
+            new_metadata["title"] = recording["title"]
+
+        if "artist-credit" in recording and recording["artist-credit"]:
+            new_metadata["artist"] = recording["artist-credit"][0]["artist"]["name"]
+        elif "artists" in recording and recording["artists"]:
+             # Fallback for some response formats
+             new_metadata["artist"] = recording["artists"][0]["name"]
+
+
+        # Album and other info
+        if "release-list" in recording and recording["release-list"]:
+            release = recording["release-list"][0]
+
+            if "title" in release:
+                new_metadata["album"] = release["title"]
+
+            if "date" in release:
+                new_metadata["year"] = release["date"][:4]  # Extract year
+
+        return new_metadata
 
 
 class DiscogsSource(MetadataSource):
@@ -254,71 +264,10 @@ class DiscogsSource(MetadataSource):
                 response_time = time.time() - start_time
                 return {}, False, response_time
 
-            # Get metadata from file info
-            metadata = file_info.get("metadata", {})
-
-            # We need at least an artist or title to search
-            if not metadata.get("artist") and not metadata.get("title"):
-                response_time = time.time() - start_time
-                return {}, False, response_time
-
-            # Prepare search query
-            query = ""
-            if metadata.get("artist"):
-                query += metadata["artist"]
-            if metadata.get("title"):
-                if query:
-                    query += " - "
-                query += metadata["title"]
-
-            # Perform search
-            try:
-                results = self.client.search(query, type="release")
-
-                if results and len(results) > 0:
-                    # Get the first result
-                    release = results[0]
-
-                    # Extract metadata
-                    new_metadata = {}
-
-                    # Basic info
-                    if hasattr(release, "title"):
-                        # Split title by delimiter if it contains artist and title
-                        title_parts = release.title.split(" - ", 1)
-                        if len(title_parts) > 1:
-                            if not metadata.get("artist"):
-                                new_metadata["artist"] = title_parts[0]
-                            if not metadata.get("title"):
-                                new_metadata["title"] = title_parts[1]
-                        else:
-                            # If only title is available, use it as is
-                            if not metadata.get("title"):
-                                new_metadata["title"] = release.title
-
-                    # Artists
-                    if hasattr(release, "artists") and release.artists:
-                        if not metadata.get("artist") and not new_metadata.get("artist"):
-                            new_metadata["artist"] = release.artists[0].name
-
-                    # Additional info
-                    if hasattr(release, "year"):
-                        new_metadata["year"] = str(release.year)
-
-                    if hasattr(release, "genres") and release.genres:
-                        new_metadata["genre"] = release.genres[0]
-
-                    response_time = time.time() - start_time
-                    return new_metadata, True, response_time
-
-            except Exception as e:
-                error_msg = str(e)
-                if "401" in error_msg or "Invalid consumer token" in error_msg:
-                    print("Discogs authentication failed. Service disabled.")
-                    self.available = False
-                else:
-                    print(f"Discogs search error: {error_msg}")
-                # Continue with basic metadata
+            metadata = self._get_metadata_by_search(file_info)
+            if metadata:
+                 response_time = time.time() - start_time
+                 return metadata, True, response_time
 
             response_time = time.time() - start_time
             return {}, False, response_time
@@ -333,6 +282,75 @@ class DiscogsSource(MetadataSource):
 
             response_time = time.time() - start_time
             return {}, False, response_time
+
+    def _get_metadata_by_search(self, file_info):
+        """Get metadata from Discogs using text search"""
+        # Get metadata from file info
+        metadata = file_info.get("metadata", {})
+
+        # We need at least an artist or title to search
+        if not metadata.get("artist") and not metadata.get("title"):
+            return None
+
+        # Prepare search query
+        query = ""
+        if metadata.get("artist"):
+            query += metadata["artist"]
+        if metadata.get("title"):
+            if query:
+                query += " - "
+            query += metadata["title"]
+
+        # Perform search
+        try:
+            results = self.client.search(query, type="release")
+
+            if results and len(results) > 0:
+                # Get the first result
+                release = results[0]
+                return self._parse_discogs_release(release, metadata)
+
+        except Exception as e:
+            error_msg = str(e)
+            if "401" in error_msg or "Invalid consumer token" in error_msg:
+                print("Discogs authentication failed. Service disabled.")
+                self.available = False
+            else:
+                print(f"Discogs search error: {error_msg}")
+
+        return None
+
+    def _parse_discogs_release(self, release, current_metadata):
+        """Parse Discogs release into metadata dict"""
+        new_metadata = {}
+
+        # Basic info
+        if hasattr(release, "title"):
+            # Split title by delimiter if it contains artist and title
+            title_parts = release.title.split(" - ", 1)
+            if len(title_parts) > 1:
+                if not current_metadata.get("artist"):
+                    new_metadata["artist"] = title_parts[0]
+                if not current_metadata.get("title"):
+                    new_metadata["title"] = title_parts[1]
+            else:
+                # If only title is available, use it as is
+                if not current_metadata.get("title"):
+                    new_metadata["title"] = release.title
+
+        # Artists
+        if hasattr(release, "artists") and release.artists:
+            if not current_metadata.get("artist") and not new_metadata.get("artist"):
+                new_metadata["artist"] = release.artists[0].name
+
+        # Additional info
+        if hasattr(release, "year"):
+            new_metadata["year"] = str(release.year)
+
+        if hasattr(release, "genres") and release.genres:
+            new_metadata["genre"] = release.genres[0]
+
+        return new_metadata
 
 
 class MetadataService(QObject):
@@ -813,11 +831,17 @@ class MetadataService(QObject):
         Returns:
             list: Updated music files with language information
         """
-        # This is a simplified implementation
-        # In a real implementation, we would:
-        # 1. Use a language detection service or library
-        # 2. Analyze lyrics if available
-        # 3. Use metadata like genre or artist country
+        # Keyword to language mapping
+        genre_language_map = {
+            "Japanese": ["j-pop", "j-rock", "jpop", "japanese"],
+            "Korean": ["k-pop", "k-rock", "kpop", "korean"],
+            "Chinese": ["mandopop", "c-pop", "chinese"],
+            "Hindi": ["bollywood", "bhangra", "hindi"],
+            "Spanish": ["latin", "salsa", "reggaeton", "spanish"],
+            "French": ["chanson", "french"],
+            "German": ["schlager", "german"],
+            "Instrumental": ["instrumental"],
+        }
 
         for file_info in music_files:
             metadata = file_info.get("metadata", {})
@@ -827,30 +851,25 @@ class MetadataService(QObject):
                 continue
 
             # Try to detect language based on metadata
-            # This is a very simplified approach
-            language = "Unknown"
+            language = "English"  # Default to English for most Western music
 
-            # Check genre for clues
             genre = metadata.get("genre", "").lower()
             if genre:
-                if any(kw in genre for kw in ["j-pop", "j-rock", "jpop", "japanese"]):
-                    language = "Japanese"
-                elif any(kw in genre for kw in ["k-pop", "k-rock", "kpop", "korean"]):
-                    language = "Korean"
-                elif any(kw in genre for kw in ["mandopop", "c-pop", "chinese"]):
-                    language = "Chinese"
-                elif any(kw in genre for kw in ["bollywood", "bhangra", "hindi"]):
-                    language = "Hindi"
-                elif any(kw in genre for kw in ["latin", "salsa", "reggaeton", "spanish"]):
-                    language = "Spanish"
-                elif any(kw in genre for kw in ["chanson", "french"]):
-                    language = "French"
-                elif any(kw in genre for kw in ["schlager", "german"]):
-                    language = "German"
-                elif genre == "instrumental":
-                    language = "Instrumental"
-                else:
-                    language = "English"  # Default to English for most Western music
+                # Check for exact match for instrumental first to match legacy behavior preference if strictly needed
+                # or just rely on map. The map approach "instrumental" in genre covers "instrumental"
+
+                for lang, keywords in genre_language_map.items():
+                    if any(kw in genre for kw in keywords):
+                        language = lang
+                        break
+
+                # Special handling for exact "instrumental" if not caught by map (though it should be)
+                # or if we want to ensure "instrumental rock" -> English but "instrumental" -> Instrumental
+                # The previous code had `elif genre == "instrumental":` which implies exact match.
+                # But "instrumental" in map covers it.
+
+                if language == "English" and genre == "instrumental":
+                     language = "Instrumental"
 
             # Update metadata
             metadata["language"] = language
