@@ -101,7 +101,7 @@ class SystemMonitor(QObject):
         """
         for threshold, reduction in thresholds:
             if usage_percent > threshold:
-                if reduction == 'half':
+                if reduction == "half":
                     return max(1, optimal // 2)
                 else:
                     return max(1, optimal - reduction)
@@ -113,12 +113,16 @@ class SystemMonitor(QObject):
         optimal = max(1, cpu_count - 1)  # Leave one CPU for system
 
         # CPU thresholds: >90% -> half, >80% -> -2, >60% -> -1
-        cpu_thresholds = [(90, 'half'), (80, 2), (60, 1)]
-        optimal = self._adjust_thread_count(optimal, self.resource_data["cpu_percent"], cpu_thresholds)
+        cpu_thresholds = [(90, "half"), (80, 2), (60, 1)]
+        optimal = self._adjust_thread_count(
+            optimal, self.resource_data["cpu_percent"], cpu_thresholds
+        )
 
         # Memory thresholds: >90% -> half, >85% -> -2, >70% -> -1
-        mem_thresholds = [(90, 'half'), (85, 2), (70, 1)]
-        optimal = self._adjust_thread_count(optimal, self.resource_data["memory_percent"], mem_thresholds)
+        mem_thresholds = [(90, "half"), (85, 2), (70, 1)]
+        optimal = self._adjust_thread_count(
+            optimal, self.resource_data["memory_percent"], mem_thresholds
+        )
 
         self.resource_data["optimal_threads"] = optimal
 
@@ -196,7 +200,9 @@ class SystemMonitor(QObject):
             processes = self._collect_processes()
 
             # Sort by CPU usage and filter
-            sorted_processes = sorted(processes, key=lambda p: p.get("cpu_percent", 0), reverse=True)
+            sorted_processes = sorted(
+                processes, key=lambda p: p.get("cpu_percent", 0), reverse=True
+            )
 
             return [
                 {
