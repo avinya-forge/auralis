@@ -4,7 +4,7 @@ Auralis - PyQt6 Main Window Implementation
 
 import os
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QCloseEvent, QFont, QIcon
@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         # Worker thread
         self.worker_thread = None
 
-    def closeEvent(self, event: QCloseEvent):
+    def closeEvent(self, event: Optional[QCloseEvent]):
         """Handle window close event"""
         # Stop system monitoring
         self.system_monitor.stop_monitoring()
@@ -99,7 +99,8 @@ class MainWindow(QMainWindow):
         if self.ui_timer:
             self.ui_timer.stop()
 
-        event.accept()
+        if event:
+            event.accept()
 
     def setup_ui(self):
         """Set up the full user interface"""

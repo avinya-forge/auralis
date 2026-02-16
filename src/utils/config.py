@@ -6,7 +6,7 @@ import json
 import os
 import platform
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
 
 # Platform detection
 PLATFORM = platform.system().lower()
@@ -113,7 +113,7 @@ class Config:
     """
 
     _instance = None
-    _config = {}
+    _config: dict = {}
 
     def __new__(cls):
         """Singleton pattern to ensure only one instance of Config exists"""

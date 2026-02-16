@@ -9,8 +9,8 @@ import logging
 import os
 from typing import Dict, List, Optional, Set
 
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np  # type: ignore
+from sklearn.metrics.pairwise import cosine_similarity  # type: ignore
 
 # Set up logging
 logger = logging.getLogger("auralis.similarity")
@@ -130,16 +130,16 @@ class AudioSimilarityService:
         """
         duration = file_info.get("metadata", {}).get("duration", 0)
         if duration:
-            return duration
+            return float(duration)
 
         try:
             if "pydub" in globals():
                 audio = pydub.AudioSegment.from_file(file_info["path"])
-                return len(audio) / 1000  # convert to seconds
+                return float(len(audio) / 1000)  # convert to seconds
         except Exception:
             pass
 
-        return 0
+        return 0.0
 
     def _group_files_by_duration(self, music_files: List[Dict]) -> Dict[float, List[Dict]]:
         """
@@ -151,7 +151,7 @@ class AudioSimilarityService:
         Returns:
             dict: Dictionary mapping rounded duration to list of files
         """
-        duration_groups = {}
+        duration_groups: Dict[float, List[Dict]] = {}
         for file_info in music_files:
             duration = self._get_duration(file_info)
             if not duration:
@@ -229,12 +229,12 @@ class AudioSimilarityService:
             return []
 
         duplicates = []
-        processed_files = set()
+        processed_files: Set[str] = set()
 
         try:
             logger.info(f"Computing fingerprints for {len(music_files)} files")
             # Group files by approximate duration first to reduce comparisons
-            duration_groups = {}
+            duration_groups: Dict[float, List[Dict]] = {}
             for file_info in music_files:
                 # Get duration from metadata or compute it
                 duration = file_info.get("metadata", {}).get("duration", 0)
@@ -329,7 +329,7 @@ class AudioSimilarityService:
 
         return sorted(files, key=quality_score, reverse=True)
 
-    def get_best_quality_version(self, duplicate_group: List[Dict]) -> Dict:
+    def get_best_quality_version(self, duplicate_group: List[Dict]) -> Optional[Dict]:
         """
         Get the best quality version from a group of duplicates
 
@@ -355,11 +355,11 @@ def find_duplicates(music_files: List[Dict]) -> List[List[Dict]]:
     return audio_similarity_service.find_duplicates(music_files)
 
 
-def get_best_quality_version(duplicate_group: List[Dict]) -> Dict:
+def get_best_quality_version(duplicate_group: List[Dict]) -> Optional[Dict]:
     """Get the best quality version from a group of duplicates"""
     return audio_similarity_service.get_best_quality_version(duplicate_group)
 
 
 def is_available() -> bool:
     """Check if audio similarity detection is available"""
-    return audio_similarity_service.available
+    return bool(audio_similarity_service.available)

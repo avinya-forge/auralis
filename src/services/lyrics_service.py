@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from typing import Dict, Optional
 
-import requests
+import requests  # type: ignore
 
 # Set up logging
 logger = logging.getLogger("auralis.lyrics")
@@ -47,22 +47,22 @@ class LyricsService:
         cache_key = f"{artist}|{title}".lower()
         if cache_key in self.cache:
             logger.info(f"Using cached lyrics for {artist} - {title}")
-            return self.cache[cache_key]
+            return str(self.cache[cache_key])
 
         # Try different sources in order of reliability
         lyrics = None
 
         # Try Genius
-        lyrics = self._fetch_from_genius(artist, title)
-        if lyrics:
-            self.cache[cache_key] = lyrics
-            return lyrics
+        genius_lyrics = self._fetch_from_genius(artist, title)
+        if genius_lyrics:
+            self.cache[cache_key] = genius_lyrics
+            return genius_lyrics
 
         # Try Musixmatch (limited without API key)
-        lyrics = self._fetch_from_musixmatch(artist, title)
-        if lyrics:
-            self.cache[cache_key] = lyrics
-            return lyrics
+        musixmatch_lyrics = self._fetch_from_musixmatch(artist, title)
+        if musixmatch_lyrics:
+            self.cache[cache_key] = musixmatch_lyrics
+            return musixmatch_lyrics
 
         logger.warning(f"Could not find lyrics for {artist} - {title}")
         return None
@@ -82,8 +82,8 @@ class LyricsService:
             from mutagen import File
             from mutagen.id3 import ID3, USLT
 
-            file_path = Path(file_path)
-            extension = file_path.suffix.lower()
+            path_obj = Path(file_path)
+            extension = path_obj.suffix.lower()
 
             if extension == ".mp3":
                 # For MP3 files, use ID3 tags
@@ -100,7 +100,7 @@ class LyricsService:
                 # Add new lyrics
                 tags["USLT::eng"] = USLT(encoding=3, lang="eng", desc="", text=lyrics)
 
-                tags.save(file_path)
+                tags.save(path_obj)
                 logger.info(f"Embedded lyrics in {file_path}")
                 return True
 
