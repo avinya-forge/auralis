@@ -5,12 +5,25 @@ import sys
 import os
 
 # Mock all dependencies
-sys.modules['numpy'] = MagicMock()
-sys.modules['mutagen'] = MagicMock()
-sys.modules['librosa'] = MagicMock()
-sys.modules['soundfile'] = MagicMock()
-sys.modules['sklearn'] = MagicMock()
-sys.modules['sklearn.metrics.pairwise'] = MagicMock()
+modules_to_mock = [
+    'numpy',
+    'mutagen',
+    'librosa',
+    'soundfile',
+    'sklearn',
+    'sklearn.metrics.pairwise'
+]
+
+# Attempt to import real modules first so we don't mock them if they exist
+for module in modules_to_mock:
+    try:
+        __import__(module)
+    except ImportError:
+        pass
+
+for module in modules_to_mock:
+    if module not in sys.modules:
+        sys.modules[module] = MagicMock()
 
 # Now import the service
 from src.services.audio_similarity_service import AudioSimilarityService

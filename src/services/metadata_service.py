@@ -869,7 +869,7 @@ class MetadataService(QObject):
                 # But "instrumental" in map covers it.
 
                 if language == "English" and genre == "instrumental":
-                     language = "Instrumental"
+                    language = "Instrumental"
 
             # Update metadata
             metadata["language"] = language

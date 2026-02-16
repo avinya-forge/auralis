@@ -17,7 +17,8 @@ for module in modules_to_mock:
         sys.modules[module] = MagicMock()
 
 # Import after mocking
-from src.services.audio_similarity_service import AudioSimilarityService, audio_similarity_service
+from src.services.audio_similarity_service import AudioSimilarityService
+
 
 class TestAudioSimilarityService:
 
@@ -111,16 +112,20 @@ class TestAudioSimilarityService:
         fp3 = np.zeros(128) # Different
 
         def mock_compute_fp(path):
-            if path == "song1.mp3": return fp1
-            if path == "song1_copy.mp3": return fp2
-            if path == "song2.mp3": return fp3
+            if path == "song1.mp3":
+                return fp1
+            if path == "song1_copy.mp3":
+                return fp2
+            if path == "song2.mp3":
+                return fp3
             return None
 
         service.compute_fingerprint = MagicMock(side_effect=mock_compute_fp)
 
         # Mock compute_similarity
         def mock_compute_sim(f1, f2):
-            if np.array_equal(f1, fp1) and np.array_equal(f2, fp2): return 0.95
+            if np.array_equal(f1, fp1) and np.array_equal(f2, fp2):
+                return 0.95
             return 0.1
 
         service.compute_similarity = MagicMock(side_effect=mock_compute_sim)
