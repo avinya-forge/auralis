@@ -17,4 +17,5 @@ pydub>=0.25.1
 # Optional dependencies for audio similarity detection
 librosa>=0.9.0
 scikit-learn>=1.0.0
-soundfile>=0.10.0 
+soundfile>=0.10.0 # Optional dependencies for GUI backend
+wxPython>=4.2.0

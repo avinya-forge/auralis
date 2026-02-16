@@ -49,8 +49,9 @@ class UIFactory:
 
             return MainWindow()
         elif framework == "wxpython":
-            # Placeholder for wxPython support
-            raise NotImplementedError("wxPython backend is not yet implemented.")
+            from src.gui.wx.main_window import MainWindow
+
+            return MainWindow()
         else:
             raise ValueError(f"Unsupported UI framework: {framework}")
 
