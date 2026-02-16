@@ -63,16 +63,9 @@ class SystemMonitor(QObject):
 
         while self.running:
             try:
-                # Update resource data
                 self._update_resource_data()
-
-                # Calculate optimal thread count
                 self._calculate_optimal_threads()
-
-                # Emit signal with updated data
                 self.resources_updated.emit(self.resource_data)
-
-                # Sleep for the update interval
                 time.sleep(self.update_interval)
 
             except Exception as e:
@@ -81,45 +74,45 @@ class SystemMonitor(QObject):
 
     def _update_resource_data(self):
         """Update system resource data"""
-        # CPU usage
         self.resource_data["cpu_percent"] = psutil.cpu_percent(interval=1)
 
-        # Memory usage
         memory = psutil.virtual_memory()
         self.resource_data["memory_percent"] = memory.percent
         self.resource_data["memory_available"] = memory.available / (1024 * 1024)  # MB
 
-        # Network usage (simplified)
         net_io = psutil.net_io_counters()
         self.resource_data["network_usage"] = (net_io.bytes_sent + net_io.bytes_recv) / (
             1024 * 1024
         )  # MB
 
+    def _adjust_threads_cpu(self, optimal):
+        """Adjust thread count based on CPU usage"""
+        if self.resource_data["cpu_percent"] > 90:
+            return max(1, optimal // 2)
+        elif self.resource_data["cpu_percent"] > 80:
+            return max(1, optimal - 2)
+        elif self.resource_data["cpu_percent"] > 60:
+            return max(1, optimal - 1)
+        return optimal
+
+    def _adjust_threads_memory(self, optimal):
+        """Adjust thread count based on memory usage"""
+        if self.resource_data["memory_percent"] > 90:
+            return max(1, optimal // 2)
+        elif self.resource_data["memory_percent"] > 85:
+            return max(1, optimal - 2)
+        elif self.resource_data["memory_percent"] > 70:
+            return max(1, optimal - 1)
+        return optimal
+
     def _calculate_optimal_threads(self):
         """Calculate optimal thread count based on system resources"""
-        # Start with logical CPU count
         cpu_count = psutil.cpu_count(logical=True)
-
-        # Base optimal threads on CPU count
         optimal = max(1, cpu_count - 1)  # Leave one CPU for system
 
-        # Adjust based on current CPU usage - more aggressive scaling
-        if self.resource_data["cpu_percent"] > 90:
-            optimal = max(1, optimal // 2)  # Cut in half if very high CPU
-        elif self.resource_data["cpu_percent"] > 80:
-            optimal = max(1, optimal - 2)
-        elif self.resource_data["cpu_percent"] > 60:
-            optimal = max(1, optimal - 1)
+        optimal = self._adjust_threads_cpu(optimal)
+        optimal = self._adjust_threads_memory(optimal)
 
-        # Adjust based on memory usage - more aggressive scaling
-        if self.resource_data["memory_percent"] > 90:
-            optimal = max(1, optimal // 2)  # Cut in half if very high memory
-        elif self.resource_data["memory_percent"] > 85:
-            optimal = max(1, optimal - 2)
-        elif self.resource_data["memory_percent"] > 70:
-            optimal = max(1, optimal - 1)
-
-        # Final adjustment
         self.resource_data["optimal_threads"] = optimal
 
     def get_optimal_thread_count(self):
@@ -131,6 +124,39 @@ class SystemMonitor(QObject):
         """
         return self.resource_data["optimal_threads"]
 
+    def _clean_temp_files(self):
+        """Clean user temporary files older than 7 days"""
+        if platform.system() != "Windows":
+            return
+
+        temp_dir = os.environ.get("TEMP")
+        if not temp_dir or not os.path.exists(temp_dir):
+            return
+
+        now = time.time()
+        for item in os.listdir(temp_dir):
+            item_path = os.path.join(temp_dir, item)
+            if os.path.isfile(item_path):
+                try:
+                    if os.path.getmtime(item_path) < (now - 7 * 86400):
+                        os.remove(item_path)
+                except (PermissionError, OSError):
+                    pass
+
+    def _clean_app_cache(self):
+        """Clean application cache"""
+        cache_dir = os.path.join(str(Path.home()), ".auralis", "cache")
+        if not os.path.exists(cache_dir):
+            return
+
+        for item in os.listdir(cache_dir):
+            item_path = os.path.join(cache_dir, item)
+            try:
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+            except (PermissionError, OSError):
+                pass
+
     def optimize_system(self):
         """
         Optimize system by cleaning up temporary files and cache
@@ -139,41 +165,22 @@ class SystemMonitor(QObject):
             bool: True if optimization was successful
         """
         try:
-            if platform.system() == "Windows":
-                # Clean only user temp files, not all system temp files
-                temp_dir = os.environ.get("TEMP")
-                if temp_dir and os.path.exists(temp_dir):
-                    # Use a safer, more targeted approach
-                    # Delete only files older than 7 days
-                    now = time.time()
-                    for item in os.listdir(temp_dir):
-                        item_path = os.path.join(temp_dir, item)
-                        # Only delete files, not directories
-                        if os.path.isfile(item_path):
-                            try:
-                                # Check if file is older than 7 days
-                                if os.path.getmtime(item_path) < (now - 7 * 86400):
-                                    os.remove(item_path)
-                            except (PermissionError, OSError):
-                                # Skip files that can't be accessed
-                                pass
-
-            # Clear application cache if it exists
-            cache_dir = os.path.join(str(Path.home()), ".auralis", "cache")
-            if os.path.exists(cache_dir):
-                for item in os.listdir(cache_dir):
-                    item_path = os.path.join(cache_dir, item)
-                    try:
-                        if os.path.isfile(item_path):
-                            os.remove(item_path)
-                    except (PermissionError, OSError):
-                        pass
-
+            self._clean_temp_files()
+            self._clean_app_cache()
             return True
-
         except Exception as e:
             print(f"Error optimizing system: {str(e)}")
             return False
+
+    def _collect_processes(self):
+        """Collect running processes with resource info"""
+        processes = []
+        for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+            try:
+                processes.append(proc.info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return processes
 
     def _identify_resource_intensive_processes(self):
         """
@@ -182,21 +189,13 @@ class SystemMonitor(QObject):
         Returns:
             list: List of resource-intensive processes
         """
-        intensive_processes = []
-
         try:
-            # Get all processes sorted by CPU usage
-            processes = []
-            for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
-                try:
-                    pinfo = proc.info
-                    processes.append(pinfo)
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    pass
+            processes = self._collect_processes()
 
             # Sort by CPU usage
             processes = sorted(processes, key=lambda p: p.get("cpu_percent", 0), reverse=True)
 
+            intensive_processes = []
             # Return top 5 processes using significant CPU
             for proc in processes[:5]:
                 if proc.get("cpu_percent", 0) > 10:  # Only include if using >10% CPU
@@ -208,8 +207,8 @@ class SystemMonitor(QObject):
                             "memory_percent": proc.get("memory_percent", 0),
                         }
                     )
+            return intensive_processes
 
         except Exception as e:
             print(f"Error identifying resource-intensive processes: {str(e)}")
-
-        return intensive_processes
+            return []

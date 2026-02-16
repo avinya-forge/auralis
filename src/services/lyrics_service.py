@@ -50,8 +50,6 @@ class LyricsService:
             return str(self.cache[cache_key])
 
         # Try different sources in order of reliability
-        lyrics = None
-
         # Try Genius
         genius_lyrics = self._fetch_from_genius(artist, title)
         if genius_lyrics:
