@@ -79,7 +79,11 @@ class TestMusicBrainzSource:
 
         # Mock AcoustID lookup
         mock_acoustid_lookup.return_value = [
-            {"recordings": [{"id": "mbid1", "title": "Test Title", "artists": [{"name": "Test Artist"}]}]}
+            {
+                "recordings": [
+                    {"id": "mbid1", "title": "Test Title", "artists": [{"name": "Test Artist"}]}
+                ]
+            }
         ]
 
         # Mock MusicBrainz lookup
@@ -115,7 +119,10 @@ class TestMusicBrainzSource:
             ]
         }
 
-        file_info = {"path": "/path/to/file.mp3", "metadata": {"artist": "Artist", "title": "Title"}}
+        file_info = {
+            "path": "/path/to/file.mp3",
+            "metadata": {"artist": "Artist", "title": "Title"},
+        }
         metadata, success, _ = mb_source.get_metadata(file_info)
 
         assert success is True

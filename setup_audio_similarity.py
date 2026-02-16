@@ -6,9 +6,9 @@ This script installs the required dependencies for audio similarity detection.
 """
 
 import os
-import sys
-import subprocess
 import platform
+import subprocess
+import sys
 
 
 def install_dependencies():
@@ -21,26 +21,23 @@ def install_dependencies():
         "scikit-learn>=1.0.0",
         "soundfile>=0.10.0",
         "pydub>=0.25.1",
-        "numpy>=1.20.0"
+        "numpy>=1.20.0",
     ]
 
     # Install using pip
     try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install"] + packages)
+        subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
         print("Dependencies installed successfully!")
 
         # Platform-specific installations
-        if platform.system().lower() == 'windows':
+        if platform.system().lower() == "windows":
             try:
                 # Some Windows machines need additional libraries
                 print("Installing additional Windows dependencies...")
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", "ffmpeg-python"])
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "ffmpeg-python"])
             except BaseException:
-                print(
-                    "Could not install ffmpeg-python. Audio conversion might be limited.")
-        elif platform.system().lower() == 'linux':
+                print("Could not install ffmpeg-python. Audio conversion might be limited.")
+        elif platform.system().lower() == "linux":
             print("Note: You may need to install the following system packages:")
             print("  - ffmpeg")
             print("  - libsndfile1")
@@ -70,19 +67,19 @@ def test_audio_loading():
     try:
         print("\nTesting audio loading capabilities...")
         import tempfile
+
+        import librosa
         import numpy as np
         import soundfile as sf
-        import librosa
 
         # Create a simple test audio file
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp:
             temp_path = temp.name
 
         # Generate a simple sine wave
         sample_rate = 22050
         duration = 1  # seconds
-        t = np.linspace(0, duration, int(
-            sample_rate * duration), endpoint=False)
+        t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
         x = 0.5 * np.sin(2 * np.pi * 440 * t)  # 440 Hz sine wave
 
         # Save as WAV
@@ -90,8 +87,7 @@ def test_audio_loading():
 
         # Test librosa loading
         y, sr = librosa.load(temp_path, sr=None)
-        print(
-            f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
+        print(f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
 
         # Clean up
         os.unlink(temp_path)
@@ -108,13 +104,7 @@ def test_dependencies():
     """Test if the dependencies are installed correctly"""
     print("Testing audio similarity detection dependencies...")
 
-    modules_to_check = [
-        "numpy",
-        "librosa",
-        "sklearn",
-        "soundfile",
-        "pydub"
-    ]
+    modules_to_check = ["numpy", "librosa", "sklearn", "soundfile", "pydub"]
 
     all_installed = True
     for module in modules_to_check:

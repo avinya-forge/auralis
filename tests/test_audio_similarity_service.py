@@ -1,7 +1,8 @@
 import sys
 from unittest.mock import MagicMock, patch
-import pytest
+
 import numpy as np
+import pytest
 
 # Mock dependencies
 modules_to_mock = [
@@ -17,7 +18,7 @@ for module in modules_to_mock:
         sys.modules[module] = MagicMock()
 
 # Import after mocking
-from src.services.audio_similarity_service import AudioSimilarityService
+from src.services.audio_similarity_service import AudioSimilarityService  # noqa: E402
 
 
 class TestAudioSimilarityService:
@@ -26,7 +27,7 @@ class TestAudioSimilarityService:
     def service(self):
         """Fixture to provide a fresh service instance with mocked availability"""
         # Force availability to True for testing logic
-        with patch.object(AudioSimilarityService, '__init__', return_value=None):
+        with patch.object(AudioSimilarityService, "__init__", return_value=None):
             service = AudioSimilarityService()
             service.available = True
             service.fingerprint_cache = {}
@@ -91,15 +92,26 @@ class TestAudioSimilarityService:
         """Test finding duplicates when duration is missing and pydub fails"""
         files = [{"path": "test.mp3", "metadata": {}}]
 
-        with patch("src.services.audio_similarity_service.pydub.AudioSegment.from_file", side_effect=Exception("Error")):
+        with patch(
+            "src.services.audio_similarity_service.pydub.AudioSegment.from_file",
+            side_effect=Exception("Error"),
+        ):
             assert service.find_duplicates(files) == []
 
     def test_find_duplicates_logic(self, service):
         """Test the core duplicate finding logic"""
         # Setup files
         # Group 1: Two similar files (duplicates)
-        file1 = {"path": "song1.mp3", "metadata": {"duration": 180, "bitrate": 128000}, "size": 1000}
-        file2 = {"path": "song1_copy.mp3", "metadata": {"duration": 182, "bitrate": 320000}, "size": 2000}
+        file1 = {
+            "path": "song1.mp3",
+            "metadata": {"duration": 180, "bitrate": 128000},
+            "size": 1000,
+        }
+        file2 = {
+            "path": "song1_copy.mp3",
+            "metadata": {"duration": 182, "bitrate": 320000},
+            "size": 2000,
+        }
 
         # Group 2: One unique file
         file3 = {"path": "song2.mp3", "metadata": {"duration": 240}, "size": 1500}
@@ -108,8 +120,8 @@ class TestAudioSimilarityService:
 
         # Mock compute_fingerprint to return consistent fingerprints
         fp1 = np.ones(128)
-        fp2 = np.ones(128) # Identical to fp1
-        fp3 = np.zeros(128) # Different
+        fp2 = np.ones(128)  # Identical to fp1
+        fp3 = np.zeros(128)  # Different
 
         def mock_compute_fp(path):
             if path == "song1.mp3":
@@ -146,14 +158,20 @@ class TestAudioSimilarityService:
         # file1: flac, high bitrate
         file1 = {
             "path": "song.flac",
-            "metadata": {"duration": 180, "bitrate": 320000, "artist": "A", "title": "T", "album": "A"},
-            "size": 10000000
+            "metadata": {
+                "duration": 180,
+                "bitrate": 320000,
+                "artist": "A",
+                "title": "T",
+                "album": "A",
+            },
+            "size": 10000000,
         }
         # file2: mp3, low bitrate
         file2 = {
             "path": "song.mp3",
             "metadata": {"duration": 180, "bitrate": 128000},
-            "size": 3000000
+            "size": 3000000,
         }
 
         sorted_files = service._sort_by_quality([file2, file1])

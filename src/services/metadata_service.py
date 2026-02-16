@@ -212,9 +212,8 @@ class MusicBrainzSource(MetadataSource):
         if "artist-credit" in recording and recording["artist-credit"]:
             new_metadata["artist"] = recording["artist-credit"][0]["artist"]["name"]
         elif "artists" in recording and recording["artists"]:
-             # Fallback for some response formats
-             new_metadata["artist"] = recording["artists"][0]["name"]
-
+            # Fallback for some response formats
+            new_metadata["artist"] = recording["artists"][0]["name"]
 
         # Album and other info
         if "release-list" in recording and recording["release-list"]:
@@ -266,8 +265,8 @@ class DiscogsSource(MetadataSource):
 
             metadata = self._get_metadata_by_search(file_info)
             if metadata:
-                 response_time = time.time() - start_time
-                 return metadata, True, response_time
+                response_time = time.time() - start_time
+                return metadata, True, response_time
 
             response_time = time.time() - start_time
             return {}, False, response_time

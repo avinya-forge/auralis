@@ -18,10 +18,10 @@ logger = logging.getLogger("auralis.similarity")
 # Try to import optional dependencies
 try:
     import librosa
-    import soundfile as sf
-    from sklearn.metrics.pairwise import cosine_similarity
     import mutagen
     import pydub
+    from sklearn.metrics.pairwise import cosine_similarity  # noqa: F811
+
     HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
     HAS_AUDIO_FINGERPRINTING = False
@@ -237,28 +237,28 @@ class AudioSimilarityService:
             duration_groups = {}
             for file_info in music_files:
                 # Get duration from metadata or compute it
-                duration = file_info.get('metadata', {}).get('duration', 0)
+                duration = file_info.get("metadata", {}).get("duration", 0)
                 if not duration:
                     try:
-                        audio = mutagen.File(file_info['path'])
+                        audio = mutagen.File(file_info["path"])
                         if audio and audio.info:
                             duration = audio.info.length
                         else:
                             # If we can't get duration, try pydub (fallback) or skip
-                             try:
+                            try:
                                 if "pydub" in globals():
                                     audio_segment = pydub.AudioSegment.from_file(file_info["path"])
                                     duration = len(audio_segment) / 1000
-                             except:
-                                 pass
-                             
-                             if not duration:
+                            except Exception:
+                                pass
+
+                            if not duration:
                                 continue
                     except Exception as e:
                         logger.error(f"Error getting duration for {file_info['path']}: {str(e)}")
                         # If we can't get duration, skip this file
                         continue
-                
+
                 # Round duration to nearest 5 seconds to group similar-length files
                 rounded_duration = round(duration / 5) * 5
                 if rounded_duration not in duration_groups:
