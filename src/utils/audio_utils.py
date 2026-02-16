@@ -68,7 +68,7 @@ class AudioMetadataHandler:
 
     def get_metadata(self) -> Dict[str, Any]:
         """Get metadata from the audio file"""
-        if not self.is_valid():
+        if self.audio is None:
             return {}
 
         if isinstance(self.audio, MP3):
@@ -80,7 +80,7 @@ class AudioMetadataHandler:
 
     def set_metadata(self, metadata: Dict[str, Any]) -> bool:
         """Set metadata for the audio file"""
-        if not self.is_valid():
+        if self.audio is None:
             return False
 
         try:
@@ -99,6 +99,8 @@ class AudioMetadataHandler:
 
     def _extract_mp3_metadata(self) -> Dict[str, Any]:
         """Extract metadata from MP3 file"""
+        if self.audio is None:
+            return {}
         metadata = {}
         for key, tag in MP3_TAG_MAP.items():
             if tag in self.audio:
@@ -109,6 +111,8 @@ class AudioMetadataHandler:
 
     def _extract_flac_metadata(self) -> Dict[str, Any]:
         """Extract metadata from FLAC file"""
+        if self.audio is None:
+            return {}
         metadata = {}
         for key, tag in FLAC_TAG_MAP.items():
             if tag in self.audio:
@@ -119,6 +123,8 @@ class AudioMetadataHandler:
 
     def _extract_generic_metadata(self) -> Dict[str, Any]:
         """Extract metadata from generic audio file"""
+        if self.audio is None:
+            return {}
         metadata = {}
         for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
             if key in self.audio:
@@ -129,6 +135,8 @@ class AudioMetadataHandler:
 
     def _add_audio_info(self, metadata: Dict[str, Any]):
         """Add audio info (bitrate, length, etc.) to metadata dict"""
+        if self.audio is None:
+            return
         if hasattr(self.audio, "info"):
             if hasattr(self.audio.info, "bitrate"):
                 metadata["bitrate"] = self.audio.info.bitrate
@@ -144,6 +152,8 @@ class AudioMetadataHandler:
 
     def _apply_mp3_metadata(self, metadata: Dict[str, Any]):
         """Apply metadata to MP3 file"""
+        if self.audio is None:
+            return
         for key, tag_class in MP3_TAG_CLASSES.items():
             if key in metadata:
                 tag_name = MP3_TAG_MAP[key]
@@ -151,12 +161,16 @@ class AudioMetadataHandler:
 
     def _apply_flac_metadata(self, metadata: Dict[str, Any]):
         """Apply metadata to FLAC file"""
+        if self.audio is None:
+            return
         for key, tag in FLAC_TAG_MAP.items():
             if key in metadata:
                 self.audio[tag] = metadata[key]
 
     def _apply_generic_metadata(self, metadata: Dict[str, Any]):
         """Apply metadata to generic audio file"""
+        if self.audio is None:
+            return
         for key, value in metadata.items():
             if key in ["artist", "title", "album", "year", "genre", "track"]:
                 self.audio[key] = value
@@ -165,7 +179,7 @@ class AudioMetadataHandler:
         self, image_url: Optional[str] = None, image_data: Optional[bytes] = None
     ) -> bool:
         """Set album art for the audio file"""
-        if not self.is_valid():
+        if self.audio is None:
             return False
 
         try:
@@ -204,6 +218,8 @@ class AudioMetadataHandler:
 
     def _add_mp3_cover(self, image_data: bytes):
         """Add cover art to MP3"""
+        if self.audio is None or not hasattr(self.audio, "tags"):
+            return
         self.audio.tags.add(
             APIC(
                 encoding=3,  # UTF-8
@@ -216,6 +232,8 @@ class AudioMetadataHandler:
 
     def _add_flac_cover(self, image_data: bytes):
         """Add cover art to FLAC"""
+        if self.audio is None:
+            return
         picture = Picture()
         picture.type = 3  # Cover (front)
         picture.mime = "image/jpeg"
@@ -225,7 +243,7 @@ class AudioMetadataHandler:
 
     def get_album_art(self) -> Optional[bytes]:
         """Get album art from the audio file"""
-        if not self.is_valid():
+        if self.audio is None:
             return None
 
         try:
@@ -240,7 +258,7 @@ class AudioMetadataHandler:
 
     def _extract_mp3_cover(self) -> Optional[bytes]:
         """Extract cover from MP3"""
-        if not self.audio.tags:
+        if self.audio is None or not self.audio.tags:
             return None
         for tag in self.audio.tags.values():
             if tag.FrameID == "APIC":
@@ -249,7 +267,9 @@ class AudioMetadataHandler:
 
     def _extract_flac_cover(self) -> Optional[bytes]:
         """Extract cover from FLAC"""
-        if self.audio.pictures:
+        if self.audio is None:
+            return None
+        if hasattr(self.audio, "pictures") and self.audio.pictures:
             return self.audio.pictures[0].data
         return None
 
