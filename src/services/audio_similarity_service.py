@@ -44,7 +44,7 @@ class AudioSimilarityService:
         # Threshold for similarity (0.0 to 1.0)
         self.similarity_threshold = 0.85
 
-    def compute_fingerprint(self, file_path: str) -> Optional[np.ndarray]:
+    def compute_fingerprint(self, file_path: str) -> Optional["np.ndarray"]:
         """
         Compute audio fingerprint for a file
 
@@ -90,7 +90,7 @@ class AudioSimilarityService:
             logger.error(f"Error computing fingerprint for {file_path}: {str(e)}")
             return None
 
-    def compute_similarity(self, fingerprint1: np.ndarray, fingerprint2: np.ndarray) -> float:
+    def compute_similarity(self, fingerprint1: "np.ndarray", fingerprint2: "np.ndarray") -> float:
         """
         Compute similarity between two audio fingerprints
 
