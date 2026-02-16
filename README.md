@@ -51,7 +51,8 @@ Auralis can be configured using a `.env` file or environment variables. A sample
 
 Key configuration options:
 
-- **UI_FRAMEWORK**: Choose between `pyqt6` and `wxpython`
+- **UI_FRAMEWORK**: Choose between `pyqt6` (default) and `wxpython`.
+  - Note: For `wxpython`, you must install it manually: `pip install wxPython`.
 - **API Keys**: Provide API keys for AcoustID and Discogs
 - **File Paths**: Configure default input and output directories
 - **Processing Settings**: Adjust thread count and system optimization
