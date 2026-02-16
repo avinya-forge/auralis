@@ -3,7 +3,7 @@ Auralis - System Utilities Test Module
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 
 from src.utils.system_utils import SystemMonitor
 
@@ -69,21 +69,58 @@ class TestSystemUtils(unittest.TestCase):
         # Should be max(1, 7 // 2) = 3
         self.assertEqual(self.monitor.resource_data["optimal_threads"], 3)
 
-    @patch("src.utils.system_utils.os")
+    @patch("src.utils.system_utils.Path")
     @patch("src.utils.system_utils.platform")
-    def test_optimize_system(self, mock_platform, mock_os):
+    @patch("src.utils.system_utils.os")
+    def test_optimize_system(self, mock_os, mock_platform, mock_path):
         """Test system optimization"""
         mock_platform.system.return_value = "Windows"
         mock_os.environ.get.return_value = "/tmp/temp"
-        mock_os.path.exists.return_value = True
-        mock_os.listdir.return_value = ["old_file", "new_file", "directory"]
 
-        def mock_join(path, *paths):
-            return f"{path}/{paths[0]}"
+        # Mock Path objects
+        # We need to handle Path("/tmp/temp") and Path.home() / ...
 
-        mock_os.path.join.side_effect = mock_join
+        # Create a mock for the temp directory path
+        mock_temp_dir = MagicMock()
+        mock_temp_dir.exists.return_value = True
 
-        mock_os.path.isfile.side_effect = lambda p: "directory" not in p
+        # Create a mock for the cache directory path
+        mock_cache_dir = MagicMock()
+        mock_cache_dir.exists.return_value = True
+
+        # Configure Path constructor to return mock_temp_dir when called with temp path
+        # and mock_cache_dir when constructed via home() / ...
+        # But Path is called with a string.
+        # And Path.home() is a class method.
+
+        def side_effect(arg=None):
+            if arg == "/tmp/temp":
+                return mock_temp_dir
+            if arg is mock_cache_dir:
+                return mock_cache_dir
+            return MagicMock() # Return a generic mock for other paths
+
+        mock_path.side_effect = side_effect
+
+        # Setup Path.home()
+        mock_home = MagicMock()
+        mock_path.home.return_value = mock_home
+        # cache_dir = Path.home() / ".auralis" / "cache"
+        mock_home.__truediv__.return_value.__truediv__.return_value = mock_cache_dir
+
+        # Mock files in temp dir
+        file1 = MagicMock()
+        file1.is_file.return_value = True
+
+        file2 = MagicMock()
+        file2.is_file.return_value = True
+
+        mock_temp_dir.iterdir.return_value = [file1, file2]
+
+        # Mock files in cache dir (empty for simplicity or add one)
+        cache_file = MagicMock()
+        cache_file.is_file.return_value = True
+        mock_cache_dir.iterdir.return_value = [cache_file]
 
         # Mock time to control file age
         with patch("src.utils.system_utils.time") as mock_time:
@@ -91,21 +128,26 @@ class TestSystemUtils(unittest.TestCase):
             mock_time.time.return_value = current_time
 
             # old_file: older than 7 days (7 * 86400 = 604800)
+            file1.stat.return_value.st_mtime = current_time - 700000
+
             # new_file: strictly newer
-            mock_os.path.getmtime.side_effect = lambda p: (
-                current_time - 700000 if "old_file" in p else current_time - 100
-            )
+            file2.stat.return_value.st_mtime = current_time - 100
+
+            # cache file: doesn't matter age, as age_seconds=0
+            cache_file.stat.return_value.st_mtime = current_time - 500
 
             result = self.monitor.optimize_system()
 
             self.assertTrue(result)
-            # old_file should be removed
-            mock_os.remove.assert_any_call("/tmp/temp/old_file")
-            # new_file should NOT be removed (assert check logic)
-            # Since remove is mocked, we need to check call args
-            removed_files = [call[0][0] for call in mock_os.remove.call_args_list]
-            self.assertIn("/tmp/temp/old_file", removed_files)
-            self.assertNotIn("/tmp/temp/new_file", removed_files)
+
+            # Verify file1 (old temp file) was unlinked
+            file1.unlink.assert_called_once()
+
+            # Verify file2 (new temp file) was NOT unlinked
+            file2.unlink.assert_not_called()
+
+            # Verify cache_file was unlinked (age_seconds=0 means delete all)
+            cache_file.unlink.assert_called_once()
 
     @patch("src.utils.system_utils.psutil")
     def test_identify_resource_intensive_processes(self, mock_psutil):

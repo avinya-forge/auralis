@@ -8,24 +8,44 @@ import acoustid
 import mutagen
 import requests  # type: ignore
 from mutagen.flac import FLAC, Picture
-from mutagen.id3 import APIC, ID3
+from mutagen.id3 import APIC, ID3, TALB, TCON, TDRC, TIT2, TPE1, TRCK
+
+# Constants for metadata mapping
+MP3_TAG_MAP = {
+    "artist": "TPE1",
+    "title": "TIT2",
+    "album": "TALB",
+    "year": "TDRC",
+    "genre": "TCON",
+    "track": "TRCK",
+}
+
+FLAC_TAG_MAP = {
+    "artist": "artist",
+    "title": "title",
+    "album": "album",
+    "year": "date",
+    "genre": "genre",
+    "track": "tracknumber",
+}
+
+# Mapping for MP3 tag classes
+MP3_TAG_CLASSES = {
+    "artist": TPE1,
+    "title": TIT2,
+    "album": TALB,
+    "year": TDRC,
+    "genre": TCON,
+    "track": TRCK,
+}
 
 
 def _extract_mp3_metadata(audio):
     """Extract metadata from MP3 file"""
     metadata = {}
-    if "TPE1" in audio:  # Artist
-        metadata["artist"] = str(audio["TPE1"])
-    if "TIT2" in audio:  # Title
-        metadata["title"] = str(audio["TIT2"])
-    if "TALB" in audio:  # Album
-        metadata["album"] = str(audio["TALB"])
-    if "TDRC" in audio:  # Year
-        metadata["year"] = str(audio["TDRC"])
-    if "TCON" in audio:  # Genre
-        metadata["genre"] = str(audio["TCON"])
-    if "TRCK" in audio:  # Track number
-        metadata["track"] = str(audio["TRCK"])
+    for key, tag in MP3_TAG_MAP.items():
+        if tag in audio:
+            metadata[key] = str(audio[tag])
 
     if audio.info:
         metadata["bitrate"] = audio.info.bitrate
@@ -37,18 +57,9 @@ def _extract_mp3_metadata(audio):
 def _extract_flac_metadata(audio):
     """Extract metadata from FLAC file"""
     metadata = {}
-    if "artist" in audio:
-        metadata["artist"] = str(audio["artist"][0])
-    if "title" in audio:
-        metadata["title"] = str(audio["title"][0])
-    if "album" in audio:
-        metadata["album"] = str(audio["album"][0])
-    if "date" in audio:
-        metadata["year"] = str(audio["date"][0])
-    if "genre" in audio:
-        metadata["genre"] = str(audio["genre"][0])
-    if "tracknumber" in audio:
-        metadata["track"] = str(audio["tracknumber"][0])
+    for key, tag in FLAC_TAG_MAP.items():
+        if tag in audio:
+            metadata[key] = str(audio[tag][0])
 
     if audio.info:
         metadata["bitrate"] = audio.info.bits_per_sample * audio.info.sample_rate
@@ -104,34 +115,17 @@ def get_audio_metadata(file_path):
 
 def _apply_mp3_metadata(audio, metadata):
     """Apply metadata to MP3 file"""
-    if "artist" in metadata:
-        audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
-    if "title" in metadata:
-        audio["TIT2"] = mutagen.id3.TIT2(encoding=3, text=metadata["title"])
-    if "album" in metadata:
-        audio["TALB"] = mutagen.id3.TALB(encoding=3, text=metadata["album"])
-    if "year" in metadata:
-        audio["TDRC"] = mutagen.id3.TDRC(encoding=3, text=metadata["year"])
-    if "genre" in metadata:
-        audio["TCON"] = mutagen.id3.TCON(encoding=3, text=metadata["genre"])
-    if "track" in metadata:
-        audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
+    for key, tag_class in MP3_TAG_CLASSES.items():
+        if key in metadata:
+            tag_name = MP3_TAG_MAP[key]
+            audio[tag_name] = tag_class(encoding=3, text=metadata[key])
 
 
 def _apply_flac_metadata(audio, metadata):
     """Apply metadata to FLAC file"""
-    if "artist" in metadata:
-        audio["artist"] = metadata["artist"]
-    if "title" in metadata:
-        audio["title"] = metadata["title"]
-    if "album" in metadata:
-        audio["album"] = metadata["album"]
-    if "year" in metadata:
-        audio["date"] = metadata["year"]
-    if "genre" in metadata:
-        audio["genre"] = metadata["genre"]
-    if "track" in metadata:
-        audio["tracknumber"] = metadata["track"]
+    for key, tag in FLAC_TAG_MAP.items():
+        if key in metadata:
+            audio[tag] = metadata[key]
 
 
 def _apply_generic_metadata(audio, metadata):
@@ -214,6 +208,29 @@ def _add_flac_cover(audio, image_data):
     audio.add_picture(picture)
 
 
+def _get_audio_handler(file_path):
+    """
+    Get the appropriate audio handler based on file extension
+
+    Args:
+        file_path (str): Path to the audio file
+
+    Returns:
+        tuple: (audio_handler, extension) or (None, extension)
+    """
+    _, ext = os.path.splitext(file_path)
+    ext = ext.lower()
+
+    try:
+        if ext == ".mp3":
+            return ID3(file_path), ext
+        elif ext == ".flac":
+            return FLAC(file_path), ext
+    except Exception:
+        pass
+    return None, ext
+
+
 def set_album_art(file_path, image_url=None, image_data=None):
     """
     Set album art for an audio file
@@ -236,20 +253,18 @@ def set_album_art(file_path, image_url=None, image_data=None):
         if not image_data:
             return False
 
-        _, ext = os.path.splitext(file_path)
-        ext = ext.lower()
+        audio, ext = _get_audio_handler(file_path)
+        if not audio:
+            return False
 
         if ext == ".mp3":
-            audio = ID3(file_path)
             _add_mp3_cover(audio, image_data)
-            audio.save()
         elif ext == ".flac":
-            audio = FLAC(file_path)
             _add_flac_cover(audio, image_data)
-            audio.save()
         else:
             return False
 
+        audio.save()
         return True
 
     except Exception as e:
@@ -283,14 +298,13 @@ def get_album_art(file_path):
         bytes: Raw image data or None if not found
     """
     try:
-        _, ext = os.path.splitext(file_path)
-        ext = ext.lower()
+        audio, ext = _get_audio_handler(file_path)
+        if not audio:
+            return None
 
         if ext == ".mp3":
-            audio = ID3(file_path)
             return _extract_mp3_cover(audio)
         elif ext == ".flac":
-            audio = FLAC(file_path)
             return _extract_flac_cover(audio)
         return None
 
