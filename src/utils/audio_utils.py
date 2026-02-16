@@ -6,7 +6,7 @@ import os
 
 import acoustid
 import mutagen
-import requests
+import requests  # type: ignore
 from mutagen.flac import FLAC, Picture
 from mutagen.id3 import APIC, ID3
 

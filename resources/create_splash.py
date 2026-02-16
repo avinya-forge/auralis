@@ -2,8 +2,9 @@
 Splash screen generator
 """
 
-from PIL import Image, ImageDraw, ImageFont
 import os
+
+from PIL import Image, ImageDraw, ImageFont
 
 
 def create_splash(path, width=600, height=400):
@@ -11,7 +12,7 @@ def create_splash(path, width=600, height=400):
     Create a splash screen image
     """
     # Create image
-    img = Image.new('RGB', (width, height), (44, 62, 80))
+    img = Image.new("RGB", (width, height), (44, 62, 80))
     draw = ImageDraw.Draw(img)
 
     # Draw title

@@ -2,23 +2,21 @@
 Auralis - Music Organizer and Metadata Manager
 """
 
-import sys
 import logging
+import sys
+
 from PyQt6.QtWidgets import QApplication
 
-from src.utils.config import get_config
 from src.gui.ui_factory import UIFactory
+from src.utils.config import get_config
 
 
 def setup_logging():
     """Setup application logging"""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler("auralis.log", mode='w')
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(), logging.FileHandler("auralis.log", mode="w")],
     )
 
 
@@ -40,6 +38,7 @@ def main():
     icon_path = UIFactory.get_icon_path("auralis.png")
     if icon_path:
         from PyQt6.QtGui import QIcon
+
         app.setWindowIcon(QIcon(icon_path))
 
     # Create and show main window

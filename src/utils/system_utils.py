@@ -10,7 +10,7 @@ import threading
 import time
 from pathlib import Path
 
-import psutil
+import psutil  # type: ignore
 from PyQt6.QtCore import QObject, pyqtSignal
 
 

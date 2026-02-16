@@ -2,8 +2,9 @@
 Resource generation script for Auralis icons
 """
 
-from PIL import Image, ImageDraw, ImageFont
 import os
+
+from PIL import Image, ImageDraw, ImageFont
 
 
 def create_icon(path, size=256):
@@ -11,11 +12,13 @@ def create_icon(path, size=256):
     Create a simple icon for the application
     """
     # Create a new image with a transparent background
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
     # Draw a circle
-    draw.ellipse((10, 10, size - 10, size - 10), fill=(41, 128, 185), outline=(52, 152, 219), width=5)
+    draw.ellipse(
+        (10, 10, size - 10, size - 10), fill=(41, 128, 185), outline=(52, 152, 219), width=5
+    )
 
     # Draw text "A" in the center
     try:

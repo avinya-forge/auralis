@@ -1,5 +1,6 @@
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 setup(
     name="auralis",
@@ -33,7 +34,9 @@ setup(
     },
     author="PatternSeekers",
     description="A modern, intelligent music library organizer",
-    long_description=open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else "",
+    long_description=(
+        open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else ""
+    ),
     long_description_content_type="text/markdown",
     python_requires=">=3.9",
 )

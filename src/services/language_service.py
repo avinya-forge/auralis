@@ -12,8 +12,8 @@ from pathlib import Path
 
 # Import optional dependencies for language detection
 try:
-    import langdetect
-    import speech_recognition as sr
+    import langdetect  # type: ignore
+    import speech_recognition as sr  # type: ignore
     from pydub import AudioSegment
 
     HAS_LANGUAGE_DETECTION = True

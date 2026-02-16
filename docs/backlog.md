@@ -9,7 +9,7 @@
 - [x] Add unit tests for `src/services/audio_similarity_service.py`.
 - [x] Refactor `src/gui/pyqt/main_window.py` to reduce complexity (C901).
 - [x] Refactor `src/services/audio_similarity_service.py` to reduce complexity (C901).
-- [ ] Refactor `src/services/metadata_service.py` to reduce complexity (C901).
+- [x] Refactor `src/services/metadata_service.py` to reduce complexity (C901).
 - [ ] Refactor `src/utils/audio_utils.py` and `src/utils/system_utils.py` to reduce complexity.
 - [ ] Fix all remaining linting issues (flake8) across the codebase.
 
