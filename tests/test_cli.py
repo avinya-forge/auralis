@@ -7,29 +7,43 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Mock PyQt6 before importing modules that use it
-sys.modules["PyQt6"] = MagicMock()
-sys.modules["PyQt6.QtCore"] = MagicMock()
-sys.modules["PyQt6.QtWidgets"] = MagicMock()
-sys.modules["PyQt6.QtGui"] = MagicMock()
 
-# Mock other heavy or external dependencies
-sys.modules["numpy"] = MagicMock()
-sys.modules["librosa"] = MagicMock()
-sys.modules["sklearn"] = MagicMock()
-sys.modules["sklearn.metrics.pairwise"] = MagicMock()
-sys.modules["soundfile"] = MagicMock()
-sys.modules["pydub"] = MagicMock()
-sys.modules["mutagen"] = MagicMock()
-sys.modules["mutagen.mp3"] = MagicMock()
-sys.modules["mutagen.flac"] = MagicMock()
-sys.modules["mutagen.id3"] = MagicMock()
-sys.modules["musicbrainzngs"] = MagicMock()
-sys.modules["acoustid"] = MagicMock()
-sys.modules["discogs_client"] = MagicMock()
-sys.modules["requests"] = MagicMock()
+def mock_module_if_missing(module_name):
+    """Mock a module if it cannot be imported"""
+    try:
+        __import__(module_name)
+    except ImportError:
+        sys.modules[module_name] = MagicMock()
 
-from src.cli.cli_main import run_metadata, run_organize, run_scan, setup_parser  # noqa: E402
+
+# Mock dependencies if they are not installed (e.g. in minimal test environments)
+mock_module_if_missing("PyQt6")
+mock_module_if_missing("PyQt6.QtCore")
+mock_module_if_missing("PyQt6.QtWidgets")
+mock_module_if_missing("PyQt6.QtGui")
+mock_module_if_missing("numpy")
+mock_module_if_missing("librosa")
+mock_module_if_missing("sklearn")
+mock_module_if_missing("sklearn.metrics")
+mock_module_if_missing("sklearn.metrics.pairwise")
+mock_module_if_missing("soundfile")
+mock_module_if_missing("pydub")
+mock_module_if_missing("mutagen")
+mock_module_if_missing("mutagen.mp3")
+mock_module_if_missing("mutagen.flac")
+mock_module_if_missing("mutagen.id3")
+mock_module_if_missing("requests")
+mock_module_if_missing("musicbrainzngs")
+mock_module_if_missing("discogs_client")
+mock_module_if_missing("acoustid")
+
+# Import after potential mocking
+from src.cli.cli_main import (  # noqa: E402
+    run_metadata,
+    run_organize,
+    run_scan,
+    setup_parser,
+)
 
 
 class TestCLI(unittest.TestCase):
@@ -73,7 +87,10 @@ class TestCLI(unittest.TestCase):
         """Test run_organize function"""
         mock_load_files.return_value = [{"path": "test.mp3"}]
         mock_organizer = mock_organizer_cls.return_value
-        mock_organizer.organize_files.return_value = {"total_files": 1, "organized_files": 1}
+        mock_organizer.organize_files.return_value = {
+            "total_files": 1,
+            "organized_files": 1,
+        }
 
         args = argparse.Namespace(
             source="files.json",
@@ -102,9 +119,7 @@ class TestCLI(unittest.TestCase):
         mock_service = mock_service_cls.return_value
         mock_service.update_metadata.return_value = [{"path": "test.mp3"}]
 
-        args = argparse.Namespace(
-            source="files.json", musicbrainz=True, discogs=False, lyrics=True
-        )
+        args = argparse.Namespace(source="files.json", musicbrainz=True, discogs=False, lyrics=True)
 
         run_metadata(args)
 
