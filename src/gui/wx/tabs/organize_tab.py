@@ -3,6 +3,7 @@ Stage 2: Organize Tab (wxPython)
 """
 
 import os
+
 import wx  # type: ignore
 
 from src.utils.config import get_config

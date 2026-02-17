@@ -3,13 +3,14 @@ Auralis - wxPython Main Window Implementation
 """
 
 import os
+
 import wx  # type: ignore
 
+from src.gui.wx.tabs.metadata_tab import MetadataTab
+from src.gui.wx.tabs.organize_tab import OrganizeTab
+from src.gui.wx.tabs.scan_tab import ScanTab
 from src.utils.config import get_config
 from src.utils.system_utils import SystemMonitor
-from src.gui.wx.tabs.scan_tab import ScanTab
-from src.gui.wx.tabs.organize_tab import OrganizeTab
-from src.gui.wx.tabs.metadata_tab import MetadataTab
 
 
 class MainWindow(wx.Frame):
