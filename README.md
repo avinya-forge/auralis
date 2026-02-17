@@ -51,9 +51,9 @@ Auralis can be configured using a `.env` file or environment variables. A sample
 
 Key configuration options:
 
-- **UI_FRAMEWORK**: Choose between `pyqt6` (default) and `wxpython`.
+- **UI_FRAMEWORK**: Choose between `pyqt6` (default) and `wxpython` (experimental).
   - Note: For `wxpython`, you must install it manually: `pip install wxPython`.
-- **API Keys**: Provide API keys for AcoustID and Discogs
+- **API Keys**: Provide API keys for AcoustID, Discogs, Spotify, and Last.fm
 - **File Paths**: Configure default input and output directories
 - **Processing Settings**: Adjust thread count and system optimization
 - **File Organization**: Configure file organization preferences
@@ -155,6 +155,20 @@ Auralis can identify duplicate tracks based on their actual audio content, regar
 2. Go to [Discogs Developer Settings](https://www.discogs.com/settings/developers)
 3. Create a new application to get API credentials
 4. Add the credentials to your `.env` file
+
+### Spotify (Optional)
+
+1. Create an app at [Spotify for Developers](https://developer.spotify.com/dashboard)
+2. Get your `Client ID` and `Client Secret`
+3. Add `SPOTIPY_CLIENT_ID` and `SPOTIPY_CLIENT_SECRET` to your `.env` file
+4. Install dependency: `pip install spotipy`
+
+### Last.fm (Optional)
+
+1. Get an API account at [Last.fm API](https://www.last.fm/api/account/create)
+2. Get your `API Key` and `Shared Secret`
+3. Add `LASTFM_API_KEY` and `LASTFM_API_SECRET` to your `.env` file
+4. Install dependency: `pip install pylast`
 
 ## Troubleshooting
 

@@ -5,6 +5,8 @@ Auralis - Audio Similarity Detection Setup
 This script installs the required dependencies for audio similarity detection.
 """
 
+import argparse
+import ctypes.util
 import os
 import platform
 import shutil
@@ -36,7 +38,7 @@ def install_dependencies():
                 # Some Windows machines need additional libraries
                 print("Installing additional Windows dependencies...")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "ffmpeg-python"])
-            except BaseException:
+            except subprocess.CalledProcessError:
                 print("Could not install ffmpeg-python. Audio conversion might be limited.")
         elif platform.system().lower() == "linux":
             print("Note: You may need to install the following system packages:")
@@ -46,12 +48,12 @@ def install_dependencies():
             print("  - libasound2-dev")
             print("Using your distribution's package manager (apt, yum, etc.)")
 
-        # Check for system-level dependencies (ffmpeg)
-        check_system_dependencies()
-
         return True
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         print(f"Error installing dependencies: {str(e)}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
         return False
 
 
@@ -72,6 +74,13 @@ def check_system_dependencies():
         elif platform.system().lower() == "windows":
             print("  Download from https://ffmpeg.org/download.html and add to PATH")
 
+    ffprobe_path = shutil.which("ffprobe")
+    if ffprobe_path:
+        print(f"✓ ffprobe found at {ffprobe_path}")
+    else:
+        print("✗ ffprobe not found")
+        print("  Often installed with ffmpeg.")
+
     fpcalc_path = shutil.which("fpcalc")
     if fpcalc_path:
         print(f"✓ fpcalc found at {fpcalc_path}")
@@ -79,6 +88,15 @@ def check_system_dependencies():
         print("✗ fpcalc not found")
         print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
         print("  Download from https://acoustid.org/chromaprint")
+
+    # Check for libsndfile
+    if platform.system().lower() == "linux":
+        libsndfile = ctypes.util.find_library("sndfile")
+        if libsndfile:
+            print(f"✓ libsndfile found: {libsndfile}")
+        else:
+            print("✗ libsndfile not found via ctypes")
+            print("  Install libsndfile1 via your package manager.")
 
 
 def check_module_installed(module_name):
@@ -106,27 +124,29 @@ def test_audio_loading():
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp:
             temp_path = temp.name
 
-        # Generate a simple sine wave
-        sample_rate = 22050
-        duration = 1  # seconds
-        t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
-        x = 0.5 * np.sin(2 * np.pi * 440 * t)  # 440 Hz sine wave
-
-        # Save as WAV
-        sf.write(temp_path, x, sample_rate)
-
-        # Test librosa loading
-        y, sr = librosa.load(temp_path, sr=None)
-        print(f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
-
-        # Clean up
         try:
-            os.unlink(temp_path)
-        except OSError:
-            pass
+            # Generate a simple sine wave
+            sample_rate = 22050
+            duration = 1  # seconds
+            t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+            x = 0.5 * np.sin(2 * np.pi * 440 * t)  # 440 Hz sine wave
 
-        print("Audio processing test passed!")
-        return True
+            # Save as WAV
+            sf.write(temp_path, x, sample_rate)
+
+            # Test librosa loading
+            y, sr = librosa.load(temp_path, sr=None)
+            print(f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
+
+            print("Audio processing test passed!")
+            return True
+        finally:
+            # Clean up
+            try:
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+            except OSError:
+                pass
     except Exception as e:
         print(f"✗ Audio processing test failed: {str(e)}")
         print("Audio similarity detection may not work correctly.")
@@ -152,19 +172,39 @@ def test_dependencies():
     return test_audio_loading()
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(description="Auralis Audio Similarity Detection Setup")
+    parser.add_argument(
+        "--check-only", action="store_true", help="Only check dependencies without installing"
+    )
+    args = parser.parse_args()
+
     print("Auralis Audio Similarity Detection Setup")
     print("========================================")
 
+    if args.check_only:
+        check_system_dependencies()
+        if test_dependencies():
+            print("\nCheck completed successfully! Dependencies appear to be working.")
+        else:
+            print("\nCheck completed with issues.")
+        return
+
+    # Install mode
     if install_dependencies():
+        check_system_dependencies()
         print("\nTesting installation:")
         if test_dependencies():
             print("\nSetup completed successfully!")
             print("You can now use audio-based similarity detection in Auralis.")
         else:
-            print("\nSome dependencies could not be installed.")
+            print("\nSome dependencies could not be installed or verified.")
             print("Please try installing them manually.")
     else:
         print("\nFailed to install dependencies.")
         print("Please try installing them manually:")
         print("pip install librosa scikit-learn soundfile pydub numpy")
+
+
+if __name__ == "__main__":
+    main()
