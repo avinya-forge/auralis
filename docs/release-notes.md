@@ -12,3 +12,6 @@
 -   Implemented basic `wxPython` backend skeleton.
 -   Refactored `src/utils/audio_utils.py` to use `AudioMetadataHandler` class.
 -   Added unit tests for `src/utils/audio_utils.py`.
+-   Implemented full `wxPython` GUI tabs (Scan, Organize, Metadata) mirroring PyQt functionality.
+-   Added CLI interface for headless operation (`scan`, `organize`, `metadata` commands).
+-   Improved `setup_audio_similarity.py` script with system dependency checks.

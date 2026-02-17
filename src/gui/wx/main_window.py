@@ -6,6 +6,9 @@ import os
 
 import wx  # type: ignore
 
+from src.gui.wx.tabs.metadata_tab import MetadataTab
+from src.gui.wx.tabs.organize_tab import OrganizeTab
+from src.gui.wx.tabs.scan_tab import ScanTab
 from src.utils.config import get_config
 from src.utils.system_utils import SystemMonitor
 
@@ -111,23 +114,14 @@ class MainWindow(wx.Frame):
         # Notebook (Tabs)
         self.notebook = wx.Notebook(self.right_panel)
 
-        # Add Tabs (Placeholders for now)
-        self.scan_tab = wx.Panel(self.notebook)
-        wx.StaticText(
-            self.scan_tab, label="Stage 1: Scan & Rename (Not Implemented in wx yet)", pos=(20, 20)
-        )
+        # Add Tabs
+        self.scan_tab = ScanTab(self.notebook)
         self.notebook.AddPage(self.scan_tab, "Stage 1: Scan & Rename")
 
-        self.organize_tab = wx.Panel(self.notebook)
-        wx.StaticText(
-            self.organize_tab, label="Stage 2: Organize (Not Implemented in wx yet)", pos=(20, 20)
-        )
+        self.organize_tab = OrganizeTab(self.notebook, default_output_dir=self.default_output_dir)
         self.notebook.AddPage(self.organize_tab, "Stage 2: Organize")
 
-        self.metadata_tab = wx.Panel(self.notebook)
-        wx.StaticText(
-            self.metadata_tab, label="Stage 3: Metadata (Not Implemented in wx yet)", pos=(20, 20)
-        )
+        self.metadata_tab = MetadataTab(self.notebook)
         self.notebook.AddPage(self.metadata_tab, "Stage 3: Metadata")
 
         right_sizer.Add(self.notebook, 1, wx.EXPAND | wx.ALL, 5)

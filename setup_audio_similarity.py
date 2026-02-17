@@ -7,6 +7,7 @@ This script installs the required dependencies for audio similarity detection.
 
 import os
 import platform
+import shutil
 import subprocess
 import sys
 
@@ -45,10 +46,39 @@ def install_dependencies():
             print("  - libasound2-dev")
             print("Using your distribution's package manager (apt, yum, etc.)")
 
+        # Check for system-level dependencies (ffmpeg)
+        check_system_dependencies()
+
         return True
     except Exception as e:
         print(f"Error installing dependencies: {str(e)}")
         return False
+
+
+def check_system_dependencies():
+    """Check for system-level dependencies"""
+    print("\nChecking system dependencies...")
+
+    ffmpeg_path = shutil.which("ffmpeg")
+    if ffmpeg_path:
+        print(f"✓ ffmpeg found at {ffmpeg_path}")
+    else:
+        print("✗ ffmpeg not found")
+        print("  Audio conversion and some analysis features require ffmpeg.")
+        if platform.system().lower() == "darwin":
+            print("  Install with: brew install ffmpeg")
+        elif platform.system().lower() == "linux":
+            print("  Install with: sudo apt install ffmpeg (or equivalent)")
+        elif platform.system().lower() == "windows":
+            print("  Download from https://ffmpeg.org/download.html and add to PATH")
+
+    fpcalc_path = shutil.which("fpcalc")
+    if fpcalc_path:
+        print(f"✓ fpcalc found at {fpcalc_path}")
+    else:
+        print("✗ fpcalc not found")
+        print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
+        print("  Download from https://acoustid.org/chromaprint")
 
 
 def check_module_installed(module_name):
@@ -90,7 +120,10 @@ def test_audio_loading():
         print(f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
 
         # Clean up
-        os.unlink(temp_path)
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
 
         print("Audio processing test passed!")
         return True
@@ -102,7 +135,7 @@ def test_audio_loading():
 
 def test_dependencies():
     """Test if the dependencies are installed correctly"""
-    print("Testing audio similarity detection dependencies...")
+    print("\nTesting Python dependencies...")
 
     modules_to_check = ["numpy", "librosa", "sklearn", "soundfile", "pydub"]
 
