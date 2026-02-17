@@ -5,6 +5,22 @@ Auralis - Music Organizer and Metadata Manager
 import logging
 import sys
 
+# Check for CLI arguments before importing GUI libraries
+if len(sys.argv) > 1:
+    # Minimal imports for CLI check
+    try:
+        from src.cli.cli_main import run_cli
+
+        if __name__ == "__main__":
+            run_cli()
+            sys.exit(0)
+    except ImportError as e:
+        # Fallback if src package issues, though shouldn't happen if PYTHONPATH is set
+        print(f"Error starting CLI: {e}")
+        # Continue to try GUI or exit?
+        # If arguments are passed, user likely wanted CLI.
+        sys.exit(1)
+
 from PyQt6.QtWidgets import QApplication
 
 from src.gui.ui_factory import UIFactory

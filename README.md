@@ -60,11 +60,30 @@ Key configuration options:
 
 ## Usage
 
-Run the application:
+### GUI Mode
+
+Run the application with the default GUI:
 
 ```
 python auralis.py
 ```
+
+### CLI Mode
+
+Auralis provides a command-line interface for headless operation:
+
+```bash
+# Scan directories
+python auralis.py scan /path/to/music --output-json results.json
+
+# Organize files
+python auralis.py organize results.json /path/to/destination
+
+# Update metadata
+python auralis.py metadata results.json --lyrics
+```
+
+Use `python auralis.py --help` for detailed command information.
 
 ### Optional Features
 
