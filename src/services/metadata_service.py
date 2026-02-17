@@ -19,6 +19,20 @@ from PyQt6.QtCore import QObject, pyqtSignal
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics
 
+# Optional dependencies
+try:
+    import spotipy
+    from spotipy.oauth2 import SpotifyClientCredentials
+    HAS_SPOTIFY = True
+except ImportError:
+    HAS_SPOTIFY = False
+
+try:
+    import pylast
+    HAS_LASTFM = True
+except ImportError:
+    HAS_LASTFM = False
+
 
 class MetadataSource:
     """Base class for metadata sources"""
@@ -352,6 +366,160 @@ class DiscogsSource(MetadataSource):
         return new_metadata
 
 
+class SpotifySource(MetadataSource):
+    """Spotify metadata source"""
+
+    def __init__(self):
+        super().__init__("Spotify")
+        self.available = HAS_SPOTIFY
+        self.client = None
+        self._init_client()
+
+    def _init_client(self):
+        if not self.available:
+            return
+
+        # Check for credentials in env vars
+        client_id = os.environ.get("SPOTIPY_CLIENT_ID")
+        client_secret = os.environ.get("SPOTIPY_CLIENT_SECRET")
+
+        if client_id and client_secret:
+            try:
+                self.client = spotipy.Spotify(
+                    auth_manager=SpotifyClientCredentials(
+                        client_id=client_id, client_secret=client_secret
+                    )
+                )
+            except Exception as e:
+                print(f"Error initializing Spotify client: {str(e)}")
+                self.available = False
+        else:
+            self.available = False
+
+    def get_metadata(self, file_info):
+        """Get metadata from Spotify"""
+        start_time = time.time()
+
+        if not self.available or not self.client:
+            response_time = time.time() - start_time
+            return {}, False, response_time
+
+        try:
+            metadata = file_info.get("metadata", {})
+            query = ""
+            if metadata.get("artist"):
+                query += f"artist:{metadata['artist']} "
+            if metadata.get("title"):
+                query += f"track:{metadata['title']}"
+
+            if not query.strip():
+                response_time = time.time() - start_time
+                return {}, False, response_time
+
+            results = self.client.search(q=query, type="track", limit=1)
+
+            if results and results["tracks"]["items"]:
+                track = results["tracks"]["items"][0]
+                new_metadata = self._parse_spotify_track(track)
+                response_time = time.time() - start_time
+                return new_metadata, True, response_time
+
+            response_time = time.time() - start_time
+            return {}, False, response_time
+
+        except Exception as e:
+            print(f"Error getting Spotify metadata: {str(e)}")
+            response_time = time.time() - start_time
+            return {}, False, response_time
+
+    def _parse_spotify_track(self, track):
+        """Parse Spotify track data"""
+        new_metadata = {}
+
+        if "name" in track:
+            new_metadata["title"] = track["name"]
+
+        if "artists" in track and track["artists"]:
+            new_metadata["artist"] = track["artists"][0]["name"]
+
+        if "album" in track:
+            new_metadata["album"] = track["album"]["name"]
+            if "release_date" in track["album"]:
+                new_metadata["year"] = track["album"]["release_date"][:4]
+
+        return new_metadata
+
+
+class LastFmSource(MetadataSource):
+    """Last.fm metadata source"""
+
+    def __init__(self):
+        super().__init__("Last.fm")
+        self.available = HAS_LASTFM
+        self.network = None
+        self._init_network()
+
+    def _init_network(self):
+        if not self.available:
+            return
+
+        api_key = os.environ.get("LASTFM_API_KEY")
+        api_secret = os.environ.get("LASTFM_API_SECRET")
+
+        if api_key and api_secret:
+            try:
+                self.network = pylast.LastFMNetwork(api_key=api_key, api_secret=api_secret)
+            except Exception as e:
+                print(f"Error initializing Last.fm network: {str(e)}")
+                self.available = False
+        else:
+            self.available = False
+
+    def get_metadata(self, file_info):
+        """Get metadata from Last.fm"""
+        start_time = time.time()
+
+        if not self.available or not self.network:
+            response_time = time.time() - start_time
+            return {}, False, response_time
+
+        try:
+            metadata = file_info.get("metadata", {})
+            artist_name = metadata.get("artist")
+            title_name = metadata.get("title")
+
+            if not artist_name or not title_name:
+                response_time = time.time() - start_time
+                return {}, False, response_time
+
+            track = self.network.get_track(artist_name, title_name)
+
+            # Verify track exists by getting duration (or other field)
+            # pylast loads lazily, so we need to access a property to trigger request
+            if not track.get_duration():
+                response_time = time.time() - start_time
+                return {}, False, response_time
+
+            new_metadata = {}
+            # Tags as Genre
+            tags = track.get_top_tags(limit=1)
+            if tags:
+                new_metadata["genre"] = tags[0].item.get_name().title()
+
+            # Album
+            album = track.get_album()
+            if album:
+                new_metadata["album"] = album.get_name()
+
+            response_time = time.time() - start_time
+            return new_metadata, True, response_time
+
+        except Exception as e:
+            print(f"Error getting Last.fm metadata: {str(e)}")
+            response_time = time.time() - start_time
+            return {}, False, response_time
+
+
 class MetadataService(QObject):
     """
     Service for fetching and updating music metadata from online sources
@@ -390,6 +558,16 @@ class MetadataService(QObject):
         discogs_source = DiscogsSource()
         self.sources[discogs_source.name] = discogs_source
         self.source_order.append(discogs_source.name)
+
+        # Add Spotify source
+        spotify_source = SpotifySource()
+        self.sources[spotify_source.name] = spotify_source
+        self.source_order.append(spotify_source.name)
+
+        # Add Last.fm source
+        lastfm_source = LastFmSource()
+        self.sources[lastfm_source.name] = lastfm_source
+        self.source_order.append(lastfm_source.name)
 
     def _load_stats(self):
         """Load saved source statistics"""

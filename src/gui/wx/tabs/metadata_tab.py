@@ -4,6 +4,7 @@ Stage 3: Metadata Tab (wxPython)
 
 import wx  # type: ignore
 
+from src.gui.wx.dialogs.api_keys_dialog import APIKeysDialog
 from src.utils.config import get_config
 
 
@@ -31,6 +32,21 @@ class MetadataTab(wx.Panel):
         self.discogs_check = wx.CheckBox(self, label="Discogs")
         self.discogs_check.SetValue(get_config("USE_DISCOGS", True))
         metadata_sizer.Add(self.discogs_check, 0, wx.ALL, 5)
+
+        # Spotify
+        self.spotify_check = wx.CheckBox(self, label="Spotify (Requires API Keys)")
+        self.spotify_check.SetValue(get_config("USE_SPOTIFY", False))
+        metadata_sizer.Add(self.spotify_check, 0, wx.ALL, 5)
+
+        # Last.fm
+        self.lastfm_check = wx.CheckBox(self, label="Last.fm (Requires API Keys)")
+        self.lastfm_check.SetValue(get_config("USE_LASTFM", False))
+        metadata_sizer.Add(self.lastfm_check, 0, wx.ALL, 5)
+
+        # Configure API Keys Button
+        self.config_keys_btn = wx.Button(self, label="Configure API Keys")
+        self.config_keys_btn.Bind(wx.EVT_BUTTON, self.on_configure_api_keys)
+        metadata_sizer.Add(self.config_keys_btn, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         main_sizer.Add(metadata_sizer, 0, wx.EXPAND | wx.ALL, 5)
 
@@ -63,6 +79,15 @@ class MetadataTab(wx.Panel):
 
         self.SetSizer(main_sizer)
 
+    def on_configure_api_keys(self, event):
+        """Open the API Keys configuration dialog"""
+        dlg = APIKeysDialog(self)
+        if dlg.ShowModal() == wx.ID_OK:
+            wx.MessageBox(
+                "API keys saved for current session.", "Configuration Saved", wx.OK | wx.ICON_INFORMATION
+            )
+        dlg.Destroy()
+
     def on_update_clicked(self, event):
         """Handle update button click"""
         # Allow event to propagate
@@ -73,5 +98,7 @@ class MetadataTab(wx.Panel):
         return {
             "use_musicbrainz": self.mb_check.GetValue(),
             "use_discogs": self.discogs_check.GetValue(),
+            "use_spotify": self.spotify_check.GetValue(),
+            "use_lastfm": self.lastfm_check.GetValue(),
             "fetch_lyrics": self.lyrics_check.GetValue(),
         }

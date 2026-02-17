@@ -17,12 +17,12 @@
 ## Medium Priority
 
 - [x] Implement basic wxPython `MainWindow` skeleton.
-- [ ] Update README to reflect current status of wxPython support (or implement it).
+- [x] Update README to reflect current status of wxPython support (or implement it).
 - [x] Add type hinting to `src/core/` modules.
 - [x] Set up CI/CD pipeline (GitHub Actions).
 
 ## Low Priority
 
-- [ ] Implement "Audio Similarity Detection" installation script improvements.
-- [ ] Add more metadata sources (e.g., Spotify, Last.fm).
+- [x] Implement "Audio Similarity Detection" installation script improvements.
+- [x] Add more metadata sources (e.g., Spotify, Last.fm).
 - [ ] Create a CLI interface for headless operation.

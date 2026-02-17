@@ -14,6 +14,12 @@ if "mutagen" not in sys.modules:
     sys.modules["mutagen"] = MagicMock()
 if "requests" not in sys.modules:
     sys.modules["requests"] = MagicMock()
+if "spotipy" not in sys.modules:
+    sys.modules["spotipy"] = MagicMock()
+if "spotipy.oauth2" not in sys.modules:
+    sys.modules["spotipy.oauth2"] = MagicMock()
+if "pylast" not in sys.modules:
+    sys.modules["pylast"] = MagicMock()
 
 # Mock PyQt6
 if "PyQt6" not in sys.modules:
@@ -48,8 +54,10 @@ if "PyQt6" not in sys.modules:
 # Import the service module
 from src.services.metadata_service import (
     DiscogsSource,
+    LastFmSource,
     MetadataService,
     MusicBrainzSource,
+    SpotifySource,
 )
 
 
@@ -167,6 +175,96 @@ class TestDiscogsSource:
         # assert metadata["artist"] == "Discogs Artist"
         assert metadata["year"] == "2021"
         assert metadata["genre"] == "Pop"
+
+
+class TestSpotifySource:
+    @pytest.fixture
+    def spotify_source(self):
+        """Create a SpotifySource instance with mocks"""
+        with patch("src.services.metadata_service.HAS_SPOTIFY", True):
+            with patch("src.services.metadata_service.spotipy", create=True) as mock_spotipy:
+                with patch("src.services.metadata_service.SpotifyClientCredentials", create=True):
+                    with patch("os.environ.get") as mock_env:
+                        mock_env.return_value = "fake_cred"
+
+                        source = SpotifySource()
+                        # Manually attach client since the mock above handles the import,
+                        # but we want to inspect the client in tests
+                        source.client = mock_spotipy.Spotify.return_value
+                        return source
+
+    def test_init(self, spotify_source):
+        """Test initialization"""
+        assert spotify_source.name == "Spotify"
+        assert spotify_source.available is True
+
+    def test_get_metadata_success(self, spotify_source):
+        """Test successful metadata retrieval via Spotify"""
+        # Mock search results
+        mock_track = {
+            "name": "Spotify Title",
+            "artists": [{"name": "Spotify Artist"}],
+            "album": {
+                "name": "Spotify Album",
+                "release_date": "2023-05-05"
+            }
+        }
+
+        spotify_source.client.search.return_value = {
+            "tracks": {
+                "items": [mock_track]
+            }
+        }
+
+        file_info = {"path": "/path/to/file.mp3", "metadata": {"artist": "Artist", "title": "Title"}}
+        metadata, success, _ = spotify_source.get_metadata(file_info)
+
+        assert success is True
+        assert metadata["title"] == "Spotify Title"
+        assert metadata["artist"] == "Spotify Artist"
+        assert metadata["album"] == "Spotify Album"
+        assert metadata["year"] == "2023"
+
+
+class TestLastFmSource:
+    @pytest.fixture
+    def lastfm_source(self):
+        """Create a LastFmSource instance with mocks"""
+        with patch("src.services.metadata_service.HAS_LASTFM", True):
+            with patch("src.services.metadata_service.pylast", create=True) as mock_pylast:
+                with patch("os.environ.get") as mock_env:
+                    mock_env.return_value = "fake_cred"
+
+                    source = LastFmSource()
+                    source.network = mock_pylast.LastFMNetwork.return_value
+                    return source
+
+    def test_init(self, lastfm_source):
+        """Test initialization"""
+        assert lastfm_source.name == "Last.fm"
+        assert lastfm_source.available is True
+
+    def test_get_metadata_success(self, lastfm_source):
+        """Test successful metadata retrieval via Last.fm"""
+        # Mock track
+        mock_track = MagicMock()
+        mock_track.get_duration.return_value = 200000
+        mock_tag = MagicMock()
+        mock_tag.item.get_name.return_value = "rock"
+        mock_track.get_top_tags.return_value = [mock_tag]
+
+        mock_album = MagicMock()
+        mock_album.get_name.return_value = "Last.fm Album"
+        mock_track.get_album.return_value = mock_album
+
+        lastfm_source.network.get_track.return_value = mock_track
+
+        file_info = {"path": "/path/to/file.mp3", "metadata": {"artist": "Artist", "title": "Title"}}
+        metadata, success, _ = lastfm_source.get_metadata(file_info)
+
+        assert success is True
+        assert metadata["genre"] == "Rock"
+        assert metadata["album"] == "Last.fm Album"
 
 
 class TestMetadataService:
