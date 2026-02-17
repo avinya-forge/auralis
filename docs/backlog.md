@@ -11,15 +11,15 @@
 - [x] Refactor `src/services/audio_similarity_service.py` to reduce complexity (C901).
 - [x] Refactor `src/services/metadata_service.py` to reduce complexity (C901).
 - [x] Refactor `src/utils/audio_utils.py` to reduce complexity.
-- [ ] Refactor `src/utils/system_utils.py` to reduce complexity.
+- [x] Refactor `src/utils/system_utils.py` to reduce complexity.
 - [x] Fix all remaining linting issues (flake8) across the codebase.
 
 ## Medium Priority
 
 - [x] Implement basic wxPython `MainWindow` skeleton.
 - [ ] Update README to reflect current status of wxPython support (or implement it).
-- [ ] Add type hinting to `src/core/` modules.
-- [ ] Set up CI/CD pipeline (GitHub Actions).
+- [x] Add type hinting to `src/core/` modules.
+- [x] Set up CI/CD pipeline (GitHub Actions).
 
 ## Low Priority
 

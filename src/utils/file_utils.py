@@ -6,9 +6,10 @@ import hashlib
 import os
 import re
 import shutil
+from typing import Optional
 
 
-def ensure_dir_exists(path):
+def ensure_dir_exists(path: str) -> bool:
     """
     Ensure a directory exists, creating it if necessary
 
@@ -26,7 +27,7 @@ def ensure_dir_exists(path):
         return False
 
 
-def move_file(src, dest, copy_only=False):
+def move_file(src: str, dest: str, copy_only: bool = False) -> bool:
     """
     Move or copy a file, ensuring the destination directory exists
 
@@ -55,7 +56,9 @@ def move_file(src, dest, copy_only=False):
         return False
 
 
-def calculate_file_hash(file_path, block_size=65536, algorithm="md5"):
+def calculate_file_hash(
+    file_path: str, block_size: int = 65536, algorithm: str = "md5"
+) -> Optional[str]:
     """
     Calculate hash of a file
 
@@ -89,7 +92,7 @@ def calculate_file_hash(file_path, block_size=65536, algorithm="md5"):
         return None
 
 
-def get_file_size(file_path):
+def get_file_size(file_path: str) -> int:
     """
     Get the size of a file in bytes
 
@@ -106,7 +109,7 @@ def get_file_size(file_path):
         return 0
 
 
-def get_file_extension(file_path):
+def get_file_extension(file_path: str) -> str:
     """
     Get the extension of a file
 
@@ -123,7 +126,7 @@ def get_file_extension(file_path):
         return ""
 
 
-def clean_string(text):
+def clean_string(text: Optional[str]) -> str:
     """
     Clean a string by removing unnecessary characters
 
@@ -184,7 +187,7 @@ def clean_string(text):
     return text
 
 
-def sanitize_filename(name):
+def sanitize_filename(name: Optional[str]) -> str:
     """
     Sanitize a string to be used as a filename
 
@@ -225,7 +228,12 @@ def sanitize_filename(name):
     return name
 
 
-def format_filename(title, artist=None, movie=None, extension=None):
+def format_filename(
+    title: Optional[str],
+    artist: Optional[str] = None,
+    movie: Optional[str] = None,
+    extension: Optional[str] = None,
+) -> str:
     """
     Format a filename according to the pattern 'songname - artistname' or 'songname - moviename'
 
@@ -239,17 +247,17 @@ def format_filename(title, artist=None, movie=None, extension=None):
         str: Formatted filename
     """
     # Clean inputs
-    title = clean_string(title) if title else "Unknown_Title"
-    artist = clean_string(artist) if artist else None
-    movie = clean_string(movie) if movie else None
+    clean_title = clean_string(title) if title else "Unknown_Title"
+    clean_artist = clean_string(artist) if artist else None
+    clean_movie = clean_string(movie) if movie else None
 
     # Format filename
-    if artist:
-        filename = f"{title}-{artist}"
-    elif movie:
-        filename = f"{title}-{movie}"
+    if clean_artist:
+        filename = f"{clean_title}-{clean_artist}"
+    elif clean_movie:
+        filename = f"{clean_title}-{clean_movie}"
     else:
-        filename = title
+        filename = clean_title
 
     # Sanitize to ensure only allowed characters
     filename = sanitize_filename(filename)
@@ -263,7 +271,7 @@ def format_filename(title, artist=None, movie=None, extension=None):
     return filename
 
 
-def remove_empty_directories(path):
+def remove_empty_directories(path: str) -> int:
     """
     Recursively remove empty directories
 
@@ -292,7 +300,7 @@ def remove_empty_directories(path):
     return removed
 
 
-def ensure_unique_filename(file_path):
+def ensure_unique_filename(file_path: str) -> str:
     """
     Ensure a filename is unique by adding a number if necessary
 

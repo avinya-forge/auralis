@@ -5,8 +5,11 @@ Auralis - Music Scanner Module
 import hashlib
 import os
 import time
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple
 
 import mutagen
+import mutagen.flac
+import mutagen.mp3
 from PyQt6.QtCore import QObject, pyqtSignal
 
 
@@ -22,10 +25,19 @@ class MusicScanner(QObject):
     scan_completed = pyqtSignal(list)  # list of music files
 
     # Default supported music file extensions
-    DEFAULT_EXTENSIONS = {".mp3", ".flac", ".wav", ".aac", ".ogg", ".m4a", ".wma", ".aiff"}
+    DEFAULT_EXTENSIONS: Set[str] = {
+        ".mp3",
+        ".flac",
+        ".wav",
+        ".aac",
+        ".ogg",
+        ".m4a",
+        ".wma",
+        ".aiff",
+    }
 
     # Default directory exclusion patterns
-    DEFAULT_EXCLUDE_PATTERNS = [
+    DEFAULT_EXCLUDE_PATTERNS: List[str] = [
         "$RECYCLE.BIN",
         "System Volume Information",
         "Windows",
@@ -39,12 +51,14 @@ class MusicScanner(QObject):
 
     def __init__(self):
         super().__init__()
-        self.files = []
+        self.files: List[Dict[str, Any]] = []
         self.supported_extensions = self.DEFAULT_EXTENSIONS.copy()
         self.exclude_patterns = self.DEFAULT_EXCLUDE_PATTERNS.copy()
         self.max_scan_depth = 10  # Default max directory depth
 
-    def scan_directories(self, directories, options=None):
+    def scan_directories(
+        self, directories: List[str], options: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
         Scan a list of directories for music files
 
@@ -83,7 +97,7 @@ class MusicScanner(QObject):
         self.scan_completed.emit(self.files)
         return self.files
 
-    def _update_options(self, options):
+    def _update_options(self, options: Optional[Dict[str, Any]]) -> None:
         """Update scanner configuration from options dictionary"""
         if not options:
             return
@@ -111,7 +125,7 @@ class MusicScanner(QObject):
         if "max_scan_depth" in options:
             self.max_scan_depth = int(options["max_scan_depth"])
 
-    def _count_music_files(self, directory):
+    def _count_music_files(self, directory: str) -> int:
         """
         Count the number of music files in a directory tree
 
@@ -143,7 +157,9 @@ class MusicScanner(QObject):
 
         return count
 
-    def _process_directory(self, directory, processed_files, total_files):
+    def _process_directory(
+        self, directory: str, processed_files: int, total_files: int
+    ) -> Generator[Dict[str, Any], None, None]:
         """
         Process all music files in a directory tree
 
@@ -198,7 +214,7 @@ class MusicScanner(QObject):
         except Exception as e:
             print(f"Error processing directory {directory}: {str(e)}")
 
-    def _should_exclude_dir(self, dirname):
+    def _should_exclude_dir(self, dirname: str) -> bool:
         """
         Check if a directory should be excluded
 
@@ -219,12 +235,12 @@ class MusicScanner(QObject):
 
         return False
 
-    def _is_music_file(self, filename):
+    def _is_music_file(self, filename: str) -> bool:
         """Check if a file is a supported music file"""
         _, ext = os.path.splitext(filename.lower())
         return ext in self.supported_extensions
 
-    def _get_modification_time(self, file_path):
+    def _get_modification_time(self, file_path: str) -> str:
         """Get the modification time of a file in human-readable format"""
         try:
             mtime = os.path.getmtime(file_path)
@@ -232,7 +248,7 @@ class MusicScanner(QObject):
         except Exception:
             return "Unknown"
 
-    def _extract_file_info(self, file_path):
+    def _extract_file_info(self, file_path: str) -> Optional[Dict[str, Any]]:
         """
         Extract basic information from a music file
 
@@ -243,7 +259,7 @@ class MusicScanner(QObject):
             dict: Dictionary containing file information
         """
         try:
-            file_info = {
+            file_info: Dict[str, Any] = {
                 "path": file_path,
                 "filename": os.path.basename(file_path),
                 "extension": os.path.splitext(file_path)[1].lower(),
@@ -259,12 +275,12 @@ class MusicScanner(QObject):
             print(f"Error processing file {file_path}: {str(e)}")
             return None
 
-    def _extract_metadata(self, file_path, file_info):
+    def _extract_metadata(self, file_path: str, file_info: Dict[str, Any]) -> None:
         """Helper to extract metadata and update file_info"""
         try:
             audio = mutagen.File(file_path)
             if audio:
-                metadata = {}
+                metadata: Dict[str, Any] = {}
                 self._parse_audio_tags(audio, metadata)
 
                 file_info["metadata"] = metadata
@@ -286,7 +302,7 @@ class MusicScanner(QObject):
                     "title": title if title else "Unknown Title",
                 }
 
-    def _parse_audio_tags(self, audio, metadata):
+    def _parse_audio_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         """Parse tags from mutagen audio object"""
         # MP3 files (ID3 tags)
         if isinstance(audio, mutagen.mp3.MP3):
@@ -337,7 +353,7 @@ class MusicScanner(QObject):
             if hasattr(audio.info, "bitrate"):
                 metadata["bitrate"] = audio.info.bitrate
 
-    def _calculate_file_hash(self, file_path, block_size=65536):
+    def _calculate_file_hash(self, file_path: str, block_size: int = 65536) -> Optional[str]:
         """
         Calculate MD5 hash of a file
 
@@ -360,7 +376,7 @@ class MusicScanner(QObject):
             print(f"Error calculating hash for {file_path}: {str(e)}")
             return None
 
-    def _parse_filename(self, filename):
+    def _parse_filename(self, filename: str) -> Tuple[Optional[str], Optional[str]]:
         """
         Try to parse artist and title from filename
 
