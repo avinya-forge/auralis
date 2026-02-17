@@ -4,6 +4,7 @@ Auralis - Music Organizer Module
 
 import os
 import shutil
+from typing import Any, Dict, List, Optional, cast
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -38,18 +39,20 @@ class MusicOrganizer(QObject):
     organization_completed = pyqtSignal()
     duplicate_found = pyqtSignal(str, str)  # best version, duplicate path
 
-    def __init__(self, dry_run=False):
+    def __init__(self, dry_run: bool = False):
         super().__init__()
-        self.dest_root = None
-        self.options = {}
+        self.dest_root: Optional[str] = None
+        self.options: Dict[str, Any] = {}
         self.dry_run = dry_run  # Whether this is a dry run (no actual file operations)
-        self.processed_files = []  # List of source files that were processed
+        self.processed_files: List[str] = []  # List of source files that were processed
         # Check if language detection is available
         self.language_detection_available = is_language_detection_available()
         # Check if audio similarity detection is available
         self.audio_similarity_available = is_audio_similarity_available()
 
-    def organize_files(self, music_files, dest_root, options):
+    def organize_files(
+        self, music_files: List[Dict[str, Any]], dest_root: str, options: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Organize music files based on metadata and options
 
@@ -64,7 +67,7 @@ class MusicOrganizer(QObject):
         self.dest_root = dest_root
         self.options = options
         self.processed_files = []
-        file_errors = {}  # Track errors by file path
+        file_errors: Dict[str, str] = {}  # Track errors by file path
 
         total_files = len(music_files)
         processed_files = 0
@@ -74,10 +77,10 @@ class MusicOrganizer(QObject):
             self._create_destination_dirs()
 
         # Track duplicates
-        duplicates = []
-        audio_duplicates = []
-        organized_files = []
-        manual_review_files = []
+        duplicates: List[Dict[str, str]] = []
+        audio_duplicates: List[Dict[str, str]] = []
+        organized_files: List[Dict[str, Any]] = []
+        manual_review_files: List[Dict[str, str]] = []
 
         # Check for audio content similarity if enabled and available
         if self.options.get("detect_audio_similarity", False) and self.audio_similarity_available:
@@ -91,7 +94,10 @@ class MusicOrganizer(QObject):
             for group in duplicate_groups:
                 if len(group) > 1:
                     # Get the best quality version
-                    best_version = get_best_quality_version(group)
+                    best_version = cast(Dict[str, Any], get_best_quality_version(group))
+
+                    if not best_version:
+                        continue
 
                     # Add other versions to audio duplicates
                     for duplicate in group:
@@ -122,16 +128,16 @@ class MusicOrganizer(QObject):
                 should_check_dupes = self.options.get("handle_duplicates", True)
                 is_audio_sim = self.options.get("detect_audio_similarity", False)
                 if should_check_dupes and not is_audio_sim:
-                    duplicate = self._check_duplicate(file_info, organized_files)
+                    duplicate_file = self._check_duplicate(file_info, organized_files)
 
-                    if duplicate:
+                    if duplicate_file:
                         # If we're handling duplicates, check quality
-                        if not self._is_higher_quality(file_info, duplicate):
+                        if not self._is_higher_quality(file_info, duplicate_file):
                             # Skip this file, it's lower quality
                             duplicates.append(
                                 {
                                     "original_path": file_info["path"],
-                                    "duplicate_path": duplicate["path"],
+                                    "duplicate_path": duplicate_file["path"],
                                     "reason": "lower_quality",
                                 }
                             )
@@ -157,7 +163,7 @@ class MusicOrganizer(QObject):
                 self.progress_updated.emit(processed_files, total_files)
 
         # Clean up by removing empty directories
-        if not self.dry_run and options.get("remove_empty_dirs", True):
+        if not self.dry_run and self.dest_root and options.get("remove_empty_dirs", True):
             try:
                 removed_count = remove_empty_directories(self.dest_root)
                 print(f"Removed {removed_count} empty directories")
@@ -180,7 +186,15 @@ class MusicOrganizer(QObject):
             "file_errors": file_errors,
         }
 
-    def _handle_manual_review(self, file_info, manual_review_files, file_errors):
+    def _handle_manual_review(
+        self,
+        file_info: Dict[str, Any],
+        manual_review_files: List[Dict[str, str]],
+        file_errors: Dict[str, str],
+    ) -> None:
+        if not self.dest_root:
+            return
+
         manual_review_path = os.path.join(self.dest_root, "Manual_Review")
 
         if not self.dry_run:
@@ -210,7 +224,13 @@ class MusicOrganizer(QObject):
         # Emit signal for dry run tracking
         self.file_organized.emit(file_info["path"], dest_file_path)
 
-    def _handle_file_move(self, file_info, dest_path, organized_files, file_errors):
+    def _handle_file_move(
+        self,
+        file_info: Dict[str, Any],
+        dest_path: str,
+        organized_files: List[Dict[str, Any]],
+        file_errors: Dict[str, str],
+    ) -> None:
         # Create destination directory if it doesn't exist
         if not self.dry_run:
             try:
@@ -237,8 +257,11 @@ class MusicOrganizer(QObject):
         # Emit signal for dry run tracking
         self.file_organized.emit(file_info["path"], dest_path)
 
-    def _create_destination_dirs(self):
+    def _create_destination_dirs(self) -> None:
         """Create necessary destination directories"""
+        if not self.dest_root:
+            return
+
         # Base destination directory
         os.makedirs(self.dest_root, exist_ok=True)
 
@@ -251,7 +274,7 @@ class MusicOrganizer(QObject):
             # Create just the Unknown folder as a fallback
             os.makedirs(os.path.join(self.dest_root, "Unknown"), exist_ok=True)
 
-    def _get_destination_path(self, file_info):
+    def _get_destination_path(self, file_info: Dict[str, Any]) -> str:
         """
         Determine the destination path for a file
 
@@ -261,6 +284,9 @@ class MusicOrganizer(QObject):
         Returns:
             str: Destination path
         """
+        if not self.dest_root:
+            raise ValueError("Destination root not set")
+
         metadata = file_info.get("metadata", {})
 
         # Use a flatter directory structure
@@ -306,7 +332,9 @@ class MusicOrganizer(QObject):
         # Ensure unique filename
         return ensure_unique_filename(dest_path)
 
-    def _check_duplicate(self, file_info, organized_files):
+    def _check_duplicate(
+        self, file_info: Dict[str, Any], organized_files: List[Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
         """
         Check if a file is a duplicate of an already organized file
 
@@ -338,7 +366,7 @@ class MusicOrganizer(QObject):
 
         return None
 
-    def _is_higher_quality(self, file_info, other_file):
+    def _is_higher_quality(self, file_info: Dict[str, Any], other_file: Dict[str, Any]) -> bool:
         """
         Check if a file is higher quality than another
 
@@ -379,9 +407,9 @@ class MusicOrganizer(QObject):
             return False
 
         # Check file size
-        return file_info["size"] > other_file["size"]
+        return bool(file_info["size"] > other_file["size"])
 
-    def _needs_manual_review(self, file_info):
+    def _needs_manual_review(self, file_info: Dict[str, Any]) -> bool:
         """
         Check if a file needs manual review
 
@@ -402,6 +430,6 @@ class MusicOrganizer(QObject):
 
         return False
 
-    def get_processed_files(self):
+    def get_processed_files(self) -> List[str]:
         """Get list of source files that were processed"""
         return self.processed_files

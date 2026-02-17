@@ -15,14 +15,16 @@ from src.gui.ui_factory import UIFactory, get_ui_framework
 class TestUIFactory:
 
     @pytest.fixture(autouse=True)
-    def mock_pyqt6(self):
-        """Mock PyQt6 to avoid ImportError in CI environment"""
+    def mock_gui_modules(self):
+        """Mock GUI modules to avoid ImportError in CI environment"""
         with patch.dict(
             "sys.modules",
             {
                 "PyQt6": MagicMock(),
                 "PyQt6.QtWidgets": MagicMock(),
                 "src.gui.pyqt.main_window": MagicMock(),
+                "wx": MagicMock(),
+                "src.gui.wx.main_window": MagicMock(),
             },
         ):
             yield
@@ -53,7 +55,16 @@ class TestUIFactory:
     @patch("src.gui.ui_factory.get_ui_framework")
     def test_create_app_wxpython_not_installed(self, mock_framework):
         mock_framework.return_value = "wxpython"
-        # Simulate wx not being installed
+        # Simulate wx not being installed by patching import inside the function?
+        # Since sys.modules is patched globally by the fixture, "import wx" returns the mock.
+        # To simulate ImportError, we need to override the fixture for this test
+        # or verify if we can raise ImportError when accessing the mock.
+
+        # We can temporarily unpatch 'wx' in sys.modules or set side_effect.
+        # But sys.modules lookup happens at import time.
+        # Since UIFactory.create_app does 'import wx' inside the function,
+        # we can control it via sys.modules.
+
         with patch.dict("sys.modules", {"wx": None}):
             with pytest.raises(ImportError):
                 UIFactory.create_app([])
@@ -77,8 +88,12 @@ class TestUIFactory:
     @patch("src.gui.ui_factory.get_ui_framework")
     def test_create_main_window_wxpython(self, mock_framework):
         mock_framework.return_value = "wxpython"
-        with pytest.raises(NotImplementedError):
-            UIFactory.create_main_window()
+
+        # Access the mock from sys.modules
+        mock_mw_cls = sys.modules["src.gui.wx.main_window"].MainWindow
+
+        UIFactory.create_main_window()
+        mock_mw_cls.assert_called_once()
 
     def test_get_icon_path(self):
         path = UIFactory.get_icon_path("test")
