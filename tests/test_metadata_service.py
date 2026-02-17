@@ -204,19 +204,15 @@ class TestSpotifySource:
         mock_track = {
             "name": "Spotify Title",
             "artists": [{"name": "Spotify Artist"}],
-            "album": {
-                "name": "Spotify Album",
-                "release_date": "2023-05-05"
-            }
+            "album": {"name": "Spotify Album", "release_date": "2023-05-05"},
         }
 
-        spotify_source.client.search.return_value = {
-            "tracks": {
-                "items": [mock_track]
-            }
-        }
+        spotify_source.client.search.return_value = {"tracks": {"items": [mock_track]}}
 
-        file_info = {"path": "/path/to/file.mp3", "metadata": {"artist": "Artist", "title": "Title"}}
+        file_info = {
+            "path": "/path/to/file.mp3",
+            "metadata": {"artist": "Artist", "title": "Title"},
+        }
         metadata, success, _ = spotify_source.get_metadata(file_info)
 
         assert success is True
@@ -259,7 +255,10 @@ class TestLastFmSource:
 
         lastfm_source.network.get_track.return_value = mock_track
 
-        file_info = {"path": "/path/to/file.mp3", "metadata": {"artist": "Artist", "title": "Title"}}
+        file_info = {
+            "path": "/path/to/file.mp3",
+            "metadata": {"artist": "Artist", "title": "Title"},
+        }
         metadata, success, _ = lastfm_source.get_metadata(file_info)
 
         assert success is True

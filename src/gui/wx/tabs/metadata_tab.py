@@ -84,7 +84,9 @@ class MetadataTab(wx.Panel):
         dlg = APIKeysDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
             wx.MessageBox(
-                "API keys saved for current session.", "Configuration Saved", wx.OK | wx.ICON_INFORMATION
+                "API keys saved for current session.",
+                "Configuration Saved",
+                wx.OK | wx.ICON_INFORMATION,
             )
         dlg.Destroy()
 
