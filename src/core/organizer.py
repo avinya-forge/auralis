@@ -4,7 +4,7 @@ Auralis - Music Organizer Module
 
 import os
 import shutil
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, cast
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -366,9 +366,7 @@ class MusicOrganizer(QObject):
 
         return None
 
-    def _is_higher_quality(
-        self, file_info: Dict[str, Any], other_file: Dict[str, Any]
-    ) -> bool:
+    def _is_higher_quality(self, file_info: Dict[str, Any], other_file: Dict[str, Any]) -> bool:
         """
         Check if a file is higher quality than another
 
