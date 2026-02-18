@@ -7,9 +7,9 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Ensure src is in path
-sys.path.append(".")
+sys.path.append(".")  # noqa: E402
 
-from src.cli.cli_main import run_cli, ConsoleHandler
+from src.cli.cli_main import run_cli, ConsoleHandler  # noqa: E402
 
 
 class TestCLI(unittest.TestCase):
@@ -81,7 +81,7 @@ class TestCLI(unittest.TestCase):
         # args[0] files, args[1] dest, args[2] options
         self.assertEqual(args[1], "dest_dir")
         self.assertEqual(args[2]['rename_files'], False)
-        self.assertEqual(args[2]['organize_by_language'], True) # Default
+        self.assertEqual(args[2]['organize_by_language'], True)  # Default
 
     @patch('src.cli.cli_main.MetadataService')
     @patch('src.cli.cli_main._load_files')
@@ -109,7 +109,7 @@ class TestCLI(unittest.TestCase):
         # args[0] files, args[1] options
         options = args[1]
         self.assertEqual(options['use_musicbrainz'], False)
-        self.assertEqual(options['use_discogs'], True) # Default
+        self.assertEqual(options['use_discogs'], True)  # Default
         self.assertEqual(options['force_update'], True)
 
     def test_console_handler(self):
@@ -131,6 +131,7 @@ class TestCLI(unittest.TestCase):
             handler.on_progress_updated(10, 10)
             progress_bar_instance.close.assert_called()
             self.assertIsNone(handler.progress_bar)
+
 
 if __name__ == "__main__":
     unittest.main()

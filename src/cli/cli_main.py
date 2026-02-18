@@ -146,7 +146,7 @@ def run_cli():
 
     # Initialize QCoreApplication
     # We need to assign it to a variable to keep it alive, even if not used directly
-    _app = QCoreApplication(sys.argv)
+    _app = QCoreApplication(sys.argv)  # noqa: F841
 
     parser = setup_parser()
     args = parser.parse_args()
