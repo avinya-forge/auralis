@@ -19,14 +19,32 @@ setup(
         "numpy>=1.20.0",
         "psutil>=5.9.0",
         "python-dotenv>=0.19.0",
-        # Optional dependencies
-        "SpeechRecognition>=3.8.0",
-        "langdetect>=1.0.9",
         "pydub>=0.25.1",
-        "librosa>=0.9.0",
-        "scikit-learn>=1.0.0",
-        "soundfile>=0.10.0",
     ],
+    extras_require={
+        "metadata": [
+            "spotipy>=2.19.0",
+            "pylast>=4.3.0",
+        ],
+        "audio": [
+            "librosa>=0.9.0",
+            "scikit-learn>=1.0.0",
+            "soundfile>=0.10.0",
+        ],
+        "language": [
+            "SpeechRecognition>=3.8.0",
+            "langdetect>=1.0.9",
+        ],
+        "all": [
+            "spotipy>=2.19.0",
+            "pylast>=4.3.0",
+            "librosa>=0.9.0",
+            "scikit-learn>=1.0.0",
+            "soundfile>=0.10.0",
+            "SpeechRecognition>=3.8.0",
+            "langdetect>=1.0.9",
+        ],
+    },
     entry_points={
         "console_scripts": [
             "auralis=auralis:main",

@@ -49,6 +49,9 @@ class TestAudioSimilarityService:
 
     def test_compute_fingerprint(self, service):
         """Test fingerprint computation"""
+        # Configure np mock to return numbers for std to avoid comparison errors
+        np.std.return_value = 1.0
+
         # Mock librosa functions
         with patch("src.services.audio_similarity_service.librosa") as mock_librosa:
             # Setup mocks
@@ -64,11 +67,8 @@ class TestAudioSimilarityService:
             mock_librosa.feature.melspectrogram.assert_called()
             mock_librosa.power_to_db.assert_called()
 
-            # Verify result (should be a numpy array of shape (128,))
+            # Verify result
             assert isinstance(fingerprint, np.ndarray) or isinstance(fingerprint, MagicMock)
-            # Since we mocked np.mean and np.std inside the method implicitly (via numpy usage),
-            # let's check if it returns something.
-            # Actually, the method uses np directly.
 
     def test_compute_similarity(self, service):
         """Test similarity computation"""

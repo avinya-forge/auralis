@@ -8,13 +8,255 @@ embed them in the file's metadata.
 import json
 import logging
 import re
+import time
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import requests  # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
 
 # Set up logging
 logger = logging.getLogger("auralis.lyrics")
+
+
+class LyricsProvider(ABC):
+    """Abstract base class for lyrics providers"""
+
+    def __init__(self, session: requests.Session):
+        self.session = session
+        self.name = "Base"
+
+    @abstractmethod
+    def get_lyrics(self, artist: str, title: str) -> Optional[str]:
+        """
+        Fetch lyrics for a song
+
+        Args:
+            artist (str): The artist name
+            title (str): The song title
+
+        Returns:
+            str or None: The lyrics if found, None otherwise
+        """
+        pass
+
+    def _clean_name(self, name: str) -> str:
+        """Clean up artist or title name for better matching"""
+        if not name:
+            return ""
+
+        # Remove featuring artists
+        name = re.sub(r"\(feat\..*?\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\bft\..*?$", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\bfeat\..*?$", "", name, flags=re.IGNORECASE)
+
+        # Remove version info
+        name = re.sub(r"\(.*?version\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\(.*?remix\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\(.*?edit\)", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\s-\s.*remix.*", "", name, flags=re.IGNORECASE)
+
+        # Remove other common suffixes in parentheses
+        name = re.sub(r"\(.*?\)", "", name)
+        name = re.sub(r"\[.*?\]", "", name)
+
+        # Clean up whitespace
+        name = re.sub(r"\s+", " ", name)
+        name = name.strip()
+
+        return name
+
+
+class GeniusProvider(LyricsProvider):
+    """Lyrics provider for Genius.com"""
+
+    def __init__(self, session: requests.Session):
+        super().__init__(session)
+        self.name = "Genius"
+
+    def get_lyrics(self, artist: str, title: str) -> Optional[str]:
+        """Fetch lyrics from Genius"""
+        try:
+            # Clean names
+            artist = self._clean_name(artist)
+            title = self._clean_name(title)
+
+            # Search for the song
+            response = self.session.get(
+                "https://genius.com/api/search/multi",
+                params={"q": f"{artist} {title}"},
+                timeout=10
+            )
+
+            if response.status_code != 200:
+                return None
+
+            data = response.json()
+
+            # Find the first song hit
+            sections = data.get("response", {}).get("sections", [])
+            for section in sections:
+                if section.get("type") == "song":
+                    hits = section.get("hits", [])
+                    if hits:
+                        # Try to match artist name to avoid bad covers
+                        for hit in hits:
+                            result = hit.get("result", {})
+                            hit_artist = result.get("primary_artist", {}).get("name", "")
+
+                            # Simple containment check (case insensitive)
+                            if artist.lower() in hit_artist.lower() or hit_artist.lower() in artist.lower():
+                                song_path = result.get("path")
+                                if song_path:
+                                    return self._fetch_lyrics_from_path(song_path)
+            return None
+
+        except Exception as e:
+            logger.error(f"Error fetching from Genius: {str(e)}")
+            return None
+
+    def _fetch_lyrics_from_path(self, song_path: str) -> Optional[str]:
+        """Fetch lyrics from a Genius song path"""
+        try:
+            lyrics_url = f"https://genius.com{song_path}"
+            response = self.session.get(lyrics_url, timeout=10)
+
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Genius has multiple formats for lyrics containers
+            # 1. <div class="lyrics">...</div> (Old)
+            # 2. <div data-lyrics-container="true">...</div> (New)
+
+            lyrics_divs = soup.find_all("div", attrs={"data-lyrics-container": "true"})
+
+            if lyrics_divs:
+                lyrics_parts = []
+                for div in lyrics_divs:
+                    # Replace <br> with newlines
+                    for br in div.find_all("br"):
+                        br.replace_with("\n")
+                    lyrics_parts.append(div.get_text())
+
+                lyrics = "\n\n".join(lyrics_parts)
+            else:
+                # Fallback to old format
+                lyrics_div = soup.find("div", class_="lyrics")
+                if lyrics_div:
+                    lyrics = lyrics_div.get_text()
+                else:
+                    return None
+
+            # Clean up
+            lyrics = lyrics.strip()
+            # Remove [Verse], [Chorus] headers if desired, but many users like them.
+            # We keep them but ensure clean spacing.
+
+            return lyrics
+
+        except Exception as e:
+            logger.error(f"Error parsing Genius lyrics: {str(e)}")
+            return None
+
+
+class TekstowoProvider(LyricsProvider):
+    """Lyrics provider for Tekstowo.pl"""
+
+    def __init__(self, session: requests.Session):
+        super().__init__(session)
+        self.name = "Tekstowo"
+
+    def get_lyrics(self, artist: str, title: str) -> Optional[str]:
+        """Fetch lyrics from Tekstowo"""
+        try:
+            # Clean names
+            artist = self._clean_name(artist)
+            title = self._clean_name(title)
+
+            # Search
+            search_url = "https://www.tekstowo.pl/szukaj,wykonawca,tytul.html"
+            params = {"search-artist": artist, "search-title": title}
+
+            response = self.session.get(search_url, params=params, timeout=10)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Find results
+            # Results are usually in a div with class "content" -> "box-przeboje" or similar
+            # Tekstowo search results structure changes often, but usually lists links to songs.
+
+            # Look for links that look like /piosenka,artist,title.html
+            results = soup.find_all("a", class_="title")
+
+            for result in results:
+                # result text is usually "Artist - Title"
+                text = result.get_text().strip()
+                if " - " in text:
+                    res_artist, res_title = text.split(" - ", 1)
+
+                    # Basic check
+                    if (artist.lower() in res_artist.lower() or res_artist.lower() in artist.lower()) and \
+                       (title.lower() in res_title.lower() or res_title.lower() in title.lower()):
+
+                        link = result.get("href")
+                        if link:
+                            return self._fetch_lyrics_from_path(link)
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error fetching from Tekstowo: {str(e)}")
+            return None
+
+    def _fetch_lyrics_from_path(self, path: str) -> Optional[str]:
+        """Fetch lyrics from Tekstowo path"""
+        try:
+            if not path.startswith("http"):
+                url = f"https://www.tekstowo.pl{path}"
+            else:
+                url = path
+
+            response = self.session.get(url, timeout=10)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Lyrics are in div class="song-text"
+            lyrics_div = soup.find("div", class_="song-text")
+
+            if lyrics_div:
+                # Remove script tags if any
+                for script in lyrics_div.find_all("script"):
+                    script.decompose()
+
+                # Remove "Poznaj historię zmian tego tekstu" link usually at bottom
+                for a in lyrics_div.find_all("a"):
+                    if "historię zmian" in a.get_text():
+                        a.decompose()
+
+                # Get text with separators
+                lyrics = lyrics_div.get_text(separator="\n").strip()
+
+                # Tekstowo often puts "Tekst piosenki:" at top
+                if lyrics.startswith("Tekst piosenki:"):
+                    lyrics = lyrics.replace("Tekst piosenki:", "", 1).strip()
+
+                # Remove translation header if present (Tekstowo often has translation side by side or below)
+                # But typically main lyrics are in song-text.
+
+                return lyrics
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error parsing Tekstowo lyrics: {str(e)}")
+            return None
 
 
 class LyricsService:
@@ -28,6 +270,18 @@ class LyricsService:
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": self.user_agent})
 
+        self.providers: List[LyricsProvider] = []
+        self._init_providers()
+
+    def _init_providers(self):
+        """Initialize default providers"""
+        self.register_provider(GeniusProvider(self.session))
+        self.register_provider(TekstowoProvider(self.session))
+
+    def register_provider(self, provider: LyricsProvider):
+        """Register a lyrics provider"""
+        self.providers.append(provider)
+
     def fetch_lyrics(self, artist: str, title: str) -> Optional[str]:
         """
         Fetch lyrics for a song from various sources
@@ -39,28 +293,24 @@ class LyricsService:
         Returns:
             str or None: The lyrics if found, None otherwise
         """
-        # Clean up artist and title
-        artist = self._clean_name(artist)
-        title = self._clean_name(title)
-
         # Check cache first
         cache_key = f"{artist}|{title}".lower()
         if cache_key in self.cache:
             logger.info(f"Using cached lyrics for {artist} - {title}")
             return str(self.cache[cache_key])
 
-        # Try different sources in order of reliability
-        # Try Genius
-        genius_lyrics = self._fetch_from_genius(artist, title)
-        if genius_lyrics:
-            self.cache[cache_key] = genius_lyrics
-            return genius_lyrics
-
-        # Try Musixmatch (limited without API key)
-        musixmatch_lyrics = self._fetch_from_musixmatch(artist, title)
-        if musixmatch_lyrics:
-            self.cache[cache_key] = musixmatch_lyrics
-            return musixmatch_lyrics
+        # Try each provider
+        for provider in self.providers:
+            try:
+                logger.info(f"Fetching lyrics from {provider.name} for {artist} - {title}")
+                lyrics = provider.get_lyrics(artist, title)
+                if lyrics:
+                    logger.info(f"Found lyrics via {provider.name}")
+                    self.cache[cache_key] = lyrics
+                    return lyrics
+            except Exception as e:
+                logger.error(f"Error fetching from {provider.name}: {str(e)}")
+                continue
 
         logger.warning(f"Could not find lyrics for {artist} - {title}")
         return None
@@ -135,180 +385,6 @@ class LyricsService:
         except Exception as e:
             logger.error(f"Error embedding lyrics: {str(e)}")
             return False
-
-    def _clean_name(self, name: str) -> str:
-        """Clean up artist or title name for better matching"""
-        if not name:
-            return ""
-
-        # Remove featuring artists
-        name = re.sub(r"\(feat\..*?\)", "", name)
-        name = re.sub(r"\bft\..*?$", "", name)
-        name = re.sub(r"\bfeat\..*?$", "", name)
-
-        # Remove version info
-        name = re.sub(r"\(.*?version\)", "", name, flags=re.IGNORECASE)
-        name = re.sub(r"\(.*?remix\)", "", name, flags=re.IGNORECASE)
-        name = re.sub(r"\(.*?edit\)", "", name, flags=re.IGNORECASE)
-
-        # Remove other common suffixes in parentheses
-        name = re.sub(r"\(.*?\)", "", name)
-        name = re.sub(r"\[.*?\]", "", name)
-
-        # Clean up whitespace
-        name = re.sub(r"\s+", " ", name)
-        name = name.strip()
-
-        return name
-
-    def _fetch_from_genius(self, artist: str, title: str) -> Optional[str]:
-        """Fetch lyrics from Genius"""
-        try:
-            # Search for the song
-            search_url = f"https://genius.com/api/search/multi?q={artist} {title}"
-            search_url = search_url.replace(" ", "%20")
-
-            response = self.session.get(search_url, timeout=10)
-            if response.status_code != 200:
-                return None
-
-            data = response.json()
-
-            # Find the first song hit
-            sections = data.get("response", {}).get("sections", [])
-            for section in sections:
-                if section.get("type") == "song":
-                    hits = section.get("hits", [])
-                    if hits:
-                        song_path = hits[0].get("result", {}).get("path")
-                        if song_path:
-                            # Get the lyrics page
-                            lyrics_url = f"https://genius.com{song_path}"
-                            lyrics_response = self.session.get(lyrics_url, timeout=10)
-
-                            if lyrics_response.status_code == 200:
-                                # Extract lyrics using regex
-                                html = lyrics_response.text
-
-                                # Look for the lyrics div
-                                lyrics_match = re.search(
-                                    r'<div class="lyrics">(.+?)</div>', html, re.DOTALL
-                                )
-                                if lyrics_match:
-                                    lyrics = lyrics_match.group(1)
-                                else:
-                                    # Newer Genius format
-                                    lyrics_json = re.search(
-                                        r"__PRELOADED_STATE__ = JSON.parse\((.+?)\);</script>", html
-                                    )
-                                    if lyrics_json:
-                                        json_str = lyrics_json.group(1).strip("'")
-                                        try:
-                                            json_data = json.loads(json_str)
-                                            song_data = json_data.get("songPage", {}).get(
-                                                "lyricsData", {}
-                                            )
-                                            lyrics = song_data.get("body", {}).get("html", "")
-                                        except BaseException:
-                                            return None
-                                    else:
-                                        # Try another approach
-                                        lyrics_container = re.search(
-                                            r'<div[^>]*class="[^"]*Lyrics__Container[^"]*"[^>]*>(.+?)</div>\s*</div>',
-                                            html,
-                                            re.DOTALL,
-                                        )
-                                        if lyrics_container:
-                                            lyrics = lyrics_container.group(1)
-                                        else:
-                                            return None
-
-                                # Clean up HTML tags
-                                lyrics = re.sub(r"<[^>]+>", "", lyrics)
-                                # Remove [Verse], [Chorus], etc.
-                                lyrics = re.sub(r"\[.*?\]", "", lyrics)
-
-                                # Fix HTML entities
-                                lyrics = lyrics.replace("&amp;", "&")
-                                lyrics = lyrics.replace("&lt;", "<")
-                                lyrics = lyrics.replace("&gt;", ">")
-                                lyrics = lyrics.replace("&quot;", '"')
-
-                                # Clean up whitespace
-                                lyrics = re.sub(r"\n{3,}", "\n\n", lyrics)
-                                lyrics = lyrics.strip()
-
-                                return lyrics
-
-            return None
-
-        except Exception as e:
-            logger.error(f"Error fetching lyrics from Genius: {str(e)}")
-            return None
-
-    def _fetch_from_musixmatch(self, artist: str, title: str) -> Optional[str]:
-        """Fetch lyrics from Musixmatch (limited without API key)"""
-        try:
-            # Search for the song
-            search_term = f"{artist} {title}".replace(" ", "%20")
-            search_url = f"https://www.musixmatch.com/search/{search_term}"
-
-            response = self.session.get(search_url, timeout=10)
-            if response.status_code != 200:
-                return None
-
-            # Extract the first song URL
-            html = response.text
-            song_link_match = re.search(r'href="(/lyrics/[^"]+)"', html)
-
-            if not song_link_match:
-                return None
-
-            # Get the lyrics page
-            lyrics_path = song_link_match.group(1)
-            lyrics_url = f"https://www.musixmatch.com{lyrics_path}"
-
-            lyrics_response = self.session.get(lyrics_url, timeout=10)
-            if lyrics_response.status_code != 200:
-                return None
-
-            # Extract lyrics using regex
-            html = lyrics_response.text
-            lyrics_match = re.search(
-                r'<span class="lyrics__content__ok">(.+?)</span>', html, re.DOTALL
-            )
-
-            if not lyrics_match:
-                # Try another pattern
-                lyrics_match = re.search(
-                    r'<div class="mxm-lyrics"><span class="lyrics__content__[^"]*">(.+?)</span></div>',
-                    html,
-                    re.DOTALL,
-                )
-
-            if lyrics_match:
-                lyrics = lyrics_match.group(1)
-
-                # Clean up HTML tags
-                lyrics = re.sub(r"<[^>]+>", "\n", lyrics)
-
-                # Fix HTML entities
-                lyrics = lyrics.replace("&amp;", "&")
-                lyrics = lyrics.replace("&lt;", "<")
-                lyrics = lyrics.replace("&gt;", ">")
-                lyrics = lyrics.replace("&quot;", '"')
-
-                # Clean up whitespace
-                lyrics = re.sub(r"\n{3,}", "\n\n", lyrics)
-                lyrics = lyrics.strip()
-
-                return lyrics
-
-            return None
-
-        except Exception as e:
-            logger.error(f"Error fetching lyrics from Musixmatch: {str(e)}")
-            return None
 
 
 # Singleton instance
