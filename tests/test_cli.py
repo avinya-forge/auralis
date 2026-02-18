@@ -17,13 +17,13 @@ class TestCLI(unittest.TestCase):
 
     def setUp(self):
         # Mock QCoreApplication to avoid issues
-        self.app_patcher = patch('src.cli.cli_main.QCoreApplication')
+        self.app_patcher = patch("src.cli.cli_main.QCoreApplication")
         self.mock_app = self.app_patcher.start()
 
     def tearDown(self):
         self.app_patcher.stop()
 
-    @patch('src.cli.cli_main.MusicScanner')
+    @patch("src.cli.cli_main.MusicScanner")
     def test_scan_command(self, mock_scanner_cls):
         """Test scan command"""
         # Setup mock
@@ -45,14 +45,14 @@ class TestCLI(unittest.TestCase):
         args, kwargs = scanner.scan_directories.call_args
         # args[0] is directories, args[1] is options
         self.assertEqual(args[0], ["test_dir"])
-        self.assertEqual(args[1]['max_scan_depth'], 5)
+        self.assertEqual(args[1]["max_scan_depth"], 5)
 
         # Verify signals connected
         scanner.progress_updated.connect.assert_called()
         scanner.file_scanned.connect.assert_called()
 
-    @patch('src.cli.cli_main.MusicOrganizer')
-    @patch('src.cli.cli_main._load_files')
+    @patch("src.cli.cli_main.MusicOrganizer")
+    @patch("src.cli.cli_main._load_files")
     def test_organize_command(self, mock_load_files, mock_organizer_cls):
         """Test organize command"""
         # Setup mock
@@ -67,7 +67,14 @@ class TestCLI(unittest.TestCase):
         mock_load_files.return_value = [{"path": "test.mp3"}]
 
         # Run CLI
-        test_args = ["cli_main.py", "organize", "source_dir", "dest_dir", "--dry-run", "--no-rename"]
+        test_args = [
+            "cli_main.py",
+            "organize",
+            "source_dir",
+            "dest_dir",
+            "--dry-run",
+            "--no-rename",
+        ]
         with patch.object(sys, "argv", test_args):
             run_cli()
 
@@ -80,11 +87,11 @@ class TestCLI(unittest.TestCase):
         args, kwargs = organizer.organize_files.call_args
         # args[0] files, args[1] dest, args[2] options
         self.assertEqual(args[1], "dest_dir")
-        self.assertEqual(args[2]['rename_files'], False)
-        self.assertEqual(args[2]['organize_by_language'], True)  # Default
+        self.assertEqual(args[2]["rename_files"], False)
+        self.assertEqual(args[2]["organize_by_language"], True)  # Default
 
-    @patch('src.cli.cli_main.MetadataService')
-    @patch('src.cli.cli_main._load_files')
+    @patch("src.cli.cli_main.MetadataService")
+    @patch("src.cli.cli_main._load_files")
     def test_metadata_command(self, mock_load_files, mock_metadata_cls):
         """Test metadata command"""
         # Setup mock
@@ -108,16 +115,16 @@ class TestCLI(unittest.TestCase):
         args, kwargs = service.update_metadata.call_args
         # args[0] files, args[1] options
         options = args[1]
-        self.assertEqual(options['use_musicbrainz'], False)
-        self.assertEqual(options['use_discogs'], True)  # Default
-        self.assertEqual(options['force_update'], True)
+        self.assertEqual(options["use_musicbrainz"], False)
+        self.assertEqual(options["use_discogs"], True)  # Default
+        self.assertEqual(options["force_update"], True)
 
     def test_console_handler(self):
         """Test ConsoleHandler logic"""
         handler = ConsoleHandler()
 
         # Mock tqdm
-        with patch('src.cli.cli_main.tqdm') as mock_tqdm:
+        with patch("src.cli.cli_main.tqdm") as mock_tqdm:
             # First update creates tqdm
             handler.on_progress_updated(5, 10)
             mock_tqdm.assert_called_once()

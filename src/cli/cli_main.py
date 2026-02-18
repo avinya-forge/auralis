@@ -76,7 +76,12 @@ def setup_parser():
 
     # Global options
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-    parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR"], default="INFO", help="Set logging level")
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO",
+        help="Set logging level",
+    )
     parser.add_argument("--config", help="Path to configuration file")
 
     # Subcommands
@@ -88,9 +93,7 @@ def setup_parser():
     scan_parser.add_argument(
         "--extensions", help="Comma-separated list of file extensions (e.g. mp3,flac)"
     )
-    scan_parser.add_argument(
-        "--exclude", help="Comma-separated list of patterns to exclude"
-    )
+    scan_parser.add_argument("--exclude", help="Comma-separated list of patterns to exclude")
     scan_parser.add_argument(
         "--depth", type=int, default=10, help="Maximum directory depth to scan"
     )
@@ -109,12 +112,8 @@ def setup_parser():
     org_parser.add_argument(
         "--no-similarity", action="store_true", help="Disable audio similarity detection"
     )
-    org_parser.add_argument(
-        "--no-rename", action="store_true", help="Disable file renaming"
-    )
-    org_parser.add_argument(
-        "--keep-duplicates", action="store_true", help="Keep duplicate files"
-    )
+    org_parser.add_argument("--no-rename", action="store_true", help="Disable file renaming")
+    org_parser.add_argument("--keep-duplicates", action="store_true", help="Keep duplicate files")
     org_parser.add_argument(
         "--keep-empty-dirs", action="store_true", help="Do not remove empty directories"
     )
@@ -122,15 +121,9 @@ def setup_parser():
     # Metadata command
     meta_parser = subparsers.add_parser("metadata", help="Update metadata")
     meta_parser.add_argument("source", help="Source directory or JSON file")
-    meta_parser.add_argument(
-        "--no-musicbrainz", action="store_true", help="Disable MusicBrainz"
-    )
-    meta_parser.add_argument(
-        "--no-discogs", action="store_true", help="Disable Discogs"
-    )
-    meta_parser.add_argument(
-        "--no-lyrics", action="store_true", help="Disable lyrics fetching"
-    )
+    meta_parser.add_argument("--no-musicbrainz", action="store_true", help="Disable MusicBrainz")
+    meta_parser.add_argument("--no-discogs", action="store_true", help="Disable Discogs")
+    meta_parser.add_argument("--no-lyrics", action="store_true", help="Disable lyrics fetching")
     meta_parser.add_argument(
         "--force", action="store_true", help="Force update even if metadata exists"
     )
