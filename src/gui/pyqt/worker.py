@@ -2,7 +2,6 @@
 Worker Thread for Auralis PyQt6 Main Window
 """
 
-import time
 import traceback
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -106,9 +105,9 @@ class WorkerThread(QThread):
             # --- STAGE 2: ORGANIZE ---
             if self.STAGE_ORGANIZE in self.active_stages:
                 if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                     # If we skipped scan, we might have passed files differently?
-                     # For now, assume we need scan results.
-                     self.status_updated.emit("Skipping organize: No files scanned.")
+                    # If we skipped scan, we might have passed files differently?
+                    # For now, assume we need scan results.
+                    self.status_updated.emit("Skipping organize: No files scanned.")
                 elif self.scanned_files:
                     self.status_updated.emit("Starting organization...")
 
@@ -138,7 +137,7 @@ class WorkerThread(QThread):
             # --- STAGE 3: METADATA ---
             if self.STAGE_METADATA in self.active_stages:
                 if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                     self.status_updated.emit("Skipping metadata: No files scanned.")
+                    self.status_updated.emit("Skipping metadata: No files scanned.")
                 elif self.scanned_files:
                     self.status_updated.emit("Starting metadata update...")
 

@@ -2,7 +2,7 @@
 Custom Events for wxPython GUI
 """
 
-import wx.lib.newevent # type: ignore
+import wx.lib.newevent  # type: ignore
 
 # Progress event: carries stage (str), current (int), total (int)
 ProgressEvent, EVT_PROGRESS = wx.lib.newevent.NewEvent()

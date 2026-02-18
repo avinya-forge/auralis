@@ -3,7 +3,6 @@ Worker Thread for Auralis wxPython Main Window
 """
 
 import threading
-import time
 import traceback
 import wx
 
@@ -84,7 +83,8 @@ class WorkerThread(threading.Thread):
 
             # --- STAGE 1: SCAN ---
             if self.STAGE_SCAN in self.active_stages:
-                if self._stop_event.is_set(): return
+                if self._stop_event.is_set():
+                    return
 
                 self._post_status("Starting scan...")
 
@@ -120,10 +120,11 @@ class WorkerThread(threading.Thread):
 
             # --- STAGE 2: ORGANIZE ---
             if self.STAGE_ORGANIZE in self.active_stages:
-                if self._stop_event.is_set(): return
+                if self._stop_event.is_set():
+                    return
 
                 if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                     self._post_status("Skipping organize: No files scanned.")
+                    self._post_status("Skipping organize: No files scanned.")
                 elif self.scanned_files:
                     self._post_status("Starting organization...")
 
@@ -150,10 +151,11 @@ class WorkerThread(threading.Thread):
 
             # --- STAGE 3: METADATA ---
             if self.STAGE_METADATA in self.active_stages:
-                if self._stop_event.is_set(): return
+                if self._stop_event.is_set():
+                    return
 
                 if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                     self._post_status("Skipping metadata: No files scanned.")
+                    self._post_status("Skipping metadata: No files scanned.")
                 elif self.scanned_files:
                     self._post_status("Starting metadata update...")
 

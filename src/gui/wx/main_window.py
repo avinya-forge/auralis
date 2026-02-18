@@ -175,7 +175,7 @@ class MainWindow(wx.Frame):
         btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.run_btn = wx.Button(self.right_panel, label="Run All Stages")
         self.stop_btn = wx.Button(self.right_panel, label="Stop Processing")
-        self.stop_btn.Disable() # Disable stop initially
+        self.stop_btn.Disable()  # Disable stop initially
 
         btn_sizer.Add(self.run_btn, 1, wx.RIGHT, 5)
         btn_sizer.Add(self.stop_btn, 1)
@@ -204,7 +204,7 @@ class MainWindow(wx.Frame):
 
         # Check if MetadataTab has a button
         if hasattr(self.metadata_tab, "update_btn"):
-             self.metadata_tab.update_btn.Bind(wx.EVT_BUTTON, self.on_metadata_only)
+            self.metadata_tab.update_btn.Bind(wx.EVT_BUTTON, self.on_metadata_only)
 
     def _create_menu(self):
         """Create the menu bar"""
@@ -262,24 +262,32 @@ class MainWindow(wx.Frame):
         # Collect inputs
         source_dirs = self.scan_tab.collect_source_dirs()
         if not source_dirs:
-            wx.MessageBox("Please add at least one source directory in the Scan tab.", "Error", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox(
+                "Please add at least one source directory in the Scan tab.",
+                "Error",
+                wx.OK | wx.ICON_ERROR
+            )
             return
 
         dest_dir = self.organize_tab.get_destination()
         if not dest_dir or dest_dir == "No destination selected":
-             # Destination is only strictly required for Organize stage (Stage 2)
-             # Check if Stage 2 is in active stages
-             is_organize_active = False
-             if active_stages:
-                 if 2 in active_stages:
-                     is_organize_active = True
-             elif start_stage <= 2 and end_stage >= 2:
-                 is_organize_active = True
+            # Destination is only strictly required for Organize stage (Stage 2)
+            # Check if Stage 2 is in active stages
+            is_organize_active = False
+            if active_stages:
+                if 2 in active_stages:
+                    is_organize_active = True
+            elif start_stage <= 2 and end_stage >= 2:
+                is_organize_active = True
 
-             if is_organize_active:
-                wx.MessageBox("Please select a destination directory in the Organize tab.", "Error", wx.OK | wx.ICON_ERROR)
+            if is_organize_active:
+                wx.MessageBox(
+                    "Please select a destination directory in the Organize tab.",
+                    "Error",
+                    wx.OK | wx.ICON_ERROR
+                )
                 return
-             dest_dir = "" # Optional otherwise
+            dest_dir = ""  # Optional otherwise
 
         # Collect options
         options = {}
@@ -342,7 +350,7 @@ class MainWindow(wx.Frame):
     def on_metadata_only(self, event):
         """Run metadata only (Scan + Metadata, skip Organize)"""
         if self.scan_tab.validate_source_directories():
-             self.start_worker(active_stages=[1, 3])
+            self.start_worker(active_stages=[1, 3])
 
     def on_stop_clicked(self, event):
         """Stop processing"""
@@ -392,7 +400,7 @@ class MainWindow(wx.Frame):
                 wx.OK | wx.ICON_INFORMATION,
             )
         else:
-             wx.MessageBox(
+            wx.MessageBox(
                 f"Processing failed: {results.get('error')}",
                 "Error",
                 wx.OK | wx.ICON_ERROR,

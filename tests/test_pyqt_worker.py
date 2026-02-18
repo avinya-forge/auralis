@@ -14,19 +14,24 @@ if "PyQt6" not in sys.modules:
     class MockQThread:
         def __init__(self, parent=None):
             pass
+
         def start(self):
             self.run()
+
         def wait(self):
             pass
 
     class MockSignal:
         def __init__(self, *args):
             self.callbacks = []
+
         def connect(self, callback):
             self.callbacks.append(callback)
+
         def disconnect(self, callback):
             if callback in self.callbacks:
                 self.callbacks.remove(callback)
+
         def emit(self, *args):
             for cb in self.callbacks:
                 cb(*args)
@@ -41,6 +46,7 @@ if "PyQt6" not in sys.modules:
 # unless absolutely necessary (like PyQt6/wx if missing).
 
 from src.gui.pyqt.worker import WorkerThread
+
 
 class TestPyQtWorkerThread(unittest.TestCase):
 
