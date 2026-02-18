@@ -4,16 +4,12 @@ Worker Thread for Auralis wxPython Main Window
 
 import threading
 import traceback
+
 import wx
 
-from src.gui.wx.events import (
-    ProgressEvent,
-    StatusEvent,
-    FileEvent,
-    CompletionEvent
-)
 from src.core.organizer import MusicOrganizer
 from src.core.scanner import MusicScanner
+from src.gui.wx.events import CompletionEvent, FileEvent, ProgressEvent, StatusEvent
 from src.services.metadata_service import MetadataService
 
 
@@ -115,7 +111,7 @@ class WorkerThread(threading.Thread):
                     return
 
                 if self.limit_files and len(self.scanned_files) > self.limit_files:
-                    self.scanned_files = self.scanned_files[:self.limit_files]
+                    self.scanned_files = self.scanned_files[: self.limit_files]
                     self._post_status(f"Limiting to {self.limit_files} files for processing.")
 
             # --- STAGE 2: ORGANIZE ---
@@ -134,13 +130,17 @@ class WorkerThread(threading.Thread):
 
                     organize_options = {
                         "organize_by_language": self.options.get("organize_by_language", True),
-                        "detect_audio_similarity": self.options.get("detect_audio_similarity", False),
+                        "detect_audio_similarity": self.options.get(
+                            "detect_audio_similarity", False
+                        ),
                         "rename_files": self.options.get("rename_files", True),
                         "handle_duplicates": self.options.get("handle_duplicates", True),
                         "remove_empty_dirs": self.options.get("remove_empty_dirs", True),
                     }
 
-                    org_results = self.organizer.organize_files(self.scanned_files, self.dest_dir, organize_options)
+                    org_results = self.organizer.organize_files(
+                        self.scanned_files, self.dest_dir, organize_options
+                    )
 
                     self.organizer.progress_updated.disconnect(self._on_organize_progress)
                     self.organizer.file_organized.disconnect(self._on_organize_file)

@@ -3,20 +3,16 @@ Auralis - wxPython Main Window Implementation
 """
 
 import os
+
 import wx  # type: ignore
 
+from src.gui.wx.events import EVT_COMPLETED, EVT_FILE, EVT_PROGRESS, EVT_STATUS
 from src.gui.wx.tabs.metadata_tab import MetadataTab
 from src.gui.wx.tabs.organize_tab import OrganizeTab
 from src.gui.wx.tabs.scan_tab import ScanTab
+from src.gui.wx.worker import WorkerThread
 from src.utils.config import get_config
 from src.utils.system_utils import SystemMonitor
-from src.gui.wx.worker import WorkerThread
-from src.gui.wx.events import (
-    EVT_PROGRESS,
-    EVT_STATUS,
-    EVT_FILE,
-    EVT_COMPLETED
-)
 
 
 class MainWindow(wx.Frame):
@@ -265,7 +261,7 @@ class MainWindow(wx.Frame):
             wx.MessageBox(
                 "Please add at least one source directory in the Scan tab.",
                 "Error",
-                wx.OK | wx.ICON_ERROR
+                wx.OK | wx.ICON_ERROR,
             )
             return
 
@@ -284,7 +280,7 @@ class MainWindow(wx.Frame):
                 wx.MessageBox(
                     "Please select a destination directory in the Organize tab.",
                     "Error",
-                    wx.OK | wx.ICON_ERROR
+                    wx.OK | wx.ICON_ERROR,
                 )
                 return
             dest_dir = ""  # Optional otherwise
@@ -324,7 +320,7 @@ class MainWindow(wx.Frame):
             dry_run=dry_run,
             start_stage=start_stage,
             end_stage=end_stage,
-            active_stages=active_stages
+            active_stages=active_stages,
         )
         self.worker.start()
 

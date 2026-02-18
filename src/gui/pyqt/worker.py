@@ -99,8 +99,10 @@ class WorkerThread(QThread):
 
                 # Apply file limit if set (e.g. for test mode)
                 if self.limit_files and len(self.scanned_files) > self.limit_files:
-                    self.scanned_files = self.scanned_files[:self.limit_files]
-                    self.status_updated.emit(f"Limiting to {self.limit_files} files for processing.")
+                    self.scanned_files = self.scanned_files[: self.limit_files]
+                    self.status_updated.emit(
+                        f"Limiting to {self.limit_files} files for processing."
+                    )
 
             # --- STAGE 2: ORGANIZE ---
             if self.STAGE_ORGANIZE in self.active_stages:
@@ -118,13 +120,17 @@ class WorkerThread(QThread):
                     # Run organize
                     organize_options = {
                         "organize_by_language": self.options.get("organize_by_language", True),
-                        "detect_audio_similarity": self.options.get("detect_audio_similarity", False),
+                        "detect_audio_similarity": self.options.get(
+                            "detect_audio_similarity", False
+                        ),
                         "rename_files": self.options.get("rename_files", True),
                         "handle_duplicates": self.options.get("handle_duplicates", True),
                         "remove_empty_dirs": self.options.get("remove_empty_dirs", True),
                     }
 
-                    org_results = self.organizer.organize_files(self.scanned_files, self.dest_dir, organize_options)
+                    org_results = self.organizer.organize_files(
+                        self.scanned_files, self.dest_dir, organize_options
+                    )
 
                     # Disconnect signals
                     self.organizer.progress_updated.disconnect(self._on_organize_progress)

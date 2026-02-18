@@ -19,6 +19,7 @@ if "wx" not in sys.modules:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
+
         return Event, MagicMock()
 
     mock_wx.lib.newevent.NewEvent = mock_new_event
@@ -61,10 +62,12 @@ class TestWxWorkerThread(unittest.TestCase):
         self.mock_metadata.update_metadata.return_value = []
 
         # Patch the classes in the module
-        patcher = patch.multiple("src.gui.wx.worker",
-                                 MusicScanner=MagicMock(return_value=self.mock_scanner),
-                                 MusicOrganizer=MagicMock(return_value=self.mock_organizer),
-                                 MetadataService=MagicMock(return_value=self.mock_metadata))
+        patcher = patch.multiple(
+            "src.gui.wx.worker",
+            MusicScanner=MagicMock(return_value=self.mock_scanner),
+            MusicOrganizer=MagicMock(return_value=self.mock_organizer),
+            MetadataService=MagicMock(return_value=self.mock_metadata),
+        )
         self.addCleanup(patcher.stop)
         patcher.start()
 
@@ -76,7 +79,7 @@ class TestWxWorkerThread(unittest.TestCase):
             options={},
             system_monitor=self.mock_monitor,
             start_stage=1,
-            end_stage=1
+            end_stage=1,
         )
 
         worker.run()
@@ -99,7 +102,7 @@ class TestWxWorkerThread(unittest.TestCase):
             options={},
             system_monitor=self.mock_monitor,
             start_stage=1,
-            end_stage=3
+            end_stage=3,
         )
 
         worker.run()
@@ -114,7 +117,7 @@ class TestWxWorkerThread(unittest.TestCase):
             source_dirs=["/src"],
             dest_dir="/dest",
             options={},
-            system_monitor=self.mock_monitor
+            system_monitor=self.mock_monitor,
         )
 
         worker.stop()
@@ -146,7 +149,7 @@ class TestWxWorkerThread(unittest.TestCase):
             dest_dir="/dest",
             options={},
             system_monitor=self.mock_monitor,
-            active_stages=[1, 3]
+            active_stages=[1, 3],
         )
 
         worker.run()

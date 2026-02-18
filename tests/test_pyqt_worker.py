@@ -68,10 +68,12 @@ class TestPyQtWorkerThread(unittest.TestCase):
         self.mock_metadata.update_metadata.return_value = []
 
         # Patch classes
-        self.patcher = patch.multiple("src.gui.pyqt.worker",
-                                      MusicScanner=MagicMock(return_value=self.mock_scanner),
-                                      MusicOrganizer=MagicMock(return_value=self.mock_organizer),
-                                      MetadataService=MagicMock(return_value=self.mock_metadata))
+        self.patcher = patch.multiple(
+            "src.gui.pyqt.worker",
+            MusicScanner=MagicMock(return_value=self.mock_scanner),
+            MusicOrganizer=MagicMock(return_value=self.mock_organizer),
+            MetadataService=MagicMock(return_value=self.mock_metadata),
+        )
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
@@ -85,7 +87,7 @@ class TestPyQtWorkerThread(unittest.TestCase):
             options={},
             system_monitor=self.mock_monitor,
             start_stage=1,
-            end_stage=1
+            end_stage=1,
         )
 
         # Connect signals to verify emission
@@ -107,7 +109,7 @@ class TestPyQtWorkerThread(unittest.TestCase):
             options={},
             system_monitor=self.mock_monitor,
             start_stage=1,
-            end_stage=3
+            end_stage=3,
         )
 
         worker.run()
@@ -133,7 +135,7 @@ class TestPyQtWorkerThread(unittest.TestCase):
             dest_dir="/dest",
             options={},
             system_monitor=self.mock_monitor,
-            active_stages=[1, 3]
+            active_stages=[1, 3],
         )
 
         worker.run()
