@@ -54,7 +54,9 @@ class TestGeniusProvider:
         # Mock lyrics page response
         mock_lyrics_response = MagicMock()
         mock_lyrics_response.status_code = 200
-        mock_lyrics_response.text = '<html><div data-lyrics-container="true">Test Lyrics</div></html>'
+        mock_lyrics_response.text = (
+            '<html><div data-lyrics-container="true">Test Lyrics</div></html>'
+        )
 
         provider.session.get.side_effect = [mock_search_response, mock_lyrics_response]
 

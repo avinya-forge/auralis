@@ -82,9 +82,7 @@ class GeniusProvider(LyricsProvider):
 
             # Search for the song
             response = self.session.get(
-                "https://genius.com/api/search/multi",
-                params={"q": f"{artist} {title}"},
-                timeout=10
+                "https://genius.com/api/search/multi", params={"q": f"{artist} {title}"}, timeout=10
             )
 
             if response.status_code != 200:
@@ -104,7 +102,10 @@ class GeniusProvider(LyricsProvider):
                             hit_artist = result.get("primary_artist", {}).get("name", "")
 
                             # Simple containment check (case insensitive)
-                            if artist.lower() in hit_artist.lower() or hit_artist.lower() in artist.lower():
+                            if (
+                                artist.lower() in hit_artist.lower()
+                                or hit_artist.lower() in artist.lower()
+                            ):
                                 song_path = result.get("path")
                                 if song_path:
                                     return self._fetch_lyrics_from_path(song_path)
@@ -198,8 +199,11 @@ class TekstowoProvider(LyricsProvider):
                     res_artist, res_title = text.split(" - ", 1)
 
                     # Basic check
-                    if (artist.lower() in res_artist.lower() or res_artist.lower() in artist.lower()) and \
-                       (title.lower() in res_title.lower() or res_title.lower() in title.lower()):
+                    if (
+                        artist.lower() in res_artist.lower() or res_artist.lower() in artist.lower()
+                    ) and (
+                        title.lower() in res_title.lower() or res_title.lower() in title.lower()
+                    ):
 
                         link = result.get("href")
                         if link:
