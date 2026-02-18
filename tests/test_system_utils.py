@@ -2,8 +2,13 @@
 Auralis - System Utilities Test Module
 """
 
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
+
+# Mock psutil if not available
+if "psutil" not in sys.modules:
+    sys.modules["psutil"] = MagicMock()
 
 from src.utils.system_utils import SystemCleaner, SystemMonitor
 

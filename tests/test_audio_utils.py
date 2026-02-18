@@ -5,6 +5,7 @@ Unit tests for audio_utils.py
 import unittest
 from unittest.mock import MagicMock, patch
 
+# Dependencies are mocked in conftest.py if missing
 from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
 
@@ -25,7 +26,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_load_mp3(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=MP3)
+        mock_audio = MP3()
         mock_mutagen_file.return_value = mock_audio
 
         # Test
@@ -38,7 +39,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_load_flac(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=FLAC)
+        mock_audio = FLAC()
         mock_mutagen_file.return_value = mock_audio
 
         # Test
@@ -61,7 +62,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_mp3(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=MP3)
+        mock_audio = MP3()
         mock_audio.__contains__.side_effect = lambda key: key in ["TPE1", "TIT2"]
         mock_audio.__getitem__.side_effect = lambda key: {"TPE1": "Artist", "TIT2": "Title"}[key]
         mock_audio.info.bitrate = 128000
@@ -80,7 +81,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_flac(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=FLAC)
+        mock_audio = FLAC()
         mock_audio.__contains__.side_effect = lambda key: key in ["artist", "title"]
         mock_audio.__getitem__.side_effect = lambda key: {"artist": ["Artist"], "title": ["Title"]}[
             key
@@ -103,7 +104,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_mp3(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=MP3)
+        mock_audio = MP3()
         mock_mutagen_file.return_value = mock_audio
 
         metadata = {"artist": "New Artist", "title": "New Title"}
@@ -120,7 +121,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_flac(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=FLAC)
+        mock_audio = FLAC()
         mock_mutagen_file.return_value = mock_audio
 
         metadata = {"artist": "New Artist", "title": "New Title"}
@@ -138,7 +139,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_set_album_art_url(self, mock_mutagen_file, mock_requests_get):
         # Setup mock
-        mock_audio = MagicMock(spec=MP3)
+        mock_audio = MP3()
         mock_audio.tags = MagicMock()
         mock_mutagen_file.return_value = mock_audio
 
@@ -158,7 +159,7 @@ class TestAudioMetadataHandler(unittest.TestCase):
     @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_mp3(self, mock_mutagen_file):
         # Setup mock
-        mock_audio = MagicMock(spec=MP3)
+        mock_audio = MP3()
         mock_tag = MagicMock()
         mock_tag.FrameID = "APIC"
         mock_tag.data = b"fake_image_data"

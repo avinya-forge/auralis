@@ -2,6 +2,10 @@ import os
 import sys
 from unittest.mock import MagicMock, patch
 
+# Mock dotenv if missing
+if "dotenv" not in sys.modules:
+    sys.modules["dotenv"] = MagicMock()
+
 import pytest
 
 from src.gui.ui_factory import UIFactory, get_ui_framework
