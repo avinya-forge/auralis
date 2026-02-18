@@ -20,6 +20,7 @@ setup(
         "psutil>=5.9.0",
         "python-dotenv>=0.19.0",
         "pydub>=0.25.1",
+        "tqdm>=4.66.0",
     ],
     extras_require={
         "metadata": [

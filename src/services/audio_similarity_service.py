@@ -9,9 +9,6 @@ import logging
 import os
 from typing import Dict, List, Optional, Set, cast
 
-import numpy as np  # type: ignore
-from sklearn.metrics.pairwise import cosine_similarity  # type: ignore
-
 # Set up logging
 logger = logging.getLogger("auralis.similarity")
 
@@ -19,12 +16,14 @@ logger = logging.getLogger("auralis.similarity")
 try:
     import librosa
     import mutagen
+    import numpy as np
     import pydub
-    from sklearn.metrics.pairwise import cosine_similarity  # noqa: F811
+    from sklearn.metrics.pairwise import cosine_similarity
 
     HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
     HAS_AUDIO_FINGERPRINTING = False
+    np = None
 
 
 class AudioSimilarityService:
