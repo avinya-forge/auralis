@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 # Ensure src is in path
 sys.path.append(".")  # noqa: E402
 
-from src.cli.cli_main import run_cli, ConsoleHandler  # noqa: E402
+from src.cli.cli_main import ConsoleHandler, run_cli  # noqa: E402
 
 
 class TestCLI(unittest.TestCase):
