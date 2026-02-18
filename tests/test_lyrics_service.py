@@ -2,7 +2,6 @@
 Unit tests for Lyrics Service
 """
 
-import unittest
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -25,9 +24,10 @@ class TestGeniusProvider:
         """Test successful lyrics retrieval from Genius"""
         # Mock BS
         mock_soup = mock_bs.return_value
+        mock_soup  # silence unused variable warning if necessary, or just use it
         mock_div = MagicMock()
         mock_div.get_text.return_value = "Test Lyrics"
-        mock_div.find_all.return_value = [] # no br tags
+        mock_div.find_all.return_value = []  # no br tags
         mock_soup.find_all.return_value = [mock_div]
 
         # Mock search response
@@ -87,16 +87,17 @@ class TestTekstowoProvider:
         """Test successful lyrics retrieval from Tekstowo"""
         # Mock BS
         mock_soup = mock_bs.return_value
+        mock_soup  # silence unused variable warning
 
         # For search page: find_all("a", class_="title")
         mock_link = MagicMock()
         mock_link.get_text.return_value = "Test Artist - Test Song"
-        mock_link.get.return_value = "/piosenka,artist,title.html" # href
+        mock_link.get.return_value = "/piosenka,artist,title.html"  # href
 
         # For lyrics page: find("div", class_="song-text")
         mock_lyrics_div = MagicMock()
         mock_lyrics_div.get_text.return_value = "Test Lyrics"
-        mock_lyrics_div.find_all.return_value = [] # script tags etc
+        mock_lyrics_div.find_all.return_value = []  # script tags etc
 
         # We need to distinguish between search page parsing and lyrics page parsing
         # But they use the same mock_bs instance usually if called in sequence?
@@ -107,10 +108,10 @@ class TestTekstowoProvider:
         # If we use side_effect on the class instantiation...
 
         soup1 = MagicMock()
-        soup1.find_all.return_value = [mock_link] # Search results
+        soup1.find_all.return_value = [mock_link]  # Search results
 
         soup2 = MagicMock()
-        soup2.find.return_value = mock_lyrics_div # Lyrics div
+        soup2.find.return_value = mock_lyrics_div  # Lyrics div
 
         mock_bs.side_effect = [soup1, soup2]
 
@@ -144,7 +145,7 @@ class TestTekstowoProvider:
 class TestLyricsService:
     @pytest.fixture
     def service(self):
-        with patch("src.services.lyrics_service.requests.Session") as mock_session:
+        with patch("src.services.lyrics_service.requests.Session"):
             service = LyricsService()
             # Clear providers to test registration logic or mock them
             service.providers = []

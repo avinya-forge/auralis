@@ -5,10 +5,8 @@ This module provides functionality to fetch lyrics for audio files and
 embed them in the file's metadata.
 """
 
-import json
 import logging
 import re
-import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, List, Optional

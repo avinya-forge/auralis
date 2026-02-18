@@ -6,12 +6,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 # Dependencies are mocked in conftest.py if missing
-import acoustid
-import mutagen
-import requests
 from mutagen.flac import FLAC
 from mutagen.mp3 import MP3
-from mutagen.id3 import APIC
 
 from src.utils.audio_utils import (
     AudioMetadataHandler,
