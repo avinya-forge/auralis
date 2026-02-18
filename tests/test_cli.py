@@ -1,136 +1,143 @@
 """
-Unit tests for the CLI module
+Tests for CLI Main Module
 """
 
-import argparse
 import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
+# Ensure src is in path
+sys.path.append(".")  # noqa: E402
 
-def mock_module_if_missing(module_name):
-    """Mock a module if it cannot be imported"""
-    try:
-        __import__(module_name)
-    except ImportError:
-        sys.modules[module_name] = MagicMock()
-
-
-# Mock dependencies if they are not installed (e.g. in minimal test environments)
-mock_module_if_missing("PyQt6")
-mock_module_if_missing("PyQt6.QtCore")
-mock_module_if_missing("PyQt6.QtWidgets")
-mock_module_if_missing("PyQt6.QtGui")
-mock_module_if_missing("numpy")
-mock_module_if_missing("librosa")
-mock_module_if_missing("sklearn")
-mock_module_if_missing("sklearn.metrics")
-mock_module_if_missing("sklearn.metrics.pairwise")
-mock_module_if_missing("soundfile")
-mock_module_if_missing("pydub")
-mock_module_if_missing("mutagen")
-mock_module_if_missing("mutagen.mp3")
-mock_module_if_missing("mutagen.flac")
-mock_module_if_missing("mutagen.id3")
-mock_module_if_missing("requests")
-mock_module_if_missing("musicbrainzngs")
-mock_module_if_missing("discogs_client")
-mock_module_if_missing("acoustid")
-
-# Import after potential mocking
-from src.cli.cli_main import (  # noqa: E402
-    run_metadata,
-    run_organize,
-    run_scan,
-    setup_parser,
-)
+from src.cli.cli_main import ConsoleHandler, run_cli  # noqa: E402
 
 
 class TestCLI(unittest.TestCase):
-    """Test cases for CLI module"""
+    """Test CLI functionality"""
 
     def setUp(self):
-        self.parser = setup_parser()
+        # Mock QCoreApplication to avoid issues
+        self.app_patcher = patch("src.cli.cli_main.QCoreApplication")
+        self.mock_app = self.app_patcher.start()
 
-    def test_setup_parser(self):
-        """Test parser configuration"""
-        args = self.parser.parse_args(["scan", "/tmp"])
-        self.assertEqual(args.command, "scan")
-        self.assertEqual(args.directories, ["/tmp"])
-
-        args = self.parser.parse_args(["organize", "src", "dest"])
-        self.assertEqual(args.command, "organize")
-        self.assertEqual(args.source, "src")
-        self.assertEqual(args.destination, "dest")
-
-        args = self.parser.parse_args(["metadata", "src"])
-        self.assertEqual(args.command, "metadata")
-        self.assertEqual(args.source, "src")
+    def tearDown(self):
+        self.app_patcher.stop()
 
     @patch("src.cli.cli_main.MusicScanner")
-    def test_run_scan(self, mock_scanner_cls):
-        """Test run_scan function"""
-        mock_scanner = mock_scanner_cls.return_value
-        mock_scanner.scan_directories.return_value = [{"path": "test.mp3"}]
+    def test_scan_command(self, mock_scanner_cls):
+        """Test scan command"""
+        # Setup mock
+        scanner = mock_scanner_cls.return_value
+        scanner.scan_directories.return_value = [{"path": "test.mp3"}]
 
-        args = argparse.Namespace(directories=["/tmp"], extensions="mp3,flac", output_json=None)
+        # Signals
+        scanner.progress_updated = MagicMock()
+        scanner.file_scanned = MagicMock()
 
-        run_scan(args)
+        # Run CLI
+        test_args = ["cli_main.py", "scan", "test_dir", "--depth", "5"]
+        with patch.object(sys, "argv", test_args):
+            run_cli()
 
-        mock_scanner.scan_directories.assert_called_with(
-            ["/tmp"], {"file_extensions": ["mp3", "flac"]}
-        )
+        # Verify
+        mock_scanner_cls.assert_called_once()
+        scanner.scan_directories.assert_called_once()
+        args, kwargs = scanner.scan_directories.call_args
+        # args[0] is directories, args[1] is options
+        self.assertEqual(args[0], ["test_dir"])
+        self.assertEqual(args[1]["max_scan_depth"], 5)
+
+        # Verify signals connected
+        scanner.progress_updated.connect.assert_called()
+        scanner.file_scanned.connect.assert_called()
 
     @patch("src.cli.cli_main.MusicOrganizer")
     @patch("src.cli.cli_main._load_files")
-    def test_run_organize(self, mock_load_files, mock_organizer_cls):
-        """Test run_organize function"""
+    def test_organize_command(self, mock_load_files, mock_organizer_cls):
+        """Test organize command"""
+        # Setup mock
+        organizer = mock_organizer_cls.return_value
+        organizer.organize_files.return_value = {"total_files": 1, "organized_files": 1}
+
+        # Signals
+        organizer.progress_updated = MagicMock()
+        organizer.file_organized = MagicMock()
+
+        # Mock load files
         mock_load_files.return_value = [{"path": "test.mp3"}]
-        mock_organizer = mock_organizer_cls.return_value
-        mock_organizer.organize_files.return_value = {
-            "total_files": 1,
-            "organized_files": 1,
-        }
 
-        args = argparse.Namespace(
-            source="files.json",
-            destination="/dest",
-            dry_run=True,
-            no_language=False,
-            no_similarity=True,
-        )
+        # Run CLI
+        test_args = [
+            "cli_main.py",
+            "organize",
+            "source_dir",
+            "dest_dir",
+            "--dry-run",
+            "--no-rename",
+        ]
+        with patch.object(sys, "argv", test_args):
+            run_cli()
 
-        run_organize(args)
-
-        mock_load_files.assert_called_with("files.json")
-        mock_organizer.organize_files.assert_called()
+        # Verify
+        mock_load_files.assert_called_with("source_dir")
+        mock_organizer_cls.assert_called_with(dry_run=True)
+        organizer.organize_files.assert_called_once()
 
         # Check options
-        call_args = mock_organizer.organize_files.call_args
-        self.assertEqual(call_args[0][1], "/dest")
-        self.assertTrue(call_args[0][2]["organize_by_language"])
-        self.assertFalse(call_args[0][2]["detect_audio_similarity"])
+        args, kwargs = organizer.organize_files.call_args
+        # args[0] files, args[1] dest, args[2] options
+        self.assertEqual(args[1], "dest_dir")
+        self.assertEqual(args[2]["rename_files"], False)
+        self.assertEqual(args[2]["organize_by_language"], True)  # Default
 
     @patch("src.cli.cli_main.MetadataService")
     @patch("src.cli.cli_main._load_files")
-    def test_run_metadata(self, mock_load_files, mock_service_cls):
-        """Test run_metadata function"""
+    def test_metadata_command(self, mock_load_files, mock_metadata_cls):
+        """Test metadata command"""
+        # Setup mock
+        service = mock_metadata_cls.return_value
+        service.update_metadata.return_value = [{"path": "test.mp3", "metadata": {}}]
+
+        # Signals
+        service.progress_updated = MagicMock()
+        service.file_updated = MagicMock()
+
+        # Mock load files
         mock_load_files.return_value = [{"path": "test.mp3"}]
-        mock_service = mock_service_cls.return_value
-        mock_service.update_metadata.return_value = [{"path": "test.mp3"}]
 
-        args = argparse.Namespace(source="files.json", musicbrainz=True, discogs=False, lyrics=True)
+        # Run CLI
+        test_args = ["cli_main.py", "metadata", "source_dir", "--no-musicbrainz", "--force"]
+        with patch.object(sys, "argv", test_args):
+            run_cli()
 
-        run_metadata(args)
+        # Verify
+        service.update_metadata.assert_called_once()
+        args, kwargs = service.update_metadata.call_args
+        # args[0] files, args[1] options
+        options = args[1]
+        self.assertEqual(options["use_musicbrainz"], False)
+        self.assertEqual(options["use_discogs"], True)  # Default
+        self.assertEqual(options["force_update"], True)
 
-        mock_load_files.assert_called_with("files.json")
-        mock_service.update_metadata.assert_called()
+    def test_console_handler(self):
+        """Test ConsoleHandler logic"""
+        handler = ConsoleHandler()
 
-        # Check options
-        call_args = mock_service.update_metadata.call_args
-        self.assertTrue(call_args[0][1]["use_musicbrainz"])
-        self.assertFalse(call_args[0][1]["use_discogs"])
-        self.assertTrue(call_args[0][1]["fetch_lyrics"])
+        # Mock tqdm
+        with patch("src.cli.cli_main.tqdm") as mock_tqdm:
+            # First update creates tqdm
+            handler.on_progress_updated(5, 10)
+            mock_tqdm.assert_called_once()
+            progress_bar_instance = mock_tqdm.return_value
+
+            # Update again
+            handler.on_progress_updated(6, 10)
+            self.assertEqual(handler.progress_bar.n, 6)
+
+            # Finish
+            handler.on_progress_updated(10, 10)
+            progress_bar_instance.close.assert_called()
+            self.assertIsNone(handler.progress_bar)
 
 
 if __name__ == "__main__":

@@ -25,4 +25,4 @@
 
 - [x] Implement "Audio Similarity Detection" installation script improvements.
 - [x] Add more metadata sources (e.g., Spotify, Last.fm).
-- [ ] Create a CLI interface for headless operation.
+- [x] Create a CLI interface for headless operation.

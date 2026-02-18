@@ -6,10 +6,68 @@ import argparse
 import json
 import logging
 import os
+import sys
+
+from PyQt6.QtCore import QCoreApplication, QObject
+from tqdm import tqdm
 
 from src.core.organizer import MusicOrganizer
 from src.core.scanner import MusicScanner
 from src.services.metadata_service import MetadataService
+
+
+class ConsoleHandler(QObject):
+    """Handles console output and progress bars"""
+
+    def __init__(self):
+        super().__init__()
+        self.progress_bar = None
+
+    def on_progress_updated(self, current, total):
+        """Handle progress updates"""
+        if self.progress_bar is None:
+            self.progress_bar = tqdm(total=total, unit="files", leave=True)
+
+        if self.progress_bar.total != total:
+            self.progress_bar.total = total
+            self.progress_bar.refresh()
+
+        self.progress_bar.n = current
+        self.progress_bar.refresh()
+
+        if current >= total and total > 0:
+            self.progress_bar.close()
+            self.progress_bar = None
+
+    def on_file_scanned(self, file_path):
+        """Handle file scanned event"""
+        if self.progress_bar:
+            filename = os.path.basename(file_path)
+            if len(filename) > 30:
+                filename = filename[:27] + "..."
+            self.progress_bar.set_description(f"Scanning: {filename}")
+
+    def on_file_organized(self, src, dest):
+        """Handle file organized event"""
+        if self.progress_bar:
+            filename = os.path.basename(src)
+            if len(filename) > 30:
+                filename = filename[:27] + "..."
+            self.progress_bar.set_description(f"Organizing: {filename}")
+
+    def on_file_updated(self, path):
+        """Handle file updated event (metadata)"""
+        if self.progress_bar:
+            filename = os.path.basename(path)
+            if len(filename) > 30:
+                filename = filename[:27] + "..."
+            self.progress_bar.set_description(f"Processing: {filename}")
+
+    def close(self):
+        """Close progress bar if open"""
+        if self.progress_bar:
+            self.progress_bar.close()
+            self.progress_bar = None
 
 
 def setup_parser():
@@ -18,6 +76,12 @@ def setup_parser():
 
     # Global options
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO",
+        help="Set logging level",
+    )
     parser.add_argument("--config", help="Path to configuration file")
 
     # Subcommands
@@ -28,6 +92,10 @@ def setup_parser():
     scan_parser.add_argument("directories", nargs="+", help="Directories to scan")
     scan_parser.add_argument(
         "--extensions", help="Comma-separated list of file extensions (e.g. mp3,flac)"
+    )
+    scan_parser.add_argument("--exclude", help="Comma-separated list of patterns to exclude")
+    scan_parser.add_argument(
+        "--depth", type=int, default=10, help="Maximum directory depth to scan"
     )
     scan_parser.add_argument("--output-json", help="Save scan results to JSON file")
 
@@ -44,30 +112,47 @@ def setup_parser():
     org_parser.add_argument(
         "--no-similarity", action="store_true", help="Disable audio similarity detection"
     )
+    org_parser.add_argument("--no-rename", action="store_true", help="Disable file renaming")
+    org_parser.add_argument("--keep-duplicates", action="store_true", help="Keep duplicate files")
+    org_parser.add_argument(
+        "--keep-empty-dirs", action="store_true", help="Do not remove empty directories"
+    )
 
     # Metadata command
     meta_parser = subparsers.add_parser("metadata", help="Update metadata")
     meta_parser.add_argument("source", help="Source directory or JSON file")
+    meta_parser.add_argument("--no-musicbrainz", action="store_true", help="Disable MusicBrainz")
+    meta_parser.add_argument("--no-discogs", action="store_true", help="Disable Discogs")
+    meta_parser.add_argument("--no-lyrics", action="store_true", help="Disable lyrics fetching")
     meta_parser.add_argument(
-        "--musicbrainz", action="store_true", default=True, help="Use MusicBrainz (default)"
+        "--force", action="store_true", help="Force update even if metadata exists"
     )
-    meta_parser.add_argument(
-        "--discogs", action="store_true", default=True, help="Use Discogs (default)"
-    )
-    meta_parser.add_argument("--lyrics", action="store_true", help="Fetch lyrics")
 
     return parser
 
 
 def run_cli():
     """Run the CLI application"""
+    # Ensure headless mode for Qt
+    if not os.environ.get("QT_QPA_PLATFORM"):
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+    # Initialize QCoreApplication
+    # We need to assign it to a variable to keep it alive, even if not used directly
+    _app = QCoreApplication(sys.argv)  # noqa: F841
+
     parser = setup_parser()
     args = parser.parse_args()
 
+    # Configure logging
+    log_level = getattr(logging, args.log_level)
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
+        log_level = logging.DEBUG
+
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
     if not args.command:
         parser.print_help()
@@ -86,23 +171,37 @@ def run_scan(args):
     print(f"Scanning directories: {args.directories}")
 
     scanner = MusicScanner()
+    handler = ConsoleHandler()
+
+    # Connect signals
+    scanner.progress_updated.connect(handler.on_progress_updated)
+    scanner.file_scanned.connect(handler.on_file_scanned)
 
     # Configure options
     options = {}
     if args.extensions:
         options["file_extensions"] = args.extensions.split(",")
+    if args.exclude:
+        options["exclude_patterns"] = args.exclude.split(",")
+    if args.depth:
+        options["max_scan_depth"] = args.depth
 
     # Run scan
-    files = scanner.scan_directories(args.directories, options)
-    print(f"Found {len(files)} music files.")
+    try:
+        files = scanner.scan_directories(args.directories, options)
+        handler.close()
+        print(f"Found {len(files)} music files.")
 
-    if args.output_json:
-        try:
-            with open(args.output_json, "w") as f:
-                json.dump(files, f, indent=2)
-            print(f"Results saved to {args.output_json}")
-        except Exception as e:
-            print(f"Error saving results: {e}")
+        if args.output_json:
+            try:
+                with open(args.output_json, "w") as f:
+                    json.dump(files, f, indent=2)
+                print(f"Results saved to {args.output_json}")
+            except Exception as e:
+                print(f"Error saving results: {e}")
+    except Exception as e:
+        handler.close()
+        print(f"Error during scan: {e}")
 
 
 def run_organize(args):
@@ -115,27 +214,37 @@ def run_organize(args):
         return
 
     organizer = MusicOrganizer(dry_run=args.dry_run)
+    handler = ConsoleHandler()
+
+    # Connect signals
+    organizer.progress_updated.connect(handler.on_progress_updated)
+    organizer.file_organized.connect(handler.on_file_organized)
 
     # Configure options
     options = {
         "organize_by_language": not args.no_language,
         "detect_audio_similarity": not args.no_similarity,
-        "rename_files": True,  # Default
-        "handle_duplicates": True,
-        "remove_empty_dirs": True,
+        "rename_files": not args.no_rename,
+        "handle_duplicates": not args.keep_duplicates,
+        "remove_empty_dirs": not args.keep_empty_dirs,
     }
 
     # Run organize
-    result = organizer.organize_files(files, args.destination, options)
+    try:
+        result = organizer.organize_files(files, args.destination, options)
+        handler.close()
 
-    print("\nOrganization Summary:")
-    print(f"Total files: {result.get('total_files', 0)}")
-    print(f"Organized: {result.get('organized_files', 0)}")
-    print(f"Duplicates: {result.get('duplicates', 0)}")
-    print(f"Errors: {len(result.get('file_errors', {}))}")
+        print("\nOrganization Summary:")
+        print(f"Total files: {result.get('total_files', 0)}")
+        print(f"Organized: {result.get('organized_files', 0)}")
+        print(f"Duplicates: {result.get('duplicates', 0)}")
+        print(f"Errors: {len(result.get('file_errors', {}))}")
 
-    if args.dry_run:
-        print("\nNote: This was a dry run. No files were moved.")
+        if args.dry_run:
+            print("\nNote: This was a dry run. No files were moved.")
+    except Exception as e:
+        handler.close()
+        print(f"Error during organization: {e}")
 
 
 def run_metadata(args):
@@ -148,17 +257,28 @@ def run_metadata(args):
         return
 
     service = MetadataService()
+    handler = ConsoleHandler()
+
+    # Connect signals
+    service.progress_updated.connect(handler.on_progress_updated)
+    service.file_updated.connect(handler.on_file_updated)
 
     # Configure options
     options = {
-        "use_musicbrainz": args.musicbrainz,
-        "use_discogs": args.discogs,
-        "fetch_lyrics": args.lyrics,
+        "use_musicbrainz": not args.no_musicbrainz,
+        "use_discogs": not args.no_discogs,
+        "fetch_lyrics": not args.no_lyrics,
+        "force_update": args.force,
     }
 
     # Run update
-    updated_files = service.update_metadata(files, options)
-    print(f"Updated metadata for {len(updated_files)} files.")
+    try:
+        updated_files = service.update_metadata(files, options)
+        handler.close()
+        print(f"Updated metadata for {len(updated_files)} files.")
+    except Exception as e:
+        handler.close()
+        print(f"Error during metadata update: {e}")
 
 
 def _load_files(source):
@@ -173,7 +293,14 @@ def _load_files(source):
     elif os.path.isdir(source):
         print("Scanning source directory...")
         scanner = MusicScanner()
-        return scanner.scan_directories([source])
+        # We should probably use ConsoleHandler here too if we want progress
+        handler = ConsoleHandler()
+        scanner.progress_updated.connect(handler.on_progress_updated)
+        scanner.file_scanned.connect(handler.on_file_scanned)
+
+        files = scanner.scan_directories([source])
+        handler.close()
+        return files
     else:
         print(f"Invalid source: {source}")
         return []
