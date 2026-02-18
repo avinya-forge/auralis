@@ -5,7 +5,7 @@ Worker Thread for Auralis wxPython Main Window
 import threading
 import traceback
 
-import wx
+import wx  # type: ignore
 
 from src.core.organizer import MusicOrganizer
 from src.core.scanner import MusicScanner
