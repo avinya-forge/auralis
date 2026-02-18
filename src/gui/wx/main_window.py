@@ -6,9 +6,11 @@ import os
 
 import wx  # type: ignore
 
+from src.gui.wx.events import EVT_COMPLETED, EVT_FILE, EVT_PROGRESS, EVT_STATUS
 from src.gui.wx.tabs.metadata_tab import MetadataTab
 from src.gui.wx.tabs.organize_tab import OrganizeTab
 from src.gui.wx.tabs.scan_tab import ScanTab
+from src.gui.wx.worker import WorkerThread
 from src.utils.config import get_config
 from src.utils.system_utils import SystemMonitor
 
@@ -22,6 +24,9 @@ class MainWindow(wx.Frame):
             title="Auralis - Music File Management",
             size=(1200, 800),
         )
+
+        # Worker thread
+        self.worker = None
 
         # Set window icon
         self._set_icon()
@@ -44,6 +49,12 @@ class MainWindow(wx.Frame):
 
         # Bind events
         self.Bind(wx.EVT_CLOSE, self.on_close)
+
+        # Bind worker events
+        self.Bind(EVT_PROGRESS, self.on_progress)
+        self.Bind(EVT_STATUS, self.on_status)
+        self.Bind(EVT_FILE, self.on_file)
+        self.Bind(EVT_COMPLETED, self.on_completed)
 
     def _set_icon(self):
         """Set the application icon"""
@@ -160,6 +171,7 @@ class MainWindow(wx.Frame):
         btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.run_btn = wx.Button(self.right_panel, label="Run All Stages")
         self.stop_btn = wx.Button(self.right_panel, label="Stop Processing")
+        self.stop_btn.Disable()  # Disable stop initially
 
         btn_sizer.Add(self.run_btn, 1, wx.RIGHT, 5)
         btn_sizer.Add(self.stop_btn, 1)
@@ -176,6 +188,19 @@ class MainWindow(wx.Frame):
 
         main_sizer.Add(self.splitter, 1, wx.EXPAND | wx.ALL, 5)
         panel.SetSizer(main_sizer)
+
+        # Bind Button Events
+        self.run_btn.Bind(wx.EVT_BUTTON, self.on_run_clicked)
+        self.stop_btn.Bind(wx.EVT_BUTTON, self.on_stop_clicked)
+
+        # Bind Tab Buttons (they propagate up or use Skip())
+        self.scan_tab.scan_btn.Bind(wx.EVT_BUTTON, self.on_scan_only)
+        self.organize_tab.organize_btn.Bind(wx.EVT_BUTTON, self.on_organize_only)
+        self.organize_tab.dry_run_btn.Bind(wx.EVT_BUTTON, self.on_organize_dry_run)
+
+        # Check if MetadataTab has a button
+        if hasattr(self.metadata_tab, "update_btn"):
+            self.metadata_tab.update_btn.Bind(wx.EVT_BUTTON, self.on_metadata_only)
 
     def _create_menu(self):
         """Create the menu bar"""
@@ -211,8 +236,170 @@ class MainWindow(wx.Frame):
 
     def on_close(self, event):
         """Handle window close event"""
+        if self.worker and self.worker.is_alive():
+            self.worker.stop()
+            # Give it a moment to stop
+            self.worker.join(0.5)
+
         # Stop system monitoring
         if hasattr(self, "system_monitor"):
             self.system_monitor.stop_monitoring()
 
         event.Skip()
+
+    # --- Worker Control ---
+
+    def start_worker(self, start_stage=1, end_stage=3, active_stages=None, dry_run=False):
+        """Start the worker thread"""
+        if self.worker and self.worker.is_alive():
+            wx.MessageBox("Processing is already in progress.", "Warning", wx.OK | wx.ICON_WARNING)
+            return
+
+        # Collect inputs
+        source_dirs = self.scan_tab.collect_source_dirs()
+        if not source_dirs:
+            wx.MessageBox(
+                "Please add at least one source directory in the Scan tab.",
+                "Error",
+                wx.OK | wx.ICON_ERROR,
+            )
+            return
+
+        dest_dir = self.organize_tab.get_destination()
+        if not dest_dir or dest_dir == "No destination selected":
+            # Destination is only strictly required for Organize stage (Stage 2)
+            # Check if Stage 2 is in active stages
+            is_organize_active = False
+            if active_stages:
+                if 2 in active_stages:
+                    is_organize_active = True
+            elif start_stage <= 2 and end_stage >= 2:
+                is_organize_active = True
+
+            if is_organize_active:
+                wx.MessageBox(
+                    "Please select a destination directory in the Organize tab.",
+                    "Error",
+                    wx.OK | wx.ICON_ERROR,
+                )
+                return
+            dest_dir = ""  # Optional otherwise
+
+        # Collect options
+        options = {}
+        options.update(self.scan_tab.get_options())
+        options.update(self.organize_tab.get_options())
+        options.update(self.metadata_tab.get_options())
+
+        # Additional options
+        limit_files = None
+        if options.get("test_mode"):
+            limit_files = options.get("test_file_count")
+
+        # UI Updates
+        self.run_btn.Disable()
+        self.stop_btn.Enable()
+        self.scan_tab.scan_btn.Disable()
+        self.organize_tab.organize_btn.Disable()
+        self.organize_tab.dry_run_btn.Disable()
+        if hasattr(self.metadata_tab, "update_btn"):
+            self.metadata_tab.update_btn.Disable()
+
+        self.progress_bar.SetValue(0)
+        self.log_text.Clear()
+        self.file_list.Clear()
+
+        # Start Worker
+        self.worker = WorkerThread(
+            window=self,
+            source_dirs=source_dirs,
+            dest_dir=dest_dir,
+            options=options,
+            system_monitor=self.system_monitor,
+            limit_files=limit_files,
+            dry_run=dry_run,
+            start_stage=start_stage,
+            end_stage=end_stage,
+            active_stages=active_stages,
+        )
+        self.worker.start()
+
+    def on_run_clicked(self, event):
+        """Run all stages"""
+        self.start_worker(start_stage=1, end_stage=3)
+
+    def on_scan_only(self, event):
+        """Run scan only"""
+        if self.scan_tab.validate_source_directories():
+            self.start_worker(start_stage=1, end_stage=1)
+
+    def on_organize_only(self, event):
+        """Run organize only (implies scan + organize)"""
+        if self.scan_tab.validate_source_directories() and self.organize_tab.validate_destination():
+            self.start_worker(start_stage=1, end_stage=2)
+
+    def on_organize_dry_run(self, event):
+        """Run organize dry run"""
+        if self.scan_tab.validate_source_directories() and self.organize_tab.validate_destination():
+            self.start_worker(start_stage=1, end_stage=2, dry_run=True)
+
+    def on_metadata_only(self, event):
+        """Run metadata only (Scan + Metadata, skip Organize)"""
+        if self.scan_tab.validate_source_directories():
+            self.start_worker(active_stages=[1, 3])
+
+    def on_stop_clicked(self, event):
+        """Stop processing"""
+        if self.worker and self.worker.is_alive():
+            self.worker.stop()
+            self.log_text.AppendText("Stopping...\n")
+            self.stop_btn.Disable()
+
+    # --- Event Handlers ---
+
+    def on_progress(self, event):
+        """Handle progress updates"""
+        # event.stage, event.current, event.total
+        if event.total > 0:
+            percent = int((event.current / event.total) * 100)
+            self.progress_bar.SetValue(percent)
+
+        self.stage_label.SetLabel(f"Stage: {event.stage} ({event.current}/{event.total})")
+
+    def on_status(self, event):
+        """Handle status updates"""
+        self.SetStatusText(event.message)
+        self.log_text.AppendText(f"{event.message}\n")
+
+    def on_file(self, event):
+        """Handle file updates"""
+        self.current_file_label.SetLabel(os.path.basename(event.file_path))
+        # Add to listbox if it's a new file event (like found file)
+        # But we get many file events.
+        # For now just update label.
+
+    def on_completed(self, event):
+        """Handle completion"""
+        self.run_btn.Enable()
+        self.stop_btn.Disable()
+        self.scan_tab.scan_btn.Enable()
+        self.organize_tab.organize_btn.Enable()
+        self.organize_tab.dry_run_btn.Enable()
+        if hasattr(self.metadata_tab, "update_btn"):
+            self.metadata_tab.update_btn.Enable()
+
+        results = event.results
+        if results.get("success"):
+            wx.MessageBox(
+                f"Processing completed successfully.\nProcessed {results.get('files_processed')} files.",
+                "Completed",
+                wx.OK | wx.ICON_INFORMATION,
+            )
+        else:
+            wx.MessageBox(
+                f"Processing failed: {results.get('error')}",
+                "Error",
+                wx.OK | wx.ICON_ERROR,
+            )
+
+        self.worker = None
