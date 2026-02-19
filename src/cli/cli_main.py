@@ -19,12 +19,14 @@ except ImportError:
 # Optional PyQt6 import to allow 'check' command to run without dependencies
 try:
     from PyQt6.QtCore import QCoreApplication, QObject
+
     HAS_PYQT = True
 except ImportError:
     HAS_PYQT = False
 
     class QObject:  # type: ignore
         """Dummy QObject"""
+
         pass
 
     QCoreApplication = None  # type: ignore

@@ -70,11 +70,7 @@ class DependencyChecker:
         Returns:
             Dict[str, Any]: A report of the test results.
         """
-        report = {
-            "success": False,
-            "message": "",
-            "details": {}
-        }
+        report = {"success": False, "message": "", "details": {}}
 
         # Check required modules for this test
         required_modules = ["numpy", "soundfile", "librosa"]
@@ -110,7 +106,7 @@ class DependencyChecker:
                 report["details"] = {
                     "samples_loaded": len(y),
                     "sample_rate": sr,
-                    "duration": duration
+                    "duration": duration,
                 }
 
             finally:
@@ -140,7 +136,7 @@ class DependencyChecker:
             "audio_similarity": {},
             "language_detection": {},
             "system_tools": {},
-            "libraries": {}
+            "libraries": {},
         }
 
         # Core dependencies (import names)
@@ -169,18 +165,12 @@ class DependencyChecker:
         tools = ["ffmpeg", "ffprobe", "fpcalc"]
         for tool in tools:
             path = self.check_system_tool(tool)
-            report["system_tools"][tool] = {
-                "installed": path is not None,
-                "path": path
-            }
+            report["system_tools"][tool] = {"installed": path is not None, "path": path}
 
         # Libraries (Linux)
         if platform.system() == "Linux":
             lib = self.check_library("sndfile")
-            report["libraries"]["sndfile"] = {
-                "installed": lib is not None,
-                "path": lib
-            }
+            report["libraries"]["sndfile"] = {"installed": lib is not None, "path": lib}
 
         return report
 

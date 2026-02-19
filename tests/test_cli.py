@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 sys.path.append(".")  # noqa: E402
 
 from src.cli.cli_main import ConsoleHandler, run_cli  # noqa: E402
+
 # Import MetadataService to ensure it's loaded for patching
 from src.services.metadata_service import MetadataService  # noqa: F401, E402
 
