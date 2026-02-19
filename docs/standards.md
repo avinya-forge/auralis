@@ -3,7 +3,7 @@
 ## Python
 
 -   **Style Guide:** Follow PEP 8.
--   **Line Length:** 100 characters.
+-   **Line Length:** 127 characters.
 -   **Docstrings:** Google style docstrings for all modules, classes, and functions.
 -   **Type Hinting:** Use type hints for all function arguments and return values.
 -   **Imports:** Sort imports using `isort` (profile: black).

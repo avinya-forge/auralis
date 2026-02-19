@@ -5,9 +5,14 @@ Auralis - Language Detection Setup
 This script installs the required dependencies for audio language detection.
 """
 
+import os
 import platform
-import subprocess
 import sys
+
+# Ensure we can import from src
+sys.path.append(os.getcwd())  # noqa: E402
+
+from src.utils.dependency_checker import DependencyChecker  # noqa: E402
 
 
 def install_dependencies():
@@ -17,27 +22,21 @@ def install_dependencies():
     # Define the required packages
     packages = ["SpeechRecognition>=3.8.0", "langdetect>=1.0.9", "pydub>=0.25.1"]
 
-    # Install using pip
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
+    checker = DependencyChecker()
+    if checker.install_pip_packages(packages):
         print("Dependencies installed successfully!")
 
         # If on Windows, install pyaudio from wheel
         if platform.system().lower() == "windows":
-            try:
-                print("Installing PyAudio for Windows...")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "pyaudio"])
-            except BaseException:
+            print("Installing PyAudio for Windows...")
+            if not checker.install_pip_packages(["pyaudio"]):
                 print("Could not install PyAudio automatically.")
                 print("Please download and install PyAudio manually from:")
                 print("https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio")
         else:
             # For Linux/macOS, just try to install pyaudio normally
-            # (may require additional system dependencies)
-            try:
-                print("Installing PyAudio...")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "pyaudio"])
-            except BaseException:
+            print("Installing PyAudio...")
+            if not checker.install_pip_packages(["pyaudio"]):
                 if platform.system().lower() == "darwin":  # macOS
                     print("Could not install PyAudio automatically.")
                     print("Try running: brew install portaudio")
@@ -49,21 +48,7 @@ def install_dependencies():
                     print("Then: pip install pyaudio")
 
         return True
-    except Exception as e:
-        print(f"Error installing dependencies: {str(e)}")
-        return False
-
-
-def check_module_installed(module_name, required=True):
-    """Check if a module can be imported"""
-    try:
-        __import__(module_name)
-        print(f"✓ {module_name} installed")
-        return True
-    except ImportError:
-        print(f"✗ {module_name} not installed")
-        if not required:
-            print(f"  (Note: {module_name} is optional but recommended)")
+    else:
         return False
 
 
@@ -71,15 +56,22 @@ def test_dependencies():
     """Test if the dependencies are installed correctly"""
     print("Testing language detection dependencies...")
 
-    required_modules = ["speech_recognition", "langdetect", "pydub"]
+    checker = DependencyChecker()
+    report = checker.check_all()
+
+    lang_report = report["language_detection"]
 
     all_installed = True
-    for module in required_modules:
-        if not check_module_installed(module):
-            all_installed = False
-
-    # PyAudio is optional for some features but good to have
-    check_module_installed("pyaudio", required=False)
+    for mod, installed in lang_report.items():
+        if installed:
+            print(f"✓ {mod} installed")
+        else:
+            # Pyaudio is optional? Original script says "optional but good to have"
+            if mod == "pyaudio":
+                print(f"✗ {mod} not installed (Optional)")
+            else:
+                print(f"✗ {mod} not installed")
+                all_installed = False
 
     if all_installed:
         print("All core dependencies are installed correctly!")

@@ -21,15 +21,15 @@ from src.services.lyrics_service import embed_lyrics, fetch_lyrics
 
 # Optional dependencies
 try:
-    import spotipy
-    from spotipy.oauth2 import SpotifyClientCredentials
+    import spotipy  # type: ignore
+    from spotipy.oauth2 import SpotifyClientCredentials  # type: ignore
 
     HAS_SPOTIFY = True
 except ImportError:
     HAS_SPOTIFY = False
 
 try:
-    import pylast
+    import pylast  # type: ignore
 
     HAS_LASTFM = True
 except ImportError:

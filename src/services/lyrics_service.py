@@ -207,7 +207,7 @@ class TekstowoProvider(LyricsProvider):
 
                         link = result.get("href")
                         if link:
-                            return self._fetch_lyrics_from_path(link)
+                            return self._fetch_lyrics_from_path(str(link))
 
             return None
 

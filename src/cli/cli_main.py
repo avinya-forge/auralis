@@ -8,12 +8,28 @@ import logging
 import os
 import sys
 
-from PyQt6.QtCore import QCoreApplication, QObject
-from tqdm import tqdm
+from src.utils.dependency_checker import DependencyChecker
 
-from src.core.organizer import MusicOrganizer
-from src.core.scanner import MusicScanner
-from src.services.metadata_service import MetadataService
+# Optional tqdm import
+try:
+    from tqdm import tqdm  # type: ignore
+except ImportError:
+    tqdm = None
+
+# Optional PyQt6 import to allow 'check' command to run without dependencies
+try:
+    from PyQt6.QtCore import QCoreApplication, QObject
+
+    HAS_PYQT = True
+except ImportError:
+    HAS_PYQT = False
+
+    class QObject:  # type: ignore
+        """Dummy QObject"""
+
+        pass
+
+    QCoreApplication = None  # type: ignore
 
 
 class ConsoleHandler(QObject):
@@ -25,6 +41,12 @@ class ConsoleHandler(QObject):
 
     def on_progress_updated(self, current, total):
         """Handle progress updates"""
+        if tqdm is None:
+            # Fallback if tqdm is missing
+            if current % 10 == 0 or current == total:
+                print(f"Progress: {current}/{total}")
+            return
+
         if self.progress_bar is None:
             self.progress_bar = tqdm(total=total, unit="files", leave=True)
 
@@ -128,6 +150,9 @@ def setup_parser():
         "--force", action="store_true", help="Force update even if metadata exists"
     )
 
+    # Check command
+    subparsers.add_parser("check", help="Check system and Python dependencies")
+
     return parser
 
 
@@ -137,12 +162,23 @@ def run_cli():
     if not os.environ.get("QT_QPA_PLATFORM"):
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
+    parser = setup_parser()
+    args = parser.parse_args()
+
+    # If check command, run it without requiring PyQt6 or other dependencies
+    if args.command == "check":
+        run_check(args)
+        return
+
+    # For other commands, ensure PyQt6 is available
+    if not HAS_PYQT:
+        print("Error: PyQt6 is required for this command but not installed.")
+        print("Run 'python auralis.py check' to see missing dependencies.")
+        sys.exit(1)
+
     # Initialize QCoreApplication
     # We need to assign it to a variable to keep it alive, even if not used directly
     _app = QCoreApplication(sys.argv)  # noqa: F841
-
-    parser = setup_parser()
-    args = parser.parse_args()
 
     # Configure logging
     log_level = getattr(logging, args.log_level)
@@ -168,6 +204,12 @@ def run_cli():
 
 def run_scan(args):
     """Execute scan command"""
+    try:
+        from src.core.scanner import MusicScanner
+    except ImportError as e:
+        print(f"Error importing MusicScanner: {e}")
+        return
+
     print(f"Scanning directories: {args.directories}")
 
     scanner = MusicScanner()
@@ -206,6 +248,12 @@ def run_scan(args):
 
 def run_organize(args):
     """Execute organize command"""
+    try:
+        from src.core.organizer import MusicOrganizer
+    except ImportError as e:
+        print(f"Error importing MusicOrganizer: {e}")
+        return
+
     print(f"Organizing from {args.source} to {args.destination}")
 
     # Load files
@@ -249,6 +297,12 @@ def run_organize(args):
 
 def run_metadata(args):
     """Execute metadata command"""
+    try:
+        from src.services.metadata_service import MetadataService
+    except ImportError as e:
+        print(f"Error importing MetadataService: {e}")
+        return
+
     print(f"Updating metadata for {args.source}")
 
     # Load files
@@ -281,6 +335,71 @@ def run_metadata(args):
         print(f"Error during metadata update: {e}")
 
 
+def run_check(args):
+    """Execute check command"""
+    print("Checking dependencies...")
+    checker = DependencyChecker()
+    report = checker.check_all()
+
+    print(f"\nSystem: {report['platform']}")
+    print(f"Python: {report['python_version'].split()[0]}")
+
+    print("\nCore Dependencies:")
+    for mod, installed in report["core"].items():
+        status = "✓" if installed else "✗"
+        print(f"  {status} {mod}")
+
+    print("\nAudio Similarity Dependencies:")
+    for mod, installed in report["audio_similarity"].items():
+        status = "✓" if installed else "✗"
+        print(f"  {status} {mod}")
+
+    print("\nLanguage Detection Dependencies:")
+    for mod, installed in report["language_detection"].items():
+        status = "✓" if installed else "✗"
+        print(f"  {status} {mod}")
+
+    print("\nSystem Tools:")
+    for tool, info in report["system_tools"].items():
+        status = "✓" if info["installed"] else "✗"
+        path = f"({info['path']})" if info["path"] else ""
+        print(f"  {status} {tool} {path}")
+
+    if report.get("libraries"):
+        print("\nLibraries:")
+        for lib, info in report["libraries"].items():
+            status = "✓" if info["installed"] else "✗"
+            path = f"({info['path']})" if info["path"] else ""
+            print(f"  {status} {lib} {path}")
+
+    # Check audio capabilities
+    print("\nChecking Audio Capabilities...")
+    audio_report = checker.check_audio_capabilities()
+    if audio_report["success"]:
+        print(f"  ✓ {audio_report['message']}")
+    else:
+        print(f"  ✗ {audio_report['message']}")
+
+    # Identify missing
+    missing_modules = []
+    missing_tools = []
+
+    for section in ["core", "audio_similarity", "language_detection"]:
+        for mod, installed in report[section].items():
+            if not installed:
+                missing_modules.append(mod)
+
+    for tool, info in report["system_tools"].items():
+        if not info["installed"]:
+            missing_tools.append(tool)
+
+    if missing_modules or missing_tools:
+        print("\n" + "=" * 40)
+        print("Missing Dependencies Instructions")
+        print("=" * 40)
+        print(checker.get_install_instructions(missing_modules, missing_tools))
+
+
 def _load_files(source):
     """Load files from directory scan or JSON file"""
     if source.endswith(".json"):
@@ -292,6 +411,13 @@ def _load_files(source):
             return []
     elif os.path.isdir(source):
         print("Scanning source directory...")
+        # Import MusicScanner locally to avoid top-level dependency
+        try:
+            from src.core.scanner import MusicScanner
+        except ImportError:
+            print("Error: MusicScanner not available (PyQt6 missing?)")
+            return []
+
         scanner = MusicScanner()
         # We should probably use ConsoleHandler here too if we want progress
         handler = ConsoleHandler()
