@@ -161,6 +161,61 @@ class GeniusProvider(LyricsProvider):
             return None
 
 
+class AZLyricsProvider(LyricsProvider):
+    """Lyrics provider for AZLyrics.com"""
+
+    def __init__(self, session: requests.Session):
+        super().__init__(session)
+        self.name = "AZLyrics"
+
+    def get_lyrics(self, artist: str, title: str) -> Optional[str]:
+        """Fetch lyrics from AZLyrics"""
+        try:
+            # Clean names for URL
+            artist_clean = self._clean_for_url(artist)
+            title_clean = self._clean_for_url(title)
+
+            if not artist_clean or not title_clean:
+                return None
+
+            url = f"https://www.azlyrics.com/lyrics/{artist_clean}/{title_clean}.html"
+
+            # AZLyrics blocks aggressive scraping, so we rely on session headers
+            response = self.session.get(url, timeout=10)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # AZLyrics lyrics are in a div with no class, usually after the ringtone div
+            # We look for the div containing the disclaimer comment
+            divs = soup.find_all("div", attrs={"class": None})
+            for div in divs:
+                if "Usage of azlyrics.com" in str(div):
+                    # Found it
+                    # Remove the comment and other non-lyrics text if present
+                    # The usage comment is in a Comment object, get_text might skip it
+                    return div.get_text().strip()
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error fetching from AZLyrics: {str(e)}")
+            return None
+
+    def _clean_for_url(self, name: str) -> str:
+        """Clean string for AZLyrics URL"""
+        # Remove special chars and spaces, lowercase
+        name = self._clean_name(name)  # Base clean first
+        name = name.lower()
+        # Remove starting "the" for band names if it exists (simple heuristic)
+        if name.startswith("the "):
+            name = name[4:]
+
+        name = re.sub(r"[^a-z0-9]", "", name)
+        return name
+
+
 class TekstowoProvider(LyricsProvider):
     """Lyrics provider for Tekstowo.pl"""
 
@@ -278,6 +333,7 @@ class LyricsService:
     def _init_providers(self):
         """Initialize default providers"""
         self.register_provider(GeniusProvider(self.session))
+        self.register_provider(AZLyricsProvider(self.session))
         self.register_provider(TekstowoProvider(self.session))
 
     def register_provider(self, provider: LyricsProvider):
@@ -317,17 +373,46 @@ class LyricsService:
         logger.warning(f"Could not find lyrics for {artist} - {title}")
         return None
 
-    def embed_lyrics(self, file_path: str, lyrics: str) -> bool:
+    def save_lrc(self, file_path: str, lyrics: str) -> bool:
+        """
+        Save lyrics to an LRC file
+
+        Args:
+            file_path (str): Path to the audio file
+            lyrics (str): The lyrics content
+
+        Returns:
+            bool: True if successful
+        """
+        try:
+            path_obj = Path(file_path)
+            lrc_path = path_obj.with_suffix(".lrc")
+
+            with open(lrc_path, "w", encoding="utf-8") as f:
+                f.write(lyrics)
+
+            logger.info(f"Saved lyrics to {lrc_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Error saving LRC file: {str(e)}")
+            return False
+
+    def embed_lyrics(self, file_path: str, lyrics: str, save_lrc_file: bool = False) -> bool:
         """
         Embed lyrics into an audio file's metadata
 
         Args:
             file_path (str): Path to the audio file
             lyrics (str): The lyrics to embed
+            save_lrc_file (bool): Whether to also save an .lrc file
 
         Returns:
             bool: True if successful, False otherwise
         """
+        # Save LRC if requested
+        if save_lrc_file:
+            self.save_lrc(file_path, lyrics)
+
         try:
             from mutagen import File
             from mutagen.id3 import ID3, USLT
@@ -398,18 +483,26 @@ def fetch_lyrics(artist: str, title: str) -> Optional[str]:
     return lyrics_service.fetch_lyrics(artist, title)
 
 
-def embed_lyrics(file_path: str, lyrics: str) -> bool:
+def embed_lyrics(file_path: str, lyrics: str, save_lrc_file: bool = False) -> bool:
     """Embed lyrics into an audio file"""
-    return lyrics_service.embed_lyrics(file_path, lyrics)
+    return lyrics_service.embed_lyrics(file_path, lyrics, save_lrc_file)
 
 
-def fetch_and_embed_lyrics(file_path: str, metadata: Dict) -> bool:
+def save_lrc(file_path: str, lyrics: str) -> bool:
+    """Save lyrics to an LRC file"""
+    return lyrics_service.save_lrc(file_path, lyrics)
+
+
+def fetch_and_embed_lyrics(
+    file_path: str, metadata: Dict, save_lrc_file: bool = False
+) -> bool:
     """
     Fetch lyrics for a file based on its metadata and embed them
 
     Args:
         file_path (str): Path to the audio file
         metadata (dict): File metadata with at least 'artist' and 'title' keys
+        save_lrc_file (bool): Whether to also save an .lrc file
 
     Returns:
         bool: True if successful, False otherwise
@@ -425,4 +518,4 @@ def fetch_and_embed_lyrics(file_path: str, metadata: Dict) -> bool:
     if not lyrics:
         return False
 
-    return embed_lyrics(file_path, lyrics)
+    return embed_lyrics(file_path, lyrics, save_lrc_file)

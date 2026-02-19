@@ -20,3 +20,8 @@
 -   Fixed optional dependency handling in `AudioSimilarityService` to prevent crashes in minimal environments.
 -   Refactored dependency checking logic into `src/utils/dependency_checker.py`, creating a unified system for verifying environment health.
 -   Added `check` command to the CLI (`auralis.py check`) to diagnose missing dependencies and provide installation instructions.
+-   Implemented `AZLyricsProvider` for improved lyrics coverage.
+-   Added support for saving synced lyrics (`.lrc`) files.
+-   Added `MetadataService` concurrency improvements using `ThreadPoolExecutor` for faster updates.
+-   Added comprehensive User Guide (`docs/user_guide.md`).
+-   Added unit tests for `LyricsService` (AZLyrics, LRC saving) and `MetadataService` concurrency.

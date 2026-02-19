@@ -305,3 +305,40 @@ class TestMetadataService:
         assert result[6]["metadata"]["language"] == "German"
         assert result[7]["metadata"]["language"] == "Instrumental"
         assert result[8]["metadata"]["language"] == "English"
+
+    @patch("concurrent.futures.ThreadPoolExecutor")
+    def test_update_metadata_concurrency(self, mock_executor_cls, service):
+        """Test metadata update concurrency using ThreadPoolExecutor"""
+        # Mock executor context manager
+        mock_executor = mock_executor_cls.return_value
+        mock_executor.__enter__.return_value = mock_executor
+
+        # Mock future
+        mock_future = MagicMock()
+        mock_future.result.return_value = {
+            "path": "test.mp3",
+            "metadata": {"title": "New Title"},
+        }
+
+        # Mock executor.submit
+        mock_executor.submit.return_value = mock_future
+
+        # Mock as_completed to yield our future
+        with patch("concurrent.futures.as_completed", return_value=[mock_future]):
+            # Prepare input
+            music_files = [
+                {"path": "test.mp3", "metadata": {"artist": "Artist"}, "hash": "h1"},
+            ]
+            options = {"force_update": True}
+
+            # Patch internal methods to avoid side effects
+            with patch.object(service, "_save_stats"):
+                # Call update_metadata
+                result = service.update_metadata(music_files, options)
+
+                # Verify executor usage
+                mock_executor_cls.assert_called_with(max_workers=4)
+                assert mock_executor.submit.call_count == 1
+
+                # Verify result update
+                assert result[0]["metadata"]["title"] == "New Title"

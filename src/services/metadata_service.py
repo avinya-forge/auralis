@@ -6,6 +6,7 @@ Handles fetching and updating metadata from online sources
 
 import json
 import os
+import concurrent.futures
 import threading
 import time
 from pathlib import Path
@@ -703,40 +704,30 @@ class MetadataService(QObject):
                 processed_files[0] += 1
                 self.progress_updated.emit(processed_files[0], total_files)
 
-        # Create thread pool
-        threads = []
-        results = [None] * len(files_to_process)
-        thread_semaphore = threading.Semaphore(max_threads)
-
-        # Process each file
-        for i, (orig_index, file_info) in enumerate(files_to_process):
-            # Create thread for processing
-            thread = threading.Thread(
-                target=self._process_file_with_cache,
-                args=(
+        # Process each file using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
+            futures = {
+                executor.submit(
+                    self._process_file_with_cache,
                     file_info,
                     options,
-                    i,
-                    results,
-                    thread_semaphore,
-                    processed_files,
-                    total_files,
-                    orig_index,
                     metadata_cache,
-                ),
-            )
-            threads.append(thread)
-            thread.start()
+                ): orig_index
+                for i, (orig_index, file_info) in enumerate(files_to_process)
+            }
 
-        # Wait for all threads to complete
-        for thread in threads:
-            thread.join()
-
-        # Update music files with results
-        for i, result in enumerate(results):
-            if result is not None:
-                orig_index, updated_file_info = result
-                music_files[orig_index] = updated_file_info
+            for future in concurrent.futures.as_completed(futures):
+                orig_index = futures[future]
+                try:
+                    updated_file_info = future.result()
+                    if updated_file_info:
+                        music_files[orig_index] = updated_file_info
+                except Exception as e:
+                    print(f"Error processing file index {orig_index}: {str(e)}")
+                finally:
+                    # Update progress
+                    processed_files[0] += 1
+                    self.progress_updated.emit(processed_files[0], total_files)
 
         # Save cache
         try:
@@ -758,23 +749,12 @@ class MetadataService(QObject):
         self,
         file_info,
         options,
-        index,
-        results,
-        semaphore,
-        processed_files,
-        total_files,
-        orig_index,
         metadata_cache,
     ):
         """Process a file with caching support"""
-        # Acquire semaphore
-        semaphore.acquire()
-
         try:
             # Process the file
-            updated_file_info = self._process_file_internal(
-                file_info, options, processed_files, total_files
-            )
+            updated_file_info = self._process_file_internal(file_info, options)
 
             # Update cache with new metadata
             if updated_file_info and "hash" in updated_file_info:
@@ -782,28 +762,19 @@ class MetadataService(QObject):
                 if file_hash and "metadata" in updated_file_info:
                     metadata_cache[file_hash] = updated_file_info["metadata"]
 
-            # Store result
-            results[index] = (orig_index, updated_file_info)
+            return updated_file_info
 
         except Exception as e:
             print(f"Error processing file {file_info['path']}: {str(e)}")
-            results[index] = (orig_index, file_info)
-            processed_files[0] += 1
-            self.progress_updated.emit(processed_files[0], total_files)
+            return file_info
 
-        finally:
-            # Release semaphore
-            semaphore.release()
-
-    def _process_file_internal(self, file_info, options, processed_files, total_files):
+    def _process_file_internal(self, file_info, options):
         """Internal method to process a single file"""
         # Emit signal to indicate which file is being processed
         self.file_updated.emit(file_info["path"])
 
         # Skip if file already has sufficient metadata
         if self._has_sufficient_metadata(file_info) and not options.get("force_update", False):
-            processed_files[0] += 1
-            self.progress_updated.emit(processed_files[0], total_files)
             return file_info
 
         # Get existing metadata
@@ -870,14 +841,12 @@ class MetadataService(QObject):
             # Fetch and embed lyrics if enabled
             if options.get("fetch_lyrics", False):
                 self.file_updated.emit(f"{file_info['path']} (fetching lyrics)")
-                self._fetch_and_embed_lyrics(file_info["path"], updated_metadata)
+                self._fetch_and_embed_lyrics(
+                    file_info["path"], updated_metadata, options.get("save_lrc", False)
+                )
 
             # Emit signal
             self.metadata_updated.emit(file_info["path"], updated_metadata)
-
-        # Update progress
-        processed_files[0] += 1
-        self.progress_updated.emit(processed_files[0], total_files)
 
         return file_info
 
@@ -966,13 +935,14 @@ class MetadataService(QObject):
             print(f"Error applying metadata to {file_path}: {str(e)}")
             return False
 
-    def _fetch_and_embed_lyrics(self, file_path, metadata):
+    def _fetch_and_embed_lyrics(self, file_path, metadata, save_lrc=False):
         """
         Fetch and embed lyrics for a file
 
         Args:
             file_path (str): Path to the music file
             metadata (dict): File metadata
+            save_lrc (bool): Whether to save lyrics to an .lrc file
 
         Returns:
             bool: True if successful
@@ -991,7 +961,7 @@ class MetadataService(QObject):
             return False
 
         # Embed lyrics
-        success = embed_lyrics(file_path, lyrics)
+        success = embed_lyrics(file_path, lyrics, save_lrc_file=save_lrc)
 
         # Save lyrics to metadata
         if success:
