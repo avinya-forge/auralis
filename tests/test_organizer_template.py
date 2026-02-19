@@ -78,11 +78,13 @@ class TestMusicOrganizerTemplate:
 
     @pytest.fixture
     def mock_services(self):
-        with patch("src.core.organizer.is_language_detection_available", return_value=True), \
-             patch("src.core.organizer.get_language_folder", return_value="English"), \
-             patch("src.core.organizer.is_audio_similarity_available", return_value=True), \
-             patch("src.core.organizer.find_similar_audio", return_value=[]), \
-             patch("src.core.organizer.get_best_quality_version", return_value=None):
+        with patch("src.core.organizer.is_language_detection_available", return_value=True), patch(
+            "src.core.organizer.get_language_folder", return_value="English"
+        ), patch("src.core.organizer.is_audio_similarity_available", return_value=True), patch(
+            "src.core.organizer.find_similar_audio", return_value=[]
+        ), patch(
+            "src.core.organizer.get_best_quality_version", return_value=None
+        ):
             yield
 
     @pytest.fixture
@@ -92,12 +94,8 @@ class TestMusicOrganizerTemplate:
     def test_generate_path_simple_template(self, organizer):
         """Test simple template generation"""
         file_info = {
-            "metadata": {
-                "artist": "The Artist",
-                "title": "My Song",
-                "album": "Greatest Hits"
-            },
-            "extension": ".mp3"
+            "metadata": {"artist": "The Artist", "title": "My Song", "album": "Greatest Hits"},
+            "extension": ".mp3",
         }
         template = "{artist}/{album}/{title}"
 
@@ -126,7 +124,7 @@ class TestMusicOrganizerTemplate:
                 "title": "My Song"
                 # Missing artist, album
             },
-            "extension": ".mp3"
+            "extension": ".mp3",
         }
         template = "{artist}/{album}/{title}"
 
@@ -147,9 +145,9 @@ class TestMusicOrganizerTemplate:
                 "album": "Album",
                 "year": "2023",
                 "genre": "Rock",
-                "language": "English"
+                "language": "English",
             },
-            "extension": ".flac"
+            "extension": ".flac",
         }
         template = "{genre}/{year}/{language}/{artist}/{album}/{title}"
 
@@ -163,18 +161,15 @@ class TestMusicOrganizerTemplate:
     def test_get_destination_path_uses_template(self, organizer):
         """Test that _get_destination_path uses template when provided in options"""
         file_info = {
-            "metadata": {
-                "artist": "Artist",
-                "title": "Title"
-            },
+            "metadata": {"artist": "Artist", "title": "Title"},
             "extension": ".mp3",
-            "filename": "original.mp3"
+            "filename": "original.mp3",
         }
 
         organizer.dest_root = "/tmp/music"
         organizer.options = {
             "directory_template": "{artist}/{title}",
-            "organize_by_language": False
+            "organize_by_language": False,
         }
 
         try:
@@ -185,4 +180,4 @@ class TestMusicOrganizerTemplate:
             # But in test environment with dry_run and non-existent files, it should be exact
             assert result == expected
         except AttributeError:
-             pytest.fail("Method might not be using template yet")
+            pytest.fail("Method might not be using template yet")

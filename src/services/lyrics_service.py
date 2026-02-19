@@ -493,9 +493,7 @@ def save_lrc(file_path: str, lyrics: str) -> bool:
     return lyrics_service.save_lrc(file_path, lyrics)
 
 
-def fetch_and_embed_lyrics(
-    file_path: str, metadata: Dict, save_lrc_file: bool = False
-) -> bool:
+def fetch_and_embed_lyrics(file_path: str, metadata: Dict, save_lrc_file: bool = False) -> bool:
     """
     Fetch lyrics for a file based on its metadata and embed them
 

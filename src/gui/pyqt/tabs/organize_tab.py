@@ -72,14 +72,16 @@ class OrganizeTab(QWidget):
         template_input_layout.addWidget(self.template_input)
 
         self.template_combo = QComboBox()
-        self.template_combo.addItems([
-            "Select Preset...",
-            "{artist}/{album}/{title}",
-            "{artist}/{year} - {album}/{title}",
-            "{genre}/{artist}/{album}/{title}",
-            "{language}/{artist}/{album}/{title}",
-            "{artist} - {title}"
-        ])
+        self.template_combo.addItems(
+            [
+                "Select Preset...",
+                "{artist}/{album}/{title}",
+                "{artist}/{year} - {album}/{title}",
+                "{genre}/{artist}/{album}/{title}",
+                "{language}/{artist}/{album}/{title}",
+                "{artist} - {title}",
+            ]
+        )
         self.template_combo.setEnabled(False)
         self.template_combo.currentIndexChanged.connect(self.on_template_preset_changed)
         template_input_layout.addWidget(self.template_combo)

@@ -4,9 +4,9 @@ Auralis - Metadata Service Module
 Handles fetching and updating metadata from online sources
 """
 
+import concurrent.futures
 import json
 import os
-import concurrent.futures
 import threading
 import time
 from pathlib import Path
@@ -938,7 +938,7 @@ class MetadataService(QObject):
                         mime=mime,
                         type=3,  # Cover (front)
                         desc="Cover",
-                        data=metadata["cover_art"]
+                        data=metadata["cover_art"],
                     )
 
             elif isinstance(audio, mutagen.flac.FLAC):

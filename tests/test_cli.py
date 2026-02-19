@@ -110,7 +110,8 @@ class TestCLI(unittest.TestCase):
             "organize",
             "source_dir",
             "dest_dir",
-            "--template", "{artist}/{title}"
+            "--template",
+            "{artist}/{title}",
         ]
         with patch.object(sys, "argv", test_args):
             run_cli()
@@ -161,12 +162,7 @@ class TestCLI(unittest.TestCase):
         mock_load_files.return_value = [{"path": "test.mp3"}]
 
         # Run CLI
-        test_args = [
-            "cli_main.py",
-            "metadata",
-            "source_dir",
-            "--fetch-cover-art"
-        ]
+        test_args = ["cli_main.py", "metadata", "source_dir", "--fetch-cover-art"]
         with patch.object(sys, "argv", test_args):
             run_cli()
 
