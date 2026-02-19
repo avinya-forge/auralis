@@ -6,7 +6,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from pathlib import Path
+
 from src.services.lyrics_service import (
+    AZLyricsProvider,
     GeniusProvider,
     LyricsService,
     TekstowoProvider,
@@ -76,6 +79,49 @@ class TestGeniusProvider:
 
         lyrics = provider.get_lyrics("Unknown", "Song")
         assert lyrics is None
+
+
+class TestAZLyricsProvider:
+    @pytest.fixture
+    def provider(self):
+        session = MagicMock()
+        return AZLyricsProvider(session)
+
+    @patch("src.services.lyrics_service.BeautifulSoup")
+    def test_get_lyrics_success(self, mock_bs, provider):
+        """Test successful lyrics retrieval from AZLyrics"""
+        # Mock BS
+        mock_soup = mock_bs.return_value
+
+        # Mock lyrics div
+        mock_div = MagicMock()
+        mock_div.get_text.return_value = "Test Lyrics"
+        # str(div) should contain usage comment
+        mock_div.__str__.return_value = "<div><!-- Usage of azlyrics.com -->Test Lyrics</div>"
+
+        mock_soup.find_all.return_value = [mock_div]
+
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = "html"
+
+        provider.session.get.return_value = mock_response
+
+        lyrics = provider.get_lyrics("Test Artist", "Test Song")
+
+        # Check URL construction
+        provider.session.get.assert_called_with(
+            "https://www.azlyrics.com/lyrics/testartist/testsong.html", timeout=10
+        )
+        assert lyrics == "Test Lyrics"
+
+    def test_clean_for_url(self, provider):
+        """Test URL cleaning"""
+        assert provider._clean_for_url("The Beatles") == "beatles"
+        assert provider._clean_for_url("Taylor Swift") == "taylorswift"
+        assert provider._clean_for_url("AC/DC") == "acdc"
+        assert provider._clean_for_url("Ke$ha") == "keha"
 
 
 class TestTekstowoProvider:
@@ -183,3 +229,33 @@ class TestLyricsService:
 
         assert lyrics == "Cached Lyrics"
         provider.get_lyrics.assert_not_called()
+
+    @patch("src.services.lyrics_service.open")
+    def test_save_lrc(self, mock_open, service):
+        """Test saving LRC file"""
+        mock_file = MagicMock()
+        mock_open.return_value.__enter__.return_value = mock_file
+
+        result = service.save_lrc("/path/to/song.mp3", "Lyrics")
+
+        assert result is True
+        # Note: We can't easily assert Path equality with string in call_args if mock expects exact object
+        # So we verify arguments manually
+        args, kwargs = mock_open.call_args
+        assert str(args[0]) == "/path/to/song.lrc"
+        assert args[1] == "w"
+        assert kwargs["encoding"] == "utf-8"
+        mock_file.write.assert_called_with("Lyrics")
+
+    @patch("src.services.lyrics_service.LyricsService.save_lrc")
+    @patch("mutagen.File")
+    def test_embed_lyrics_with_save(self, mock_mutagen_file, mock_save_lrc, service):
+        """Test embedding lyrics with save_lrc option"""
+        mock_audio = MagicMock()
+        mock_mutagen_file.return_value = mock_audio
+        # Mock ID3
+        with patch("mutagen.id3.ID3"):
+            result = service.embed_lyrics("song.mp3", "Lyrics", save_lrc_file=True)
+
+        assert result is True
+        mock_save_lrc.assert_called_with("song.mp3", "Lyrics")

@@ -97,7 +97,7 @@ mock_mp3.MP3 = MP3
 mock_mutagen.mp3 = mock_mp3
 
 mock_id3 = types.ModuleType("mutagen.id3")
-for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK"]:
+for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK", "ID3", "USLT"]:
     setattr(mock_id3, name, MagicMock)  # Assign class not instance
 mock_mutagen.id3 = mock_id3
 
