@@ -12,9 +12,9 @@ import subprocess
 import sys
 
 # Ensure we can import from src
-sys.path.append(os.getcwd())
+sys.path.append(os.getcwd())  # noqa: E402
 
-from src.utils.dependency_checker import DependencyChecker
+from src.utils.dependency_checker import DependencyChecker  # noqa: E402
 
 
 def install_dependencies():
@@ -54,7 +54,7 @@ def install_dependencies():
 
         return True
     else:
-        print(f"Error installing dependencies.")
+        print("Error installing dependencies.")
         return False
 
 
@@ -71,18 +71,18 @@ def check_system_dependencies():
         else:
             print(f"✗ {tool} not found")
             if tool == "ffmpeg":
-                 print("  Audio conversion and some analysis features require ffmpeg.")
-                 # Print install instructions (generic)
+                print("  Audio conversion and some analysis features require ffmpeg.")
+                # Print install instructions (generic)
             elif tool == "fpcalc":
-                 print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
+                print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
 
     if platform.system().lower() == "linux":
         lib = report["libraries"].get("sndfile", {})
         if lib.get("installed"):
-             print(f"✓ libsndfile found: {lib['path']}")
+            print(f"✓ libsndfile found: {lib['path']}")
         else:
-             print("✗ libsndfile not found via ctypes")
-             print("  Install libsndfile1 via your package manager.")
+            print("✗ libsndfile not found via ctypes")
+            print("  Install libsndfile1 via your package manager.")
 
 
 def test_dependencies():

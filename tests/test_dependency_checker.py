@@ -88,5 +88,6 @@ class TestDependencyChecker(unittest.TestCase):
         mock_check_call.side_effect = subprocess.CalledProcessError(1, "cmd")
         self.assertFalse(self.checker.install_pip_packages(["package"]))
 
+
 if __name__ == "__main__":
     unittest.main()

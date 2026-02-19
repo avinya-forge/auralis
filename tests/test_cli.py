@@ -10,6 +10,8 @@ from unittest.mock import MagicMock, patch
 sys.path.append(".")  # noqa: E402
 
 from src.cli.cli_main import ConsoleHandler, run_cli  # noqa: E402
+# Import MetadataService to ensure it's loaded for patching
+from src.services.metadata_service import MetadataService  # noqa: F401, E402
 
 
 class TestCLI(unittest.TestCase):
@@ -23,7 +25,7 @@ class TestCLI(unittest.TestCase):
     def tearDown(self):
         self.app_patcher.stop()
 
-    @patch("src.cli.cli_main.MusicScanner")
+    @patch("src.core.scanner.MusicScanner")
     def test_scan_command(self, mock_scanner_cls):
         """Test scan command"""
         # Setup mock
@@ -51,7 +53,7 @@ class TestCLI(unittest.TestCase):
         scanner.progress_updated.connect.assert_called()
         scanner.file_scanned.connect.assert_called()
 
-    @patch("src.cli.cli_main.MusicOrganizer")
+    @patch("src.core.organizer.MusicOrganizer")
     @patch("src.cli.cli_main._load_files")
     def test_organize_command(self, mock_load_files, mock_organizer_cls):
         """Test organize command"""
@@ -90,7 +92,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(args[2]["rename_files"], False)
         self.assertEqual(args[2]["organize_by_language"], True)  # Default
 
-    @patch("src.cli.cli_main.MetadataService")
+    @patch("src.services.metadata_service.MetadataService")
     @patch("src.cli.cli_main._load_files")
     def test_metadata_command(self, mock_load_files, mock_metadata_cls):
         """Test metadata command"""

@@ -135,6 +135,23 @@ if "numpy" not in sys.modules:
     mock_numpy.ndarray = ndarray
     sys.modules["numpy"] = mock_numpy
 
-for lib in ["librosa", "soundfile", "sklearn", "pydub", "dotenv", "acoustid"]:
+for lib in [
+    "librosa",
+    "soundfile",
+    "sklearn",
+    "pydub",
+    "dotenv",
+    "acoustid",
+    "discogs_client",
+    "musicbrainzngs",
+    "spotipy",
+    "pylast",
+    "PIL",
+    "PIL.Image",
+    "PIL.ImageTk",
+    "requests",
+    "bs4",
+    "lxml",
+]:
     if lib not in sys.modules:
         sys.modules[lib] = MagicMock()

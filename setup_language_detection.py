@@ -5,15 +5,14 @@ Auralis - Language Detection Setup
 This script installs the required dependencies for audio language detection.
 """
 
+import os
 import platform
-import subprocess
 import sys
 
 # Ensure we can import from src
-import os
-sys.path.append(os.getcwd())
+sys.path.append(os.getcwd())  # noqa: E402
 
-from src.utils.dependency_checker import DependencyChecker
+from src.utils.dependency_checker import DependencyChecker  # noqa: E402
 
 
 def install_dependencies():

@@ -155,15 +155,15 @@ class DependencyChecker:
             report["audio_similarity"][mod] = self.check_module(mod)
 
         if platform.system() == "Windows":
-             # ffmpeg-python is usually not imported directly in check logic but needed
-             # However, it might be imported as ffmpeg. Let's check package name equivalent?
-             # No, check_module checks import. ffmpeg-python imports as ffmpeg.
-             report["audio_similarity"]["ffmpeg"] = self.check_module("ffmpeg")
+            # ffmpeg-python is usually not imported directly in check logic but needed
+            # However, it might be imported as ffmpeg. Let's check package name equivalent?
+            # No, check_module checks import. ffmpeg-python imports as ffmpeg.
+            report["audio_similarity"]["ffmpeg"] = self.check_module("ffmpeg")
 
         # Language Detection dependencies (import names)
         lang_det_modules = ["speech_recognition", "langdetect", "pydub", "pyaudio"]
         for mod in lang_det_modules:
-             report["language_detection"][mod] = self.check_module(mod)
+            report["language_detection"][mod] = self.check_module(mod)
 
         # System Tools
         tools = ["ffmpeg", "ffprobe", "fpcalc"]

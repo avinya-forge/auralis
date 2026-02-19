@@ -22,6 +22,7 @@ try:
     HAS_PYQT = True
 except ImportError:
     HAS_PYQT = False
+
     class QObject:  # type: ignore
         """Dummy QObject"""
         pass
@@ -391,9 +392,9 @@ def run_check(args):
             missing_tools.append(tool)
 
     if missing_modules or missing_tools:
-        print("\n" + "="*40)
+        print("\n" + "=" * 40)
         print("Missing Dependencies Instructions")
-        print("="*40)
+        print("=" * 40)
         print(checker.get_install_instructions(missing_modules, missing_tools))
 
 
@@ -412,8 +413,8 @@ def _load_files(source):
         try:
             from src.core.scanner import MusicScanner
         except ImportError:
-             print("Error: MusicScanner not available (PyQt6 missing?)")
-             return []
+            print("Error: MusicScanner not available (PyQt6 missing?)")
+            return []
 
         scanner = MusicScanner()
         # We should probably use ConsoleHandler here too if we want progress
