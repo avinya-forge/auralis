@@ -15,6 +15,7 @@ import acoustid
 import discogs_client
 import musicbrainzngs
 import mutagen
+import requests
 from PyQt6.QtCore import QObject, pyqtSignal
 
 # Import lyrics service
@@ -450,6 +451,11 @@ class SpotifySource(MetadataSource):
             if "release_date" in track["album"]:
                 new_metadata["year"] = track["album"]["release_date"][:4]
 
+            # Get cover art URL
+            if "images" in track["album"] and track["album"]["images"]:
+                # Get the largest image (usually the first one)
+                new_metadata["cover_art_url"] = track["album"]["images"][0]["url"]
+
         return new_metadata
 
 
@@ -513,6 +519,10 @@ class LastFmSource(MetadataSource):
             album = track.get_album()
             if album:
                 new_metadata["album"] = album.get_name()
+                # Get cover art URL
+                image_url = album.get_cover_image(size=pylast.SIZE_EXTRA_LARGE)
+                if image_url:
+                    new_metadata["cover_art_url"] = image_url
 
             response_time = time.time() - start_time
             return new_metadata, True, response_time
@@ -834,6 +844,19 @@ class MetadataService(QObject):
             updated_metadata = {**metadata, **new_metadata}
             file_info["metadata"] = updated_metadata
 
+            # Fetch cover art if enabled and available
+            if options.get("fetch_cover_art", False) and "cover_art_url" in updated_metadata:
+                self.file_updated.emit(f"{file_info['path']} (downloading cover art)")
+                try:
+                    response = requests.get(updated_metadata["cover_art_url"], timeout=10)
+                    if response.status_code == 200:
+                        updated_metadata["cover_art"] = response.content
+                        updated_metadata["cover_art_mime"] = response.headers.get(
+                            "Content-Type", "image/jpeg"
+                        )
+                except Exception as e:
+                    print(f"Error downloading cover art: {str(e)}")
+
             # Apply metadata to file
             self.file_updated.emit(f"{file_info['path']} (updating file)")
             self._apply_metadata_to_file(file_info["path"], updated_metadata)
@@ -907,6 +930,17 @@ class MetadataService(QObject):
                 if "track" in metadata:
                     audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
 
+                # Cover Art
+                if "cover_art" in metadata:
+                    mime = metadata.get("cover_art_mime", "image/jpeg")
+                    audio["APIC"] = mutagen.id3.APIC(
+                        encoding=3,
+                        mime=mime,
+                        type=3,  # Cover (front)
+                        desc="Cover",
+                        data=metadata["cover_art"]
+                    )
+
             elif isinstance(audio, mutagen.flac.FLAC):
                 # FLAC files
                 if "artist" in metadata:
@@ -921,6 +955,15 @@ class MetadataService(QObject):
                     audio["genre"] = metadata["genre"]
                 if "track" in metadata:
                     audio["tracknumber"] = metadata["track"]
+
+                # Cover Art
+                if "cover_art" in metadata:
+                    picture = mutagen.flac.Picture()
+                    picture.data = metadata["cover_art"]
+                    picture.mime = metadata.get("cover_art_mime", "image/jpeg")
+                    picture.type = 3  # Cover (front)
+                    picture.desc = "Cover"
+                    audio.add_picture(picture)
 
             else:
                 # Generic approach for other formats

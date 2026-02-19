@@ -139,6 +139,11 @@ def setup_parser():
     org_parser.add_argument(
         "--keep-empty-dirs", action="store_true", help="Do not remove empty directories"
     )
+    org_parser.add_argument(
+        "--template",
+        type=str,
+        help="Custom directory structure template (e.g. {artist}/{album}/{title})",
+    )
 
     # Metadata command
     meta_parser = subparsers.add_parser("metadata", help="Update metadata")
@@ -146,6 +151,11 @@ def setup_parser():
     meta_parser.add_argument("--no-musicbrainz", action="store_true", help="Disable MusicBrainz")
     meta_parser.add_argument("--no-discogs", action="store_true", help="Disable Discogs")
     meta_parser.add_argument("--no-lyrics", action="store_true", help="Disable lyrics fetching")
+    meta_parser.add_argument(
+        "--fetch-cover-art",
+        action="store_true",
+        help="Fetch and embed cover art from online sources",
+    )
     meta_parser.add_argument(
         "--force", action="store_true", help="Force update even if metadata exists"
     )
@@ -277,6 +287,9 @@ def run_organize(args):
         "remove_empty_dirs": not args.keep_empty_dirs,
     }
 
+    if args.template:
+        options["directory_template"] = args.template
+
     # Run organize
     try:
         result = organizer.organize_files(files, args.destination, options)
@@ -322,6 +335,7 @@ def run_metadata(args):
         "use_musicbrainz": not args.no_musicbrainz,
         "use_discogs": not args.no_discogs,
         "fetch_lyrics": not args.no_lyrics,
+        "fetch_cover_art": args.fetch_cover_art,
         "force_update": args.force,
     }
 

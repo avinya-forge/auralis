@@ -2,6 +2,10 @@
 
 ## High Priority
 
+- [x] Implement Cover Art Fetching and Embedding.
+- [x] Implement Flexible Directory Structure for Organization.
+- [ ] Add CLI Support for New Features (Template, Cover Art).
+
 - [x] Refactor `MetadataService` to use `ThreadPoolExecutor` for better concurrency management.
 - [x] Add `AZLyricsProvider` to `LyricsService`.
 - [x] Implement LRC (synced lyrics) file saving in `LyricsService`.

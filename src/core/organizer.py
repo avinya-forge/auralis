@@ -289,6 +289,17 @@ class MusicOrganizer(QObject):
 
         metadata = file_info.get("metadata", {})
 
+        # Check for template
+        template = self.options.get("directory_template")
+        if template:
+            try:
+                rel_path = self._generate_path_from_template(file_info, template)
+                dest_path = os.path.join(self.dest_root, rel_path)
+                return ensure_unique_filename(dest_path)
+            except Exception as e:
+                # Log error and fall back to default logic
+                print(f"Error using template '{template}': {str(e)}")
+
         # Use a flatter directory structure
         # If language organization is enabled, use language as the top-level directory
         if self.options.get("organize_by_language", True):
@@ -331,6 +342,54 @@ class MusicOrganizer(QObject):
 
         # Ensure unique filename
         return ensure_unique_filename(dest_path)
+
+    def _generate_path_from_template(self, file_info: Dict[str, Any], template: str) -> str:
+        """
+        Generate a relative path based on a template string.
+        Supported placeholders: {artist}, {title}, {album}, {year}, {genre}, {language}
+        """
+        metadata = file_info.get("metadata", {})
+
+        # Extract and sanitize metadata
+        artist = sanitize_filename(metadata.get("artist") or "Unknown Artist")
+        title = sanitize_filename(metadata.get("title") or "Unknown Title")
+        album = sanitize_filename(metadata.get("album") or "Unknown Album")
+        year = sanitize_filename(str(metadata.get("year", "")) or "Unknown Year")
+        genre = sanitize_filename(metadata.get("genre") or "Unknown Genre")
+
+        # Handle language
+        if "{language}" in template:
+            use_audio_lang = self.options.get("use_audio_language_detection", True)
+            if self.language_detection_available and use_audio_lang:
+                language = get_language_folder(file_info["path"], default="Unknown")
+            else:
+                language = sanitize_filename(metadata.get("language") or "Unknown")
+        else:
+            language = "Unknown"
+
+        # Replace placeholders
+        # We use a safe format that ignores missing keys if any, though we defined all common ones
+        path = template.replace("{artist}", artist)
+        path = path.replace("{title}", title)
+        path = path.replace("{album}", album)
+        path = path.replace("{year}", year)
+        path = path.replace("{genre}", genre)
+        path = path.replace("{language}", language)
+
+        # Add extension
+        ext = file_info.get("extension", "")
+        if not ext.startswith("."):
+            ext = "." + ext
+
+        if not path.endswith(ext):
+            path += ext
+
+        # Security check: ensure path is relative and doesn't contain traversal
+        path = path.replace("..", "")
+        while path.startswith("/") or path.startswith("\\"):
+            path = path[1:]
+
+        return path
 
     def _check_duplicate(
         self, file_info: Dict[str, Any], organized_files: List[Dict[str, Any]]
