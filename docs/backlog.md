@@ -13,6 +13,8 @@
 - [x] Refactor `src/utils/audio_utils.py` to reduce complexity.
 - [x] Refactor `src/utils/system_utils.py` to reduce complexity.
 - [x] Fix all remaining linting issues (flake8) across the codebase.
+- [x] Refactor dependency checking logic into `src/utils/dependency_checker.py`.
+- [x] Add CLI `check` command to verify system dependencies.
 
 ## Medium Priority
 

@@ -6,17 +6,22 @@ This script installs the required dependencies for audio similarity detection.
 """
 
 import argparse
-import ctypes.util
 import os
 import platform
-import shutil
 import subprocess
 import sys
+
+# Ensure we can import from src
+sys.path.append(os.getcwd())
+
+from src.utils.dependency_checker import DependencyChecker
 
 
 def install_dependencies():
     """Install the required dependencies for audio similarity detection"""
     print("Installing audio similarity detection dependencies...")
+
+    checker = DependencyChecker()
 
     # Define the required packages
     packages = [
@@ -28,8 +33,7 @@ def install_dependencies():
     ]
 
     # Install using pip
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
+    if checker.install_pip_packages(packages):
         print("Dependencies installed successfully!")
 
         # Platform-specific installations
@@ -37,7 +41,7 @@ def install_dependencies():
             try:
                 # Some Windows machines need additional libraries
                 print("Installing additional Windows dependencies...")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "ffmpeg-python"])
+                checker.install_pip_packages(["ffmpeg-python"])
             except subprocess.CalledProcessError:
                 print("Could not install ffmpeg-python. Audio conversion might be limited.")
         elif platform.system().lower() == "linux":
@@ -49,119 +53,52 @@ def install_dependencies():
             print("Using your distribution's package manager (apt, yum, etc.)")
 
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing dependencies: {str(e)}")
-        return False
-    except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+    else:
+        print(f"Error installing dependencies.")
         return False
 
 
 def check_system_dependencies():
     """Check for system-level dependencies"""
     print("\nChecking system dependencies...")
+    checker = DependencyChecker()
+    report = checker.check_all()
 
-    ffmpeg_path = shutil.which("ffmpeg")
-    if ffmpeg_path:
-        print(f"✓ ffmpeg found at {ffmpeg_path}")
-    else:
-        print("✗ ffmpeg not found")
-        print("  Audio conversion and some analysis features require ffmpeg.")
-        if platform.system().lower() == "darwin":
-            print("  Install with: brew install ffmpeg")
-        elif platform.system().lower() == "linux":
-            print("  Install with: sudo apt install ffmpeg (or equivalent)")
-        elif platform.system().lower() == "windows":
-            print("  Download from https://ffmpeg.org/download.html and add to PATH")
-
-    ffprobe_path = shutil.which("ffprobe")
-    if ffprobe_path:
-        print(f"✓ ffprobe found at {ffprobe_path}")
-    else:
-        print("✗ ffprobe not found")
-        print("  Often installed with ffmpeg.")
-
-    fpcalc_path = shutil.which("fpcalc")
-    if fpcalc_path:
-        print(f"✓ fpcalc found at {fpcalc_path}")
-    else:
-        print("✗ fpcalc not found")
-        print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
-        print("  Download from https://acoustid.org/chromaprint")
-
-    # Check for libsndfile
-    if platform.system().lower() == "linux":
-        libsndfile = ctypes.util.find_library("sndfile")
-        if libsndfile:
-            print(f"✓ libsndfile found: {libsndfile}")
+    tools = report["system_tools"]
+    for tool, info in tools.items():
+        if info["installed"]:
+            print(f"✓ {tool} found at {info['path']}")
         else:
-            print("✗ libsndfile not found via ctypes")
-            print("  Install libsndfile1 via your package manager.")
+            print(f"✗ {tool} not found")
+            if tool == "ffmpeg":
+                 print("  Audio conversion and some analysis features require ffmpeg.")
+                 # Print install instructions (generic)
+            elif tool == "fpcalc":
+                 print("  AcoustID fingerprinting requires fpcalc (Chromaprint).")
 
-
-def check_module_installed(module_name):
-    """Check if a module can be imported"""
-    try:
-        __import__(module_name)
-        print(f"✓ {module_name} installed")
-        return True
-    except ImportError:
-        print(f"✗ {module_name} not installed")
-        return False
-
-
-def test_audio_loading():
-    """Test audio loading capabilities"""
-    try:
-        print("\nTesting audio loading capabilities...")
-        import tempfile
-
-        import librosa
-        import numpy as np
-        import soundfile as sf
-
-        # Create a simple test audio file
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp:
-            temp_path = temp.name
-
-        try:
-            # Generate a simple sine wave
-            sample_rate = 22050
-            duration = 1  # seconds
-            t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
-            x = 0.5 * np.sin(2 * np.pi * 440 * t)  # 440 Hz sine wave
-
-            # Save as WAV
-            sf.write(temp_path, x, sample_rate)
-
-            # Test librosa loading
-            y, sr = librosa.load(temp_path, sr=None)
-            print(f"✓ librosa can load audio files (loaded {len(y)} samples at {sr} Hz)")
-
-            print("Audio processing test passed!")
-            return True
-        finally:
-            # Clean up
-            try:
-                if os.path.exists(temp_path):
-                    os.unlink(temp_path)
-            except OSError:
-                pass
-    except Exception as e:
-        print(f"✗ Audio processing test failed: {str(e)}")
-        print("Audio similarity detection may not work correctly.")
-        return False
+    if platform.system().lower() == "linux":
+        lib = report["libraries"].get("sndfile", {})
+        if lib.get("installed"):
+             print(f"✓ libsndfile found: {lib['path']}")
+        else:
+             print("✗ libsndfile not found via ctypes")
+             print("  Install libsndfile1 via your package manager.")
 
 
 def test_dependencies():
     """Test if the dependencies are installed correctly"""
     print("\nTesting Python dependencies...")
+    checker = DependencyChecker()
+    report = checker.check_all()
 
-    modules_to_check = ["numpy", "librosa", "sklearn", "soundfile", "pydub"]
-
+    audio_sim = report["audio_similarity"]
     all_installed = True
-    for module in modules_to_check:
-        if not check_module_installed(module):
+
+    for mod, installed in audio_sim.items():
+        if installed:
+            print(f"✓ {mod} installed")
+        else:
+            print(f"✗ {mod} not installed")
             all_installed = False
 
     if not all_installed:
@@ -169,7 +106,15 @@ def test_dependencies():
 
     print("All core dependencies are installed correctly!")
 
-    return test_audio_loading()
+    print("\nTesting audio loading capabilities...")
+    audio_report = checker.check_audio_capabilities()
+    if audio_report["success"]:
+        print(f"✓ {audio_report['message']}")
+        return True
+    else:
+        print(f"✗ {audio_report['message']}")
+        print("Audio similarity detection may not work correctly.")
+        return False
 
 
 def main():

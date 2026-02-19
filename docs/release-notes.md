@@ -18,3 +18,5 @@
 -   Added `SpotifySource` and `LastFmSource` for metadata retrieval (requires API keys).
 -   Updated documentation for new features and experimental wxPython status.
 -   Fixed optional dependency handling in `AudioSimilarityService` to prevent crashes in minimal environments.
+-   Refactored dependency checking logic into `src/utils/dependency_checker.py`, creating a unified system for verifying environment health.
+-   Added `check` command to the CLI (`auralis.py check`) to diagnose missing dependencies and provide installation instructions.
