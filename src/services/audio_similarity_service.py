@@ -23,7 +23,7 @@ try:
     HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
     HAS_AUDIO_FINGERPRINTING = False
-    np = None
+    np = None  # type: ignore
 
 
 class AudioSimilarityService:

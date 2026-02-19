@@ -12,7 +12,7 @@ from src.utils.dependency_checker import DependencyChecker
 
 # Optional tqdm import
 try:
-    from tqdm import tqdm
+    from tqdm import tqdm  # type: ignore
 except ImportError:
     tqdm = None
 
