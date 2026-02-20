@@ -5,17 +5,18 @@ Auralis - Configuration Utility Module
 import json
 import os
 import platform
+from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv  # type: ignore
 
 # Platform detection
-PLATFORM = platform.system().lower()
-IS_WINDOWS = PLATFORM == "windows"
-IS_MACOS = PLATFORM == "darwin"
-IS_LINUX = PLATFORM == "linux"
+PLATFORM: str = platform.system().lower()
+IS_WINDOWS: bool = PLATFORM == "windows"
+IS_MACOS: bool = PLATFORM == "darwin"
+IS_LINUX: bool = PLATFORM == "linux"
 
 # Define configuration defaults
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: Dict[str, Any] = {
     # AcoustID/MusicBrainz API
     "ACOUSTID_API_KEY": "1vOwZtEn",  # Default public key, limited usage
     # Discogs API
@@ -95,43 +96,53 @@ elif IS_LINUX:
     )
 
 # Application directories
-APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_DIR = os.path.join(APP_DIR, "data")
+APP_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA_DIR: str = os.path.join(APP_DIR, "data")
 
 # Ensure data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # File paths for configuration
-ENV_FILE_PATH = os.path.join(APP_DIR, ".env")
-CONFIG_FILE_PATH = os.path.join(DATA_DIR, "config.json")
+ENV_FILE_PATH: str = os.path.join(APP_DIR, ".env")
+CONFIG_FILE_PATH: str = os.path.join(DATA_DIR, "config.json")
 
 
 class Config:
     """
     Configuration manager that loads settings from .env file,
-    config.json, or uses defaults
+    config.json, or uses defaults.
+
+    Implements the Singleton pattern.
     """
 
-    _instance = None
-    _config: dict = {}
+    _instance: Optional["Config"] = None
+    _config: Dict[str, Any] = {}
 
-    def __new__(cls):
-        """Singleton pattern to ensure only one instance of Config exists"""
+    def __new__(cls) -> "Config":
+        """
+        Singleton pattern to ensure only one instance of Config exists.
+
+        Returns:
+            Config: The singleton instance.
+        """
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
             cls._instance._load_config()
         return cls._instance
 
-    def _load_config(self):
-        """Load configuration from various sources in order of precedence"""
+    def _load_config(self) -> None:
+        """Load configuration from various sources in order of precedence."""
         # Start with defaults
         self._config = DEFAULT_CONFIG.copy()
 
         self._load_json_config()
         self._load_env_config()
 
-    def _load_json_config(self):
-        # Try to load from JSON config file
+    def _load_json_config(self) -> None:
+        """
+        Try to load from JSON config file.
+        Overrides defaults if found.
+        """
         try:
             if os.path.exists(CONFIG_FILE_PATH):
                 with open(CONFIG_FILE_PATH, "r") as f:
@@ -142,8 +153,11 @@ class Config:
         except Exception as e:
             print(f"Warning: Could not load config.json: {str(e)}")
 
-    def _load_env_config(self):
-        # Try to load from .env file (highest precedence)
+    def _load_env_config(self) -> None:
+        """
+        Try to load from .env file (highest precedence).
+        Overrides JSON config and defaults if found.
+        """
         try:
             # Load from .env file if it exists
             if os.path.exists(ENV_FILE_PATH):
@@ -157,11 +171,20 @@ class Config:
         except Exception as e:
             print(f"Warning: Could not load .env file: {str(e)}")
 
-    def _set_env_value(self, key, env_value):
+    def _set_env_value(self, key: str, env_value: str) -> None:
+        """
+        Set a configuration value from an environment variable string,
+        converting types as necessary.
+
+        Args:
+            key (str): The configuration key.
+            env_value (str): The value from the environment variable.
+        """
         # Convert types appropriately
-        if isinstance(self._config[key], bool):
+        current_value = self._config.get(key)
+        if isinstance(current_value, bool):
             self._config[key] = env_value.lower() in ("true", "yes", "1", "on")
-        elif isinstance(self._config[key], int):
+        elif isinstance(current_value, int):
             try:
                 self._config[key] = int(env_value)
             except ValueError:
@@ -169,16 +192,36 @@ class Config:
         else:
             self._config[key] = env_value
 
-    def get(self, key, default=None):
-        """Get a configuration value with optional default"""
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a configuration value with optional default.
+
+        Args:
+            key (str): The configuration key.
+            default (Any, optional): The default value if the key is not found.
+
+        Returns:
+            Any: The configuration value.
+        """
         return self._config.get(key, default)
 
-    def set(self, key, value):
-        """Set a configuration value"""
+    def set(self, key: str, value: Any) -> None:
+        """
+        Set a configuration value.
+
+        Args:
+            key (str): The configuration key.
+            value (Any): The value to set.
+        """
         self._config[key] = value
 
-    def save(self):
-        """Save the current configuration to config.json"""
+    def save(self) -> bool:
+        """
+        Save the current configuration to config.json.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         try:
             # Ensure the data directory exists
             os.makedirs(os.path.dirname(CONFIG_FILE_PATH), exist_ok=True)
@@ -190,8 +233,13 @@ class Config:
             print(f"Error saving configuration: {str(e)}")
             return False
 
-    def create_env_example(self):
-        """Create an example .env file"""
+    def create_env_example(self) -> bool:
+        """
+        Create an example .env file.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         example_path = os.path.join(APP_DIR, ".env.example")
         try:
             with open(example_path, "w") as f:
@@ -254,22 +302,22 @@ class Config:
             return False
 
     @property
-    def platform(self):
+    def platform(self) -> str:
         """Get the current platform"""
         return PLATFORM
 
     @property
-    def is_windows(self):
+    def is_windows(self) -> bool:
         """Check if running on Windows"""
         return IS_WINDOWS
 
     @property
-    def is_macos(self):
+    def is_macos(self) -> bool:
         """Check if running on macOS"""
         return IS_MACOS
 
     @property
-    def is_linux(self):
+    def is_linux(self) -> bool:
         """Check if running on Linux"""
         return IS_LINUX
 
@@ -280,41 +328,41 @@ config = Config()
 # Export functions for easy access
 
 
-def get_config(key, default=None):
+def get_config(key: str, default: Any = None) -> Any:
     """Get a configuration value"""
     return config.get(key, default)
 
 
-def set_config(key, value):
+def set_config(key: str, value: Any) -> None:
     """Set a configuration value"""
     config.set(key, value)
 
 
-def save_config():
+def save_config() -> bool:
     """Save the current configuration"""
     return config.save()
 
 
-def create_env_example():
+def create_env_example() -> bool:
     """Create an example .env file"""
     return config.create_env_example()
 
 
-def get_platform():
+def get_platform() -> str:
     """Get the current platform"""
     return config.platform
 
 
-def is_windows():
+def is_windows() -> bool:
     """Check if running on Windows"""
     return config.is_windows
 
 
-def is_macos():
+def is_macos() -> bool:
     """Check if running on macOS"""
     return config.is_macos
 
 
-def is_linux():
+def is_linux() -> bool:
     """Check if running on Linux"""
     return config.is_linux

@@ -11,10 +11,10 @@
 - [INF-005] | Update CI workflow to run linting and type checks | [INDEPENDENT] | [DONE]
 
 ### Epic 2: Test Fortress (Coverage & Resilience)
-- [TST-001] | Add unit tests for `src/utils/config.py` (env loading, defaults) | [INDEPENDENT] | [TODO]
-- [TST-002] | Add unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` | [INDEPENDENT] | [TODO]
-- [TST-003] | Add unit tests for `src/gui/wx/main_window.py` (layout structure verification) | [INDEPENDENT] | [TODO]
-- [TST-004] | Add unit tests for `src/gui/wx/tabs/scan_tab.py` | [INDEPENDENT] | [TODO]
+- [TST-001] | Add unit tests for `src/utils/config.py` (env loading, defaults) | [INDEPENDENT] | [DONE]
+- [TST-002] | Add unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` | [INDEPENDENT] | [DONE]
+- [TST-003] | Add unit tests for `src/gui/wx/main_window.py` (layout structure verification) | [INDEPENDENT] | [DONE]
+- [TST-004] | Add unit tests for `src/gui/wx/tabs/scan_tab.py` | [INDEPENDENT] | [DONE]
 - [TST-005] | Add unit tests for `src/gui/wx/tabs/organize_tab.py` | [INDEPENDENT] | [TODO]
 - [TST-006] | Add unit tests for `src/gui/wx/tabs/metadata_tab.py` | [INDEPENDENT] | [TODO]
 - [TST-007] | Add mocked tests for `create_env.py` script | [INDEPENDENT] | [TODO]
@@ -23,12 +23,12 @@
 - [TST-010] | Verify and enhance `src/core/scanner.py` tests for error handling edge cases | [INDEPENDENT] | [TODO]
 
 ### Epic 3: Type Safety & Code Quality
-- [TYP-001] | Add strict type hints to `src/utils/config.py` | [INDEPENDENT] | [TODO]
+- [TYP-001] | Add strict type hints to `src/utils/config.py` | [INDEPENDENT] | [DONE]
 - [TYP-002] | Add strict type hints to `src/utils/file_utils.py` | [INDEPENDENT] | [TODO]
 - [TYP-003] | Add strict type hints to `src/utils/system_utils.py` | [INDEPENDENT] | [TODO]
 - [TYP-004] | Add strict type hints to `src/services/lyrics_service.py` | [INDEPENDENT] | [TODO]
 - [TYP-005] | Add strict type hints to `src/services/metadata_service.py` | [INDEPENDENT] | [TODO]
-- [DOC-001] | Add Google-style docstrings to `src/utils/config.py` | [INDEPENDENT] | [TODO]
+- [DOC-001] | Add Google-style docstrings to `src/utils/config.py` | [INDEPENDENT] | [DONE]
 - [DOC-002] | Add Google-style docstrings to `src/utils/file_utils.py` | [INDEPENDENT] | [TODO]
 - [DOC-003] | Add Google-style docstrings to `src/services/lyrics_service.py` | [INDEPENDENT] | [TODO]
 
