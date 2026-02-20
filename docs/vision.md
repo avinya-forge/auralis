@@ -1,37 +1,24 @@
 # Auralis Vision
 
-Auralis aims to be the premier cross-platform music library manager and player, offering seamless organization, metadata enhancement, and deep audio analysis.
+## North Star
+**The Autonomous, High-Fidelity Music Neural Network.**
+Auralis is not just a music player; it is an intelligent, self-organizing system that understands your music library at a deep, structural level. It bridges the gap between local high-fidelity archives and the metadata-rich world of streaming, providing a "best of both worlds" experience.
 
-## Core Mission
+## Pipeline Laws (The "Iron Triangle")
+1.  **Test Fortress:** All new code must be covered by tests. Target coverage: 95%. No regression is acceptable.
+2.  **Lint Zero:** Zero tolerance for linting errors. `flake8` and `mypy` (strict mode) must pass clean.
+3.  **Complexity Cap:** No function shall exceed a Cyclomatic Complexity of 10. Refactor ruthlessly.
 
-To transform chaotic music collections into pristine, organized libraries with rich metadata and a beautiful, Spotify-like interface.
+## Definition of Done (DoD)
+A task is only "Done" when it meets the following atomic criteria:
+-   [ ] **Tested:** Unit tests added/updated covering happy paths and edge cases.
+-   [ ] **Linted:** Passes all static analysis checks.
+-   [ ] **Optimized:** O(n) or better complexity verified.
+-   [ ] **Secured:** Input sanitized, dependencies checked.
+-   [ ] **Documented:** Docstrings and relevant markdown updated.
 
-## Key Features
-
-1.  **Intelligent Library Scanning:**
-    -   Deep scan of local folders to identify all music files.
-    -   Support for all major audio formats.
-
-2.  **Metadata Master:**
-    -   Automatic fetching of metadata (Artist, Title, Album, Year, etc.) from online sources (MusicBrainz, Discogs).
-    -   Intelligent tag correction and artwork embedding.
-
-3.  **pristine Organization:**
-    -   **Strict Filename Sanitization:** Remove special characters to ensure clean, compatible filenames.
-    -   **Smart Sorting:** Automatically organize files into a structured directory hierarchy (e.g., Artist/Album/Title).
-
-4.  **Modern UI/UX:**
-    -   Rich, responsive interface with vibrant colors and smooth animations.
-    -   Advanced filtering (by Artist, Genre, Mood, etc.) similar to modern streaming platforms.
-    -   Visual browsing with album artwork.
-
-5.  **Cross-Platform & Extensible:**
-    -   Native support for Windows, macOS, and Linux.
-    -   Modular architecture for easy extension.
-
-## Future Roadmap: Indian Classical Music Intelligence
-
-A unique feature setting Auralis apart will be its deep understanding of Indian Classical Music:
--   **Raga Identification:** Algorithmic identification of Ragas in music tracks.
--   **Raga Categorization:** Organizing library based on Ragas, Thaats, and time of day.
--   **Pattern Recognition:** Advanced analysis of melodic patterns.
+## Ideal State
+-   **Zero-Touch Organization:** Drop a folder of chaotic MP3s, and Auralis sorts, tags, and artworks them instantly.
+-   **Universal Playback:** Plays FLAC, MP3, WAV, OGG, and streams seamlessly.
+-   **Deep Metadata:** Lyrics, artist bios, and similar tracks are fetched automatically.
+-   **Fluid UI:** A responsive, modern interface (PyQt6/wxPython) that feels native on every OS.
