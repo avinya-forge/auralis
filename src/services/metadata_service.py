@@ -4,9 +4,9 @@ Auralis - Metadata Service Module
 Handles fetching and updating metadata from online sources
 """
 
+import concurrent.futures
 import json
 import os
-import concurrent.futures
 import threading
 import time
 from pathlib import Path
@@ -15,6 +15,7 @@ import acoustid
 import discogs_client
 import musicbrainzngs
 import mutagen
+import requests
 from PyQt6.QtCore import QObject, pyqtSignal
 
 # Import lyrics service
@@ -450,6 +451,11 @@ class SpotifySource(MetadataSource):
             if "release_date" in track["album"]:
                 new_metadata["year"] = track["album"]["release_date"][:4]
 
+            # Get cover art URL
+            if "images" in track["album"] and track["album"]["images"]:
+                # Get the largest image (usually the first one)
+                new_metadata["cover_art_url"] = track["album"]["images"][0]["url"]
+
         return new_metadata
 
 
@@ -513,6 +519,10 @@ class LastFmSource(MetadataSource):
             album = track.get_album()
             if album:
                 new_metadata["album"] = album.get_name()
+                # Get cover art URL
+                image_url = album.get_cover_image(size=pylast.SIZE_EXTRA_LARGE)
+                if image_url:
+                    new_metadata["cover_art_url"] = image_url
 
             response_time = time.time() - start_time
             return new_metadata, True, response_time
@@ -646,65 +656,110 @@ class MetadataService(QObject):
         Returns:
             list: Updated music files
         """
-        # Use cache to avoid re-processing files
+        metadata_cache = self._load_metadata_cache()
+        self._update_api_keys(options)
+
+        total_files = len(music_files)
+        files_to_process, processed_count = self._filter_files_for_update(
+            music_files, options, metadata_cache, total_files
+        )
+
+        # Process files
+        self._execute_updates(
+            files_to_process,
+            music_files,
+            options,
+            metadata_cache,
+            max_threads,
+            processed_count,
+            total_files,
+        )
+
+        self._save_metadata_cache(metadata_cache)
+        self._save_stats()
+
+        stats = {name: source.get_stats() for name, source in self.sources.items()}
+        self.source_stats_updated.emit(stats)
+
+        return music_files
+
+    def _load_metadata_cache(self):
         cache_file = Path.home() / ".auralis" / "metadata_cache.json"
-        metadata_cache = {}
-
-        # Ensure cache directory exists
-        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-
-        # Load cache if it exists
         if cache_file.exists():
             try:
                 with open(cache_file, "r") as f:
-                    metadata_cache = json.load(f)
+                    return json.load(f)
             except Exception as e:
                 print(f"Error loading metadata cache: {str(e)}")
+        return {}
 
-        # Update API keys if provided in options
+    def _save_metadata_cache(self, metadata_cache):
+        cache_file = Path.home() / ".auralis" / "metadata_cache.json"
+        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+        try:
+            with open(cache_file, "w") as f:
+                json.dump(metadata_cache, f)
+        except Exception as e:
+            print(f"Error saving metadata cache: {str(e)}")
+
+    def _update_api_keys(self, options):
         if "acoustid_api_key" in options and options["acoustid_api_key"]:
-            for source_name, source in self.sources.items():
-                if source_name == "MusicBrainz/AcoustID":
-                    source.acoustid_api_key = options["acoustid_api_key"]
+            if "MusicBrainz/AcoustID" in self.sources:
+                self.sources["MusicBrainz/AcoustID"].acoustid_api_key = options["acoustid_api_key"]
 
         if "discogs_token" in options and options["discogs_token"]:
-            for source_name, source in self.sources.items():
-                if source_name == "Discogs":
-                    source.discogs_token = options["discogs_token"]
-                    # Re-initialize Discogs client with new token
-                    try:
-                        source.client = discogs_client.Client(
-                            "Auralis/0.1", user_token=source.discogs_token
-                        )
-                        source.available = True
-                    except Exception as e:
-                        print(f"Error initializing Discogs client: {str(e)}")
-                        source.available = False
+            if "Discogs" in self.sources:
+                source = self.sources["Discogs"]
+                source.discogs_token = options["discogs_token"]
+                try:
+                    source.client = discogs_client.Client(
+                        "Auralis/0.1", user_token=source.discogs_token
+                    )
+                    source.available = True
+                except Exception as e:
+                    print(f"Error initializing Discogs client: {str(e)}")
+                    source.available = False
 
-        total_files = len(music_files)
-        processed_files = [0]
-
-        # Filter files that need metadata update
+    def _filter_files_for_update(self, music_files, options, metadata_cache, total_files):
         files_to_process = []
-        for i, file_info in enumerate(music_files):
-            # Check if file hash exists in cache and has sufficient metadata
-            file_hash = file_info.get("hash")
-            if file_hash and file_hash in metadata_cache and not options.get("force_update", False):
-                cached_metadata = metadata_cache[file_hash]
-                # Update file_info with cached metadata
-                file_info["metadata"].update(cached_metadata)
-                self.file_updated.emit(f"Using cached metadata for: {file_info['path']}")
-                processed_files[0] += 1
-                self.progress_updated.emit(processed_files[0], total_files)
-            elif not self._has_sufficient_metadata(file_info) or options.get("force_update", False):
-                # File needs metadata update
-                files_to_process.append((i, file_info))
-            else:
-                # File has sufficient metadata
-                processed_files[0] += 1
-                self.progress_updated.emit(processed_files[0], total_files)
+        processed_count = 0
 
-        # Process each file using ThreadPoolExecutor
+        for i, file_info in enumerate(music_files):
+            file_hash = file_info.get("hash")
+
+            if (
+                file_hash
+                and file_hash in metadata_cache
+                and not options.get("force_update", False)
+            ):
+                file_info["metadata"].update(metadata_cache[file_hash])
+                self.file_updated.emit(f"Using cached metadata for: {file_info['path']}")
+                processed_count += 1
+                self.progress_updated.emit(processed_count, total_files)
+
+            elif not self._has_sufficient_metadata(file_info) or options.get(
+                "force_update", False
+            ):
+                files_to_process.append((i, file_info))
+
+            else:
+                processed_count += 1
+                self.progress_updated.emit(processed_count, total_files)
+
+        return files_to_process, processed_count
+
+    def _execute_updates(
+        self,
+        files_to_process,
+        music_files,
+        options,
+        metadata_cache,
+        max_threads,
+        start_processed_count,
+        total_files,
+    ):
+        processed_container = [start_processed_count]
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
             futures = {
                 executor.submit(
@@ -713,7 +768,7 @@ class MetadataService(QObject):
                     options,
                     metadata_cache,
                 ): orig_index
-                for i, (orig_index, file_info) in enumerate(files_to_process)
+                for orig_index, file_info in files_to_process
             }
 
             for future in concurrent.futures.as_completed(futures):
@@ -725,25 +780,8 @@ class MetadataService(QObject):
                 except Exception as e:
                     print(f"Error processing file index {orig_index}: {str(e)}")
                 finally:
-                    # Update progress
-                    processed_files[0] += 1
-                    self.progress_updated.emit(processed_files[0], total_files)
-
-        # Save cache
-        try:
-            with open(cache_file, "w") as f:
-                json.dump(metadata_cache, f)
-        except Exception as e:
-            print(f"Error saving metadata cache: {str(e)}")
-
-        # Save source statistics
-        self._save_stats()
-
-        # Emit source statistics
-        stats = {name: source.get_stats() for name, source in self.sources.items()}
-        self.source_stats_updated.emit(stats)
-
-        return music_files
+                    processed_container[0] += 1
+                    self.progress_updated.emit(processed_container[0], total_files)
 
     def _process_file_with_cache(
         self,
@@ -777,28 +815,39 @@ class MetadataService(QObject):
         if self._has_sufficient_metadata(file_info) and not options.get("force_update", False):
             return file_info
 
-        # Get existing metadata
         metadata = file_info.get("metadata", {})
+        active_sources = self._get_active_sources(options)
 
-        # Determine which sources to use
+        new_metadata = self._query_sources(active_sources, file_info, metadata)
+
+        if self.learning_phase:
+            self._update_learning_phase()
+
+        # Update file metadata
+        if new_metadata:
+            updated_metadata = {**metadata, **new_metadata}
+            file_info["metadata"] = updated_metadata
+            self._finalize_file_update(file_info, updated_metadata, options)
+
+        return file_info
+
+    def _get_active_sources(self, options):
         source_names = []
         if options.get("use_musicbrainz", True):
             source_names.append("MusicBrainz/AcoustID")
         if options.get("use_discogs", True):
             source_names.append("Discogs")
 
-        # If in learning phase, use all sources
         if self.learning_phase:
-            active_sources = [self.sources[name] for name in source_names if name in self.sources]
-        else:
-            # Use sources in order of success rate
-            active_sources = [
-                self.sources[name]
-                for name in self.source_order
-                if name in source_names and name in self.sources
-            ]
+            return [self.sources[name] for name in source_names if name in self.sources]
 
-        # Try each source until we get metadata
+        return [
+            self.sources[name]
+            for name in self.source_order
+            if name in source_names and name in self.sources
+        ]
+
+    def _query_sources(self, active_sources, file_info, current_metadata):
         new_metadata = {}
         for source in active_sources:
             if not source.enabled:
@@ -817,38 +866,47 @@ class MetadataService(QObject):
                 new_metadata.update(source_metadata)
 
                 # If we have sufficient metadata, stop trying other sources
-                if self._has_sufficient_metadata({"metadata": {**metadata, **new_metadata}}):
+                if self._has_sufficient_metadata(
+                    {"metadata": {**current_metadata, **new_metadata}}
+                ):
                     break
+        return new_metadata
 
-        # Update learning phase counter
-        if self.learning_phase:
-            with self.stats_lock:
-                self.learning_count += 1
-                if self.learning_count >= self.learning_threshold:
-                    self.learning_phase = False
-                    self._sort_sources()
+    def _update_learning_phase(self):
+        with self.stats_lock:
+            self.learning_count += 1
+            if self.learning_count >= self.learning_threshold:
+                self.learning_phase = False
+                self._sort_sources()
 
-        # Update file metadata
-        if new_metadata:
-            # Merge with existing metadata, prioritizing new data
-            updated_metadata = {**metadata, **new_metadata}
-            file_info["metadata"] = updated_metadata
+    def _finalize_file_update(self, file_info, metadata, options):
+        # Fetch cover art
+        if options.get("fetch_cover_art", False) and "cover_art_url" in metadata:
+            self._download_cover_art(file_info, metadata)
 
-            # Apply metadata to file
-            self.file_updated.emit(f"{file_info['path']} (updating file)")
-            self._apply_metadata_to_file(file_info["path"], updated_metadata)
+        # Apply metadata to file
+        self.file_updated.emit(f"{file_info['path']} (updating file)")
+        self._apply_metadata_to_file(file_info["path"], metadata)
 
-            # Fetch and embed lyrics if enabled
-            if options.get("fetch_lyrics", False):
-                self.file_updated.emit(f"{file_info['path']} (fetching lyrics)")
-                self._fetch_and_embed_lyrics(
-                    file_info["path"], updated_metadata, options.get("save_lrc", False)
-                )
+        # Fetch and embed lyrics if enabled
+        if options.get("fetch_lyrics", False):
+            self.file_updated.emit(f"{file_info['path']} (fetching lyrics)")
+            self._fetch_and_embed_lyrics(
+                file_info["path"], metadata, options.get("save_lrc", False)
+            )
 
-            # Emit signal
-            self.metadata_updated.emit(file_info["path"], updated_metadata)
+        # Emit signal
+        self.metadata_updated.emit(file_info["path"], metadata)
 
-        return file_info
+    def _download_cover_art(self, file_info, metadata):
+        self.file_updated.emit(f"{file_info['path']} (downloading cover art)")
+        try:
+            response = requests.get(metadata["cover_art_url"], timeout=10)
+            if response.status_code == 200:
+                metadata["cover_art"] = response.content
+                metadata["cover_art_mime"] = response.headers.get("Content-Type", "image/jpeg")
+        except Exception as e:
+            print(f"Error downloading cover art: {str(e)}")
 
     def _has_sufficient_metadata(self, file_info):
         """
@@ -891,42 +949,12 @@ class MetadataService(QObject):
             if not audio:
                 return False
 
-            # Apply metadata based on file type
             if isinstance(audio, mutagen.mp3.MP3):
-                # MP3 files (ID3 tags)
-                if "artist" in metadata:
-                    audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
-                if "title" in metadata:
-                    audio["TIT2"] = mutagen.id3.TIT2(encoding=3, text=metadata["title"])
-                if "album" in metadata:
-                    audio["TALB"] = mutagen.id3.TALB(encoding=3, text=metadata["album"])
-                if "year" in metadata:
-                    audio["TDRC"] = mutagen.id3.TDRC(encoding=3, text=metadata["year"])
-                if "genre" in metadata:
-                    audio["TCON"] = mutagen.id3.TCON(encoding=3, text=metadata["genre"])
-                if "track" in metadata:
-                    audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
-
+                self._apply_id3_tags(audio, metadata)
             elif isinstance(audio, mutagen.flac.FLAC):
-                # FLAC files
-                if "artist" in metadata:
-                    audio["artist"] = metadata["artist"]
-                if "title" in metadata:
-                    audio["title"] = metadata["title"]
-                if "album" in metadata:
-                    audio["album"] = metadata["album"]
-                if "year" in metadata:
-                    audio["date"] = metadata["year"]
-                if "genre" in metadata:
-                    audio["genre"] = metadata["genre"]
-                if "track" in metadata:
-                    audio["tracknumber"] = metadata["track"]
-
+                self._apply_vorbis_tags(audio, metadata)
             else:
-                # Generic approach for other formats
-                for key, value in metadata.items():
-                    if key in ["artist", "title", "album", "year", "genre", "track"]:
-                        audio[key] = value
+                self._apply_generic_tags(audio, metadata)
 
             audio.save()
             return True
@@ -934,6 +962,57 @@ class MetadataService(QObject):
         except Exception as e:
             print(f"Error applying metadata to {file_path}: {str(e)}")
             return False
+
+    def _apply_id3_tags(self, audio, metadata):
+        if "artist" in metadata:
+            audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
+        if "title" in metadata:
+            audio["TIT2"] = mutagen.id3.TIT2(encoding=3, text=metadata["title"])
+        if "album" in metadata:
+            audio["TALB"] = mutagen.id3.TALB(encoding=3, text=metadata["album"])
+        if "year" in metadata:
+            audio["TDRC"] = mutagen.id3.TDRC(encoding=3, text=metadata["year"])
+        if "genre" in metadata:
+            audio["TCON"] = mutagen.id3.TCON(encoding=3, text=metadata["genre"])
+        if "track" in metadata:
+            audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
+
+        if "cover_art" in metadata:
+            mime = metadata.get("cover_art_mime", "image/jpeg")
+            audio["APIC"] = mutagen.id3.APIC(
+                encoding=3,
+                mime=mime,
+                type=3,  # Cover (front)
+                desc="Cover",
+                data=metadata["cover_art"],
+            )
+
+    def _apply_vorbis_tags(self, audio, metadata):
+        if "artist" in metadata:
+            audio["artist"] = metadata["artist"]
+        if "title" in metadata:
+            audio["title"] = metadata["title"]
+        if "album" in metadata:
+            audio["album"] = metadata["album"]
+        if "year" in metadata:
+            audio["date"] = metadata["year"]
+        if "genre" in metadata:
+            audio["genre"] = metadata["genre"]
+        if "track" in metadata:
+            audio["tracknumber"] = metadata["track"]
+
+        if "cover_art" in metadata:
+            picture = mutagen.flac.Picture()
+            picture.data = metadata["cover_art"]
+            picture.mime = metadata.get("cover_art_mime", "image/jpeg")
+            picture.type = 3  # Cover (front)
+            picture.desc = "Cover"
+            audio.add_picture(picture)
+
+    def _apply_generic_tags(self, audio, metadata):
+        for key, value in metadata.items():
+            if key in ["artist", "title", "album", "year", "genre", "track"]:
+                audio[key] = value
 
     def _fetch_and_embed_lyrics(self, file_path, metadata, save_lrc=False):
         """

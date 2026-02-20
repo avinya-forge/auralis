@@ -4,11 +4,11 @@
 **Focus:** Establishing the "Iron Triangle" of testing, linting, and complexity management. Bringing the existing codebase up to the new "Pipeline Laws".
 
 ### Epic 1: Development Infrastructure
-- [INF-001] | Create `requirements-dev.txt` with dev tools (`pytest`, `flake8`, `mypy`, `black`, `isort`) | [BLOCKS-INF-002, INF-003, INF-004] | [TODO]
-- [INF-002] | Configure `flake8` with `.flake8` to match standards | [BLOCKS-INF-005] | [TODO]
-- [INF-003] | Configure `mypy` with `mypy.ini` (strict mode) | [BLOCKS-INF-005] | [TODO]
-- [INF-004] | Add `pytest-cov` and configure `.coveragerc` for coverage reporting | [INDEPENDENT] | [TODO]
-- [INF-005] | Update CI workflow to run linting and type checks | [INDEPENDENT] | [TODO]
+- [INF-001] | Create `requirements-dev.txt` with dev tools (`pytest`, `flake8`, `mypy`, `black`, `isort`) | [BLOCKS-INF-002, INF-003, INF-004] | [DONE]
+- [INF-002] | Configure `flake8` with `.flake8` to match standards | [BLOCKS-INF-005] | [DONE]
+- [INF-003] | Configure `mypy` with `mypy.ini` (strict mode) | [BLOCKS-INF-005] | [DONE]
+- [INF-004] | Add `pytest-cov` and configure `.coveragerc` for coverage reporting | [INDEPENDENT] | [DONE]
+- [INF-005] | Update CI workflow to run linting and type checks | [INDEPENDENT] | [DONE]
 
 ### Epic 2: Test Fortress (Coverage & Resilience)
 - [TST-001] | Add unit tests for `src/utils/config.py` (env loading, defaults) | [INDEPENDENT] | [TODO]

@@ -37,9 +37,9 @@ class MetadataTab(QWidget):
 
         layout.addWidget(metadata_group)
 
-        # Lyrics options
-        lyrics_group = QGroupBox("Lyrics")
-        lyrics_layout = QVBoxLayout(lyrics_group)
+        # Additional Metadata options
+        enrichment_group = QGroupBox("Additional Metadata")
+        enrichment_layout = QVBoxLayout(enrichment_group)
 
         # Fetch lyrics
         self.lyrics_check = QCheckBox("Fetch and Embed Lyrics")
@@ -47,16 +47,24 @@ class MetadataTab(QWidget):
         self.lyrics_check.setToolTip(
             "Fetch lyrics from online sources and embed them in the audio files"
         )
-        lyrics_layout.addWidget(self.lyrics_check)
+        enrichment_layout.addWidget(self.lyrics_check)
 
-        lyrics_info = QLabel(
-            "Lyrics will be embedded in the audio files so they can be "
-            "displayed in music players like Apple Music."
+        # Fetch Cover Art
+        self.cover_art_check = QCheckBox("Fetch and Embed Cover Art")
+        self.cover_art_check.setChecked(get_config("FETCH_COVER_ART", True))
+        self.cover_art_check.setToolTip(
+            "Fetch album artwork from online sources (Spotify, Last.fm) and embed it in the audio files"
         )
-        lyrics_info.setWordWrap(True)
-        lyrics_layout.addWidget(lyrics_info)
+        enrichment_layout.addWidget(self.cover_art_check)
 
-        layout.addWidget(lyrics_group)
+        enrichment_info = QLabel(
+            "Lyrics and Cover Art will be embedded in the audio files so they can be "
+            "displayed in music players."
+        )
+        enrichment_info.setWordWrap(True)
+        enrichment_layout.addWidget(enrichment_info)
+
+        layout.addWidget(enrichment_group)
 
         # Update button
         update_btn = QPushButton("Update Metadata")
@@ -69,4 +77,5 @@ class MetadataTab(QWidget):
             "use_musicbrainz": self.mb_check.isChecked(),
             "use_discogs": self.discogs_check.isChecked(),
             "fetch_lyrics": self.lyrics_check.isChecked(),
+            "fetch_cover_art": self.cover_art_check.isChecked(),
         }

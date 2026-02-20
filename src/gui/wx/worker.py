@@ -77,111 +77,23 @@ class WorkerThread(threading.Thread):
                 "stages_completed": [],
             }
 
-            # --- STAGE 1: SCAN ---
             if self.STAGE_SCAN in self.active_stages:
                 if self._stop_event.is_set():
                     return
-
-                self._post_status("Starting scan...")
-
-                # Connect scanner signals
-                self.scanner.progress_updated.connect(self._on_scan_progress)
-                self.scanner.file_scanned.connect(self._on_scan_file)
-
-                # Run scan
-                scan_options = {
-                    "file_extensions": self.options.get("file_extensions"),
-                    "exclude_patterns": self.options.get("exclude_patterns"),
-                }
-
-                # Note: scan_directories is blocking. We can't easily interrupt it
-                # unless we modify MusicScanner to check a stop flag.
-                self.scanned_files = self.scanner.scan_directories(self.source_dirs, scan_options)
-
-                # Disconnect signals
-                self.scanner.progress_updated.disconnect(self._on_scan_progress)
-                self.scanner.file_scanned.disconnect(self._on_scan_file)
-
-                results["stages_completed"].append(self.STAGE_SCAN)
-                self._post_status(f"Scan completed. Found {len(self.scanned_files)} files.")
-
+                self._run_scan_stage(results)
                 if not self.scanned_files:
-                    self._post_status("No files found to process.")
                     self._post_completed(results)
                     return
 
-                if self.limit_files and len(self.scanned_files) > self.limit_files:
-                    self.scanned_files = self.scanned_files[: self.limit_files]
-                    self._post_status(f"Limiting to {self.limit_files} files for processing.")
-
-            # --- STAGE 2: ORGANIZE ---
             if self.STAGE_ORGANIZE in self.active_stages:
                 if self._stop_event.is_set():
                     return
+                self._run_organize_stage(results)
 
-                if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                    self._post_status("Skipping organize: No files scanned.")
-                elif self.scanned_files:
-                    self._post_status("Starting organization...")
-
-                    # Connect signals
-                    self.organizer.progress_updated.connect(self._on_organize_progress)
-                    self.organizer.file_organized.connect(self._on_organize_file)
-
-                    organize_options = {
-                        "organize_by_language": self.options.get("organize_by_language", True),
-                        "detect_audio_similarity": self.options.get(
-                            "detect_audio_similarity", False
-                        ),
-                        "rename_files": self.options.get("rename_files", True),
-                        "handle_duplicates": self.options.get("handle_duplicates", True),
-                        "remove_empty_dirs": self.options.get("remove_empty_dirs", True),
-                    }
-
-                    org_results = self.organizer.organize_files(
-                        self.scanned_files, self.dest_dir, organize_options
-                    )
-
-                    self.organizer.progress_updated.disconnect(self._on_organize_progress)
-                    self.organizer.file_organized.disconnect(self._on_organize_file)
-
-                    results["stages_completed"].append(self.STAGE_ORGANIZE)
-                    results["organize_stats"] = org_results
-                    self._post_status("Organization completed.")
-
-            # --- STAGE 3: METADATA ---
             if self.STAGE_METADATA in self.active_stages:
                 if self._stop_event.is_set():
                     return
-
-                if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
-                    self._post_status("Skipping metadata: No files scanned.")
-                elif self.scanned_files:
-                    self._post_status("Starting metadata update...")
-
-                    self.metadata_service.progress_updated.connect(self._on_metadata_progress)
-                    self.metadata_service.file_updated.connect(self._on_metadata_file)
-
-                    meta_options = {
-                        "use_musicbrainz": self.options.get("use_musicbrainz", True),
-                        "use_discogs": self.options.get("use_discogs", True),
-                        "fetch_lyrics": self.options.get("fetch_lyrics", True),
-                        "force_update": self.options.get("force_metadata_update", False),
-                    }
-
-                    # Update paths if files were moved
-                    files_to_update = self.scanned_files
-                    for f in files_to_update:
-                        if "new_path" in f:
-                            f["path"] = f["new_path"]
-
-                    self.metadata_service.update_metadata(files_to_update, meta_options)
-
-                    self.metadata_service.progress_updated.disconnect(self._on_metadata_progress)
-                    self.metadata_service.file_updated.disconnect(self._on_metadata_file)
-
-                    results["stages_completed"].append(self.STAGE_METADATA)
-                    self._post_status("Metadata update completed.")
+                self._run_metadata_stage(results)
 
             results["success"] = True
             results["files_processed"] = len(self.scanned_files)
@@ -193,6 +105,101 @@ class WorkerThread(threading.Thread):
             traceback.print_exc()
             self._post_status(f"Error: {str(e)}")
             self._post_completed({"error": str(e), "success": False})
+
+    def _run_scan_stage(self, results):
+        self._post_status("Starting scan...")
+
+        # Connect scanner signals
+        self.scanner.progress_updated.connect(self._on_scan_progress)
+        self.scanner.file_scanned.connect(self._on_scan_file)
+
+        # Run scan
+        scan_options = {
+            "file_extensions": self.options.get("file_extensions"),
+            "exclude_patterns": self.options.get("exclude_patterns"),
+        }
+
+        # Note: scan_directories is blocking. We can't easily interrupt it
+        # unless we modify MusicScanner to check a stop flag.
+        self.scanned_files = self.scanner.scan_directories(self.source_dirs, scan_options)
+
+        # Disconnect signals
+        self.scanner.progress_updated.disconnect(self._on_scan_progress)
+        self.scanner.file_scanned.disconnect(self._on_scan_file)
+
+        results["stages_completed"].append(self.STAGE_SCAN)
+        self._post_status(f"Scan completed. Found {len(self.scanned_files)} files.")
+
+        if not self.scanned_files:
+            self._post_status("No files found to process.")
+            return
+
+        if self.limit_files and len(self.scanned_files) > self.limit_files:
+            self.scanned_files = self.scanned_files[: self.limit_files]
+            self._post_status(f"Limiting to {self.limit_files} files for processing.")
+
+    def _run_organize_stage(self, results):
+        if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
+            self._post_status("Skipping organize: No files scanned.")
+            return
+
+        if self.scanned_files:
+            self._post_status("Starting organization...")
+
+            # Connect signals
+            self.organizer.progress_updated.connect(self._on_organize_progress)
+            self.organizer.file_organized.connect(self._on_organize_file)
+
+            organize_options = {
+                "organize_by_language": self.options.get("organize_by_language", True),
+                "detect_audio_similarity": self.options.get("detect_audio_similarity", False),
+                "rename_files": self.options.get("rename_files", True),
+                "handle_duplicates": self.options.get("handle_duplicates", True),
+                "remove_empty_dirs": self.options.get("remove_empty_dirs", True),
+            }
+
+            org_results = self.organizer.organize_files(
+                self.scanned_files, self.dest_dir, organize_options
+            )
+
+            self.organizer.progress_updated.disconnect(self._on_organize_progress)
+            self.organizer.file_organized.disconnect(self._on_organize_file)
+
+            results["stages_completed"].append(self.STAGE_ORGANIZE)
+            results["organize_stats"] = org_results
+            self._post_status("Organization completed.")
+
+    def _run_metadata_stage(self, results):
+        if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
+            self._post_status("Skipping metadata: No files scanned.")
+            return
+
+        if self.scanned_files:
+            self._post_status("Starting metadata update...")
+
+            self.metadata_service.progress_updated.connect(self._on_metadata_progress)
+            self.metadata_service.file_updated.connect(self._on_metadata_file)
+
+            meta_options = {
+                "use_musicbrainz": self.options.get("use_musicbrainz", True),
+                "use_discogs": self.options.get("use_discogs", True),
+                "fetch_lyrics": self.options.get("fetch_lyrics", True),
+                "force_update": self.options.get("force_metadata_update", False),
+            }
+
+            # Update paths if files were moved
+            files_to_update = self.scanned_files
+            for f in files_to_update:
+                if "new_path" in f:
+                    f["path"] = f["new_path"]
+
+            self.metadata_service.update_metadata(files_to_update, meta_options)
+
+            self.metadata_service.progress_updated.disconnect(self._on_metadata_progress)
+            self.metadata_service.file_updated.disconnect(self._on_metadata_file)
+
+            results["stages_completed"].append(self.STAGE_METADATA)
+            self._post_status("Metadata update completed.")
 
     # --- Event Posting Helpers ---
 

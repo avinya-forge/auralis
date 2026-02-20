@@ -1,0 +1,9 @@
+[run]
+omit =
+    tests/*
+    setup.py
+    create_env.py
+    setup_audio_similarity.py
+    setup_language_detection.py
+    */site-packages/*
+    */dist-packages/*

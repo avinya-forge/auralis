@@ -6,35 +6,41 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Ensure PyQt6 is mocked if not present
-if "PyQt6" not in sys.modules:
+
+# Mocks for PyQt6
+class MockQThread:
+    def __init__(self, parent=None):
+        pass
+
+    def start(self):
+        self.run()
+
+    def wait(self):
+        pass
+
+
+class MockSignal:
+    def __init__(self, *args):
+        self.callbacks = []
+
+    def connect(self, callback):
+        self.callbacks.append(callback)
+
+    def disconnect(self, callback):
+        if callback in self.callbacks:
+            self.callbacks.remove(callback)
+
+    def emit(self, *args):
+        for cb in self.callbacks:
+            cb(*args)
+
+
+def _setup_pyqt_mocks():
+    if "PyQt6" in sys.modules:
+        return
+
     mock_pyqt6 = MagicMock()
     mock_qtcore = MagicMock()
-
-    class MockQThread:
-        def __init__(self, parent=None):
-            pass
-
-        def start(self):
-            self.run()
-
-        def wait(self):
-            pass
-
-    class MockSignal:
-        def __init__(self, *args):
-            self.callbacks = []
-
-        def connect(self, callback):
-            self.callbacks.append(callback)
-
-        def disconnect(self, callback):
-            if callback in self.callbacks:
-                self.callbacks.remove(callback)
-
-        def emit(self, *args):
-            for cb in self.callbacks:
-                cb(*args)
 
     mock_qtcore.QThread = MockQThread
     mock_qtcore.pyqtSignal = MockSignal
@@ -42,10 +48,13 @@ if "PyQt6" not in sys.modules:
     sys.modules["PyQt6"] = mock_pyqt6
     sys.modules["PyQt6.QtCore"] = mock_qtcore
 
+
+_setup_pyqt_mocks()
+
 # We rely on imported modules being real (or patched locally), not globally mocked in sys.modules
 # unless absolutely necessary (like PyQt6/wx if missing).
 
-from src.gui.pyqt.worker import WorkerThread
+from src.gui.pyqt.worker import WorkerThread  # noqa: E402
 
 
 class TestPyQtWorkerThread(unittest.TestCase):

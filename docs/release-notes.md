@@ -7,19 +7,29 @@
 - Test Fortress: Increasing coverage to 95%.
 - Type Safety & Code Quality: Strict type hints and docstrings.
 
-## [0.1.0] - 2024-05-23
-
 ### Added
 -   Initialized documentation: Vision, Backlog, Standards.
--   Refactored `src/gui/ui_factory.py` to support multiple UI backends (PyQt6, wxPython).
--   Implemented basic `wxPython` backend skeleton and full GUI tabs.
+-   Started refactoring for multi-backend UI support.
+-   Added unit tests for core components.
+-   Refactored `AudioSimilarityService` to reduce complexity and improve maintainability.
+-   Verified `MainWindow` code quality.
+-   Implemented basic `wxPython` backend skeleton.
 -   Refactored `src/utils/audio_utils.py` to use `AudioMetadataHandler` class.
--   Enhanced CLI interface for robust headless operation (`scan`, `organize`, `metadata`, `check`).
--   Improved `setup_audio_similarity.py` script with robust system dependency checks.
--   Added `SpotifySource` and `LastFmSource` for metadata retrieval.
--   Fixed optional dependency handling in `AudioSimilarityService`.
--   Refactored dependency checking logic into `src/utils/dependency_checker.py`.
--   Implemented `AZLyricsProvider` for improved lyrics coverage and LRC saving.
--   Added `MetadataService` concurrency improvements using `ThreadPoolExecutor`.
+-   Added unit tests for `src/utils/audio_utils.py`.
+-   Implemented full `wxPython` GUI tabs (Scan, Organize, Metadata) mirroring PyQt functionality.
+-   Enhanced CLI interface for robust headless operation (`scan`, `organize`, `metadata` commands) with progress bars, advanced filtering, and logging control.
+-   Improved `setup_audio_similarity.py` script with robust system dependency checks and `--check-only` mode.
+-   Added `SpotifySource` and `LastFmSource` for metadata retrieval (requires API keys).
+-   Updated documentation for new features and experimental wxPython status.
+-   Fixed optional dependency handling in `AudioSimilarityService` to prevent crashes in minimal environments.
+-   Refactored dependency checking logic into `src/utils/dependency_checker.py`, creating a unified system for verifying environment health.
+-   Added `check` command to the CLI (`auralis.py check`) to diagnose missing dependencies and provide installation instructions.
+-   Implemented `AZLyricsProvider` for improved lyrics coverage.
+-   Added support for saving synced lyrics (`.lrc`) files.
+-   Added `MetadataService` concurrency improvements using `ThreadPoolExecutor` for faster updates.
 -   Added comprehensive User Guide (`docs/user_guide.md`).
--   Added unit tests for core components, services, and utils.
+-   Added unit tests for `LyricsService` (AZLyrics, LRC saving) and `MetadataService` concurrency.
+-   **Consolidated Batch Updates:**
+    -   Added `requirements-dev.txt`, `.flake8` (strict), `mypy.ini`.
+    -   Updated CI pipeline.
+    -   Refactored all services and core modules to meet complexity cap < 10.

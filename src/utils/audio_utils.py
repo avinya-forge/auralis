@@ -184,37 +184,39 @@ class AudioMetadataHandler:
 
         try:
             if not image_data and image_url:
-                response = requests.get(image_url)
-                if response.status_code != 200:
-                    return False
-                image_data = response.content
+                image_data = self._download_image(image_url)
 
             if not image_data:
                 return False
 
-            # Get appropriate handler for cover art
-            # Note: For MP3, we need ID3 specifically, which might be different from self.audio if it's just 'File'
-            # But self.audio from mutagen.File() usually returns specific type.
-
-            if self.ext == ".mp3":
-                # Ensure we have ID3 tags
-                if not self.audio.tags:
-                    try:
-                        self.audio.add_tags()
-                    except Exception:
-                        pass
-                self._add_mp3_cover(image_data)
-            elif self.ext == ".flac":
-                self._add_flac_cover(image_data)
-            else:
-                return False
-
-            self.audio.save()
-            return True
+            return self._set_cover_data(image_data)
 
         except Exception as e:
             print(f"Error setting album art for {self.file_path}: {str(e)}")
             return False
+
+    def _download_image(self, image_url):
+        response = requests.get(image_url)
+        if response.status_code != 200:
+            return None
+        return response.content
+
+    def _set_cover_data(self, image_data):
+        if self.ext == ".mp3":
+            # Ensure we have ID3 tags
+            if not self.audio.tags:
+                try:
+                    self.audio.add_tags()
+                except Exception:
+                    pass
+            self._add_mp3_cover(image_data)
+        elif self.ext == ".flac":
+            self._add_flac_cover(image_data)
+        else:
+            return False
+
+        self.audio.save()
+        return True
 
     def _add_mp3_cover(self, image_data: bytes):
         """Add cover art to MP3"""

@@ -139,6 +139,11 @@ def setup_parser():
     org_parser.add_argument(
         "--keep-empty-dirs", action="store_true", help="Do not remove empty directories"
     )
+    org_parser.add_argument(
+        "--template",
+        type=str,
+        help="Custom directory structure template (e.g. {artist}/{album}/{title})",
+    )
 
     # Metadata command
     meta_parser = subparsers.add_parser("metadata", help="Update metadata")
@@ -146,6 +151,11 @@ def setup_parser():
     meta_parser.add_argument("--no-musicbrainz", action="store_true", help="Disable MusicBrainz")
     meta_parser.add_argument("--no-discogs", action="store_true", help="Disable Discogs")
     meta_parser.add_argument("--no-lyrics", action="store_true", help="Disable lyrics fetching")
+    meta_parser.add_argument(
+        "--fetch-cover-art",
+        action="store_true",
+        help="Fetch and embed cover art from online sources",
+    )
     meta_parser.add_argument(
         "--force", action="store_true", help="Force update even if metadata exists"
     )
@@ -219,14 +229,7 @@ def run_scan(args):
     scanner.progress_updated.connect(handler.on_progress_updated)
     scanner.file_scanned.connect(handler.on_file_scanned)
 
-    # Configure options
-    options = {}
-    if args.extensions:
-        options["file_extensions"] = args.extensions.split(",")
-    if args.exclude:
-        options["exclude_patterns"] = args.exclude.split(",")
-    if args.depth:
-        options["max_scan_depth"] = args.depth
+    options = _configure_scan_options(args)
 
     # Run scan
     try:
@@ -235,15 +238,30 @@ def run_scan(args):
         print(f"Found {len(files)} music files.")
 
         if args.output_json:
-            try:
-                with open(args.output_json, "w") as f:
-                    json.dump(files, f, indent=2)
-                print(f"Results saved to {args.output_json}")
-            except Exception as e:
-                print(f"Error saving results: {e}")
+            _save_scan_results(files, args.output_json)
     except Exception as e:
         handler.close()
         print(f"Error during scan: {e}")
+
+
+def _configure_scan_options(args):
+    options = {}
+    if args.extensions:
+        options["file_extensions"] = args.extensions.split(",")
+    if args.exclude:
+        options["exclude_patterns"] = args.exclude.split(",")
+    if args.depth:
+        options["max_scan_depth"] = args.depth
+    return options
+
+
+def _save_scan_results(files, output_path):
+    try:
+        with open(output_path, "w") as f:
+            json.dump(files, f, indent=2)
+        print(f"Results saved to {output_path}")
+    except Exception as e:
+        print(f"Error saving results: {e}")
 
 
 def run_organize(args):
@@ -276,6 +294,9 @@ def run_organize(args):
         "handle_duplicates": not args.keep_duplicates,
         "remove_empty_dirs": not args.keep_empty_dirs,
     }
+
+    if args.template:
+        options["directory_template"] = args.template
 
     # Run organize
     try:
@@ -322,6 +343,7 @@ def run_metadata(args):
         "use_musicbrainz": not args.no_musicbrainz,
         "use_discogs": not args.no_discogs,
         "fetch_lyrics": not args.no_lyrics,
+        "fetch_cover_art": args.fetch_cover_art,
         "force_update": args.force,
     }
 
@@ -341,23 +363,34 @@ def run_check(args):
     checker = DependencyChecker()
     report = checker.check_all()
 
+    _print_check_report(report)
+
+    # Check audio capabilities
+    print("\nChecking Audio Capabilities...")
+    audio_report = checker.check_audio_capabilities()
+    if audio_report["success"]:
+        print(f"  ✓ {audio_report['message']}")
+    else:
+        print(f"  ✗ {audio_report['message']}")
+
+    _print_missing_instructions(checker, report)
+
+
+def _print_check_report(report):
     print(f"\nSystem: {report['platform']}")
     print(f"Python: {report['python_version'].split()[0]}")
 
-    print("\nCore Dependencies:")
-    for mod, installed in report["core"].items():
-        status = "✓" if installed else "✗"
-        print(f"  {status} {mod}")
+    sections = [
+        ("Core Dependencies", "core"),
+        ("Audio Similarity Dependencies", "audio_similarity"),
+        ("Language Detection Dependencies", "language_detection"),
+    ]
 
-    print("\nAudio Similarity Dependencies:")
-    for mod, installed in report["audio_similarity"].items():
-        status = "✓" if installed else "✗"
-        print(f"  {status} {mod}")
-
-    print("\nLanguage Detection Dependencies:")
-    for mod, installed in report["language_detection"].items():
-        status = "✓" if installed else "✗"
-        print(f"  {status} {mod}")
+    for title, key in sections:
+        print(f"\n{title}:")
+        for mod, installed in report[key].items():
+            status = "✓" if installed else "✗"
+            print(f"  {status} {mod}")
 
     print("\nSystem Tools:")
     for tool, info in report["system_tools"].items():
@@ -372,15 +405,8 @@ def run_check(args):
             path = f"({info['path']})" if info["path"] else ""
             print(f"  {status} {lib} {path}")
 
-    # Check audio capabilities
-    print("\nChecking Audio Capabilities...")
-    audio_report = checker.check_audio_capabilities()
-    if audio_report["success"]:
-        print(f"  ✓ {audio_report['message']}")
-    else:
-        print(f"  ✗ {audio_report['message']}")
 
-    # Identify missing
+def _print_missing_instructions(checker, report):
     missing_modules = []
     missing_tools = []
 

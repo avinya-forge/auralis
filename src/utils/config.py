@@ -127,6 +127,10 @@ class Config:
         # Start with defaults
         self._config = DEFAULT_CONFIG.copy()
 
+        self._load_json_config()
+        self._load_env_config()
+
+    def _load_json_config(self):
         # Try to load from JSON config file
         try:
             if os.path.exists(CONFIG_FILE_PATH):
@@ -138,6 +142,7 @@ class Config:
         except Exception as e:
             print(f"Warning: Could not load config.json: {str(e)}")
 
+    def _load_env_config(self):
         # Try to load from .env file (highest precedence)
         try:
             # Load from .env file if it exists
@@ -148,18 +153,21 @@ class Config:
             for key in self._config.keys():
                 env_value = os.getenv(key)
                 if env_value:
-                    # Convert types appropriately
-                    if isinstance(self._config[key], bool):
-                        self._config[key] = env_value.lower() in ("true", "yes", "1", "on")
-                    elif isinstance(self._config[key], int):
-                        try:
-                            self._config[key] = int(env_value)
-                        except ValueError:
-                            pass
-                    else:
-                        self._config[key] = env_value
+                    self._set_env_value(key, env_value)
         except Exception as e:
             print(f"Warning: Could not load .env file: {str(e)}")
+
+    def _set_env_value(self, key, env_value):
+        # Convert types appropriately
+        if isinstance(self._config[key], bool):
+            self._config[key] = env_value.lower() in ("true", "yes", "1", "on")
+        elif isinstance(self._config[key], int):
+            try:
+                self._config[key] = int(env_value)
+            except ValueError:
+                pass
+        else:
+            self._config[key] = env_value
 
     def get(self, key, default=None):
         """Get a configuration value with optional default"""
