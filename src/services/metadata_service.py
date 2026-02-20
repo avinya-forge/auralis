@@ -341,7 +341,9 @@ class DiscogsSource(MetadataSource):
 
         return None
 
-    def _parse_discogs_release(self, release: Any, current_metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _parse_discogs_release(
+        self, release: Any, current_metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Parse Discogs release into metadata dict"""
         new_metadata = {}
 
