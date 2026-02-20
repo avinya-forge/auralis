@@ -15,11 +15,11 @@
 - [TST-002] | Add unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` | [INDEPENDENT] | [DONE]
 - [TST-003] | Add unit tests for `src/gui/wx/main_window.py` (layout structure verification) | [INDEPENDENT] | [DONE]
 - [TST-004] | Add unit tests for `src/gui/wx/tabs/scan_tab.py` | [INDEPENDENT] | [DONE]
-- [TST-005] | Add unit tests for `src/gui/wx/tabs/organize_tab.py` | [INDEPENDENT] | [TODO]
-- [TST-006] | Add unit tests for `src/gui/wx/tabs/metadata_tab.py` | [INDEPENDENT] | [TODO]
-- [TST-007] | Add mocked tests for `create_env.py` script | [INDEPENDENT] | [TODO]
-- [TST-008] | Add mocked tests for `setup_audio_similarity.py` script | [INDEPENDENT] | [TODO]
-- [TST-009] | Add mocked tests for `setup_language_detection.py` script | [INDEPENDENT] | [TODO]
+- [TST-005] | Add unit tests for `src/gui/wx/tabs/organize_tab.py` | [INDEPENDENT] | [DONE]
+- [TST-006] | Add unit tests for `src/gui/wx/tabs/metadata_tab.py` | [INDEPENDENT] | [DONE]
+- [TST-007] | Add mocked tests for `create_env.py` script | [INDEPENDENT] | [DONE]
+- [TST-008] | Add mocked tests for `setup_audio_similarity.py` script | [INDEPENDENT] | [DONE]
+- [TST-009] | Add mocked tests for `setup_language_detection.py` script | [INDEPENDENT] | [DONE]
 - [TST-010] | Verify and enhance `src/core/scanner.py` tests for error handling edge cases | [INDEPENDENT] | [TODO]
 
 ### Epic 3: Type Safety & Code Quality
