@@ -2,11 +2,12 @@
 Unit tests for create_env.py
 """
 
-import create_env
-import sys
 import os
+import sys
 import unittest
 from unittest.mock import patch
+
+import create_env
 
 # Ensure root directory is in sys.path
 sys.path.append(os.getcwd())
@@ -19,6 +20,7 @@ class TestCreateEnv(unittest.TestCase):
     @patch("builtins.print")
     def test_create_env_success(self, mock_print, mock_copy, mock_exists):
         """Test creating .env when it doesn't exist but example does"""
+
         # .env does not exist, .env.example exists
         def exists_side_effect(path):
             if path == ".env":

@@ -2,12 +2,13 @@
 Unit tests for setup scripts (audio similarity and language detection)
 """
 
-import setup_language_detection
-import setup_audio_similarity
-import sys
 import os
+import sys
 import unittest
 from unittest.mock import patch
+
+import setup_audio_similarity
+import setup_language_detection
 
 # Ensure root directory is in sys.path
 sys.path.append(os.getcwd())
@@ -46,7 +47,7 @@ class TestSetupAudioSimilarity(unittest.TestCase):
         checker_instance = MockChecker.return_value
         checker_instance.check_all.return_value = {
             "system_tools": {"ffmpeg": {"installed": True, "path": "/bin/ffmpeg"}},
-            "libraries": {"sndfile": {"installed": True, "path": "/lib/sndfile"}}
+            "libraries": {"sndfile": {"installed": True, "path": "/lib/sndfile"}},
         }
 
         with patch("platform.system", return_value="Linux"):
@@ -63,9 +64,7 @@ class TestSetupAudioSimilarity(unittest.TestCase):
         checker_instance.check_all.return_value = {
             "audio_similarity": {"librosa": True, "numpy": True}
         }
-        checker_instance.check_audio_capabilities.return_value = {
-            "success": True, "message": "OK"
-        }
+        checker_instance.check_audio_capabilities.return_value = {"success": True, "message": "OK"}
 
         result = setup_audio_similarity.test_dependencies()
         self.assertTrue(result)
@@ -107,9 +106,7 @@ class TestSetupLanguageDetection(unittest.TestCase):
     def test_test_dependencies(self, mock_print, MockChecker):
         """Test dependency testing"""
         checker_instance = MockChecker.return_value
-        checker_instance.check_all.return_value = {
-            "language_detection": {"langdetect": True}
-        }
+        checker_instance.check_all.return_value = {"language_detection": {"langdetect": True}}
 
         result = setup_language_detection.test_dependencies()
         self.assertTrue(result)

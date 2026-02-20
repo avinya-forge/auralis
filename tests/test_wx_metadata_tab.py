@@ -64,6 +64,7 @@ if "wx" not in sys.modules:
             def __init__(self, **kwargs):
                 for k, v in kwargs.items():
                     setattr(self, k, v)
+
         return Event, MagicMock()
 
     mock_wx.lib.newevent.NewEvent = mock_new_event
