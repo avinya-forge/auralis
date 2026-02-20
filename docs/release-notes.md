@@ -39,3 +39,9 @@
         -   Added unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` with full wxPython mocking.
         -   Added unit tests for `src/gui/wx/tabs/scan_tab.py` covering UI interactions and options retrieval.
         -   Added comprehensive unit tests for `src/gui/wx/main_window.py` validating layout and worker thread integration.
+    -   **Consolidated Batch Updates (Iteration 3 - Alter-Agent-03):**
+        -   Implemented unit tests for `OrganizeTab` (wxPython) with robust mocking of wx controls.
+        -   Implemented unit tests for `MetadataTab` (wxPython) covering API key configuration and options.
+        -   Added test suite for `create_env.py` script verifying environment setup logic.
+        -   Added test suite for setup scripts (`setup_audio_similarity.py`, `setup_language_detection.py`) mocking dependency checks and system interactions.
+        -   Consolidated and verified `tests/test_ui_factory.py`, `tests/test_utils.py`, `tests/test_wx_worker.py` ensuring comprehensive coverage.

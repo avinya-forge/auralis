@@ -7,7 +7,7 @@ audio content similarity rather than just metadata or filenames.
 
 import logging
 import os
-from typing import Dict, List, Optional, Set, cast
+from typing import Any, Dict, List, Optional, Set, cast
 
 # Set up logging
 logger = logging.getLogger("auralis.similarity")
@@ -29,7 +29,7 @@ except ImportError:
 class AudioSimilarityService:
     """Service for detecting similar audio content across files"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the audio similarity service"""
         self.available = HAS_AUDIO_FINGERPRINTING
         if not self.available:
@@ -38,7 +38,7 @@ class AudioSimilarityService:
                 "Please install: librosa, soundfile, scikit-learn, mutagen, pydub"
             )
         # Cache for fingerprints to avoid recomputing
-        self.fingerprint_cache = {}
+        self.fingerprint_cache: Dict[str, "np.ndarray"] = {}
 
         # Threshold for similarity (0.0 to 1.0)
         self.similarity_threshold = 0.85
@@ -111,13 +111,13 @@ class AudioSimilarityService:
             # Compute cosine similarity
             similarity = cosine_similarity(fp1, fp2)[0][0]
 
-            return float(similarity)
+            return float(similarity)  # type: ignore[no-any-return]
 
         except Exception as e:
             logger.error(f"Error computing similarity: {str(e)}")
             return 0.0
 
-    def _get_duration(self, file_info: Dict) -> float:
+    def _get_duration(self, file_info: Dict[str, Any]) -> float:
         """
         Get duration from metadata or compute it using mutagen/pydub
 
@@ -150,7 +150,9 @@ class AudioSimilarityService:
 
         return 0.0
 
-    def _group_files_by_duration(self, music_files: List[Dict]) -> Dict[float, List[Dict]]:
+    def _group_files_by_duration(
+        self, music_files: List[Dict[str, Any]]
+    ) -> Dict[float, List[Dict[str, Any]]]:
         """
         Group files by approximate duration to reduce comparisons
 
@@ -160,7 +162,7 @@ class AudioSimilarityService:
         Returns:
             dict: Dictionary mapping rounded duration to list of files
         """
-        duration_groups: Dict[float, List[Dict]] = {}
+        duration_groups: Dict[float, List[Dict[str, Any]]] = {}
         for file_info in music_files:
             duration = self._get_duration(file_info)
             if not duration:
@@ -175,8 +177,8 @@ class AudioSimilarityService:
         return duration_groups
 
     def _find_duplicates_in_group(
-        self, files: List[Dict], processed_files: Set[str]
-    ) -> List[List[Dict]]:
+        self, files: List[Dict[str, Any]], processed_files: Set[str]
+    ) -> List[List[Dict[str, Any]]]:
         """
         Find duplicates within a group of files with similar duration
 
@@ -224,7 +226,7 @@ class AudioSimilarityService:
 
         return duplicates
 
-    def find_duplicates(self, music_files: List[Dict]) -> List[List[Dict]]:
+    def find_duplicates(self, music_files: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
         """
         Find duplicate audio files based on content similarity
 
@@ -240,7 +242,7 @@ class AudioSimilarityService:
         try:
             logger.info(f"Computing fingerprints for {len(music_files)} files")
             # Group files by approximate duration first to reduce comparisons
-            duration_groups: Dict[float, List[Dict]] = {}
+            duration_groups: Dict[float, List[Dict[str, Any]]] = {}
             for file_info in music_files:
                 duration = self._get_duration(file_info)
                 if not duration:
@@ -269,7 +271,7 @@ class AudioSimilarityService:
             logger.error(f"Error finding duplicates: {str(e)}")
             return []
 
-    def _sort_by_quality(self, files: List[Dict]) -> List[Dict]:
+    def _sort_by_quality(self, files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Sort files by quality (best first)
 
@@ -280,7 +282,7 @@ class AudioSimilarityService:
             list: Sorted list with best quality first
         """
 
-        def quality_score(file_info):
+        def quality_score(file_info: Dict[str, Any]) -> float:
             # Higher score = better quality
             score = 0
 
@@ -316,11 +318,13 @@ class AudioSimilarityService:
             if metadata.get("artist") and metadata.get("title") and metadata.get("album"):
                 score += 5
 
-            return score
+            return float(score)
 
         return sorted(files, key=quality_score, reverse=True)
 
-    def get_best_quality_version(self, duplicate_group: List[Dict]) -> Optional[Dict]:
+    def get_best_quality_version(
+        self, duplicate_group: List[Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
         """
         Get the best quality version from a group of duplicates
 
@@ -341,12 +345,12 @@ class AudioSimilarityService:
 audio_similarity_service = AudioSimilarityService()
 
 
-def find_duplicates(music_files: List[Dict]) -> List[List[Dict]]:
+def find_duplicates(music_files: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
     """Find duplicate audio files based on content similarity"""
     return audio_similarity_service.find_duplicates(music_files)
 
 
-def get_best_quality_version(duplicate_group: List[Dict]) -> Optional[Dict]:
+def get_best_quality_version(duplicate_group: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """Get the best quality version from a group of duplicates"""
     return audio_similarity_service.get_best_quality_version(duplicate_group)
 
