@@ -15,6 +15,8 @@ import acoustid
 import discogs_client
 import musicbrainzngs
 import mutagen
+import mutagen.flac
+import mutagen.id3
 import requests
 from PyQt6.QtCore import QObject, pyqtSignal
 
