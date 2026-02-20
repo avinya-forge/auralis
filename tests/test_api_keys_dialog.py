@@ -6,15 +6,20 @@ from unittest.mock import MagicMock, patch
 # Mock wx module
 mock_wx = MagicMock()
 
+
 class MockDialog:
     def __init__(self, parent=None, **kwargs):
         pass
+
     def CenterOnParent(self):
         pass
+
     def SetSizer(self, sizer):
         pass
+
     def Bind(self, event, handler):
         pass
+
 
 mock_wx.Dialog = MockDialog
 # Constants
@@ -31,6 +36,7 @@ mock_wx.ALIGN_CENTER_VERTICAL = 512
 mock_wx.ID_OK = 5100
 mock_wx.ID_CANCEL = 5101
 mock_wx.EVT_BUTTON = 10001
+
 
 class TestAPIKeysDialog(unittest.TestCase):
     def setUp(self):
@@ -77,7 +83,7 @@ class TestAPIKeysDialog(unittest.TestCase):
         os.environ["ACOUSTID_API_KEY"] = "existing_key"
 
         parent = MagicMock()
-        dialog = self.APIKeysDialog(parent)
+        self.APIKeysDialog(parent)
 
         # Check calls to mock_wx.TextCtrl
         found = False

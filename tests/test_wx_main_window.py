@@ -1,28 +1,49 @@
 import sys
-import os
 import unittest
 from unittest.mock import MagicMock, patch
 
 # 1. Mock wx
 mock_wx = MagicMock()
 
+
 class MockFrame:
     def __init__(self, parent=None, **kwargs):
         pass
-    def SetIcon(self, icon): pass
-    def CreateStatusBar(self): pass
-    def SetStatusText(self, text): pass
-    def Center(self): pass
-    def SetMenuBar(self, bar): pass
-    def Close(self): pass
-    def Bind(self, event, handler, source=None): pass
-    def SetSizer(self, sizer): pass
-    def Show(self): pass
+
+    def SetIcon(self, icon):
+        pass
+
+    def CreateStatusBar(self):
+        pass
+
+    def SetStatusText(self, text):
+        pass
+
+    def Center(self):
+        pass
+
+    def SetMenuBar(self, bar):
+        pass
+
+    def Close(self):
+        pass
+
+    def Bind(self, event, handler, source=None):
+        pass
+
+    def SetSizer(self, sizer):
+        pass
+
+    def Show(self):
+        pass
+
 
 mock_wx.Frame = MockFrame
 
+
 def MockFactory(*args, **kwargs):
     return MagicMock()
+
 
 mock_wx.Panel = MockFactory
 mock_wx.BoxSizer = MockFactory
@@ -71,53 +92,94 @@ mock_wx.ICON_WARNING = 200
 mock_wx.ICON_ERROR = 300
 mock_wx.BITMAP_TYPE_ANY = 0
 
+
 # 2. Mock Tabs
 mock_scan_tab_mod = MagicMock()
+
+
 class MockScanTab:
     def __init__(self, parent):
         self.scan_btn = MagicMock()
-    def validate_source_directories(self): return True
-    def collect_source_dirs(self): return ["/path"]
-    def get_options(self): return {}
+
+    def validate_source_directories(self):
+        return True
+
+    def collect_source_dirs(self):
+        return ["/path"]
+
+    def get_options(self):
+        return {}
+
 
 mock_scan_tab_mod.ScanTab = MockScanTab
 
 mock_org_tab_mod = MagicMock()
+
+
 class MockOrganizeTab:
     def __init__(self, parent, default_output_dir=None):
         self.organize_btn = MagicMock()
         self.dry_run_btn = MagicMock()
-    def validate_destination(self): return True
-    def get_destination(self): return "/dest"
-    def get_options(self): return {}
+
+    def validate_destination(self):
+        return True
+
+    def get_destination(self):
+        return "/dest"
+
+    def get_options(self):
+        return {}
+
 
 mock_org_tab_mod.OrganizeTab = MockOrganizeTab
 
 mock_meta_tab_mod = MagicMock()
+
+
 class MockMetadataTab:
     def __init__(self, parent):
         self.update_btn = MagicMock()
-    def get_options(self): return {}
+
+    def get_options(self):
+        return {}
+
 
 mock_meta_tab_mod.MetadataTab = MockMetadataTab
 
 # 3. Mock Worker
 mock_worker_mod = MagicMock()
+
+
 class MockWorkerThread:
     def __init__(self, **kwargs):
         pass
-    def start(self): pass
-    def stop(self): pass
-    def is_alive(self): return False
-    def join(self, timeout=None): pass
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def is_alive(self):
+        return False
+
+    def join(self, timeout=None):
+        pass
+
 
 mock_worker_mod.WorkerThread = MockWorkerThread
 
 # 4. Mock SystemMonitor
 mock_sys_mod = MagicMock()
+
+
 class MockSystemMonitor:
-    def start_monitoring(self): pass
-    def stop_monitoring(self): pass
+    def start_monitoring(self):
+        pass
+
+    def stop_monitoring(self):
+        pass
+
 
 mock_sys_mod.SystemMonitor = MockSystemMonitor
 
@@ -127,6 +189,7 @@ mock_events_mod.EVT_PROGRESS = 20001
 mock_events_mod.EVT_STATUS = 20002
 mock_events_mod.EVT_FILE = 20003
 mock_events_mod.EVT_COMPLETED = 20004
+
 
 class TestMainWindow(unittest.TestCase):
     def setUp(self):
@@ -146,7 +209,7 @@ class TestMainWindow(unittest.TestCase):
 
         # Reload MainWindow
         if "src.gui.wx.main_window" in sys.modules:
-             del sys.modules["src.gui.wx.main_window"]
+            del sys.modules["src.gui.wx.main_window"]
         import src.gui.wx.main_window
         self.MainWindow = src.gui.wx.main_window.MainWindow
 
@@ -184,9 +247,6 @@ class TestMainWindow(unittest.TestCase):
         win.start_worker()
 
         # Check that MessageBox was called (MockFactory wrapper)
-        # mock_wx.MessageBox is a function that returns a Mock.
-        # But we can't assert calls on the function itself unless we mock the function in mock_wx.
-        # But we defined mock_wx.MessageBox = MockFactory.
         pass
 
     def test_on_scan_only(self):

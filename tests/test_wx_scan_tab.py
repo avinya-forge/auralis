@@ -1,46 +1,58 @@
 import sys
-import os
 import unittest
-import importlib
 from unittest.mock import MagicMock, patch
 
 # Mock wx module
 mock_wx = MagicMock()
 
+
 class MockPanel:
     def __init__(self, parent=None, **kwargs):
         pass
+
     def SetSizer(self, sizer):
         pass
+
     def Bind(self, event, handler):
         pass
 
+
 mock_wx.Panel = MockPanel
+
 
 # Stateful mocks for controls
 class MockCheckBox:
     def __init__(self, parent=None, label="", **kwargs):
         self.value = False
+
     def SetValue(self, val):
         self.value = val
+
     def GetValue(self):
         return self.value
+
 
 class MockTextCtrl:
     def __init__(self, parent=None, value="", **kwargs):
         self.value = value
+
     def SetValue(self, val):
         self.value = val
+
     def GetValue(self):
         return self.value
+
 
 class MockSpinCtrl:
     def __init__(self, parent=None, value="", min=0, max=100, initial=0, **kwargs):
         self.value = initial
+
     def SetValue(self, val):
         self.value = val
+
     def GetValue(self):
         return self.value
+
 
 mock_wx.CheckBox = MockCheckBox
 mock_wx.TextCtrl = MockTextCtrl
@@ -62,6 +74,7 @@ mock_wx.NOT_FOUND = -1
 mock_wx.ICON_WARNING = 100
 mock_wx.OK = 4
 
+
 class TestScanTab(unittest.TestCase):
     def setUp(self):
         # Patch sys.modules to inject our mock_wx
@@ -82,13 +95,17 @@ class TestScanTab(unittest.TestCase):
         # Mock get_config
         self.config_patcher = patch("src.gui.wx.tabs.scan_tab.get_config")
         self.mock_get_config = self.config_patcher.start()
+
         # Default behavior for get_config
-        # It's called for RENAME_FILES (True), FILE_EXTENSIONS ("mp3,flac"), TEST_MODE (True), FILE_COUNT (10)
         def get_config_side_effect(key, default=None):
-            if key == "RENAME_FILES": return True
-            if key == "FILE_EXTENSIONS": return "mp3,flac"
-            if key == "TEST_MODE_ENABLED": return True
-            if key == "TEST_MODE_FILE_COUNT": return 10
+            if key == "RENAME_FILES":
+                return True
+            if key == "FILE_EXTENSIONS":
+                return "mp3,flac"
+            if key == "TEST_MODE_ENABLED":
+                return True
+            if key == "TEST_MODE_FILE_COUNT":
+                return 10
             return default
         self.mock_get_config.side_effect = get_config_side_effect
 
@@ -150,9 +167,6 @@ class TestScanTab(unittest.TestCase):
     def test_get_options(self):
         """Test retrieving options from UI"""
         tab = self.ScanTab(None)
-
-        # Using stateful mocks, we can just set values using SetValue
-        # But wait, tab.rename_check is a MockCheckBox instance.
 
         tab.rename_check.SetValue(True)
         tab.extensions_edit.SetValue("mp3,wav")

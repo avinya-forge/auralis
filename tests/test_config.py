@@ -1,12 +1,13 @@
 import unittest
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open
 import os
 import sys
 
 # Ensure src is in path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.utils.config import Config, DEFAULT_CONFIG
+from src.utils.config import Config, DEFAULT_CONFIG  # noqa: E402
+
 
 class TestConfig(unittest.TestCase):
     def setUp(self):

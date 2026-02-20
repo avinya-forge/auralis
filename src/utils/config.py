@@ -5,7 +5,7 @@ Auralis - Configuration Utility Module
 import json
 import os
 import platform
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv  # type: ignore
 
