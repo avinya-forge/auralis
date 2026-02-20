@@ -4,8 +4,6 @@ Tests for documentation existence and sanity
 
 from pathlib import Path
 
-import pytest
-
 
 class TestDocumentation:
     def test_backlog_exists(self):

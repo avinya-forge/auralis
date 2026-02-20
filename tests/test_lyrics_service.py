@@ -6,8 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pathlib import Path
-
 from src.services.lyrics_service import (
     AZLyricsProvider,
     GeniusProvider,
