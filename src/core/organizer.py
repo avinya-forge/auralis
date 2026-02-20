@@ -4,7 +4,7 @@ Auralis - Music Organizer Module
 
 import os
 import shutil
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -117,7 +117,7 @@ class MusicOrganizer(QObject):
 
     def _handle_audio_similarity(
         self, music_files: List[Dict[str, Any]]
-    ) -> tuple[List[Dict[str, Any]], List[Dict[str, str]]]:
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, str]]]:
         total_files = len(music_files)
         self.progress_updated.emit(0, total_files)
         self.file_organized.emit("", "Analyzing audio content for similarities...")
@@ -194,11 +194,7 @@ class MusicOrganizer(QObject):
 
     def _cleanup_dirs(self, file_errors: Dict[str, str]) -> None:
         # Clean up by removing empty directories
-        if (
-            not self.dry_run
-            and self.dest_root
-            and self.options.get("remove_empty_dirs", True)
-        ):
+        if not self.dry_run and self.dest_root and self.options.get("remove_empty_dirs", True):
             try:
                 removed_count = remove_empty_directories(self.dest_root)
                 print(f"Removed {removed_count} empty directories")

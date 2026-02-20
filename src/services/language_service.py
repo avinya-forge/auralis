@@ -169,9 +169,7 @@ class LanguageDetectionService:
             logger.info(f"Detected language: {lang_name} ({lang_code}) in {file_path}")
             return lang_code, lang_name
         else:
-            logger.warning(
-                f"Not enough text extracted for language detection in {file_path}"
-            )
+            logger.warning(f"Not enough text extracted for language detection in {file_path}")
             return "unknown", "Unknown"
 
     def get_language_folder(self, file_path, default="Unknown"):

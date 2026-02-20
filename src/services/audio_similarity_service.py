@@ -240,7 +240,17 @@ class AudioSimilarityService:
         try:
             logger.info(f"Computing fingerprints for {len(music_files)} files")
             # Group files by approximate duration first to reduce comparisons
-            duration_groups = self._group_files_by_duration(music_files)
+            duration_groups: Dict[float, List[Dict]] = {}
+            for file_info in music_files:
+                duration = self._get_duration(file_info)
+                if not duration:
+                    continue
+
+                # Round duration to nearest 5 seconds to group similar-length
+                rounded_duration = round(duration / 5) * 5
+                if rounded_duration not in duration_groups:
+                    duration_groups[rounded_duration] = []
+                duration_groups[rounded_duration].append(file_info)
 
             duplicates = []
             processed_files: Set[str] = set()

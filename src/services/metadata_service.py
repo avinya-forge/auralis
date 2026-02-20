@@ -727,19 +727,13 @@ class MetadataService(QObject):
         for i, file_info in enumerate(music_files):
             file_hash = file_info.get("hash")
 
-            if (
-                file_hash
-                and file_hash in metadata_cache
-                and not options.get("force_update", False)
-            ):
+            if file_hash and file_hash in metadata_cache and not options.get("force_update", False):
                 file_info["metadata"].update(metadata_cache[file_hash])
                 self.file_updated.emit(f"Using cached metadata for: {file_info['path']}")
                 processed_count += 1
                 self.progress_updated.emit(processed_count, total_files)
 
-            elif not self._has_sufficient_metadata(file_info) or options.get(
-                "force_update", False
-            ):
+            elif not self._has_sufficient_metadata(file_info) or options.get("force_update", False):
                 files_to_process.append((i, file_info))
 
             else:
