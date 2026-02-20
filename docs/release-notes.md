@@ -1,13 +1,39 @@
 # Release Notes
 
-## [Unreleased]
+## [0.2.0] - Roadmap Reconstruction
 
-### Planned (Phase 1: Core Stabilization & Compliance)
-- Development Infrastructure Setup (flake8, mypy, pytest-cov).
-- Test Fortress: Increasing coverage to 95%.
-- Type Safety & Code Quality: Strict type hints and docstrings.
+### Architectural Pivot
+-   **New North Star**: Defined "Autonomous, High-Fidelity Music Neural Network".
+-   **Pipeline Laws**: Hardened to "Lint Zero" (Strict Mypy) and "Test Fortress" (95% Global Coverage).
+-   **Backlog Expansion**: Constructed 100+ WU roadmap across 4 phases (Foundation, Features, Intelligence, Ecosystem).
 
-### Added
+### Archived Tasks (Vaulted from Backlog)
+
+#### Phase 1: Core Stabilization & Compliance
+
+##### Epic 1: Development Infrastructure
+- [INF-001] | Create `requirements-dev.txt` with dev tools (`pytest`, `flake8`, `mypy`, `black`, `isort`) | [DONE]
+- [INF-002] | Configure `flake8` with `.flake8` to match standards | [DONE]
+- [INF-003] | Configure `mypy` with `mypy.ini` (strict mode) | [DONE]
+- [INF-004] | Add `pytest-cov` and configure `.coveragerc` for coverage reporting | [DONE]
+- [INF-005] | Update CI workflow to run linting and type checks | [DONE]
+
+##### Epic 2: Test Fortress (Coverage & Resilience)
+- [TST-001] | Add unit tests for `src/utils/config.py` (env loading, defaults) | [DONE]
+- [TST-002] | Add unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` | [DONE]
+- [TST-003] | Add unit tests for `src/gui/wx/main_window.py` (layout structure verification) | [DONE]
+- [TST-004] | Add unit tests for `src/gui/wx/tabs/scan_tab.py` | [DONE]
+- [TST-005] | Add unit tests for `src/gui/wx/tabs/organize_tab.py` | [DONE]
+- [TST-006] | Add unit tests for `src/gui/wx/tabs/metadata_tab.py` | [DONE]
+- [TST-007] | Add mocked tests for `create_env.py` script | [DONE]
+- [TST-008] | Add mocked tests for `setup_audio_similarity.py` script | [DONE]
+- [TST-009] | Add mocked tests for `setup_language_detection.py` script | [DONE]
+
+##### Epic 3: Type Safety & Code Quality
+- [TYP-001] | Add strict type hints to `src/utils/config.py` | [DONE]
+- [DOC-001] | Add Google-style docstrings to `src/utils/config.py` | [DONE]
+
+### Added (Previous Unreleased Work)
 -   Initialized documentation: Vision, Backlog, Standards.
 -   Started refactoring for multi-backend UI support.
 -   Added unit tests for core components.

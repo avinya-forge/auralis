@@ -191,7 +191,7 @@ class AZLyricsProvider(LyricsProvider):
 
             # AZLyrics lyrics are in a div with no class, usually after the ringtone div
             # We look for the div containing the disclaimer comment
-            divs = soup.find_all("div", attrs={"class": None})
+            divs = soup.find_all("div", class_=False)
             for div in divs:
                 if "Usage of azlyrics.com" in str(div):
                     # Found it
