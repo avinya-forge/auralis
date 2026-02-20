@@ -18,7 +18,7 @@ AUDIO_EXTENSIONS = {".mp3", ".flac", ".wav", ".m4a", ".ogg", ".aiff", ".wma", ".
 class OrganizationService:
     """Service for organizing music files"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def scan_directory(self, root_dir: str) -> List[str]:

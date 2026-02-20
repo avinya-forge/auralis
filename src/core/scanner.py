@@ -49,7 +49,7 @@ class MusicScanner(QObject):
         "temp",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.files: List[Dict[str, Any]] = []
         self.supported_extensions = self.DEFAULT_EXTENSIONS.copy()

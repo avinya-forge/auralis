@@ -10,6 +10,7 @@ import os
 import threading
 import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import acoustid
 import discogs_client
@@ -17,7 +18,8 @@ import musicbrainzngs
 import mutagen
 import mutagen.flac
 import mutagen.id3
-import requests
+import mutagen.mp3
+import requests  # type: ignore
 from PyQt6.QtCore import QObject, pyqtSignal
 
 # Import lyrics service
@@ -43,7 +45,7 @@ except ImportError:
 class MetadataSource:
     """Base class for metadata sources"""
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.success_count = 0
         self.failure_count = 0
@@ -53,11 +55,11 @@ class MetadataSource:
         self.total_response_time = 0.0
         self.enabled = True
 
-    def get_metadata(self, file_info):
+    def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """Get metadata for a file"""
         raise NotImplementedError("Subclasses must implement get_metadata")
 
-    def update_stats(self, success, response_time):
+    def update_stats(self, success: bool, response_time: float) -> None:
         """Update source statistics"""
         self.total_count += 1
         self.total_response_time += response_time
@@ -75,7 +77,7 @@ class MetadataSource:
             self.total_response_time / self.total_count if self.total_count > 0 else 0.0
         )
 
-    def get_stats(self):
+    def get_stats(self) -> Dict[str, Any]:
         """Get source statistics"""
         return {
             "name": self.name,
@@ -91,7 +93,7 @@ class MetadataSource:
 class MusicBrainzSource(MetadataSource):
     """MusicBrainz/AcoustID metadata source"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("MusicBrainz/AcoustID")
 
         # Set up MusicBrainz client
@@ -101,7 +103,7 @@ class MusicBrainzSource(MetadataSource):
         self.acoustid_api_key = "1vOwZtEn"  # Example API key, register at https://acoustid.org/
         self.fingerprinting_available = self._check_fingerprinting()
 
-    def _check_fingerprinting(self):
+    def _check_fingerprinting(self) -> bool:
         """Check if audio fingerprinting is available"""
         try:
             import subprocess
@@ -113,7 +115,7 @@ class MusicBrainzSource(MetadataSource):
         except BaseException:
             return False
 
-    def get_metadata(self, file_info):
+    def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """
         Get metadata from MusicBrainz/AcoustID
 
@@ -151,7 +153,7 @@ class MusicBrainzSource(MetadataSource):
             response_time = time.time() - start_time
             return {}, False, response_time
 
-    def _get_metadata_by_fingerprint(self, file_info):
+    def _get_metadata_by_fingerprint(self, file_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Get metadata using audio fingerprinting"""
         # Try acoustic fingerprinting
         duration, fp_encoded = acoustid.fingerprint_file(file_info["path"])
@@ -182,7 +184,7 @@ class MusicBrainzSource(MetadataSource):
                 return metadata
         return None
 
-    def _fetch_musicbrainz_details(self, mb_id):
+    def _fetch_musicbrainz_details(self, mb_id: str) -> Dict[str, Any]:
         """Fetch detailed metadata from MusicBrainz by ID"""
         metadata = {}
         try:
@@ -207,7 +209,7 @@ class MusicBrainzSource(MetadataSource):
 
         return metadata
 
-    def _get_metadata_by_search(self, file_info):
+    def _get_metadata_by_search(self, file_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Get metadata using text search"""
         metadata = file_info.get("metadata", {})
 
@@ -221,7 +223,7 @@ class MusicBrainzSource(MetadataSource):
 
         return None
 
-    def _parse_musicbrainz_response(self, recording):
+    def _parse_musicbrainz_response(self, recording: Dict[str, Any]) -> Dict[str, Any]:
         """Parse MusicBrainz recording data into metadata dict"""
         new_metadata = {}
 
@@ -251,7 +253,7 @@ class MusicBrainzSource(MetadataSource):
 class DiscogsSource(MetadataSource):
     """Discogs metadata source"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Discogs")
 
         # Discogs API token (should be configurable)
@@ -266,7 +268,7 @@ class DiscogsSource(MetadataSource):
             print(f"Error initializing Discogs client: {str(e)}")
             self.available = False
 
-    def get_metadata(self, file_info):
+    def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """
         Get metadata from Discogs
 
@@ -302,7 +304,7 @@ class DiscogsSource(MetadataSource):
             response_time = time.time() - start_time
             return {}, False, response_time
 
-    def _get_metadata_by_search(self, file_info):
+    def _get_metadata_by_search(self, file_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Get metadata from Discogs using text search"""
         # Get metadata from file info
         metadata = file_info.get("metadata", {})
@@ -339,7 +341,7 @@ class DiscogsSource(MetadataSource):
 
         return None
 
-    def _parse_discogs_release(self, release, current_metadata):
+    def _parse_discogs_release(self, release: Any, current_metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Parse Discogs release into metadata dict"""
         new_metadata = {}
 
@@ -375,13 +377,13 @@ class DiscogsSource(MetadataSource):
 class SpotifySource(MetadataSource):
     """Spotify metadata source"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Spotify")
         self.available = HAS_SPOTIFY
         self.client = None
         self._init_client()
 
-    def _init_client(self):
+    def _init_client(self) -> None:
         if not self.available:
             return
 
@@ -402,7 +404,7 @@ class SpotifySource(MetadataSource):
         else:
             self.available = False
 
-    def get_metadata(self, file_info):
+    def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """Get metadata from Spotify"""
         start_time = time.time()
 
@@ -438,7 +440,7 @@ class SpotifySource(MetadataSource):
             response_time = time.time() - start_time
             return {}, False, response_time
 
-    def _parse_spotify_track(self, track):
+    def _parse_spotify_track(self, track: Dict[str, Any]) -> Dict[str, Any]:
         """Parse Spotify track data"""
         new_metadata = {}
 
@@ -464,13 +466,13 @@ class SpotifySource(MetadataSource):
 class LastFmSource(MetadataSource):
     """Last.fm metadata source"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Last.fm")
         self.available = HAS_LASTFM
         self.network = None
         self._init_network()
 
-    def _init_network(self):
+    def _init_network(self) -> None:
         if not self.available:
             return
 
@@ -486,7 +488,7 @@ class LastFmSource(MetadataSource):
         else:
             self.available = False
 
-    def get_metadata(self, file_info):
+    def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """Get metadata from Last.fm"""
         start_time = time.time()
 
@@ -547,10 +549,10 @@ class MetadataService(QObject):
     source_stats_updated = pyqtSignal(dict)  # source statistics
     lyrics_updated = pyqtSignal(str, bool)  # file path, success
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.sources = {}
-        self.source_order = []
+        self.sources: Dict[str, MetadataSource] = {}
+        self.source_order: List[str] = []
         self.learning_phase = True
         self.learning_count = 0
         self.learning_threshold = 100  # Number of files to process before finalizing source order
@@ -562,7 +564,7 @@ class MetadataService(QObject):
         # Load saved statistics if available
         self._load_stats()
 
-    def _init_sources(self):
+    def _init_sources(self) -> None:
         """Initialize metadata sources"""
         # Add MusicBrainz source
         mb_source = MusicBrainzSource()
@@ -584,7 +586,7 @@ class MetadataService(QObject):
         self.sources[lastfm_source.name] = lastfm_source
         self.source_order.append(lastfm_source.name)
 
-    def _load_stats(self):
+    def _load_stats(self) -> None:
         """Load saved source statistics"""
         try:
             stats_file = Path.home() / ".auralis" / "source_stats.json"
@@ -618,7 +620,7 @@ class MetadataService(QObject):
         except Exception as e:
             print(f"Error loading source statistics: {str(e)}")
 
-    def _save_stats(self):
+    def _save_stats(self) -> None:
         """Save source statistics"""
         try:
             # Create directory if it doesn't exist
@@ -638,7 +640,7 @@ class MetadataService(QObject):
         except Exception as e:
             print(f"Error saving source statistics: {str(e)}")
 
-    def _sort_sources(self):
+    def _sort_sources(self) -> None:
         """Sort sources by success rate"""
         with self.stats_lock:
             # Sort by success rate (descending)
@@ -646,7 +648,12 @@ class MetadataService(QObject):
                 self.sources.keys(), key=lambda x: self.sources[x].success_rate, reverse=True
             )
 
-    def update_metadata(self, music_files, options, max_threads=4):
+    def update_metadata(
+        self,
+        music_files: List[Dict[str, Any]],
+        options: Dict[str, Any],
+        max_threads: int = 4,
+    ) -> List[Dict[str, Any]]:
         """
         Update metadata for a list of music files
 
@@ -685,17 +692,17 @@ class MetadataService(QObject):
 
         return music_files
 
-    def _load_metadata_cache(self):
+    def _load_metadata_cache(self) -> Dict[str, Any]:
         cache_file = Path.home() / ".auralis" / "metadata_cache.json"
         if cache_file.exists():
             try:
                 with open(cache_file, "r") as f:
-                    return json.load(f)
+                    return cast(Dict[str, Any], json.load(f))
             except Exception as e:
                 print(f"Error loading metadata cache: {str(e)}")
         return {}
 
-    def _save_metadata_cache(self, metadata_cache):
+    def _save_metadata_cache(self, metadata_cache: Dict[str, Any]) -> None:
         cache_file = Path.home() / ".auralis" / "metadata_cache.json"
         os.makedirs(os.path.dirname(cache_file), exist_ok=True)
         try:
@@ -704,25 +711,32 @@ class MetadataService(QObject):
         except Exception as e:
             print(f"Error saving metadata cache: {str(e)}")
 
-    def _update_api_keys(self, options):
+    def _update_api_keys(self, options: Dict[str, Any]) -> None:
         if "acoustid_api_key" in options and options["acoustid_api_key"]:
             if "MusicBrainz/AcoustID" in self.sources:
-                self.sources["MusicBrainz/AcoustID"].acoustid_api_key = options["acoustid_api_key"]
+                mb_source = cast(MusicBrainzSource, self.sources["MusicBrainz/AcoustID"])
+                mb_source.acoustid_api_key = options["acoustid_api_key"]
 
         if "discogs_token" in options and options["discogs_token"]:
             if "Discogs" in self.sources:
-                source = self.sources["Discogs"]
-                source.discogs_token = options["discogs_token"]
+                discogs_source = cast(DiscogsSource, self.sources["Discogs"])
+                discogs_source.discogs_token = options["discogs_token"]
                 try:
-                    source.client = discogs_client.Client(
-                        "Auralis/0.1", user_token=source.discogs_token
+                    discogs_source.client = discogs_client.Client(
+                        "Auralis/0.1", user_token=discogs_source.discogs_token
                     )
-                    source.available = True
+                    discogs_source.available = True
                 except Exception as e:
                     print(f"Error initializing Discogs client: {str(e)}")
-                    source.available = False
+                    discogs_source.available = False
 
-    def _filter_files_for_update(self, music_files, options, metadata_cache, total_files):
+    def _filter_files_for_update(
+        self,
+        music_files: List[Dict[str, Any]],
+        options: Dict[str, Any],
+        metadata_cache: Dict[str, Any],
+        total_files: int,
+    ) -> Tuple[List[Tuple[int, Dict[str, Any]]], int]:
         files_to_process = []
         processed_count = 0
 
@@ -746,14 +760,14 @@ class MetadataService(QObject):
 
     def _execute_updates(
         self,
-        files_to_process,
-        music_files,
-        options,
-        metadata_cache,
-        max_threads,
-        start_processed_count,
-        total_files,
-    ):
+        files_to_process: List[Tuple[int, Dict[str, Any]]],
+        music_files: List[Dict[str, Any]],
+        options: Dict[str, Any],
+        metadata_cache: Dict[str, Any],
+        max_threads: int,
+        start_processed_count: int,
+        total_files: int,
+    ) -> None:
         processed_container = [start_processed_count]
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
@@ -781,10 +795,10 @@ class MetadataService(QObject):
 
     def _process_file_with_cache(
         self,
-        file_info,
-        options,
-        metadata_cache,
-    ):
+        file_info: Dict[str, Any],
+        options: Dict[str, Any],
+        metadata_cache: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
         """Process a file with caching support"""
         try:
             # Process the file
@@ -802,7 +816,9 @@ class MetadataService(QObject):
             print(f"Error processing file {file_info['path']}: {str(e)}")
             return file_info
 
-    def _process_file_internal(self, file_info, options):
+    def _process_file_internal(
+        self, file_info: Dict[str, Any], options: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Internal method to process a single file"""
         # Emit signal to indicate which file is being processed
         self.file_updated.emit(file_info["path"])
@@ -827,7 +843,7 @@ class MetadataService(QObject):
 
         return file_info
 
-    def _get_active_sources(self, options):
+    def _get_active_sources(self, options: Dict[str, Any]) -> List[MetadataSource]:
         source_names = []
         if options.get("use_musicbrainz", True):
             source_names.append("MusicBrainz/AcoustID")
@@ -843,7 +859,12 @@ class MetadataService(QObject):
             if name in source_names and name in self.sources
         ]
 
-    def _query_sources(self, active_sources, file_info, current_metadata):
+    def _query_sources(
+        self,
+        active_sources: List[MetadataSource],
+        file_info: Dict[str, Any],
+        current_metadata: Dict[str, Any],
+    ) -> Dict[str, Any]:
         new_metadata = {}
         for source in active_sources:
             if not source.enabled:
@@ -868,14 +889,16 @@ class MetadataService(QObject):
                     break
         return new_metadata
 
-    def _update_learning_phase(self):
+    def _update_learning_phase(self) -> None:
         with self.stats_lock:
             self.learning_count += 1
             if self.learning_count >= self.learning_threshold:
                 self.learning_phase = False
                 self._sort_sources()
 
-    def _finalize_file_update(self, file_info, metadata, options):
+    def _finalize_file_update(
+        self, file_info: Dict[str, Any], metadata: Dict[str, Any], options: Dict[str, Any]
+    ) -> None:
         # Fetch cover art
         if options.get("fetch_cover_art", False) and "cover_art_url" in metadata:
             self._download_cover_art(file_info, metadata)
@@ -894,7 +917,7 @@ class MetadataService(QObject):
         # Emit signal
         self.metadata_updated.emit(file_info["path"], metadata)
 
-    def _download_cover_art(self, file_info, metadata):
+    def _download_cover_art(self, file_info: Dict[str, Any], metadata: Dict[str, Any]) -> None:
         self.file_updated.emit(f"{file_info['path']} (downloading cover art)")
         try:
             response = requests.get(metadata["cover_art_url"], timeout=10)
@@ -904,7 +927,7 @@ class MetadataService(QObject):
         except Exception as e:
             print(f"Error downloading cover art: {str(e)}")
 
-    def _has_sufficient_metadata(self, file_info):
+    def _has_sufficient_metadata(self, file_info: Dict[str, Any]) -> bool:
         """
         Check if a file has sufficient metadata
 
@@ -928,7 +951,7 @@ class MetadataService(QObject):
 
         return True
 
-    def _apply_metadata_to_file(self, file_path, metadata):
+    def _apply_metadata_to_file(self, file_path: str, metadata: Dict[str, Any]) -> bool:
         """
         Apply metadata to a music file
 
@@ -959,7 +982,7 @@ class MetadataService(QObject):
             print(f"Error applying metadata to {file_path}: {str(e)}")
             return False
 
-    def _apply_id3_tags(self, audio, metadata):
+    def _apply_id3_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         if "artist" in metadata:
             audio["TPE1"] = mutagen.id3.TPE1(encoding=3, text=metadata["artist"])
         if "title" in metadata:
@@ -983,7 +1006,7 @@ class MetadataService(QObject):
                 data=metadata["cover_art"],
             )
 
-    def _apply_vorbis_tags(self, audio, metadata):
+    def _apply_vorbis_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         if "artist" in metadata:
             audio["artist"] = metadata["artist"]
         if "title" in metadata:
@@ -1005,12 +1028,14 @@ class MetadataService(QObject):
             picture.desc = "Cover"
             audio.add_picture(picture)
 
-    def _apply_generic_tags(self, audio, metadata):
+    def _apply_generic_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         for key, value in metadata.items():
             if key in ["artist", "title", "album", "year", "genre", "track"]:
                 audio[key] = value
 
-    def _fetch_and_embed_lyrics(self, file_path, metadata, save_lrc=False):
+    def _fetch_and_embed_lyrics(
+        self, file_path: str, metadata: Dict[str, Any], save_lrc: bool = False
+    ) -> bool:
         """
         Fetch and embed lyrics for a file
 
@@ -1045,7 +1070,7 @@ class MetadataService(QObject):
         self.lyrics_updated.emit(file_path, success)
         return success
 
-    def detect_language(self, music_files):
+    def detect_language(self, music_files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Detect the language of music files
 

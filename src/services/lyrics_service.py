@@ -9,7 +9,7 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
@@ -21,7 +21,7 @@ logger = logging.getLogger("auralis.lyrics")
 class LyricsProvider(ABC):
     """Abstract base class for lyrics providers"""
 
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: requests.Session) -> None:
         self.session = session
         self.name = "Base"
 
@@ -69,7 +69,7 @@ class LyricsProvider(ABC):
 class GeniusProvider(LyricsProvider):
     """Lyrics provider for Genius.com"""
 
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: requests.Session) -> None:
         super().__init__(session)
         self.name = "Genius"
 
@@ -166,7 +166,7 @@ class GeniusProvider(LyricsProvider):
 class AZLyricsProvider(LyricsProvider):
     """Lyrics provider for AZLyrics.com"""
 
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: requests.Session) -> None:
         super().__init__(session)
         self.name = "AZLyrics"
 
@@ -221,7 +221,7 @@ class AZLyricsProvider(LyricsProvider):
 class TekstowoProvider(LyricsProvider):
     """Lyrics provider for Tekstowo.pl"""
 
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: requests.Session) -> None:
         super().__init__(session)
         self.name = "Tekstowo"
 
@@ -321,24 +321,24 @@ class TekstowoProvider(LyricsProvider):
 class LyricsService:
     """Service for fetching lyrics and embedding them in audio files"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the lyrics service"""
         self.available = True
         self.user_agent = "Auralis/1.0"
-        self.cache = {}
+        self.cache: Dict[str, str] = {}
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": self.user_agent})
 
         self.providers: List[LyricsProvider] = []
         self._init_providers()
 
-    def _init_providers(self):
+    def _init_providers(self) -> None:
         """Initialize default providers"""
         self.register_provider(GeniusProvider(self.session))
         self.register_provider(AZLyricsProvider(self.session))
         self.register_provider(TekstowoProvider(self.session))
 
-    def register_provider(self, provider: LyricsProvider):
+    def register_provider(self, provider: LyricsProvider) -> None:
         """Register a lyrics provider"""
         self.providers.append(provider)
 
@@ -430,7 +430,7 @@ class LyricsService:
             logger.error(f"Error embedding lyrics: {str(e)}")
             return False
 
-    def _embed_mp3_lyrics(self, file_path, path_obj, lyrics):
+    def _embed_mp3_lyrics(self, file_path: str, path_obj: Path, lyrics: str) -> bool:
         from mutagen.id3 import ID3, USLT
 
         try:
@@ -447,7 +447,7 @@ class LyricsService:
         logger.info(f"Embedded lyrics in {file_path}")
         return True
 
-    def _embed_generic_lyrics(self, file_path, extension, lyrics):
+    def _embed_generic_lyrics(self, file_path: str, extension: str, lyrics: str) -> bool:
         from mutagen import File
 
         audio = File(file_path)
@@ -493,7 +493,9 @@ def save_lrc(file_path: str, lyrics: str) -> bool:
     return lyrics_service.save_lrc(file_path, lyrics)
 
 
-def fetch_and_embed_lyrics(file_path: str, metadata: Dict, save_lrc_file: bool = False) -> bool:
+def fetch_and_embed_lyrics(
+    file_path: str, metadata: Dict[str, Any], save_lrc_file: bool = False
+) -> bool:
     """
     Fetch lyrics for a file based on its metadata and embed them
 
