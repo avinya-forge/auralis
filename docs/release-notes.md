@@ -33,3 +33,9 @@
     -   Added `requirements-dev.txt`, `.flake8` (strict), `mypy.ini`.
     -   Updated CI pipeline.
     -   Refactored all services and core modules to meet complexity cap < 10.
+    -   **Consolidated Batch Updates (Iteration 2):**
+        -   Implemented robust unit tests for `src/utils/config.py` including singleton verification and environment loading.
+        -   Added strict type hints and Google-style docstrings to `src/utils/config.py`.
+        -   Added unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` with full wxPython mocking.
+        -   Added unit tests for `src/gui/wx/tabs/scan_tab.py` covering UI interactions and options retrieval.
+        -   Added comprehensive unit tests for `src/gui/wx/main_window.py` validating layout and worker thread integration.
