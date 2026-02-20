@@ -86,6 +86,7 @@ class TestScanTab(unittest.TestCase):
             del sys.modules["src.gui.wx.tabs.scan_tab"]
 
         import src.gui.wx.tabs.scan_tab
+
         self.module = src.gui.wx.tabs.scan_tab
         self.ScanTab = self.module.ScanTab
 
@@ -107,6 +108,7 @@ class TestScanTab(unittest.TestCase):
             if key == "TEST_MODE_FILE_COUNT":
                 return 10
             return default
+
         self.mock_get_config.side_effect = get_config_side_effect
 
     def tearDown(self):
@@ -207,11 +209,11 @@ class TestScanTab(unittest.TestCase):
         tab = self.ScanTab(None)
         event = MagicMock()
 
-        with patch.object(tab, 'validate_source_directories', return_value=True):
+        with patch.object(tab, "validate_source_directories", return_value=True):
             tab.on_scan_clicked(event)
             event.Skip.assert_called()
 
         event.reset_mock()
-        with patch.object(tab, 'validate_source_directories', return_value=False):
+        with patch.object(tab, "validate_source_directories", return_value=False):
             tab.on_scan_clicked(event)
             event.Skip.assert_not_called()

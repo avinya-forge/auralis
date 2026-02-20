@@ -200,7 +200,7 @@ class TestMainWindow(unittest.TestCase):
             "src.gui.wx.tabs.metadata_tab": mock_meta_tab_mod,
             "src.gui.wx.worker": mock_worker_mod,
             "src.utils.system_utils": mock_sys_mod,
-            "src.gui.wx.events": mock_events_mod
+            "src.gui.wx.events": mock_events_mod,
         }
         self.modules_patcher = patch.dict(sys.modules, mocks)
         self.modules_patcher.start()
@@ -211,6 +211,7 @@ class TestMainWindow(unittest.TestCase):
         if "src.gui.wx.main_window" in sys.modules:
             del sys.modules["src.gui.wx.main_window"]
         import src.gui.wx.main_window
+
         self.MainWindow = src.gui.wx.main_window.MainWindow
 
         # Mock get_config

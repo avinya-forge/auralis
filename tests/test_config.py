@@ -37,11 +37,13 @@ class TestConfig(unittest.TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data='{"MAX_THREADS": 12}')
     def test_json_override(self, mock_file, mock_exists):
         """Test that config.json overrides defaults"""
+
         # Simulate config.json exists
         def exists_side_effect(path):
             if "config.json" in path:
                 return True
             return False
+
         mock_exists.side_effect = exists_side_effect
 
         config = Config()
@@ -52,11 +54,13 @@ class TestConfig(unittest.TestCase):
     @patch("src.utils.config.os.getenv")
     def test_env_override(self, mock_getenv, mock_load_dotenv, mock_exists):
         """Test that environment variables override everything"""
+
         # Simulate .env exists
         def exists_side_effect(path):
             if ".env" in path:
                 return True
             return False
+
         mock_exists.side_effect = exists_side_effect
 
         # Mock getenv
@@ -64,6 +68,7 @@ class TestConfig(unittest.TestCase):
             if key == "MAX_THREADS":
                 return "16"
             return None
+
         mock_getenv.side_effect = getenv_side_effect
 
         config = Config()

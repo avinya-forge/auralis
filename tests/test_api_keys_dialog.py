@@ -49,6 +49,7 @@ class TestAPIKeysDialog(unittest.TestCase):
             del sys.modules["src.gui.wx.dialogs.api_keys_dialog"]
 
         import src.gui.wx.dialogs.api_keys_dialog
+
         self.APIKeysDialog = src.gui.wx.dialogs.api_keys_dialog.APIKeysDialog
 
         mock_wx.reset_mock()
@@ -59,8 +60,10 @@ class TestAPIKeysDialog(unittest.TestCase):
         self.keys = [
             "ACOUSTID_API_KEY",
             "DISCOGS_TOKEN",
-            "SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET",
-            "LASTFM_API_KEY", "LASTFM_API_SECRET"
+            "SPOTIPY_CLIENT_ID",
+            "SPOTIPY_CLIENT_SECRET",
+            "LASTFM_API_KEY",
+            "LASTFM_API_SECRET",
         ]
         for key in self.keys:
             if key in os.environ:
@@ -88,10 +91,13 @@ class TestAPIKeysDialog(unittest.TestCase):
         # Check calls to mock_wx.TextCtrl
         found = False
         for call in mock_wx.TextCtrl.call_args_list:
-            if call.kwargs.get('value') == "existing_key":
+            if call.kwargs.get("value") == "existing_key":
                 found = True
                 break
-        self.assertTrue(found, f"TextCtrl not initialized with existing key. Calls: {mock_wx.TextCtrl.call_args_list}")
+        self.assertTrue(
+            found,
+            f"TextCtrl not initialized with existing key. Calls: {mock_wx.TextCtrl.call_args_list}",
+        )
 
     def test_save_updates_env(self):
         dialog = self.APIKeysDialog(None)
@@ -124,7 +130,12 @@ class TestAPIKeysDialog(unittest.TestCase):
         sizer = MagicMock()
 
         dialog._add_api_section(
-            parent, sizer, "Test Title", ["TEST_KEY_1", "TEST_KEY_2"], "Test Desc", "http://example.com"
+            parent,
+            sizer,
+            "Test Title",
+            ["TEST_KEY_1", "TEST_KEY_2"],
+            "Test Desc",
+            "http://example.com",
         )
 
         self.assertIn("TEST_KEY_1", dialog.inputs)
