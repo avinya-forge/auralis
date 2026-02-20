@@ -119,61 +119,57 @@ class LanguageDetectionService:
 
             # Extract a segment for processing
             logger.info(f"Processing {file_path} for language detection")
-
-            # Convert to WAV for speech recognition
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
-                temp_path = temp_wav.name
-
-            # Load audio and extract a sample for processing
-            try:
-                audio = AudioSegment.from_file(file_path)
-
-                # Take a sample from the middle of the file (more likely to contain speech)
-                middle = len(audio) // 2
-                start_pos = max(0, middle - (sample_duration * 1000) // 2)
-                end_pos = min(len(audio), start_pos + (sample_duration * 1000))
-
-                audio_sample = audio[start_pos:end_pos]
-                audio_sample.export(temp_path, format="wav")
-
-                # Perform speech recognition
-                recognizer = sr.Recognizer()
-                with sr.AudioFile(temp_path) as source:
-                    audio_data = recognizer.record(source)
-                    try:
-                        # Try Google's speech recognition (more languages)
-                        text = recognizer.recognize_google(audio_data)
-                    except sr.UnknownValueError:
-                        logger.warning(f"Could not understand audio in {file_path}")
-                        return "unknown", "Unknown"
-                    except sr.RequestError:
-                        logger.error("API unavailable for speech recognition")
-                        return "unknown", "Unknown"
-
-                # Clean up temporary file
-                os.unlink(temp_path)
-
-                # Detect language from text
-                if text and len(text.strip()) > 5:
-                    lang_code = langdetect.detect(text)
-                    lang_name = LANGUAGE_NAMES.get(lang_code, lang_code.capitalize())
-                    logger.info(f"Detected language: {lang_name} ({lang_code}) in {file_path}")
-                    return lang_code, lang_name
-                else:
-                    logger.warning(
-                        f"Not enough text extracted for language detection in {file_path}"
-                    )
-                    return "unknown", "Unknown"
-
-            except Exception as e:
-                logger.error(f"Error processing audio: {str(e)}")
-                # Clean up temporary file if it exists
-                if os.path.exists(temp_path):
-                    os.unlink(temp_path)
-                return "unknown", "Unknown"
+            return self._process_audio_detection(file_path, sample_duration)
 
         except Exception as e:
             logger.error(f"Language detection failed: {str(e)}")
+            return "unknown", "Unknown"
+
+    def _process_audio_detection(self, file_path, sample_duration):
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
+            temp_path = temp_wav.name
+
+        try:
+            self._extract_audio_sample(file_path, temp_path, sample_duration)
+            text = self._recognize_speech(temp_path)
+
+            # Clean up temporary file
+            os.unlink(temp_path)
+
+            return self._detect_from_text(text, file_path)
+
+        except Exception as e:
+            logger.error(f"Error processing audio: {str(e)}")
+            # Clean up temporary file if it exists
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+            return "unknown", "Unknown"
+
+    def _extract_audio_sample(self, file_path, temp_path, sample_duration):
+        audio = AudioSegment.from_file(file_path)
+        middle = len(audio) // 2
+        start_pos = max(0, middle - (sample_duration * 1000) // 2)
+        end_pos = min(len(audio), start_pos + (sample_duration * 1000))
+        audio_sample = audio[start_pos:end_pos]
+        audio_sample.export(temp_path, format="wav")
+
+    def _recognize_speech(self, temp_path):
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(temp_path) as source:
+            audio_data = recognizer.record(source)
+            try:
+                return recognizer.recognize_google(audio_data)
+            except (sr.UnknownValueError, sr.RequestError):
+                return None
+
+    def _detect_from_text(self, text, file_path):
+        if text and len(text.strip()) > 5:
+            lang_code = langdetect.detect(text)
+            lang_name = LANGUAGE_NAMES.get(lang_code, lang_code.capitalize())
+            logger.info(f"Detected language: {lang_name} ({lang_code}) in {file_path}")
+            return lang_code, lang_name
+        else:
+            logger.warning(f"Not enough text extracted for language detection in {file_path}")
             return "unknown", "Unknown"
 
     def get_language_folder(self, file_path, default="Unknown"):

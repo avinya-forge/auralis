@@ -304,54 +304,52 @@ class MusicScanner(QObject):
 
     def _parse_audio_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         """Parse tags from mutagen audio object"""
-        # MP3 files (ID3 tags)
         if isinstance(audio, mutagen.mp3.MP3):
-            if "TPE1" in audio:  # Artist
-                metadata["artist"] = str(audio["TPE1"])
-            if "TIT2" in audio:  # Title
-                metadata["title"] = str(audio["TIT2"])
-            if "TALB" in audio:  # Album
-                metadata["album"] = str(audio["TALB"])
-            if "TDRC" in audio:  # Year
-                metadata["year"] = str(audio["TDRC"])
-            if "TCON" in audio:  # Genre
-                metadata["genre"] = str(audio["TCON"])
-            if "TRCK" in audio:  # Track number
-                metadata["track"] = str(audio["TRCK"])
-
-            # Get bitrate
-            if audio.info:
-                metadata["bitrate"] = audio.info.bitrate
-
-        # FLAC files
+            self._parse_mp3_tags(audio, metadata)
         elif isinstance(audio, mutagen.flac.FLAC):
-            if "artist" in audio:
-                metadata["artist"] = str(audio["artist"][0])
-            if "title" in audio:
-                metadata["title"] = str(audio["title"][0])
-            if "album" in audio:
-                metadata["album"] = str(audio["album"][0])
-            if "date" in audio:
-                metadata["year"] = str(audio["date"][0])
-            if "genre" in audio:
-                metadata["genre"] = str(audio["genre"][0])
-            if "tracknumber" in audio:
-                metadata["track"] = str(audio["tracknumber"][0])
-
-            # Get bitrate (approximate for FLAC)
-            if audio.info:
-                metadata["bitrate"] = audio.info.bits_per_sample * audio.info.sample_rate
-
-        # Generic approach for other formats
+            self._parse_flac_tags(audio, metadata)
         else:
-            # Try to get common tag fields
-            for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
-                if key in audio:
-                    metadata[key] = str(audio[key][0])
+            self._parse_generic_tags(audio, metadata)
 
-            # Try to get bitrate info
-            if hasattr(audio.info, "bitrate"):
-                metadata["bitrate"] = audio.info.bitrate
+    def _parse_mp3_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
+        tag_map = {
+            "TPE1": "artist",
+            "TIT2": "title",
+            "TALB": "album",
+            "TDRC": "year",
+            "TCON": "genre",
+            "TRCK": "track",
+        }
+        for tag, key in tag_map.items():
+            if tag in audio:
+                metadata[key] = str(audio[tag])
+
+        if audio.info:
+            metadata["bitrate"] = audio.info.bitrate
+
+    def _parse_flac_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
+        tag_map = {
+            "artist": "artist",
+            "title": "title",
+            "album": "album",
+            "date": "year",
+            "genre": "genre",
+            "tracknumber": "track",
+        }
+        for tag, key in tag_map.items():
+            if tag in audio:
+                metadata[key] = str(audio[tag][0])
+
+        if audio.info:
+            metadata["bitrate"] = audio.info.bits_per_sample * audio.info.sample_rate
+
+    def _parse_generic_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
+        for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
+            if key in audio:
+                metadata[key] = str(audio[key][0])
+
+        if hasattr(audio, "info") and hasattr(audio.info, "bitrate"):
+            metadata["bitrate"] = audio.info.bitrate
 
     def _calculate_file_hash(self, file_path: str, block_size: int = 65536) -> Optional[str]:
         """

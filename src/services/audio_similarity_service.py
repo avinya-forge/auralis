@@ -119,7 +119,7 @@ class AudioSimilarityService:
 
     def _get_duration(self, file_info: Dict) -> float:
         """
-        Get duration from metadata or compute it using pydub
+        Get duration from metadata or compute it using mutagen/pydub
 
         Args:
             file_info (dict): File information dictionary
@@ -127,10 +127,20 @@ class AudioSimilarityService:
         Returns:
             float: Duration in seconds, or 0 if determination failed
         """
+        # 1. Check metadata
         duration = file_info.get("metadata", {}).get("duration", 0)
         if duration:
             return float(duration)
 
+        # 2. Check mutagen
+        try:
+            audio = mutagen.File(file_info["path"])
+            if audio and audio.info:
+                return float(audio.info.length)
+        except Exception:
+            pass
+
+        # 3. Check pydub
         try:
             if "pydub" in globals():
                 audio = pydub.AudioSegment.from_file(file_info["path"])
@@ -227,42 +237,24 @@ class AudioSimilarityService:
         if not self.available or not music_files:
             return []
 
-        duplicates = []
-        processed_files: Set[str] = set()
-
         try:
             logger.info(f"Computing fingerprints for {len(music_files)} files")
             # Group files by approximate duration first to reduce comparisons
             duration_groups: Dict[float, List[Dict]] = {}
             for file_info in music_files:
-                # Get duration from metadata or compute it
-                duration = file_info.get("metadata", {}).get("duration", 0)
+                duration = self._get_duration(file_info)
                 if not duration:
-                    try:
-                        audio = mutagen.File(file_info["path"])
-                        if audio and audio.info:
-                            duration = audio.info.length
-                        else:
-                            # If we can't get duration, try pydub (fallback) or skip
-                            try:
-                                if "pydub" in globals():
-                                    audio_segment = pydub.AudioSegment.from_file(file_info["path"])
-                                    duration = len(audio_segment) / 1000
-                            except Exception:
-                                pass
+                    continue
 
-                            if not duration:
-                                continue
-                    except Exception as e:
-                        logger.error(f"Error getting duration for {file_info['path']}: {str(e)}")
-                        # If we can't get duration, skip this file
-                        continue
-
-                # Round duration to nearest 5 seconds to group similar-length files
+                # Round duration to nearest 5 seconds to group similar-length
                 rounded_duration = round(duration / 5) * 5
                 if rounded_duration not in duration_groups:
                     duration_groups[rounded_duration] = []
                 duration_groups[rounded_duration].append(file_info)
+
+            duplicates = []
+            processed_files: Set[str] = set()
+
             # Process each duration group
             for duration, files in duration_groups.items():
                 if len(files) < 2:

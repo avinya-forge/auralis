@@ -4,7 +4,7 @@ Auralis - Music Organizer Module
 
 import os
 import shutil
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -69,107 +69,36 @@ class MusicOrganizer(QObject):
         self.processed_files = []
         file_errors: Dict[str, str] = {}  # Track errors by file path
 
-        total_files = len(music_files)
-        processed_files = 0
-
-        # Create destination directories
         if not self.dry_run:
             self._create_destination_dirs()
 
+        audio_duplicates: List[Dict[str, str]] = []
+        if self.options.get("detect_audio_similarity", False) and self.audio_similarity_available:
+            music_files, audio_duplicates = self._handle_audio_similarity(music_files)
+
         # Track duplicates
         duplicates: List[Dict[str, str]] = []
-        audio_duplicates: List[Dict[str, str]] = []
         organized_files: List[Dict[str, Any]] = []
         manual_review_files: List[Dict[str, str]] = []
 
-        # Check for audio content similarity if enabled and available
-        if self.options.get("detect_audio_similarity", False) and self.audio_similarity_available:
-            self.progress_updated.emit(0, total_files)
-            self.file_organized.emit("", "Analyzing audio content for similarities...")
-
-            # Find duplicates based on audio content
-            duplicate_groups = find_similar_audio(music_files)
-
-            # Process each group
-            for group in duplicate_groups:
-                if len(group) > 1:
-                    # Get the best quality version
-                    best_version = cast(Dict[str, Any], get_best_quality_version(group))
-
-                    if not best_version:
-                        continue
-
-                    # Add other versions to audio duplicates
-                    for duplicate in group:
-                        if duplicate["path"] != best_version["path"]:
-                            audio_duplicates.append(
-                                {
-                                    "original_path": best_version["path"],
-                                    "duplicate_path": duplicate["path"],
-                                    "reason": "audio_similarity",
-                                }
-                            )
-                            # Emit signal for duplicate found
-                            self.duplicate_found.emit(best_version["path"], duplicate["path"])
-
-            # Filter out audio duplicates from music_files to process
-            if not options.get("keep_all_duplicates", False):
-                duplicate_paths = set(d["duplicate_path"] for d in audio_duplicates)
-                music_files = [f for f in music_files if f["path"] not in duplicate_paths]
-
-                # Update total_files count
-                total_files = len(music_files)
+        total_files = len(music_files)
+        processed_files = 0
 
         # Process each file
         for file_info in music_files:
             try:
-                # Check if this is a metadata duplicate
-                # (only if we're not checking audio similarity)
-                should_check_dupes = self.options.get("handle_duplicates", True)
-                is_audio_sim = self.options.get("detect_audio_similarity", False)
-                if should_check_dupes and not is_audio_sim:
-                    duplicate_file = self._check_duplicate(file_info, organized_files)
-
-                    if duplicate_file:
-                        # If we're handling duplicates, check quality
-                        if not self._is_higher_quality(file_info, duplicate_file):
-                            # Skip this file, it's lower quality
-                            duplicates.append(
-                                {
-                                    "original_path": file_info["path"],
-                                    "duplicate_path": duplicate_file["path"],
-                                    "reason": "lower_quality",
-                                }
-                            )
-                            processed_files += 1
-                            self.progress_updated.emit(processed_files, total_files)
-                            continue
-
-                # Get destination path
-                dest_path = self._get_destination_path(file_info)
-
-                # Check if file needs manual review
-                if self._needs_manual_review(file_info):
-                    self._handle_manual_review(file_info, manual_review_files, file_errors)
-                else:
-                    self._handle_file_move(file_info, dest_path, organized_files, file_errors)
-                    processed_files += 1
-                    self.progress_updated.emit(processed_files, total_files)
-
+                processed_files += 1
+                self._process_file(
+                    file_info, organized_files, duplicates, manual_review_files, file_errors
+                )
+                self.progress_updated.emit(processed_files, total_files)
             except Exception as e:
                 # Capture any errors that occur during processing this file
                 file_errors[file_info["path"]] = f"Error processing file: {str(e)}"
                 processed_files += 1
                 self.progress_updated.emit(processed_files, total_files)
 
-        # Clean up by removing empty directories
-        if not self.dry_run and self.dest_root and options.get("remove_empty_dirs", True):
-            try:
-                removed_count = remove_empty_directories(self.dest_root)
-                print(f"Removed {removed_count} empty directories")
-            except Exception as e:
-                file_errors["empty_dirs"] = f"Error removing empty directories: {str(e)}"
-
+        self._cleanup_dirs(file_errors)
         self.organization_completed.emit()
 
         # Combine all duplicates
@@ -185,6 +114,92 @@ class MusicOrganizer(QObject):
             "manual_review": len(manual_review_files),
             "file_errors": file_errors,
         }
+
+    def _handle_audio_similarity(
+        self, music_files: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, str]]]:
+        total_files = len(music_files)
+        self.progress_updated.emit(0, total_files)
+        self.file_organized.emit("", "Analyzing audio content for similarities...")
+
+        # Find duplicates based on audio content
+        duplicate_groups = find_similar_audio(music_files)
+        audio_duplicates = []
+
+        # Process each group
+        for group in duplicate_groups:
+            if len(group) > 1:
+                # Get the best quality version
+                best_version = cast(Dict[str, Any], get_best_quality_version(group))
+
+                if not best_version:
+                    continue
+
+                # Add other versions to audio duplicates
+                for duplicate in group:
+                    if duplicate["path"] != best_version["path"]:
+                        audio_duplicates.append(
+                            {
+                                "original_path": best_version["path"],
+                                "duplicate_path": duplicate["path"],
+                                "reason": "audio_similarity",
+                            }
+                        )
+                        # Emit signal for duplicate found
+                        self.duplicate_found.emit(best_version["path"], duplicate["path"])
+
+        # Filter out audio duplicates from music_files to process
+        if not self.options.get("keep_all_duplicates", False):
+            duplicate_paths = set(d["duplicate_path"] for d in audio_duplicates)
+            music_files = [f for f in music_files if f["path"] not in duplicate_paths]
+
+        return music_files, audio_duplicates
+
+    def _process_file(
+        self,
+        file_info: Dict[str, Any],
+        organized_files: List[Dict[str, Any]],
+        duplicates: List[Dict[str, str]],
+        manual_review_files: List[Dict[str, str]],
+        file_errors: Dict[str, str],
+    ) -> None:
+        # Check if this is a metadata duplicate
+        # (only if we're not checking audio similarity)
+        should_check_dupes = self.options.get("handle_duplicates", True)
+        is_audio_sim = self.options.get("detect_audio_similarity", False)
+        if should_check_dupes and not is_audio_sim:
+            duplicate_file = self._check_duplicate(file_info, organized_files)
+
+            if duplicate_file:
+                # If we're handling duplicates, check quality
+                if not self._is_higher_quality(file_info, duplicate_file):
+                    # Skip this file, it's lower quality
+                    duplicates.append(
+                        {
+                            "original_path": file_info["path"],
+                            "duplicate_path": duplicate_file["path"],
+                            "reason": "lower_quality",
+                        }
+                    )
+                    return
+
+        # Get destination path
+        dest_path = self._get_destination_path(file_info)
+
+        # Check if file needs manual review
+        if self._needs_manual_review(file_info):
+            self._handle_manual_review(file_info, manual_review_files, file_errors)
+        else:
+            self._handle_file_move(file_info, dest_path, organized_files, file_errors)
+
+    def _cleanup_dirs(self, file_errors: Dict[str, str]) -> None:
+        # Clean up by removing empty directories
+        if not self.dry_run and self.dest_root and self.options.get("remove_empty_dirs", True):
+            try:
+                removed_count = remove_empty_directories(self.dest_root)
+                print(f"Removed {removed_count} empty directories")
+            except Exception as e:
+                file_errors["empty_dirs"] = f"Error removing empty directories: {str(e)}"
 
     def _handle_manual_review(
         self,
@@ -289,6 +304,17 @@ class MusicOrganizer(QObject):
 
         metadata = file_info.get("metadata", {})
 
+        # Check for template
+        template = self.options.get("directory_template")
+        if template:
+            try:
+                rel_path = self._generate_path_from_template(file_info, template)
+                dest_path = os.path.join(self.dest_root, rel_path)
+                return ensure_unique_filename(dest_path)
+            except Exception as e:
+                # Log error and fall back to default logic
+                print(f"Error using template '{template}': {str(e)}")
+
         # Use a flatter directory structure
         # If language organization is enabled, use language as the top-level directory
         if self.options.get("organize_by_language", True):
@@ -331,6 +357,54 @@ class MusicOrganizer(QObject):
 
         # Ensure unique filename
         return ensure_unique_filename(dest_path)
+
+    def _generate_path_from_template(self, file_info: Dict[str, Any], template: str) -> str:
+        """
+        Generate a relative path based on a template string.
+        Supported placeholders: {artist}, {title}, {album}, {year}, {genre}, {language}
+        """
+        metadata = file_info.get("metadata", {})
+
+        # Extract and sanitize metadata
+        artist = sanitize_filename(metadata.get("artist") or "Unknown Artist")
+        title = sanitize_filename(metadata.get("title") or "Unknown Title")
+        album = sanitize_filename(metadata.get("album") or "Unknown Album")
+        year = sanitize_filename(str(metadata.get("year", "")) or "Unknown Year")
+        genre = sanitize_filename(metadata.get("genre") or "Unknown Genre")
+
+        # Handle language
+        if "{language}" in template:
+            use_audio_lang = self.options.get("use_audio_language_detection", True)
+            if self.language_detection_available and use_audio_lang:
+                language = get_language_folder(file_info["path"], default="Unknown")
+            else:
+                language = sanitize_filename(metadata.get("language") or "Unknown")
+        else:
+            language = "Unknown"
+
+        # Replace placeholders
+        # We use a safe format that ignores missing keys if any, though we defined all common ones
+        path = template.replace("{artist}", artist)
+        path = path.replace("{title}", title)
+        path = path.replace("{album}", album)
+        path = path.replace("{year}", year)
+        path = path.replace("{genre}", genre)
+        path = path.replace("{language}", language)
+
+        # Add extension
+        ext = file_info.get("extension", "")
+        if not ext.startswith("."):
+            ext = "." + ext
+
+        if not path.endswith(ext):
+            path += ext
+
+        # Security check: ensure path is relative and doesn't contain traversal
+        path = path.replace("..", "")
+        while path.startswith("/") or path.startswith("\\"):
+            path = path[1:]
+
+        return path
 
     def _check_duplicate(
         self, file_info: Dict[str, Any], organized_files: List[Dict[str, Any]]

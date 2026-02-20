@@ -143,7 +143,8 @@ def clean_string(text: Optional[str]) -> str:
     text = text.strip()
 
     # Remove track numbers at beginning (e.g. "01 - ", "01.", "01 ", "[01]", etc.)
-    text = re.sub(r"^(\d+[\s\.\-\[\]_]*)", "", text)
+    # We require at least one separator character to avoid stripping years (e.g. "2023")
+    text = re.sub(r"^(\d+[\s\.\-\[\]_]+)", "", text)
 
     # Remove unnecessary brackets and parentheses along with their content
     text = re.sub(r"\([^\)]*\)", "", text)  # Remove (anything)

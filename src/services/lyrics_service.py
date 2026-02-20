@@ -82,7 +82,9 @@ class GeniusProvider(LyricsProvider):
 
             # Search for the song
             response = self.session.get(
-                "https://genius.com/api/search/multi", params={"q": f"{artist} {title}"}, timeout=10
+                "https://genius.com/api/search/multi",
+                params={"q": f"{artist} {title}"},  # type: ignore
+                timeout=10,
             )
 
             if response.status_code != 200:
@@ -195,7 +197,7 @@ class AZLyricsProvider(LyricsProvider):
                     # Found it
                     # Remove the comment and other non-lyrics text if present
                     # The usage comment is in a Comment object, get_text might skip it
-                    return div.get_text().strip()
+                    return str(div.get_text().strip())
 
             return None
 
@@ -232,7 +234,7 @@ class TekstowoProvider(LyricsProvider):
 
             # Search
             search_url = "https://www.tekstowo.pl/szukaj,wykonawca,tytul.html"
-            params = {"search-artist": artist, "search-title": title}
+            params = {"search-artist": artist, "search-title": title}  # type: ignore
 
             response = self.session.get(search_url, params=params, timeout=10)
             if response.status_code != 200:
@@ -307,7 +309,7 @@ class TekstowoProvider(LyricsProvider):
                 # Remove translation header if present (Tekstowo often has translation side by side or below)
                 # But typically main lyrics are in song-text.
 
-                return lyrics
+                return str(lyrics)
 
             return None
 
@@ -409,68 +411,66 @@ class LyricsService:
         Returns:
             bool: True if successful, False otherwise
         """
-        # Save LRC if requested
         if save_lrc_file:
             self.save_lrc(file_path, lyrics)
 
         try:
-            from mutagen import File
-            from mutagen.id3 import ID3, USLT
-
             path_obj = Path(file_path)
             extension = path_obj.suffix.lower()
 
             if extension == ".mp3":
-                # For MP3 files, use ID3 tags
-                try:
-                    tags = ID3(file_path)
-                except BaseException:
-                    tags = ID3()
-
-                # Remove existing lyrics
-                for key in list(tags.keys()):
-                    if key.startswith("USLT"):
-                        del tags[key]
-
-                # Add new lyrics
-                tags["USLT::eng"] = USLT(encoding=3, lang="eng", desc="", text=lyrics)
-
-                tags.save(path_obj)
-                logger.info(f"Embedded lyrics in {file_path}")
-                return True
-
+                return self._embed_mp3_lyrics(file_path, path_obj, lyrics)
             else:
-                # For other formats like FLAC, M4A, etc.
-                audio = File(file_path)
-
-                if audio is None:
-                    logger.error(f"Unsupported file format: {extension}")
-                    return False
-
-                # Different files have different tag names for lyrics
-                if hasattr(audio, "tags"):
-                    if extension == ".flac":
-                        audio["lyrics"] = lyrics
-                    elif extension == ".m4a" or extension == ".mp4":
-                        audio["\xa9lyr"] = lyrics
-                    elif extension in [".ogg", ".oga", ".opus"]:
-                        audio["LYRICS"] = lyrics
-                    else:
-                        # Try a common approach for other formats
-                        audio["lyrics"] = lyrics
-
-                    audio.save()
-                    logger.info(f"Embedded lyrics in {file_path}")
-                    return True
-                else:
-                    logger.error(f"File does not support tags: {file_path}")
-                    return False
+                return self._embed_generic_lyrics(file_path, extension, lyrics)
 
         except ImportError:
             logger.error("Mutagen library is required for embedding lyrics")
             return False
         except Exception as e:
             logger.error(f"Error embedding lyrics: {str(e)}")
+            return False
+
+    def _embed_mp3_lyrics(self, file_path, path_obj, lyrics):
+        from mutagen.id3 import ID3, USLT
+
+        try:
+            tags = ID3(file_path)
+        except BaseException:
+            tags = ID3()
+
+        for key in list(tags.keys()):
+            if key.startswith("USLT"):
+                del tags[key]
+
+        tags["USLT::eng"] = USLT(encoding=3, lang="eng", desc="", text=lyrics)
+        tags.save(path_obj)
+        logger.info(f"Embedded lyrics in {file_path}")
+        return True
+
+    def _embed_generic_lyrics(self, file_path, extension, lyrics):
+        from mutagen import File
+
+        audio = File(file_path)
+
+        if audio is None:
+            logger.error(f"Unsupported file format: {extension}")
+            return False
+
+        if hasattr(audio, "tags"):
+            if extension == ".flac":
+                audio["lyrics"] = lyrics
+            elif extension == ".m4a" or extension == ".mp4":
+                audio["\xa9lyr"] = lyrics
+            elif extension in [".ogg", ".oga", ".opus"]:
+                audio["LYRICS"] = lyrics
+            else:
+                audio["lyrics"] = lyrics
+
+            audio.save()
+            logger.info(f"Embedded lyrics in {file_path}")
+            return True
+        else:
+            logger.error(f"File does not support tags: {file_path}")
             return False
 
 

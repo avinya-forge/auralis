@@ -7,10 +7,12 @@ import os
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMessageBox,
     QPushButton,
     QVBoxLayout,
@@ -54,6 +56,43 @@ class OrganizeTab(QWidget):
         # Organization options
         org_group = QGroupBox("Organization Options")
         org_layout = QVBoxLayout(org_group)
+
+        # Directory Template
+        template_group = QGroupBox("Directory Structure Template")
+        template_layout = QVBoxLayout(template_group)
+
+        self.template_check = QCheckBox("Use Custom Directory Template")
+        self.template_check.setToolTip("Enable custom directory structure using placeholders")
+        template_layout.addWidget(self.template_check)
+
+        template_input_layout = QHBoxLayout()
+        self.template_input = QLineEdit()
+        self.template_input.setPlaceholderText("e.g. {artist}/{album}/{title}")
+        self.template_input.setEnabled(False)
+        template_input_layout.addWidget(self.template_input)
+
+        self.template_combo = QComboBox()
+        self.template_combo.addItems(
+            [
+                "Select Preset...",
+                "{artist}/{album}/{title}",
+                "{artist}/{year} - {album}/{title}",
+                "{genre}/{artist}/{album}/{title}",
+                "{language}/{artist}/{album}/{title}",
+                "{artist} - {title}",
+            ]
+        )
+        self.template_combo.setEnabled(False)
+        self.template_combo.currentIndexChanged.connect(self.on_template_preset_changed)
+        template_input_layout.addWidget(self.template_combo)
+
+        template_layout.addLayout(template_input_layout)
+
+        # Connect signals
+        self.template_check.toggled.connect(self.template_input.setEnabled)
+        self.template_check.toggled.connect(self.template_combo.setEnabled)
+
+        org_layout.addWidget(template_group)
 
         # Language-based organization
         self.lang_org_check = QCheckBox("Organize by Language")
@@ -128,6 +167,11 @@ class OrganizeTab(QWidget):
         if self.validate_destination():
             self.organize_requested.emit()
 
+    def on_template_preset_changed(self, index):
+        """Handle template preset selection"""
+        if index > 0:
+            self.template_input.setText(self.template_combo.currentText())
+
     def validate_destination(self):
         """Validate that a destination directory is selected"""
         if self.dest_label.text() == "No destination selected":
@@ -143,7 +187,7 @@ class OrganizeTab(QWidget):
 
     def get_options(self):
         """Get options relevant to this tab"""
-        return {
+        options = {
             "organize_by_language": self.lang_org_check.isChecked(),
             "use_audio_language_detection": self.audio_lang_detect_check.isChecked(),
             "detect_audio_similarity": self.audio_similarity_check.isChecked(),
@@ -151,3 +195,8 @@ class OrganizeTab(QWidget):
             "handle_duplicates": self.dup_check.isChecked(),
             "remove_empty_dirs": self.empty_dirs_check.isChecked(),
         }
+
+        if self.template_check.isChecked():
+            options["directory_template"] = self.template_input.text()
+
+        return options

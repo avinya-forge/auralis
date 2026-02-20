@@ -93,6 +93,34 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(args[2]["rename_files"], False)
         self.assertEqual(args[2]["organize_by_language"], True)  # Default
 
+    @patch("src.core.organizer.MusicOrganizer")
+    @patch("src.cli.cli_main._load_files")
+    def test_organize_command_with_template(self, mock_load_files, mock_organizer_cls):
+        """Test organize command with template"""
+        # Setup mock
+        organizer = mock_organizer_cls.return_value
+        organizer.organize_files.return_value = {"total_files": 1, "organized_files": 1}
+        organizer.progress_updated = MagicMock()
+        organizer.file_organized = MagicMock()
+        mock_load_files.return_value = [{"path": "test.mp3"}]
+
+        # Run CLI
+        test_args = [
+            "cli_main.py",
+            "organize",
+            "source_dir",
+            "dest_dir",
+            "--template",
+            "{artist}/{title}",
+        ]
+        with patch.object(sys, "argv", test_args):
+            run_cli()
+
+        # Verify options
+        args, kwargs = organizer.organize_files.call_args
+        options = args[2]
+        self.assertEqual(options["directory_template"], "{artist}/{title}")
+
     @patch("src.services.metadata_service.MetadataService")
     @patch("src.cli.cli_main._load_files")
     def test_metadata_command(self, mock_load_files, mock_metadata_cls):
@@ -121,6 +149,27 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(options["use_musicbrainz"], False)
         self.assertEqual(options["use_discogs"], True)  # Default
         self.assertEqual(options["force_update"], True)
+
+    @patch("src.services.metadata_service.MetadataService")
+    @patch("src.cli.cli_main._load_files")
+    def test_metadata_command_with_cover_art(self, mock_load_files, mock_metadata_cls):
+        """Test metadata command with cover art"""
+        # Setup mock
+        service = mock_metadata_cls.return_value
+        service.update_metadata.return_value = [{"path": "test.mp3", "metadata": {}}]
+        service.progress_updated = MagicMock()
+        service.file_updated = MagicMock()
+        mock_load_files.return_value = [{"path": "test.mp3"}]
+
+        # Run CLI
+        test_args = ["cli_main.py", "metadata", "source_dir", "--fetch-cover-art"]
+        with patch.object(sys, "argv", test_args):
+            run_cli()
+
+        # Verify options
+        args, kwargs = service.update_metadata.call_args
+        options = args[1]
+        self.assertEqual(options["fetch_cover_art"], True)
 
     def test_console_handler(self):
         """Test ConsoleHandler logic"""
