@@ -3,6 +3,7 @@ Stage 2: Organize Tab
 """
 
 import os
+from typing import Any, Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
@@ -28,12 +29,12 @@ class OrganizeTab(QWidget):
     dry_run_requested = pyqtSignal()
     organize_requested = pyqtSignal()
 
-    def __init__(self, parent=None, default_output_dir=""):
+    def __init__(self, parent: Optional[QWidget] = None, default_output_dir: str = "") -> None:
         super().__init__(parent)
         self.default_output_dir = default_output_dir
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Initialize the UI"""
         layout = QVBoxLayout(self)
 
@@ -96,7 +97,7 @@ class OrganizeTab(QWidget):
 
         # Language-based organization
         self.lang_org_check = QCheckBox("Organize by Language")
-        self.lang_org_check.setChecked(get_config("ORGANIZE_BY_LANGUAGE", True))
+        self.lang_org_check.setChecked(bool(get_config("ORGANIZE_BY_LANGUAGE", True)))
         org_layout.addWidget(self.lang_org_check)
 
         # Audio language detection checkbox
@@ -109,7 +110,7 @@ class OrganizeTab(QWidget):
 
         # Audio similarity detection
         self.audio_similarity_check = QCheckBox("Detect Similar Audio Content (Find Duplicates)")
-        self.audio_similarity_check.setChecked(get_config("DETECT_AUDIO_SIMILARITY", True))
+        self.audio_similarity_check.setChecked(bool(get_config("DETECT_AUDIO_SIMILARITY", True)))
         self.audio_similarity_check.setToolTip(
             "Analyzes audio content to find duplicate tracks regardless " "of filename or metadata"
         )
@@ -117,7 +118,7 @@ class OrganizeTab(QWidget):
 
         # Keep duplicates option
         self.keep_duplicates_check = QCheckBox("Keep All Duplicate Versions")
-        self.keep_duplicates_check.setChecked(get_config("KEEP_ALL_DUPLICATES", False))
+        self.keep_duplicates_check.setChecked(bool(get_config("KEEP_ALL_DUPLICATES", False)))
         self.keep_duplicates_check.setEnabled(self.audio_similarity_check.isChecked())
         self.keep_duplicates_check.setToolTip(
             "If unchecked, only the highest quality version of each duplicate " "will be kept"
@@ -128,12 +129,12 @@ class OrganizeTab(QWidget):
 
         # Duplicate handling
         self.dup_check = QCheckBox("Detect and Handle Duplicates")
-        self.dup_check.setChecked(get_config("HANDLE_DUPLICATES", True))
+        self.dup_check.setChecked(bool(get_config("HANDLE_DUPLICATES", True)))
         org_layout.addWidget(self.dup_check)
 
         # Remove empty directories
         self.empty_dirs_check = QCheckBox("Remove Empty Directories")
-        self.empty_dirs_check.setChecked(get_config("REMOVE_EMPTY_DIRS", True))
+        self.empty_dirs_check.setChecked(bool(get_config("REMOVE_EMPTY_DIRS", True)))
         org_layout.addWidget(self.empty_dirs_check)
 
         layout.addWidget(org_group)
@@ -151,28 +152,28 @@ class OrganizeTab(QWidget):
 
         layout.addLayout(btn_layout)
 
-    def select_destination(self):
+    def select_destination(self) -> None:
         """Select the destination directory"""
         directory = QFileDialog.getExistingDirectory(self, "Select Destination Directory")
         if directory:
             self.dest_label.setText(directory)
 
-    def on_dry_run_clicked(self):
+    def on_dry_run_clicked(self) -> None:
         """Handle dry run button click"""
         if self.validate_destination():
             self.dry_run_requested.emit()
 
-    def on_organize_clicked(self):
+    def on_organize_clicked(self) -> None:
         """Handle organize button click"""
         if self.validate_destination():
             self.organize_requested.emit()
 
-    def on_template_preset_changed(self, index):
+    def on_template_preset_changed(self, index: int) -> None:
         """Handle template preset selection"""
         if index > 0:
             self.template_input.setText(self.template_combo.currentText())
 
-    def validate_destination(self):
+    def validate_destination(self) -> bool:
         """Validate that a destination directory is selected"""
         if self.dest_label.text() == "No destination selected":
             QMessageBox.warning(
@@ -181,13 +182,13 @@ class OrganizeTab(QWidget):
             return False
         return True
 
-    def get_destination(self):
+    def get_destination(self) -> str:
         """Get the selected destination directory"""
-        return self.dest_label.text()
+        return str(self.dest_label.text())
 
-    def get_options(self):
+    def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
-        options = {
+        options: Dict[str, Any] = {
             "organize_by_language": self.lang_org_check.isChecked(),
             "use_audio_language_detection": self.audio_lang_detect_check.isChecked(),
             "detect_audio_similarity": self.audio_similarity_check.isChecked(),

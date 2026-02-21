@@ -3,6 +3,7 @@ Auralis - wxPython API Keys Dialog
 """
 
 import os
+from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
 
@@ -10,14 +11,15 @@ import wx  # type: ignore
 class APIKeysDialog(wx.Dialog):
     """Dialog for configuring API keys"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[wx.Window] = None) -> None:
         super().__init__(parent, title="Configure API Keys", size=(500, 600))
 
-        self.inputs = {}
+        self.inputs: Dict[str, Any] = {}
+        self.scrolled_panel: Optional[wx.ScrolledWindow] = None
         self.init_ui()
         self.CenterOnParent()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Initialize the UI"""
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -85,7 +87,15 @@ class APIKeysDialog(wx.Dialog):
 
         self.SetSizer(main_sizer)
 
-    def _add_api_section(self, parent, sizer, title, keys, description, url):
+    def _add_api_section(
+        self,
+        parent: wx.Window,
+        sizer: wx.Sizer,
+        title: str,
+        keys: List[str],
+        description: str,
+        url: str,
+    ) -> None:
         """Add a section for an API"""
         sb = wx.StaticBox(parent, label=title)
         box_sizer = wx.StaticBoxSizer(sb, wx.VERTICAL)
@@ -96,6 +106,7 @@ class APIKeysDialog(wx.Dialog):
         desc_sizer.Add(desc_text, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
 
         link_btn = wx.Button(parent, label="Get Key", size=(-1, 25))
+        # Note: We can't type check lambda properly here easily, but it's fine
         link_btn.Bind(wx.EVT_BUTTON, lambda evt: wx.LaunchDefaultBrowser(url))
         desc_sizer.Add(link_btn, 0, wx.LEFT, 10)
 
@@ -107,7 +118,7 @@ class APIKeysDialog(wx.Dialog):
 
         sizer.Add(box_sizer, 0, wx.EXPAND | wx.BOTTOM, 15)
 
-    def _add_input_row(self, parent, sizer, key):
+    def _add_input_row(self, parent: wx.Window, sizer: wx.Sizer, key: str) -> None:
         """Add a label and text input for a key"""
         row_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -136,7 +147,7 @@ class APIKeysDialog(wx.Dialog):
         # Store reference
         self.inputs[key] = text_ctrl
 
-    def on_save(self, event):
+    def on_save(self, event: Any) -> None:
         """Handle save button click"""
         # Save to environment variables for current session
         for key, text_ctrl in self.inputs.items():

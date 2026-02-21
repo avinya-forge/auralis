@@ -4,7 +4,7 @@ Auralis - PyQt6 Main Window Implementation
 
 import os
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QCloseEvent, QFont, QIcon
@@ -37,7 +37,7 @@ from src.utils.system_utils import SystemMonitor
 class MainWindow(QMainWindow):
     """Main window for the Auralis application - PyQt6 implementation"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.setWindowTitle("Auralis - Music File Management")
@@ -59,15 +59,15 @@ class MainWindow(QMainWindow):
         self.system_monitor = SystemMonitor()
 
         # Initialize data structures
-        self.scanned_files = []  # List of scanned file info dictionaries
-        self.file_errors = {}  # Dict to track errors by file path
+        self.scanned_files: List[Dict[str, Any]] = []  # List of scanned file info dictionaries
+        self.file_errors: Dict[str, str] = {}  # Dict to track errors by file path
 
         # Current stage tracking
         self.current_stage = 1  # Start at stage 1
 
         # Load default directories from configuration
-        self.default_input_dir = get_config("DEFAULT_INPUT_DIR", "")
-        self.default_output_dir = get_config("DEFAULT_OUTPUT_DIR", "")
+        self.default_input_dir = str(get_config("DEFAULT_INPUT_DIR", ""))
+        self.default_output_dir = str(get_config("DEFAULT_OUTPUT_DIR", ""))
 
         # Create example environment file if it doesn't exist
         if not create_env_example():
@@ -88,9 +88,9 @@ class MainWindow(QMainWindow):
         self.ui_timer.start(500)  # Update every 500ms
 
         # Worker thread
-        self.worker_thread = None
+        self.worker_thread: Optional[WorkerThread] = None
 
-    def closeEvent(self, event: Optional[QCloseEvent]):
+    def closeEvent(self, event: Optional[QCloseEvent]) -> None:
         """Handle window close event"""
         # Stop system monitoring
         self.system_monitor.stop_monitoring()
@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         if event:
             event.accept()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Set up the full user interface"""
         # Main widget and layout
         main_widget = QWidget()
@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
         # Set the central widget
         self.setCentralWidget(main_widget)
 
-    def setup_process_controls_ui(self, parent_layout):
+    def setup_process_controls_ui(self, parent_layout: QVBoxLayout) -> None:
         """Set up process controls UI"""
         process_group = QGroupBox("Process Control")
         process_layout = QVBoxLayout(process_group)
@@ -220,32 +220,34 @@ class MainWindow(QMainWindow):
 
         parent_layout.addWidget(process_group)
 
-    def set_default_directories(self):
+    def set_default_directories(self) -> None:
         """Set default directories from configuration"""
         # Add default input directory if it exists
         if self.default_input_dir and os.path.exists(self.default_input_dir):
             self.scan_tab.add_directory(self.default_input_dir)
 
-    def update_ui(self):
+    def update_ui(self) -> None:
         """Update UI elements that need regular updates"""
         # Only update if no worker thread is running
         if self.worker_thread is None or not self.worker_thread.isRunning():
             # Update system resource display if needed
             pass
 
-    def collect_source_dirs(self):
+    def collect_source_dirs(self) -> List[str]:
         """Collect all source directories from the list"""
         return self.scan_tab.collect_source_dirs()
 
-    def collect_options(self):
+    def collect_options(self) -> Dict[str, Any]:
         """Collect all options from UI controls"""
-        options = {}
+        options: Dict[str, Any] = {}
         options.update(self.scan_tab.get_options())
         options.update(self.organize_tab.get_options())
         options.update(self.metadata_tab.get_options())
         return options
 
-    def prepare_worker_thread(self, dry_run=False, start_stage=1, end_stage=3):
+    def prepare_worker_thread(
+        self, dry_run: bool = False, start_stage: int = 1, end_stage: int = 3
+    ) -> bool:
         """Prepare the worker thread with current settings"""
         # Collect source directories
         source_dirs = self.collect_source_dirs()
@@ -281,7 +283,7 @@ class MainWindow(QMainWindow):
 
         return True
 
-    def start_scan(self):
+    def start_scan(self) -> None:
         """Start the scanning process (Stage 1)"""
         # Prepare UI
         self.progress_bar.setValue(0)
@@ -290,9 +292,11 @@ class MainWindow(QMainWindow):
 
         # Prepare and start worker thread
         if self.prepare_worker_thread(start_stage=1, end_stage=1):
-            self.worker_thread.start()
+            # The check above creates the thread, now we start it
+            if self.worker_thread:
+                self.worker_thread.start()
 
-    def start_dry_run(self):
+    def start_dry_run(self) -> None:
         """Start a dry run of the organization process"""
         if not self.scan_tab.validate_source_directories():
             return
@@ -304,9 +308,10 @@ class MainWindow(QMainWindow):
 
         # Prepare and start worker thread
         if self.prepare_worker_thread(dry_run=True, start_stage=2, end_stage=2):
-            self.worker_thread.start()
+            if self.worker_thread:
+                self.worker_thread.start()
 
-    def start_organize(self):
+    def start_organize(self) -> None:
         """Start the organization process (Stage 2)"""
         if not self.scan_tab.validate_source_directories():
             return
@@ -318,9 +323,10 @@ class MainWindow(QMainWindow):
 
         # Prepare and start worker thread
         if self.prepare_worker_thread(start_stage=2, end_stage=2):
-            self.worker_thread.start()
+            if self.worker_thread:
+                self.worker_thread.start()
 
-    def start_metadata_update(self):
+    def start_metadata_update(self) -> None:
         """Start the metadata update process (Stage 3)"""
         if not self.scan_tab.validate_source_directories():
             return
@@ -332,9 +338,10 @@ class MainWindow(QMainWindow):
 
         # Prepare and start worker thread
         if self.prepare_worker_thread(start_stage=3, end_stage=3):
-            self.worker_thread.start()
+            if self.worker_thread:
+                self.worker_thread.start()
 
-    def run_all_stages(self):
+    def run_all_stages(self) -> None:
         """Run all stages of the process"""
         if (
             not self.scan_tab.validate_source_directories()
@@ -349,9 +356,10 @@ class MainWindow(QMainWindow):
 
         # Prepare and start worker thread
         if self.prepare_worker_thread(start_stage=1, end_stage=3):
-            self.worker_thread.start()
+            if self.worker_thread:
+                self.worker_thread.start()
 
-    def stop_processing(self):
+    def stop_processing(self) -> None:
         """Stop the current processing"""
         if self.worker_thread and self.worker_thread.isRunning():
             reply = QMessageBox.question(
@@ -367,31 +375,32 @@ class MainWindow(QMainWindow):
                 self.worker_thread.wait()
                 self.add_log_message("Processing stopped by user")
 
-    def update_progress(self, stage, current, total):
+    def update_progress(self, stage: int, current: int, total: int) -> None:
         """Update progress bar"""
         if total > 0:
             percent = int(current / total * 100)
             self.progress_bar.setValue(percent)
             self.stage_label.setText(f"{stage}: {current}/{total} ({percent}%)")
 
-    def update_status(self, message):
+    def update_status(self, message: str) -> None:
         """Update status label"""
         self.stage_label.setText(message)
         self.add_log_message(message)
 
-    def update_current_file(self, file_info):
+    def update_current_file(self, file_info: str) -> None:
         """Update current file being processed"""
         self.current_file_label.setText(file_info)
 
-    def add_log_message(self, message):
+    def add_log_message(self, message: str) -> None:
         """Add a message to the log"""
         timestamp = time.strftime("%H:%M:%S")
         self.log_text.append(f"[{timestamp}] {message}")
         # Scroll to bottom
         sb = self.log_text.verticalScrollBar()
-        sb.setValue(sb.maximum())
+        if sb:
+            sb.setValue(sb.maximum())
 
-    def processing_completed(self, results: Dict[str, Any]):
+    def processing_completed(self, results: Dict[str, Any]) -> None:
         """Handle completion of processing"""
         # Check for errors
         if "error" in results:

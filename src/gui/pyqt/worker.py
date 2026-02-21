@@ -3,6 +3,7 @@ Worker Thread for Auralis PyQt6 Main Window
 """
 
 import traceback
+from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import QThread, pyqtSignal
 
@@ -27,16 +28,16 @@ class WorkerThread(QThread):
 
     def __init__(
         self,
-        source_dirs,
-        dest_dir,
-        options,
-        system_monitor,
-        limit_files=None,
-        dry_run=False,
-        start_stage=1,
-        end_stage=3,
-        active_stages=None,
-    ):
+        source_dirs: List[str],
+        dest_dir: str,
+        options: Dict[str, Any],
+        system_monitor: Any,
+        limit_files: Optional[int] = None,
+        dry_run: bool = False,
+        start_stage: int = 1,
+        end_stage: int = 3,
+        active_stages: Optional[List[int]] = None,
+    ) -> None:
         super().__init__()
         self.source_dirs = source_dirs
         self.dest_dir = dest_dir
@@ -52,19 +53,19 @@ class WorkerThread(QThread):
             self.active_stages = list(range(start_stage, end_stage + 1))
 
         # Results and tracking
-        self.processed_files = []  # List of files processed in dry run
-        self.file_errors = {}  # Dict to track errors by file path
-        self.scanned_files = []  # List of file info dicts from scan stage
+        self.processed_files: List[str] = []  # List of files processed in dry run
+        self.file_errors: Dict[str, str] = {}  # Dict to track errors by file path
+        self.scanned_files: List[Dict[str, Any]] = []  # List of file info dicts from scan stage
 
         # Initialize components
         self.scanner = MusicScanner()
         self.metadata_service = MetadataService()
         self.organizer = MusicOrganizer(dry_run=dry_run)
 
-    def run(self):
+    def run(self) -> None:
         """Run the multi-stage processing workflow"""
         try:
-            results = {
+            results: Dict[str, Any] = {
                 "success": False,
                 "files_processed": 0,
                 "stages_completed": [],
@@ -93,7 +94,7 @@ class WorkerThread(QThread):
             self.status_updated.emit(f"Error: {str(e)}")
             self.completed.emit({"error": str(e), "success": False})
 
-    def _run_scan_stage(self, results):
+    def _run_scan_stage(self, results: Dict[str, Any]) -> None:
         self.status_updated.emit("Starting scan...")
 
         # Connect scanner signals
@@ -123,7 +124,7 @@ class WorkerThread(QThread):
             self.scanned_files = self.scanned_files[: self.limit_files]
             self.status_updated.emit(f"Limiting to {self.limit_files} files for processing.")
 
-    def _run_organize_stage(self, results):
+    def _run_organize_stage(self, results: Dict[str, Any]) -> None:
         if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
             self.status_updated.emit("Skipping organize: No files scanned.")
             return
@@ -156,7 +157,7 @@ class WorkerThread(QThread):
             results["organize_stats"] = org_results
             self.status_updated.emit("Organization completed.")
 
-    def _run_metadata_stage(self, results):
+    def _run_metadata_stage(self, results: Dict[str, Any]) -> None:
         if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
             self.status_updated.emit("Skipping metadata: No files scanned.")
             return
@@ -191,20 +192,20 @@ class WorkerThread(QThread):
             results["stages_completed"].append(self.STAGE_METADATA)
             self.status_updated.emit("Metadata update completed.")
 
-    def _on_scan_progress(self, current, total):
+    def _on_scan_progress(self, current: int, total: int) -> None:
         self.progress_updated.emit("Scanning", current, total)
 
-    def _on_scan_file(self, file_path):
+    def _on_scan_file(self, file_path: str) -> None:
         self.file_updated.emit(f"Scanning: {file_path}")
 
-    def _on_organize_progress(self, current, total):
+    def _on_organize_progress(self, current: int, total: int) -> None:
         self.progress_updated.emit("Organizing", current, total)
 
-    def _on_organize_file(self, src, dest):
+    def _on_organize_file(self, src: str, dest: str) -> None:
         self.file_updated.emit(f"Organizing: {src} -> {dest}")
 
-    def _on_metadata_progress(self, current, total):
+    def _on_metadata_progress(self, current: int, total: int) -> None:
         self.progress_updated.emit("Metadata", current, total)
 
-    def _on_metadata_file(self, file_path):
+    def _on_metadata_file(self, file_path: str) -> None:
         self.file_updated.emit(f"Updating metadata: {file_path}")

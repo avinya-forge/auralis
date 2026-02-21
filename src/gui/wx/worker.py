@@ -4,6 +4,7 @@ Worker Thread for Auralis wxPython Main Window
 
 import threading
 import traceback
+from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
 
@@ -23,17 +24,17 @@ class WorkerThread(threading.Thread):
 
     def __init__(
         self,
-        window,
-        source_dirs,
-        dest_dir,
-        options,
-        system_monitor,
-        limit_files=None,
-        dry_run=False,
-        start_stage=1,
-        end_stage=3,
-        active_stages=None,
-    ):
+        window: Any,
+        source_dirs: List[str],
+        dest_dir: str,
+        options: Dict[str, Any],
+        system_monitor: Any,
+        limit_files: Optional[int] = None,
+        dry_run: bool = False,
+        start_stage: int = 1,
+        end_stage: int = 3,
+        active_stages: Optional[List[int]] = None,
+    ) -> None:
         super().__init__()
         self.window = window  # The window to post events to
         self.source_dirs = source_dirs
@@ -52,7 +53,7 @@ class WorkerThread(threading.Thread):
         self.daemon = True  # Daemon thread exits when main thread exits
 
         # Results and tracking
-        self.scanned_files = []
+        self.scanned_files: List[Dict[str, Any]] = []
 
         # Initialize components
         # Note: These components use QObject, so they need a QCoreApplication instance
@@ -64,14 +65,14 @@ class WorkerThread(threading.Thread):
         # Stop flag
         self._stop_event = threading.Event()
 
-    def stop(self):
+    def stop(self) -> None:
         """Signal the worker to stop"""
         self._stop_event.set()
 
-    def run(self):
+    def run(self) -> None:
         """Run the multi-stage processing workflow"""
         try:
-            results = {
+            results: Dict[str, Any] = {
                 "success": False,
                 "files_processed": 0,
                 "stages_completed": [],
@@ -106,7 +107,7 @@ class WorkerThread(threading.Thread):
             self._post_status(f"Error: {str(e)}")
             self._post_completed({"error": str(e), "success": False})
 
-    def _run_scan_stage(self, results):
+    def _run_scan_stage(self, results: Dict[str, Any]) -> None:
         self._post_status("Starting scan...")
 
         # Connect scanner signals
@@ -138,7 +139,7 @@ class WorkerThread(threading.Thread):
             self.scanned_files = self.scanned_files[: self.limit_files]
             self._post_status(f"Limiting to {self.limit_files} files for processing.")
 
-    def _run_organize_stage(self, results):
+    def _run_organize_stage(self, results: Dict[str, Any]) -> None:
         if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
             self._post_status("Skipping organize: No files scanned.")
             return
@@ -169,7 +170,7 @@ class WorkerThread(threading.Thread):
             results["organize_stats"] = org_results
             self._post_status("Organization completed.")
 
-    def _run_metadata_stage(self, results):
+    def _run_metadata_stage(self, results: Dict[str, Any]) -> None:
         if not self.scanned_files and self.STAGE_SCAN not in self.active_stages:
             self._post_status("Skipping metadata: No files scanned.")
             return
@@ -203,34 +204,34 @@ class WorkerThread(threading.Thread):
 
     # --- Event Posting Helpers ---
 
-    def _post_progress(self, stage, current, total):
+    def _post_progress(self, stage: str, current: int, total: int) -> None:
         wx.PostEvent(self.window, ProgressEvent(stage=stage, current=current, total=total))
 
-    def _post_status(self, message):
+    def _post_status(self, message: str) -> None:
         wx.PostEvent(self.window, StatusEvent(message=message))
 
-    def _post_file(self, file_path):
+    def _post_file(self, file_path: str) -> None:
         wx.PostEvent(self.window, FileEvent(file_path=file_path))
 
-    def _post_completed(self, results):
+    def _post_completed(self, results: Dict[str, Any]) -> None:
         wx.PostEvent(self.window, CompletionEvent(results=results))
 
     # --- Signal Handlers (Bridge) ---
 
-    def _on_scan_progress(self, current, total):
+    def _on_scan_progress(self, current: int, total: int) -> None:
         self._post_progress("Scanning", current, total)
 
-    def _on_scan_file(self, file_path):
+    def _on_scan_file(self, file_path: str) -> None:
         self._post_file(f"Scanning: {file_path}")
 
-    def _on_organize_progress(self, current, total):
+    def _on_organize_progress(self, current: int, total: int) -> None:
         self._post_progress("Organizing", current, total)
 
-    def _on_organize_file(self, src, dest):
+    def _on_organize_file(self, src: str, dest: str) -> None:
         self._post_file(f"Organizing: {src} -> {dest}")
 
-    def _on_metadata_progress(self, current, total):
+    def _on_metadata_progress(self, current: int, total: int) -> None:
         self._post_progress("Metadata", current, total)
 
-    def _on_metadata_file(self, file_path):
+    def _on_metadata_file(self, file_path: str) -> None:
         self._post_file(f"Updating metadata: {file_path}")
