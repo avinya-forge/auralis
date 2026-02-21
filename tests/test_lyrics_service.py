@@ -263,6 +263,7 @@ class TestLyricsService:
 
         # Patch sys.modules to inject mutagen.id3
         import sys
+
         with patch.dict(sys.modules, {"mutagen.id3": mock_mutagen_id3}):
             result = service.embed_lyrics("song.mp3", "Lyrics", save_lrc_file=True)
 

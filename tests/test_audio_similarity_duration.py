@@ -1,66 +1,106 @@
+import importlib
 import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Mock dependencies strictly before importing service
-# This ensures consistency regardless of installed packages
-mock_modules = [
-    "numpy",
-    "mutagen",
-    "librosa",
-    "soundfile",
-    "sklearn",
-    "sklearn.metrics.pairwise",
-    "pydub"
-]
-
-for mod in mock_modules:
-    sys.modules[mod] = MagicMock()
-
-# Now import the service
-from src.services.audio_similarity_service import AudioSimilarityService  # noqa: E402
-
 
 class TestAudioSimilarityDuration(unittest.TestCase):
-    def setUp(self):
-        self.service = AudioSimilarityService()
-        self.service.available = True
 
     def test_find_duplicates_duration_extraction(self):
         """Test that duration is extracted using mutagen if missing from metadata"""
+
         # Setup mocks
+        mock_numpy = MagicMock()
+        mock_mutagen = MagicMock()
+        mock_librosa = MagicMock()
+        mock_soundfile = MagicMock()
+        mock_sklearn = MagicMock()
+        mock_pydub = MagicMock()
+
+        # Config mock mutagen.File
         mock_audio = MagicMock()
         mock_audio.info.length = 120.5
+        mock_mutagen.File.return_value = mock_audio
 
-        # We need to patch the mutagen.File that the service imported
-        # Since we mocked sys.modules['mutagen'], the service has that Mock object.
-        # We can configure that Mock object directly.
-        sys.modules["mutagen"].File.return_value = mock_audio
+        mocks = {
+            "numpy": mock_numpy,
+            "mutagen": mock_mutagen,
+            "librosa": mock_librosa,
+            "soundfile": mock_soundfile,
+            "sklearn": mock_sklearn,
+            "sklearn.metrics": MagicMock(),
+            "sklearn.metrics.pairwise": MagicMock(),
+            "pydub": mock_pydub,
+        }
 
-        music_files = [
-            {"path": "file1.mp3", "metadata": {}},
-            {"path": "file2.mp3", "metadata": {"duration": 120.0}},
-        ]
+        # Apply patches and reload module
+        with patch.dict(sys.modules, mocks):
+            if "src.services.audio_similarity_service" in sys.modules:
+                del sys.modules["src.services.audio_similarity_service"]
 
-        # Mock compute_fingerprint to avoid logic beyond duration extraction
-        with patch.object(self.service, "compute_fingerprint", return_value=None):
-            self.service.find_duplicates(music_files)
+            import src.services.audio_similarity_service
 
-        # Verify mutagen.File was called for file1.mp3
-        sys.modules["mutagen"].File.assert_any_call("file1.mp3")
+            importlib.reload(src.services.audio_similarity_service)
+
+            service = src.services.audio_similarity_service.AudioSimilarityService()
+            # Force availability
+            service.available = True
+
+            music_files = [
+                {"path": "file1.mp3", "metadata": {}},
+                {"path": "file2.mp3", "metadata": {"duration": 120.0}},
+            ]
+
+            # Mock compute_fingerprint
+            with patch.object(service, "compute_fingerprint", return_value=None):
+                service.find_duplicates(music_files)
+
+            # Verify mutagen.File was called for file1.mp3 via our injected mock
+            mock_mutagen.File.assert_any_call("file1.mp3")
+
+        # Cleanup
+        if "src.services.audio_similarity_service" in sys.modules:
+            del sys.modules["src.services.audio_similarity_service"]
 
     def test_find_duplicates_missing_duration_skips_file(self):
         """Test that files without duration are skipped"""
-        # Mock mutagen.File returning None (simulation of failure/no audio)
-        sys.modules["mutagen"].File.return_value = None
 
-        music_files = [{"path": "file1.mp3", "metadata": {}}]
+        mock_mutagen = MagicMock()
+        # Mock mutagen.File returning None
+        mock_mutagen.File.return_value = None
 
-        # Mock logger
-        with patch("src.services.audio_similarity_service.logger"):
-            duplicates = self.service.find_duplicates(music_files)
+        mocks = {
+            "mutagen": mock_mutagen,
+            "numpy": MagicMock(),
+            "librosa": MagicMock(),
+            "soundfile": MagicMock(),
+            "sklearn": MagicMock(),
+            "sklearn.metrics.pairwise": MagicMock(),
+            "pydub": MagicMock(),
+        }
 
-        self.assertEqual(duplicates, [])
+        with patch.dict(sys.modules, mocks):
+            if "src.services.audio_similarity_service" in sys.modules:
+                del sys.modules["src.services.audio_similarity_service"]
+
+            import src.services.audio_similarity_service
+
+            importlib.reload(src.services.audio_similarity_service)
+
+            service = src.services.audio_similarity_service.AudioSimilarityService()
+            service.available = True
+
+            music_files = [{"path": "file1.mp3", "metadata": {}}]
+
+            # Mock logger
+            with patch("src.services.audio_similarity_service.logger"):
+                duplicates = service.find_duplicates(music_files)
+
+            self.assertEqual(duplicates, [])
+
+        # Cleanup
+        if "src.services.audio_similarity_service" in sys.modules:
+            del sys.modules["src.services.audio_similarity_service"]
 
 
 if __name__ == "__main__":

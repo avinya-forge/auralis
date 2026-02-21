@@ -1,107 +1,152 @@
+import importlib
 import sys
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 import pytest
 
-# Mock dependencies
-modules_to_mock = [
-    "librosa",
-    "soundfile",
-    "sklearn",
-    "sklearn.metrics",
-    "sklearn.metrics.pairwise",
-    "pydub",
-]
-for module in modules_to_mock:
-    if module not in sys.modules:
-        sys.modules[module] = MagicMock()
 
-# Import after mocking
-from src.services.audio_similarity_service import AudioSimilarityService  # noqa: E402
+# Helper to create a mock module with a class for type checking
+def create_mock_module_with_class(class_name):
+    mock_module = MagicMock()
+    mock_type = type(class_name, (MagicMock,), {})
+    setattr(mock_module, class_name, mock_type)
+    return mock_module
 
 
 class TestAudioSimilarityService:
 
     @pytest.fixture
-    def service(self):
-        """Fixture to provide a fresh service instance with mocked availability"""
-        # Force availability to True for testing logic
-        with patch.object(AudioSimilarityService, "__init__", return_value=None):
-            service = AudioSimilarityService()
+    def mock_dependencies(self):
+        """Fixture to mock dependencies and ensure clean import"""
+        # Create mocks that support type checking
+        mock_numpy = MagicMock()
+        mock_numpy.ndarray = type("ndarray", (MagicMock,), {})
+        # Ensure std returns a float to avoid comparison errors
+        mock_numpy.std.return_value = 1.0
+
+        mock_mutagen = MagicMock()
+        mock_librosa = MagicMock()
+        mock_soundfile = MagicMock()
+        mock_sklearn = MagicMock()
+        mock_pydub = MagicMock()
+
+        mocks = {
+            "numpy": mock_numpy,
+            "mutagen": mock_mutagen,
+            "librosa": mock_librosa,
+            "soundfile": mock_soundfile,
+            "sklearn": mock_sklearn,
+            "sklearn.metrics": MagicMock(),
+            "sklearn.metrics.pairwise": MagicMock(),
+            "pydub": mock_pydub,
+        }
+
+        # Apply patches
+        with patch.dict(sys.modules, mocks):
+            # We must remove the service from sys.modules to force reload with mocked deps
+            if "src.services.audio_similarity_service" in sys.modules:
+                del sys.modules["src.services.audio_similarity_service"]
+
+            import src.services.audio_similarity_service
+
+            importlib.reload(src.services.audio_similarity_service)
+
+            yield src.services.audio_similarity_service
+
+        # Cleanup: Remove the service to avoid polluting other tests with mocked version
+        if "src.services.audio_similarity_service" in sys.modules:
+            del sys.modules["src.services.audio_similarity_service"]
+
+    @pytest.fixture
+    def service(self, mock_dependencies):
+        """Fixture to provide a fresh service instance"""
+        service_cls = mock_dependencies.AudioSimilarityService
+
+        # Force availability logic since we are controlling the environment
+        with patch.object(service_cls, "__init__", return_value=None):
+            service = service_cls()
             service.available = True
             service.fingerprint_cache = {}
             service.similarity_threshold = 0.85
             return service
 
-    def test_initialization(self):
+    def test_initialization(self, mock_dependencies):
         """Test initialization logic"""
-        # Test when dependencies are available
-        with patch("src.services.audio_similarity_service.HAS_AUDIO_FINGERPRINTING", True):
-            service = AudioSimilarityService()
-            assert service.available is True
-            assert service.similarity_threshold == 0.85
+        # We need to manually trigger logic since we mocked __init__ in the other fixture
+        # Here we test the real __init__ but with controlled HAS_AUDIO_FINGERPRINTING
+
+        # Test when dependencies are available (default in our mock env)
+        # Note: The module logic sets HAS_AUDIO_FINGERPRINTING on import based on imports success
+        # Since we mocked imports successfully, it should be True
+
+        service = mock_dependencies.AudioSimilarityService()
+        assert service.available is True
+        assert service.similarity_threshold == 0.85
 
         # Test when dependencies are missing
-        with patch("src.services.audio_similarity_service.HAS_AUDIO_FINGERPRINTING", False):
-            service = AudioSimilarityService()
+        # We need to simulate import failure.
+        # This is hard with the current fixture structure.
+        # Simpler: just patch the HAS_AUDIO_FINGERPRINTING constant
+        with patch.object(mock_dependencies, "HAS_AUDIO_FINGERPRINTING", False):
+            service = mock_dependencies.AudioSimilarityService()
             assert service.available is False
 
-    def test_compute_fingerprint(self, service):
+    def test_compute_fingerprint(self, service, mock_dependencies):
         """Test fingerprint computation"""
-        # Configure np mock to return numbers for std to avoid comparison errors
-        np.std.return_value = 1.0
+        # Mock librosa functions via the module mock we injected
+        mock_librosa = sys.modules["librosa"]
+        mock_numpy = sys.modules["numpy"]
 
-        # Mock librosa functions
-        with patch("src.services.audio_similarity_service.librosa") as mock_librosa:
-            # Setup mocks
-            mock_librosa.load.return_value = (np.zeros(100), 22050)
-            mock_librosa.feature.melspectrogram.return_value = np.zeros((128, 100))
-            mock_librosa.power_to_db.return_value = np.zeros((128, 100))
+        # Setup mocks
+        mock_librosa.load.return_value = (mock_numpy.zeros(100), 22050)
+        mock_librosa.feature.melspectrogram.return_value = mock_numpy.zeros((128, 100))
+        mock_librosa.power_to_db.return_value = mock_numpy.zeros((128, 100))
 
-            # Call method
-            fingerprint = service.compute_fingerprint("test.mp3")
+        # Call method
+        fingerprint = service.compute_fingerprint("test.mp3")
 
-            # Verify calls
-            mock_librosa.load.assert_called_with("test.mp3", sr=22050, mono=True, duration=60)
-            mock_librosa.feature.melspectrogram.assert_called()
-            mock_librosa.power_to_db.assert_called()
+        # Verify calls
+        mock_librosa.load.assert_called_with("test.mp3", sr=22050, mono=True, duration=60)
+        mock_librosa.feature.melspectrogram.assert_called()
+        mock_librosa.power_to_db.assert_called()
 
-            # Verify result
-            assert isinstance(fingerprint, np.ndarray) or isinstance(fingerprint, MagicMock)
+        # Verify result
+        assert isinstance(fingerprint, mock_numpy.ndarray) or isinstance(fingerprint, MagicMock)
 
-    def test_compute_similarity(self, service):
+    def test_compute_similarity(self, service, mock_dependencies):
         """Test similarity computation"""
-        fp1 = np.random.rand(128)
-        fp2 = np.random.rand(128)
+        mock_numpy = sys.modules["numpy"]
+        mock_cosine = sys.modules["sklearn.metrics.pairwise"].cosine_similarity
 
-        with patch("src.services.audio_similarity_service.cosine_similarity") as mock_cosine:
-            # Mock return value of cosine_similarity: [[0.9]]
-            mock_cosine.return_value = [[0.9]]
+        fp1 = mock_numpy.random.rand(128)
+        fp2 = mock_numpy.random.rand(128)
 
-            similarity = service.compute_similarity(fp1, fp2)
+        # Mock return value of cosine_similarity: [[0.9]]
+        mock_cosine.return_value = [[0.9]]
 
-            assert similarity == 0.9
-            mock_cosine.assert_called()
+        similarity = service.compute_similarity(fp1, fp2)
+
+        assert similarity == 0.9
+        mock_cosine.assert_called()
 
     def test_find_duplicates_empty(self, service):
         """Test finding duplicates with empty input"""
         assert service.find_duplicates([]) == []
 
-    def test_find_duplicates_no_duration(self, service):
+    def test_find_duplicates_no_duration(self, service, mock_dependencies):
         """Test finding duplicates when duration is missing and pydub fails"""
         files = [{"path": "test.mp3", "metadata": {}}]
 
-        with patch(
-            "src.services.audio_similarity_service.pydub.AudioSegment.from_file",
-            side_effect=Exception("Error"),
-        ):
-            assert service.find_duplicates(files) == []
+        mock_pydub = sys.modules["pydub"]
+        mock_pydub.AudioSegment.from_file.side_effect = Exception("Error")
 
-    def test_find_duplicates_logic(self, service):
+        assert service.find_duplicates(files) == []
+
+    def test_find_duplicates_logic(self, service, mock_dependencies):
         """Test the core duplicate finding logic"""
+        mock_numpy = sys.modules["numpy"]
+
         # Setup files
-        # Group 1: Two similar files (duplicates)
         file1 = {
             "path": "song1.mp3",
             "metadata": {"duration": 180, "bitrate": 128000},
@@ -112,16 +157,14 @@ class TestAudioSimilarityService:
             "metadata": {"duration": 182, "bitrate": 320000},
             "size": 2000,
         }
-
-        # Group 2: One unique file
         file3 = {"path": "song2.mp3", "metadata": {"duration": 240}, "size": 1500}
 
         files = [file1, file2, file3]
 
-        # Mock compute_fingerprint to return consistent fingerprints
-        fp1 = np.ones(128)
-        fp2 = np.ones(128)  # Identical to fp1
-        fp3 = np.zeros(128)  # Different
+        # Mock compute_fingerprint
+        fp1 = mock_numpy.ones(128)
+        fp2 = mock_numpy.ones(128)
+        fp3 = mock_numpy.zeros(128)
 
         def mock_compute_fp(path):
             if path == "song1.mp3":
@@ -135,8 +178,12 @@ class TestAudioSimilarityService:
         service.compute_fingerprint = MagicMock(side_effect=mock_compute_fp)
 
         # Mock compute_similarity
+        # We need to mock it on the service instance because we replaced the class method
+        # Actually in `find_duplicates` it calls `self.compute_similarity`.
+
         def mock_compute_sim(f1, f2):
-            if np.array_equal(f1, fp1) and np.array_equal(f2, fp2):
+            # Simple identity check for test
+            if f1 is f2 or (f1 is fp1 and f2 is fp2):  # simplified equality
                 return 0.95
             return 0.1
 
@@ -147,15 +194,12 @@ class TestAudioSimilarityService:
 
         # Verify
         assert len(duplicates) == 1
-        # The group should contain file1 and file2
-        # file2 has higher bitrate (320k vs 128k) and size (2000 vs 1000), so it should be first (best quality)
         assert len(duplicates[0]) == 2
         assert duplicates[0][0]["path"] == "song1_copy.mp3"
         assert duplicates[0][1]["path"] == "song1.mp3"
 
     def test_sort_by_quality(self, service):
         """Test quality sorting logic"""
-        # file1: flac, high bitrate
         file1 = {
             "path": "song.flac",
             "metadata": {
@@ -167,7 +211,6 @@ class TestAudioSimilarityService:
             },
             "size": 10000000,
         }
-        # file2: mp3, low bitrate
         file2 = {
             "path": "song.mp3",
             "metadata": {"duration": 180, "bitrate": 128000},

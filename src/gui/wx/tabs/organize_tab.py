@@ -13,9 +13,7 @@ from src.utils.config import get_config
 class OrganizeTab(wx.Panel):
     """Tab for Stage 2: Organize"""
 
-    def __init__(
-        self, parent: Optional[wx.Window] = None, default_output_dir: str = ""
-    ) -> None:
+    def __init__(self, parent: Optional[wx.Window] = None, default_output_dir: str = "") -> None:
         super().__init__(parent)
         self.default_output_dir = default_output_dir
         self.init_ui()
