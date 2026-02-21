@@ -42,9 +42,9 @@
 **Focus:** Expanding capabilities based on the Vision (Deep Metadata, Fluid UI).
 
 ### Epic 4: Advanced Metadata (Deep Dive)
-- [MET-001] | Implement `BioProvider` interface in `src/services/bio_service.py` | [INDEPENDENT] | [TODO]
-- [MET-002] | Implement `LastFmBioProvider` using `pylast` | [BLOCKS-MET-001] | [TODO]
-- [MET-003] | Implement `WikipediaBioProvider` using `beautifulsoup4` | [BLOCKS-MET-001] | [TODO]
+- [MET-001] | Implement `BioProvider` interface in `src/services/bio_service.py` | [INDEPENDENT] | [DONE]
+- [MET-002] | Implement `LastFmBioProvider` using `pylast` | [BLOCKS-MET-001] | [DONE]
+- [MET-003] | Implement `WikipediaBioProvider` using `beautifulsoup4` | [BLOCKS-MET-001] | [DONE]
 - [MET-004] | Integrate Bio Service into `MetadataService` pipeline | [BLOCKS-MET-002, MET-003] | [TODO]
 - [MET-005] | Implement `LyricsProvider` interface | [INDEPENDENT] | [TODO]
 - [MET-006] | Implement `GeniusLyricsProvider` | [BLOCKS-MET-005] | [TODO]

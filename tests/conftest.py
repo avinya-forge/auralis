@@ -149,8 +149,8 @@ for lib in [
     "PIL",
     "PIL.Image",
     "PIL.ImageTk",
-    "requests",
-    "bs4",
+    # "requests",  # Removed requests and bs4 as they are core dependencies
+    # "bs4",
     "lxml",
     "langdetect",
     "speech_recognition",

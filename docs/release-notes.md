@@ -107,3 +107,12 @@
     *   Added Google-style docstrings to `src/core/scanner.py`.
     *   Added Google-style docstrings to `src/services/metadata_service.py`.
     *   Added Google-style docstrings to `src/gui/wx/main_window.py`.
+
+## Iteration: Swift-Executor-01/BioService
+*   **Epic 4: Advanced Metadata**:
+    *   Implemented `BioService` module (`src/services/bio_service.py`) for artist biography retrieval.
+    *   Implemented `BioProvider` interface with `get_bio` method.
+    *   Implemented `LastFmBioProvider` using optional `pylast` dependency (MET-002).
+    *   Implemented `WikipediaBioProvider` using `beautifulsoup4` and `requests` with fallback logic (MET-003).
+    *   Created comprehensive unit tests for `BioService` and its providers (`tests/test_services_bio_service.py`).
+    *   Updated `tests/conftest.py` to promote `requests` and `bs4` to core dependencies for testing.
