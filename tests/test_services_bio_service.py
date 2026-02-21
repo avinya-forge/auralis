@@ -6,9 +6,6 @@ import os
 import unittest
 from unittest.mock import MagicMock, patch
 
-import pytest
-from bs4 import BeautifulSoup
-
 from src.services.bio_service import BioService, LastFmBioProvider, WikipediaBioProvider
 
 
@@ -70,7 +67,7 @@ class TestWikipediaBioProvider(unittest.TestCase):
         mock_response_success.status_code = 200
         mock_response_success.content = b"""
         <div id="mw-content-text">
-            <p>A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes successfully.</p>
+            <p>A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes.</p>
         </div>
         """
 
@@ -78,7 +75,10 @@ class TestWikipediaBioProvider(unittest.TestCase):
 
         bio = self.provider.get_bio("Common Name")
 
-        self.assertEqual(bio, "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes successfully.")
+        self.assertEqual(
+            bio,
+            "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes.",
+        )
         self.assertEqual(mock_get.call_count, 2)
 
 
@@ -88,7 +88,9 @@ class TestLastFmBioProvider(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         # Reset environment
-        self.env_patcher = patch.dict(os.environ, {"LASTFM_API_KEY": "test_key", "LASTFM_API_SECRET": "test_secret"})
+        self.env_patcher = patch.dict(
+            os.environ, {"LASTFM_API_KEY": "test_key", "LASTFM_API_SECRET": "test_secret"}
+        )
         self.env_patcher.start()
 
     def tearDown(self):
@@ -119,7 +121,9 @@ class TestLastFmBioProvider(unittest.TestCase):
         # Mock network and artist
         mock_network = MagicMock()
         mock_artist = MagicMock()
-        mock_artist.get_bio_summary.return_value = "Test bio. <a href='...'>Read more on Last.fm</a>"
+        mock_artist.get_bio_summary.return_value = (
+            "Test bio. <a href='...'>Read more on Last.fm</a>"
+        )
 
         provider.network = mock_network
         mock_network.get_artist.return_value = mock_artist
