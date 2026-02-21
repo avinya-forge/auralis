@@ -5,6 +5,7 @@ import pytest
 # Helper to ensure we can mock imports before they happen
 # We need to mock langdetect, speech_recognition, and pydub before importing the service
 
+
 class TestLanguageService:
 
     @pytest.fixture

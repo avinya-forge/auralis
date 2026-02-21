@@ -1,12 +1,12 @@
-import os
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from PyQt6.QtCore import QCoreApplication
 
 from src.core.scanner import MusicScanner
 
 # Ensure QCoreApplication exists
 app = QCoreApplication.instance() or QCoreApplication([])
+
 
 class TestScannerEdgeCases(unittest.TestCase):
     def setUp(self):
