@@ -37,6 +37,7 @@ class TestLanguageService:
                 del sys.modules["src.services.language_service"]
 
             import src.services.language_service
+
             yield src.services.language_service
 
     @pytest.fixture
