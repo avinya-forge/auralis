@@ -152,6 +152,8 @@ for lib in [
     "requests",
     "bs4",
     "lxml",
+    "langdetect",
+    "speech_recognition",
 ]:
     if lib not in sys.modules:
         sys.modules[lib] = MagicMock()
