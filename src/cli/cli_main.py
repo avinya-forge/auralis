@@ -13,9 +13,9 @@ from src.utils.dependency_checker import DependencyChecker
 
 # Optional tqdm import
 try:
-    from tqdm import tqdm  # type: ignore
+    from tqdm import tqdm
 except ImportError:
-    tqdm = None
+    tqdm = None  # type: ignore
 
 # Optional PyQt6 import to allow 'check' command to run without dependencies
 try:

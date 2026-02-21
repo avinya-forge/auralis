@@ -397,7 +397,8 @@ class MainWindow(QMainWindow):
         self.log_text.append(f"[{timestamp}] {message}")
         # Scroll to bottom
         sb = self.log_text.verticalScrollBar()
-        sb.setValue(sb.maximum())
+        if sb:
+            sb.setValue(sb.maximum())
 
     def processing_completed(self, results: Dict[str, Any]) -> None:
         """Handle completion of processing"""
