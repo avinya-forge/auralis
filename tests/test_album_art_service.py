@@ -2,9 +2,11 @@
 Unit tests for Album Art Service
 """
 
-from unittest.mock import MagicMock, patch
 from io import BytesIO
+from unittest.mock import MagicMock, patch
+
 from PIL import Image
+
 from src.services.album_art_service import AlbumArtFetcher
 
 

@@ -3,7 +3,9 @@ Unit tests for Lyrics Providers (Musixmatch)
 """
 
 from unittest.mock import MagicMock, patch
+
 import pytest
+
 from src.services.lyrics_service import MusixmatchLyricsProvider
 
 

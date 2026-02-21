@@ -21,10 +21,11 @@ import mutagen.id3
 import mutagen.mp3
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src.services.album_art_service import AlbumArtFetcher
+from src.services.bio_service import BioService
+
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics
-from src.services.bio_service import BioService
-from src.services.album_art_service import AlbumArtFetcher
 
 # Optional dependencies
 try:
