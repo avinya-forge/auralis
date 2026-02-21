@@ -273,7 +273,7 @@ class TestMetadataService:
         # Patch init methods to avoid real network/file calls
         with patch.object(MetadataService, "_init_sources"), patch.object(
             MetadataService, "_load_stats"
-        ):
+        ), patch("src.services.metadata_service.BioService"):
             service = MetadataService()
             # Manually add mock sources
             service.sources = {}
@@ -342,3 +342,25 @@ class TestMetadataService:
 
                 # Verify result update
                 assert result[0]["metadata"]["title"] == "New Title"
+
+    @patch("src.services.metadata_service.BioService")
+    def test_finalize_file_update_with_bio(self, mock_bio_service_cls, service):
+        """Test finalizing file update with bio fetching enabled"""
+        # Setup mock bio service
+        mock_bio_service = mock_bio_service_cls.return_value
+        mock_bio_service.get_artist_bio.return_value = "Test Bio"
+        service.bio_service = mock_bio_service
+
+        file_info = {"path": "test.mp3", "metadata": {"artist": "Test Artist"}}
+        options = {"fetch_bio": True}
+
+        # Mock other methods called in _finalize_file_update
+        with patch.object(service, "_download_cover_art"), \
+             patch.object(service, "_apply_metadata_to_file"), \
+             patch.object(service, "_fetch_and_embed_lyrics"):
+
+            service._finalize_file_update(file_info, file_info["metadata"], options)
+
+            # Verify bio was fetched
+            mock_bio_service.get_artist_bio.assert_called_with("Test Artist")
+            assert file_info["metadata"]["bio"] == "Test Bio"
