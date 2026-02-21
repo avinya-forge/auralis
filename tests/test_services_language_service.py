@@ -1,5 +1,6 @@
 import sys
 from unittest.mock import MagicMock, patch
+
 import pytest
 
 # Helper to ensure we can mock imports before they happen

@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+
 from PyQt6.QtCore import QCoreApplication
 
 from src.core.scanner import MusicScanner
