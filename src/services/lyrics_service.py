@@ -10,6 +10,7 @@ import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 import requests  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
@@ -318,6 +319,86 @@ class TekstowoProvider(LyricsProvider):
             return None
 
 
+class MusixmatchLyricsProvider(LyricsProvider):
+    """Lyrics provider for Musixmatch.com"""
+
+    def __init__(self, session: requests.Session) -> None:
+        super().__init__(session)
+        self.name = "Musixmatch"
+        self.user_agent = (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/91.0.4472.124 Safari/537.36"
+        )
+
+    def get_lyrics(self, artist: str, title: str) -> Optional[str]:
+        """Fetch lyrics from Musixmatch"""
+        try:
+            # Clean names
+            artist = self._clean_name(artist)
+            title = self._clean_name(title)
+
+            # Search
+            query = f"{artist} {title}"
+            search_url = f"https://www.musixmatch.com/search/{quote(query)}"
+
+            headers = {"User-Agent": self.user_agent}
+
+            response = self.session.get(search_url, headers=headers, timeout=10)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Find first result
+            # Typically in ul class="tracks" -> li -> div class="media-card-body" -> a class="title"
+            title_link = soup.find("a", class_="title")
+
+            if title_link and title_link.get("href"):
+                link = title_link.get("href")
+                return self._fetch_lyrics_from_path(str(link))
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error fetching from Musixmatch: {str(e)}")
+            return None
+
+    def _fetch_lyrics_from_path(self, path: str) -> Optional[str]:
+        """Fetch lyrics from Musixmatch path"""
+        try:
+            if not path.startswith("http"):
+                url = f"https://www.musixmatch.com{path}"
+            else:
+                url = path
+
+            headers = {"User-Agent": self.user_agent}
+
+            response = self.session.get(url, headers=headers, timeout=10)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.text, "html.parser")
+
+            # Lyrics are in spans with class "lyrics__content__ok" or "lyrics__content__error" or just "lyrics__content"
+            # Musixmatch often splits lyrics into multiple spans
+
+            lyrics_spans = soup.find_all("span", class_="lyrics__content__ok")
+            if not lyrics_spans:
+                # Fallback
+                lyrics_spans = soup.find_all("span", class_=lambda x: x and "lyrics__content" in x)
+
+            if lyrics_spans:
+                lyrics_parts = [span.get_text() for span in lyrics_spans]
+                return "\n".join(lyrics_parts)
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Error parsing Musixmatch lyrics: {str(e)}")
+            return None
+
+
 class LyricsService:
     """Service for fetching lyrics and embedding them in audio files"""
 
@@ -337,6 +418,7 @@ class LyricsService:
         self.register_provider(GeniusProvider(self.session))
         self.register_provider(AZLyricsProvider(self.session))
         self.register_provider(TekstowoProvider(self.session))
+        self.register_provider(MusixmatchLyricsProvider(self.session))
 
     def register_provider(self, provider: LyricsProvider) -> None:
         """Register a lyrics provider"""

@@ -19,8 +19,10 @@ import mutagen
 import mutagen.flac
 import mutagen.id3
 import mutagen.mp3
-import requests  # type: ignore
 from PyQt6.QtCore import QObject, pyqtSignal
+
+from src.services.album_art_service import AlbumArtFetcher
+from src.services.bio_service import BioService
 
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics
@@ -694,6 +696,9 @@ class MetadataService(QObject):
         # Initialize sources
         self._init_sources()
 
+        # Initialize bio service
+        self.bio_service = BioService()
+
         # Load saved statistics if available
         self._load_stats()
 
@@ -1043,7 +1048,7 @@ class MetadataService(QObject):
         """Finalize file update by downloading cover art, embedding lyrics, and applying tags."""
         # Fetch cover art
         if options.get("fetch_cover_art", False) and "cover_art_url" in metadata:
-            self._download_cover_art(file_info, metadata)
+            self._download_cover_art(file_info, metadata, options)
 
         # Apply metadata to file
         self.file_updated.emit(f"{file_info['path']} (updating file)")
@@ -1056,17 +1061,38 @@ class MetadataService(QObject):
                 file_info["path"], metadata, options.get("save_lrc", False)
             )
 
+        # Fetch bio if enabled
+        if options.get("fetch_bio", False) and "artist" in metadata:
+            self.file_updated.emit(f"{file_info['path']} (fetching artist bio)")
+            bio = self.bio_service.get_artist_bio(metadata["artist"])
+            if bio:
+                metadata["bio"] = bio
+
         # Emit signal
         self.metadata_updated.emit(file_info["path"], metadata)
 
-    def _download_cover_art(self, file_info: Dict[str, Any], metadata: Dict[str, Any]) -> None:
+    def _download_cover_art(
+        self, file_info: Dict[str, Any], metadata: Dict[str, Any], options: Dict[str, Any]
+    ) -> None:
         """Download cover art from URL."""
         self.file_updated.emit(f"{file_info['path']} (downloading cover art)")
         try:
-            response = requests.get(metadata["cover_art_url"], timeout=10)
-            if response.status_code == 200:
-                metadata["cover_art"] = response.content
-                metadata["cover_art_mime"] = response.headers.get("Content-Type", "image/jpeg")
+            min_size = options.get("min_cover_art_size", (500, 500))
+            # Ensure tuple if list passed from JSON config
+            if isinstance(min_size, list):
+                min_size = tuple(min_size)
+
+            result = AlbumArtFetcher.fetch_art(metadata["cover_art_url"], min_size=min_size)
+
+            if result:
+                image_data, mime_type = result
+                metadata["cover_art"] = image_data
+                metadata["cover_art_mime"] = mime_type
+            else:
+                print(
+                    f"Cover art fetch failed or skipped (size/error): {metadata['cover_art_url']}"
+                )
+
         except Exception as e:
             print(f"Error downloading cover art: {str(e)}")
 
@@ -1140,6 +1166,12 @@ class MetadataService(QObject):
         if "track" in metadata:
             audio["TRCK"] = mutagen.id3.TRCK(encoding=3, text=metadata["track"])
 
+        if "bio" in metadata:
+            # Add bio as comment (eng)
+            audio["COMM::eng"] = mutagen.id3.COMM(
+                encoding=3, lang="eng", desc="Bio", text=metadata["bio"]
+            )
+
         if "cover_art" in metadata:
             mime = metadata.get("cover_art_mime", "image/jpeg")
             audio["APIC"] = mutagen.id3.APIC(
@@ -1165,6 +1197,9 @@ class MetadataService(QObject):
         if "track" in metadata:
             audio["tracknumber"] = metadata["track"]
 
+        if "bio" in metadata:
+            audio["DESCRIPTION"] = metadata["bio"]
+
         if "cover_art" in metadata:
             picture = mutagen.flac.Picture()
             picture.data = metadata["cover_art"]
@@ -1178,6 +1213,8 @@ class MetadataService(QObject):
         for key, value in metadata.items():
             if key in ["artist", "title", "album", "year", "genre", "track"]:
                 audio[key] = value
+            elif key == "bio":
+                audio["comment"] = value
 
     def _fetch_and_embed_lyrics(
         self, file_path: str, metadata: Dict[str, Any], save_lrc: bool = False

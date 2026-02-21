@@ -146,9 +146,9 @@ for lib in [
     "musicbrainzngs",
     "spotipy",
     "pylast",
-    "PIL",
-    "PIL.Image",
-    "PIL.ImageTk",
+    # "PIL",  # Removed PIL as it is a core dependency
+    # "PIL.Image",
+    # "PIL.ImageTk",
     # "requests",  # Removed requests and bs4 as they are core dependencies
     # "bs4",
     "lxml",
