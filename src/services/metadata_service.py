@@ -1088,7 +1088,9 @@ class MetadataService(QObject):
                 metadata["cover_art"] = image_data
                 metadata["cover_art_mime"] = mime_type
             else:
-                print(f"Cover art fetch failed or skipped (size/error): {metadata['cover_art_url']}")
+                print(
+                    f"Cover art fetch failed or skipped (size/error): {metadata['cover_art_url']}"
+                )
 
         except Exception as e:
             print(f"Error downloading cover art: {str(e)}")

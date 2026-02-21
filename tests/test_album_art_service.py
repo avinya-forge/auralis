@@ -14,9 +14,9 @@ class TestAlbumArtFetcher:
     def test_fetch_art_success(self, mock_get):
         """Test successful art fetch"""
         # Create a valid image
-        img = Image.new('RGB', (600, 600), color='red')
+        img = Image.new("RGB", (600, 600), color="red")
         img_byte_arr = BytesIO()
-        img.save(img_byte_arr, format='JPEG')
+        img.save(img_byte_arr, format="JPEG")
         img_bytes = img_byte_arr.getvalue()
 
         mock_response = MagicMock()
@@ -36,9 +36,9 @@ class TestAlbumArtFetcher:
     def test_fetch_art_too_small(self, mock_get):
         """Test filtering of small images"""
         # Create a small image
-        img = Image.new('RGB', (400, 400), color='red')
+        img = Image.new("RGB", (400, 400), color="red")
         img_byte_arr = BytesIO()
-        img.save(img_byte_arr, format='JPEG')
+        img.save(img_byte_arr, format="JPEG")
         img_bytes = img_byte_arr.getvalue()
 
         mock_response = MagicMock()

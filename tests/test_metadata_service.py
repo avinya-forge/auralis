@@ -355,9 +355,9 @@ class TestMetadataService:
         options = {"fetch_bio": True}
 
         # Mock other methods called in _finalize_file_update
-        with patch.object(service, "_download_cover_art"), \
-             patch.object(service, "_apply_metadata_to_file"), \
-             patch.object(service, "_fetch_and_embed_lyrics"):
+        with patch.object(service, "_download_cover_art"), patch.object(
+            service, "_apply_metadata_to_file"
+        ), patch.object(service, "_fetch_and_embed_lyrics"):
 
             service._finalize_file_update(file_info, file_info["metadata"], options)
 
