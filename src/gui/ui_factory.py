@@ -5,7 +5,7 @@ This module provides a factory for creating UI components, supporting multiple b
 """
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 from src.utils.config import is_macos, is_windows
 

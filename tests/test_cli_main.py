@@ -1,8 +1,8 @@
+import argparse
+import os
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
-import sys
-import os
-import argparse
 
 # Mock dependencies before imports
 sys.modules['mutagen'] = MagicMock()
@@ -12,6 +12,7 @@ sys.modules['mutagen.flac'] = MagicMock()
 # Mock PyQt6 if not available
 if 'PyQt6' not in sys.modules:
     mock_qt_core = MagicMock()
+
     # Define a proper class for QObject to allow inheritance
     class MockQObject:
         def __init__(self, *args, **kwargs):
@@ -28,11 +29,11 @@ if 'PyQt6' not in sys.modules:
 # Add src to path if needed
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.cli.cli_main import setup_parser, run_cli, run_scan, run_organize
-
 # Import modules to ensure they are available for patching
-import src.core.scanner
-import src.core.organizer
+import src.core.organizer  # noqa: E402, F401
+import src.core.scanner  # noqa: E402, F401
+from src.cli.cli_main import run_cli, run_organize, run_scan, setup_parser  # noqa: E402
+
 
 class TestCLIMain(unittest.TestCase):
     def test_setup_parser(self):
@@ -66,8 +67,8 @@ class TestCLIMain(unittest.TestCase):
             with patch('logging.basicConfig'):
                 # Mock HAS_PYQT to True to pass the check
                 with patch('src.cli.cli_main.HAS_PYQT', True):
-                     run_cli()
-                     mock_run_scan.assert_called_once()
+                    run_cli()
+                    mock_run_scan.assert_called_once()
 
     @patch('src.core.scanner.MusicScanner')
     def test_run_scan(self, MockScanner):
@@ -112,6 +113,7 @@ class TestCLIMain(unittest.TestCase):
             run_organize(args)
 
         mock_organizer.organize_files.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()

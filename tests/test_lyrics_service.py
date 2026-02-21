@@ -251,8 +251,19 @@ class TestLyricsService:
         """Test embedding lyrics with save_lrc option"""
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
-        # Mock ID3
-        with patch("mutagen.id3.ID3"):
+
+        # Setup mock for ID3
+        mock_id3_instance = MagicMock()
+        # Ensure keys() works and returns a list
+        mock_id3_instance.keys.return_value = ["USLT::eng"]
+
+        # Create a mock module for mutagen.id3
+        mock_mutagen_id3 = MagicMock()
+        mock_mutagen_id3.ID3.return_value = mock_id3_instance
+
+        # Patch sys.modules to inject mutagen.id3
+        import sys
+        with patch.dict(sys.modules, {"mutagen.id3": mock_mutagen_id3}):
             result = service.embed_lyrics("song.mp3", "Lyrics", save_lrc_file=True)
 
         assert result is True
