@@ -20,22 +20,22 @@
 
 ### Epic 2: Test Fortress (95% Coverage)
 - [TST-001] | Create `tests/test_cli_main.py` using `unittest.mock` | [INDEPENDENT] | [DONE]
-- [TST-002] | Create `tests/test_gui_wx_main_window.py` with mock wx controls | [INDEPENDENT] | [TODO]
-- [TST-003] | Create `tests/test_gui_wx_tabs_scan.py` | [INDEPENDENT] | [TODO]
-- [TST-004] | Create `tests/test_gui_wx_tabs_organize.py` | [INDEPENDENT] | [TODO]
-- [TST-005] | Create `tests/test_gui_wx_tabs_metadata.py` | [INDEPENDENT] | [TODO]
-- [TST-006] | Create `tests/test_services_audio_similarity.py` (mock librosa) | [INDEPENDENT] | [TODO]
-- [TST-007] | Create `tests/test_services_language_service.py` (mock langdetect) | [INDEPENDENT] | [TODO]
-- [TST-008] | Create `tests/test_core_scanner_edge_cases.py` (permission errors, corrupt files) | [INDEPENDENT] | [TODO]
-- [TST-009] | Implement `conftest.py` with global mocks for optional deps | [INDEPENDENT] | [TODO]
+- [TST-002] | Create `tests/test_gui_wx_main_window.py` with mock wx controls | [INDEPENDENT] | [DONE]
+- [TST-003] | Create `tests/test_gui_wx_tabs_scan.py` | [INDEPENDENT] | [DONE]
+- [TST-004] | Create `tests/test_gui_wx_tabs_organize.py` | [INDEPENDENT] | [DONE]
+- [TST-005] | Create `tests/test_gui_wx_tabs_metadata.py` | [INDEPENDENT] | [DONE]
+- [TST-006] | Create `tests/test_services_audio_similarity.py` (mock librosa) | [INDEPENDENT] | [DONE]
+- [TST-007] | Create `tests/test_services_language_service.py` (mock langdetect) | [INDEPENDENT] | [DONE]
+- [TST-008] | Create `tests/test_core_scanner_edge_cases.py` (permission errors, corrupt files) | [INDEPENDENT] | [DONE]
+- [TST-009] | Implement `conftest.py` with global mocks for optional deps | [INDEPENDENT] | [DONE]
 - [TST-010] | Configure CI to fail if coverage < 95% | [INDEPENDENT] | [TODO]
 
 ### Epic 3: Lint Zero & Documentation
-- [LNT-001] | Fix all `flake8` warnings in `src/gui` | [INDEPENDENT] | [TODO]
-- [LNT-002] | Fix all `flake8` warnings in `src/cli` | [INDEPENDENT] | [TODO]
-- [DOC-001] | Add Google-style docstrings to `src/core/scanner.py` | [INDEPENDENT] | [TODO]
-- [DOC-002] | Add Google-style docstrings to `src/services/metadata_service.py` | [INDEPENDENT] | [TODO]
-- [DOC-003] | Add Google-style docstrings to `src/gui/wx/main_window.py` | [INDEPENDENT] | [TODO]
+- [LNT-001] | Fix all `flake8` warnings in `src/gui` | [INDEPENDENT] | [DONE]
+- [LNT-002] | Fix all `flake8` warnings in `src/cli` | [INDEPENDENT] | [DONE]
+- [DOC-001] | Add Google-style docstrings to `src/core/scanner.py` | [INDEPENDENT] | [DONE]
+- [DOC-002] | Add Google-style docstrings to `src/services/metadata_service.py` | [INDEPENDENT] | [DONE]
+- [DOC-003] | Add Google-style docstrings to `src/gui/wx/main_window.py` | [INDEPENDENT] | [DONE]
 - [DOC-004] | Update `README.md` with new badge status | [INDEPENDENT] | [TODO]
 
 ## Phase 2: Feature Enhancement (Metadata & UI)
