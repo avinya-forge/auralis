@@ -325,6 +325,11 @@ class MusixmatchLyricsProvider(LyricsProvider):
     def __init__(self, session: requests.Session) -> None:
         super().__init__(session)
         self.name = "Musixmatch"
+        self.user_agent = (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/91.0.4472.124 Safari/537.36"
+        )
 
     def get_lyrics(self, artist: str, title: str) -> Optional[str]:
         """Fetch lyrics from Musixmatch"""
@@ -337,9 +342,7 @@ class MusixmatchLyricsProvider(LyricsProvider):
             query = f"{artist} {title}"
             search_url = f"https://www.musixmatch.com/search/{quote(query)}"
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
+            headers = {"User-Agent": self.user_agent}
 
             response = self.session.get(search_url, headers=headers, timeout=10)
             if response.status_code != 200:
@@ -369,9 +372,7 @@ class MusixmatchLyricsProvider(LyricsProvider):
             else:
                 url = path
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
+            headers = {"User-Agent": self.user_agent}
 
             response = self.session.get(url, headers=headers, timeout=10)
             if response.status_code != 200:

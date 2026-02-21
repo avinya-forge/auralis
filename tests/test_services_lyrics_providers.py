@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from src.services.lyrics_service import MusixmatchLyricsProvider
 
+
 class TestMusixmatchLyricsProvider:
     @pytest.fixture
     def provider(self):

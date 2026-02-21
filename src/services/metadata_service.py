@@ -19,7 +19,6 @@ import mutagen
 import mutagen.flac
 import mutagen.id3
 import mutagen.mp3
-import requests  # type: ignore
 from PyQt6.QtCore import QObject, pyqtSignal
 
 # Import lyrics service

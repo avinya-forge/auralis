@@ -5,8 +5,8 @@ Unit tests for Album Art Service
 from unittest.mock import MagicMock, patch
 from io import BytesIO
 from PIL import Image
-import pytest
 from src.services.album_art_service import AlbumArtFetcher
+
 
 class TestAlbumArtFetcher:
 
