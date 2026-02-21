@@ -19,6 +19,7 @@
 - [INF-005] | Update CI workflow to run linting and type checks | [DONE]
 
 ##### Epic 2: Test Fortress (Coverage & Resilience)
+- [TST-001] | Create `tests/test_cli_main.py` using `unittest.mock` | [DONE]
 - [TST-001] | Add unit tests for `src/utils/config.py` (env loading, defaults) | [DONE]
 - [TST-002] | Add unit tests for `src/gui/wx/dialogs/api_keys_dialog.py` | [DONE]
 - [TST-003] | Add unit tests for `src/gui/wx/main_window.py` (layout structure verification) | [DONE]
@@ -30,7 +31,20 @@
 - [TST-009] | Add mocked tests for `setup_language_detection.py` script | [DONE]
 
 ##### Epic 3: Type Safety & Code Quality
-- [TYP-001] | Add strict type hints to `src/utils/config.py` | [DONE]
+- [TYP-001] | Enable `disallow_untyped_defs = True` in `mypy.ini` for `src.core` | [DONE]
+- [TYP-002] | Resolve type errors in `src/core/scanner.py` | [DONE]
+- [TYP-003] | Enable `disallow_untyped_defs = True` in `mypy.ini` for `src.services` | [DONE]
+- [TYP-004] | Resolve type errors in `src/services/metadata_service.py` | [DONE]
+- [TYP-005] | Resolve type errors in `src/services/lyrics_service.py` | [DONE]
+- [TYP-006] | Enable `disallow_untyped_defs = True` in `mypy.ini` for `src.utils` | [DONE]
+- [TYP-007] | Resolve type errors in `src/utils/file_utils.py` | [DONE]
+- [TYP-008] | Resolve type errors in `src/utils/system_utils.py` | [DONE]
+- [TYP-009] | Enable strict typing for `src.gui` (remove ignore) | [DONE]
+- [TYP-010] | Resolve type errors in `src/gui/wx/main_window.py` | [DONE]
+- [TYP-011] | Resolve type errors in `src/gui/wx/tabs/*.py` | [DONE]
+- [TYP-012] | Enable strict typing for `src.cli` (remove ignore) | [DONE]
+- [TYP-013] | Resolve type errors in `src/cli/cli_main.py` | [DONE]
+- [TYP-001-Legacy] | Add strict type hints to `src/utils/config.py` | [DONE]
 - [DOC-001] | Add Google-style docstrings to `src/utils/config.py` | [DONE]
 
 ### Added (Previous Unreleased Work)
@@ -71,3 +85,11 @@
         -   Added test suite for `create_env.py` script verifying environment setup logic.
         -   Added test suite for setup scripts (`setup_audio_similarity.py`, `setup_language_detection.py`) mocking dependency checks and system interactions.
         -   Consolidated and verified `tests/test_ui_factory.py`, `tests/test_utils.py`, `tests/test_wx_worker.py` ensuring comprehensive coverage.
+    -   **Consolidated Batch Updates (Iteration 4 - Unified Typing & CLI Tests):**
+        -   **Strict Typing Enforcement (100% Coverage):**
+            -   Enabled `disallow_untyped_defs = True` for `src.gui` (PyQt6 & wxPython) and `src.cli`.
+            -   Resolved 150+ MyPy errors across `src/gui/pyqt`, `src/gui/wx`, and `src/cli/cli_main.py`.
+            -   Added comprehensive type hints to `WorkerThread`, `MainWindow`, and all Tab components.
+        -   **Test Fortress Expansion:**
+            -   Implemented `tests/test_cli_main.py` covering `scan` and `organize` commands with mocked dependencies (`MusicScanner`, `MusicOrganizer`).
+            -   Verified CLI functionality in headless environment via unit tests.

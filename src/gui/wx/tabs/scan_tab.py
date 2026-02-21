@@ -2,6 +2,8 @@
 Stage 1: Scan & Rename Tab (wxPython)
 """
 
+from typing import Any, Dict, List, Optional
+
 import wx  # type: ignore
 
 from src.utils.config import get_config
@@ -10,11 +12,11 @@ from src.utils.config import get_config
 class ScanTab(wx.Panel):
     """Tab for Stage 1: Scan & Rename"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[wx.Window] = None) -> None:
         super().__init__(parent)
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Initialize the UI"""
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -47,19 +49,19 @@ class ScanTab(wx.Panel):
             wx.StaticText(self, label="File Extensions:"), 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5
         )
         self.extensions_edit = wx.TextCtrl(
-            self, value=get_config("FILE_EXTENSIONS", "mp3,flac,m4a,wav,aac,ogg,wma")
+            self, value=str(get_config("FILE_EXTENSIONS", "mp3,flac,m4a,wav,aac,ogg,wma"))
         )
         ext_sizer.Add(self.extensions_edit, 1, wx.EXPAND)
         options_sizer.Add(ext_sizer, 0, wx.EXPAND | wx.ALL, 5)
 
         # Rename options
         self.rename_check = wx.CheckBox(self, label="Rename Files (Title - Artist format)")
-        self.rename_check.SetValue(get_config("RENAME_FILES", True))
+        self.rename_check.SetValue(bool(get_config("RENAME_FILES", True)))
         options_sizer.Add(self.rename_check, 0, wx.ALL, 5)
 
         # Test mode
         self.test_mode_check = wx.CheckBox(self, label="Test Mode (Process only a subset of files)")
-        self.test_mode_check.SetValue(get_config("TEST_MODE_ENABLED", True))
+        self.test_mode_check.SetValue(bool(get_config("TEST_MODE_ENABLED", True)))
         options_sizer.Add(self.test_mode_check, 0, wx.ALL, 5)
 
         # Number of test files
@@ -71,7 +73,7 @@ class ScanTab(wx.Panel):
             5,
         )
         self.test_files_spin = wx.SpinCtrl(
-            self, min=1, max=100, initial=get_config("TEST_MODE_FILE_COUNT", 10)
+            self, min=1, max=100, initial=int(get_config("TEST_MODE_FILE_COUNT", 10))
         )
         test_files_sizer.Add(self.test_files_spin, 0)
         options_sizer.Add(test_files_sizer, 0, wx.ALL, 5)
@@ -85,7 +87,7 @@ class ScanTab(wx.Panel):
 
         self.SetSizer(main_sizer)
 
-    def on_add_source(self, event):
+    def on_add_source(self, event: Any) -> None:
         """Add a source directory to scan"""
         dlg = wx.DirDialog(
             self, "Select Source Directory", style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
@@ -94,18 +96,18 @@ class ScanTab(wx.Panel):
             self.add_directory(dlg.GetPath())
         dlg.Destroy()
 
-    def add_directory(self, path):
+    def add_directory(self, path: str) -> None:
         """Add a directory path to the list"""
         if self.source_list.FindString(path) == wx.NOT_FOUND:
             self.source_list.Append(path)
 
-    def on_remove_source(self, event):
+    def on_remove_source(self, event: Any) -> None:
         """Remove the selected source directory"""
         selection = self.source_list.GetSelection()
         if selection != wx.NOT_FOUND:
             self.source_list.Delete(selection)
 
-    def on_scan_clicked(self, event):
+    def on_scan_clicked(self, event: Any) -> None:
         """Handle scan button click"""
         if self.validate_source_directories():
             # Notify parent or allow event to bubble up if handled there
@@ -115,7 +117,7 @@ class ScanTab(wx.Panel):
             # For now, let's just let the event propagate.
             event.Skip()
 
-    def validate_source_directories(self):
+    def validate_source_directories(self) -> bool:
         """Validate that source directories are selected"""
         if self.source_list.GetCount() == 0:
             wx.MessageBox(
@@ -126,11 +128,11 @@ class ScanTab(wx.Panel):
             return False
         return True
 
-    def collect_source_dirs(self):
+    def collect_source_dirs(self) -> List[str]:
         """Collect all source directories from the list"""
-        return self.source_list.GetStrings()
+        return list(self.source_list.GetStrings())
 
-    def get_options(self):
+    def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
         return {
             "rename_files": self.rename_check.GetValue(),

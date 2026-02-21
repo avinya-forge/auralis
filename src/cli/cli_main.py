@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import sys
+from typing import Any, Dict, List, Optional
 
 from src.utils.dependency_checker import DependencyChecker
 
@@ -35,15 +36,15 @@ except ImportError:
 class ConsoleHandler(QObject):
     """Handles console output and progress bars"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.progress_bar = None
+        self.progress_bar: Any = None
 
-    def on_progress_updated(self, current, total):
+    def on_progress_updated(self, current: int, total: int) -> None:
         """Handle progress updates"""
         if tqdm is None:
             # Fallback if tqdm is missing
-            if current % 10 == 0 or current == total:
+            if total > 0 and (current % 10 == 0 or current == total):
                 print(f"Progress: {current}/{total}")
             return
 
@@ -61,7 +62,7 @@ class ConsoleHandler(QObject):
             self.progress_bar.close()
             self.progress_bar = None
 
-    def on_file_scanned(self, file_path):
+    def on_file_scanned(self, file_path: str) -> None:
         """Handle file scanned event"""
         if self.progress_bar:
             filename = os.path.basename(file_path)
@@ -69,7 +70,7 @@ class ConsoleHandler(QObject):
                 filename = filename[:27] + "..."
             self.progress_bar.set_description(f"Scanning: {filename}")
 
-    def on_file_organized(self, src, dest):
+    def on_file_organized(self, src: str, dest: str) -> None:
         """Handle file organized event"""
         if self.progress_bar:
             filename = os.path.basename(src)
@@ -77,7 +78,7 @@ class ConsoleHandler(QObject):
                 filename = filename[:27] + "..."
             self.progress_bar.set_description(f"Organizing: {filename}")
 
-    def on_file_updated(self, path):
+    def on_file_updated(self, path: str) -> None:
         """Handle file updated event (metadata)"""
         if self.progress_bar:
             filename = os.path.basename(path)
@@ -85,14 +86,14 @@ class ConsoleHandler(QObject):
                 filename = filename[:27] + "..."
             self.progress_bar.set_description(f"Processing: {filename}")
 
-    def close(self):
+    def close(self) -> None:
         """Close progress bar if open"""
         if self.progress_bar:
             self.progress_bar.close()
             self.progress_bar = None
 
 
-def setup_parser():
+def setup_parser() -> argparse.ArgumentParser:
     """Setup command line argument parser"""
     parser = argparse.ArgumentParser(description="Auralis - Music File Management CLI")
 
@@ -166,7 +167,7 @@ def setup_parser():
     return parser
 
 
-def run_cli():
+def run_cli() -> None:
     """Run the CLI application"""
     # Ensure headless mode for Qt
     if not os.environ.get("QT_QPA_PLATFORM"):
@@ -212,7 +213,7 @@ def run_cli():
         run_metadata(args)
 
 
-def run_scan(args):
+def run_scan(args: argparse.Namespace) -> None:
     """Execute scan command"""
     try:
         from src.core.scanner import MusicScanner
@@ -244,7 +245,7 @@ def run_scan(args):
         print(f"Error during scan: {e}")
 
 
-def _configure_scan_options(args):
+def _configure_scan_options(args: argparse.Namespace) -> Dict[str, Any]:
     options = {}
     if args.extensions:
         options["file_extensions"] = args.extensions.split(",")
@@ -255,7 +256,7 @@ def _configure_scan_options(args):
     return options
 
 
-def _save_scan_results(files, output_path):
+def _save_scan_results(files: List[Dict[str, Any]], output_path: str) -> None:
     try:
         with open(output_path, "w") as f:
             json.dump(files, f, indent=2)
@@ -264,7 +265,7 @@ def _save_scan_results(files, output_path):
         print(f"Error saving results: {e}")
 
 
-def run_organize(args):
+def run_organize(args: argparse.Namespace) -> None:
     """Execute organize command"""
     try:
         from src.core.organizer import MusicOrganizer
@@ -316,7 +317,7 @@ def run_organize(args):
         print(f"Error during organization: {e}")
 
 
-def run_metadata(args):
+def run_metadata(args: argparse.Namespace) -> None:
     """Execute metadata command"""
     try:
         from src.services.metadata_service import MetadataService
@@ -357,7 +358,7 @@ def run_metadata(args):
         print(f"Error during metadata update: {e}")
 
 
-def run_check(args):
+def run_check(args: argparse.Namespace) -> None:
     """Execute check command"""
     print("Checking dependencies...")
     checker = DependencyChecker()
@@ -376,7 +377,7 @@ def run_check(args):
     _print_missing_instructions(checker, report)
 
 
-def _print_check_report(report):
+def _print_check_report(report: Dict[str, Any]) -> None:
     print(f"\nSystem: {report['platform']}")
     print(f"Python: {report['python_version'].split()[0]}")
 
@@ -406,7 +407,7 @@ def _print_check_report(report):
             print(f"  {status} {lib} {path}")
 
 
-def _print_missing_instructions(checker, report):
+def _print_missing_instructions(checker: DependencyChecker, report: Dict[str, Any]) -> None:
     missing_modules = []
     missing_tools = []
 
@@ -426,12 +427,15 @@ def _print_missing_instructions(checker, report):
         print(checker.get_install_instructions(missing_modules, missing_tools))
 
 
-def _load_files(source):
+def _load_files(source: str) -> List[Dict[str, Any]]:
     """Load files from directory scan or JSON file"""
     if source.endswith(".json"):
         try:
             with open(source, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+                return []
         except Exception as e:
             print(f"Error loading JSON file: {e}")
             return []

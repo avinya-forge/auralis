@@ -5,6 +5,7 @@ This module provides a factory for creating UI components, supporting multiple b
 """
 
 import os
+from typing import Any, Optional
 
 from src.utils.config import is_macos, is_windows
 
@@ -12,7 +13,7 @@ from src.utils.config import is_macos, is_windows
 DEFAULT_FRAMEWORK = "pyqt6"
 
 
-def get_ui_framework():
+def get_ui_framework() -> str:
     """Get the configured UI framework"""
     return os.environ.get("UI_FRAMEWORK", DEFAULT_FRAMEWORK).lower()
 
@@ -21,7 +22,7 @@ class UIFactory:
     """Factory class for creating UI components"""
 
     @staticmethod
-    def create_app(*args, **kwargs):
+    def create_app(*args: Any, **kwargs: Any) -> Any:
         """Create application instance"""
         framework = get_ui_framework()
         if framework == "pyqt6":
@@ -41,7 +42,7 @@ class UIFactory:
             raise ValueError(f"Unsupported UI framework: {framework}")
 
     @staticmethod
-    def create_main_window():
+    def create_main_window() -> Any:
         """Create main window"""
         framework = get_ui_framework()
         if framework == "pyqt6":
@@ -49,14 +50,14 @@ class UIFactory:
 
             return MainWindow()
         elif framework == "wxpython":
-            from src.gui.wx.main_window import MainWindow
+            from src.gui.wx.main_window import MainWindow as WxMainWindow
 
-            return MainWindow()
+            return WxMainWindow()
         else:
             raise ValueError(f"Unsupported UI framework: {framework}")
 
     @staticmethod
-    def get_icon_path(icon_name):
+    def get_icon_path(icon_name: str) -> str:
         """Get platform-specific icon path"""
         # Base path for icons
         base_path = os.path.join(
@@ -74,33 +75,34 @@ class UIFactory:
             return os.path.join(base_path, f"{icon_name}.png")
 
     @staticmethod
-    def set_app_id():
+    def set_app_id() -> None:
         """Set application ID for proper taskbar grouping on Windows"""
         if is_windows():
             try:
                 import ctypes
 
                 app_id = "PatternSeekers.Auralis.1.0"
-                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+                # mypy on non-windows might complain about windll
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)  # type: ignore
             except Exception:
                 pass
 
 
-def create_app(*args, **kwargs):
+def create_app(*args: Any, **kwargs: Any) -> Any:
     """Create application instance"""
     return UIFactory.create_app(*args, **kwargs)
 
 
-def create_main_window():
+def create_main_window() -> Any:
     """Create main window"""
     return UIFactory.create_main_window()
 
 
-def get_icon_path(icon_name):
+def get_icon_path(icon_name: str) -> str:
     """Get platform-specific icon path"""
     return UIFactory.get_icon_path(icon_name)
 
 
-def set_app_id():
+def set_app_id() -> None:
     """Set application ID for proper taskbar grouping on Windows"""
     UIFactory.set_app_id()

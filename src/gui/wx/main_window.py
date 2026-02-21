@@ -3,6 +3,7 @@ Auralis - wxPython Main Window Implementation
 """
 
 import os
+from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
 
@@ -18,7 +19,7 @@ from src.utils.system_utils import SystemMonitor
 class MainWindow(wx.Frame):
     """Main window for the Auralis application - wxPython implementation"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             parent=None,
             title="Auralis - Music File Management",
@@ -26,7 +27,7 @@ class MainWindow(wx.Frame):
         )
 
         # Worker thread
-        self.worker = None
+        self.worker: Optional[WorkerThread] = None
 
         # Set window icon
         self._set_icon()
@@ -35,8 +36,8 @@ class MainWindow(wx.Frame):
         self.system_monitor = SystemMonitor()
 
         # Load default directories
-        self.default_input_dir = get_config("DEFAULT_INPUT_DIR", "")
-        self.default_output_dir = get_config("DEFAULT_OUTPUT_DIR", "")
+        self.default_input_dir = str(get_config("DEFAULT_INPUT_DIR", ""))
+        self.default_output_dir = str(get_config("DEFAULT_OUTPUT_DIR", ""))
 
         # Start system monitoring
         self.system_monitor.start_monitoring()
@@ -56,7 +57,7 @@ class MainWindow(wx.Frame):
         self.Bind(EVT_FILE, self.on_file)
         self.Bind(EVT_COMPLETED, self.on_completed)
 
-    def _set_icon(self):
+    def _set_icon(self) -> None:
         """Set the application icon"""
         icon_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
@@ -70,7 +71,7 @@ class MainWindow(wx.Frame):
             icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ANY)
             self.SetIcon(icon)
 
-    def _init_ui(self):
+    def _init_ui(self) -> None:
         """Initialize the user interface"""
         # Create Menu Bar
         self._create_menu()
@@ -202,7 +203,7 @@ class MainWindow(wx.Frame):
         if hasattr(self.metadata_tab, "update_btn"):
             self.metadata_tab.update_btn.Bind(wx.EVT_BUTTON, self.on_metadata_only)
 
-    def _create_menu(self):
+    def _create_menu(self) -> None:
         """Create the menu bar"""
         menubar = wx.MenuBar()
 
@@ -222,11 +223,11 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_exit, exit_item)
         self.Bind(wx.EVT_MENU, self.on_about, about_item)
 
-    def on_exit(self, event):
+    def on_exit(self, event: Any) -> None:
         """Handle exit menu item"""
         self.Close()
 
-    def on_about(self, event):
+    def on_about(self, event: Any) -> None:
         """Handle about menu item"""
         wx.MessageBox(
             "Auralis\n\nAdvanced Music File Management\n\nDeveloped by PatternSeekers",
@@ -234,7 +235,7 @@ class MainWindow(wx.Frame):
             wx.OK | wx.ICON_INFORMATION,
         )
 
-    def on_close(self, event):
+    def on_close(self, event: Any) -> None:
         """Handle window close event"""
         if self.worker and self.worker.is_alive():
             self.worker.stop()
@@ -249,7 +250,13 @@ class MainWindow(wx.Frame):
 
     # --- Worker Control ---
 
-    def start_worker(self, start_stage=1, end_stage=3, active_stages=None, dry_run=False):
+    def start_worker(
+        self,
+        start_stage: int = 1,
+        end_stage: int = 3,
+        active_stages: Optional[List[int]] = None,
+        dry_run: bool = False,
+    ) -> None:
         """Start the worker thread"""
         if self.worker and self.worker.is_alive():
             wx.MessageBox("Processing is already in progress.", "Warning", wx.OK | wx.ICON_WARNING)
@@ -286,7 +293,7 @@ class MainWindow(wx.Frame):
             dest_dir = ""  # Optional otherwise
 
         # Collect options
-        options = {}
+        options: Dict[str, Any] = {}
         options.update(self.scan_tab.get_options())
         options.update(self.organize_tab.get_options())
         options.update(self.metadata_tab.get_options())
@@ -324,31 +331,31 @@ class MainWindow(wx.Frame):
         )
         self.worker.start()
 
-    def on_run_clicked(self, event):
+    def on_run_clicked(self, event: Any) -> None:
         """Run all stages"""
         self.start_worker(start_stage=1, end_stage=3)
 
-    def on_scan_only(self, event):
+    def on_scan_only(self, event: Any) -> None:
         """Run scan only"""
         if self.scan_tab.validate_source_directories():
             self.start_worker(start_stage=1, end_stage=1)
 
-    def on_organize_only(self, event):
+    def on_organize_only(self, event: Any) -> None:
         """Run organize only (implies scan + organize)"""
         if self.scan_tab.validate_source_directories() and self.organize_tab.validate_destination():
             self.start_worker(start_stage=1, end_stage=2)
 
-    def on_organize_dry_run(self, event):
+    def on_organize_dry_run(self, event: Any) -> None:
         """Run organize dry run"""
         if self.scan_tab.validate_source_directories() and self.organize_tab.validate_destination():
             self.start_worker(start_stage=1, end_stage=2, dry_run=True)
 
-    def on_metadata_only(self, event):
+    def on_metadata_only(self, event: Any) -> None:
         """Run metadata only (Scan + Metadata, skip Organize)"""
         if self.scan_tab.validate_source_directories():
             self.start_worker(active_stages=[1, 3])
 
-    def on_stop_clicked(self, event):
+    def on_stop_clicked(self, event: Any) -> None:
         """Stop processing"""
         if self.worker and self.worker.is_alive():
             self.worker.stop()
@@ -357,7 +364,7 @@ class MainWindow(wx.Frame):
 
     # --- Event Handlers ---
 
-    def on_progress(self, event):
+    def on_progress(self, event: Any) -> None:
         """Handle progress updates"""
         # event.stage, event.current, event.total
         if event.total > 0:
@@ -366,19 +373,19 @@ class MainWindow(wx.Frame):
 
         self.stage_label.SetLabel(f"Stage: {event.stage} ({event.current}/{event.total})")
 
-    def on_status(self, event):
+    def on_status(self, event: Any) -> None:
         """Handle status updates"""
         self.SetStatusText(event.message)
         self.log_text.AppendText(f"{event.message}\n")
 
-    def on_file(self, event):
+    def on_file(self, event: Any) -> None:
         """Handle file updates"""
         self.current_file_label.SetLabel(os.path.basename(event.file_path))
         # Add to listbox if it's a new file event (like found file)
         # But we get many file events.
         # For now just update label.
 
-    def on_completed(self, event):
+    def on_completed(self, event: Any) -> None:
         """Handle completion"""
         self.run_btn.Enable()
         self.stop_btn.Disable()

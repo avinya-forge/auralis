@@ -3,6 +3,7 @@ Stage 2: Organize Tab (wxPython)
 """
 
 import os
+from typing import Any, Dict, Optional
 
 import wx  # type: ignore
 
@@ -12,12 +13,14 @@ from src.utils.config import get_config
 class OrganizeTab(wx.Panel):
     """Tab for Stage 2: Organize"""
 
-    def __init__(self, parent=None, default_output_dir=""):
+    def __init__(
+        self, parent: Optional[wx.Window] = None, default_output_dir: str = ""
+    ) -> None:
         super().__init__(parent)
         self.default_output_dir = default_output_dir
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Initialize the UI"""
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -43,7 +46,7 @@ class OrganizeTab(wx.Panel):
 
         # Language-based organization
         self.lang_org_check = wx.CheckBox(self, label="Organize by Language")
-        self.lang_org_check.SetValue(get_config("ORGANIZE_BY_LANGUAGE", True))
+        self.lang_org_check.SetValue(bool(get_config("ORGANIZE_BY_LANGUAGE", True)))
         self.lang_org_check.Bind(wx.EVT_CHECKBOX, self.on_lang_org_toggled)
         org_sizer.Add(self.lang_org_check, 0, wx.ALL, 5)
 
@@ -59,7 +62,7 @@ class OrganizeTab(wx.Panel):
         self.audio_similarity_check = wx.CheckBox(
             self, label="Detect Similar Audio Content (Find Duplicates)"
         )
-        self.audio_similarity_check.SetValue(get_config("DETECT_AUDIO_SIMILARITY", True))
+        self.audio_similarity_check.SetValue(bool(get_config("DETECT_AUDIO_SIMILARITY", True)))
         self.audio_similarity_check.SetToolTip(
             "Analyzes audio content to find duplicate tracks regardless of filename or metadata"
         )
@@ -68,7 +71,7 @@ class OrganizeTab(wx.Panel):
 
         # Keep duplicates option
         self.keep_duplicates_check = wx.CheckBox(self, label="Keep All Duplicate Versions")
-        self.keep_duplicates_check.SetValue(get_config("KEEP_ALL_DUPLICATES", False))
+        self.keep_duplicates_check.SetValue(bool(get_config("KEEP_ALL_DUPLICATES", False)))
         self.keep_duplicates_check.Enable(self.audio_similarity_check.GetValue())
         self.keep_duplicates_check.SetToolTip(
             "If unchecked, only the highest quality version of each duplicate will be kept"
@@ -77,12 +80,12 @@ class OrganizeTab(wx.Panel):
 
         # Duplicate handling
         self.dup_check = wx.CheckBox(self, label="Detect and Handle Duplicates")
-        self.dup_check.SetValue(get_config("HANDLE_DUPLICATES", True))
+        self.dup_check.SetValue(bool(get_config("HANDLE_DUPLICATES", True)))
         org_sizer.Add(self.dup_check, 0, wx.ALL, 5)
 
         # Remove empty directories
         self.empty_dirs_check = wx.CheckBox(self, label="Remove Empty Directories")
-        self.empty_dirs_check.SetValue(get_config("REMOVE_EMPTY_DIRS", True))
+        self.empty_dirs_check.SetValue(bool(get_config("REMOVE_EMPTY_DIRS", True)))
         org_sizer.Add(self.empty_dirs_check, 0, wx.ALL, 5)
 
         main_sizer.Add(org_sizer, 0, wx.EXPAND | wx.ALL, 5)
@@ -102,32 +105,32 @@ class OrganizeTab(wx.Panel):
 
         self.SetSizer(main_sizer)
 
-    def on_select_destination(self, event):
+    def on_select_destination(self, event: Any) -> None:
         """Select the destination directory"""
         dlg = wx.DirDialog(self, "Select Destination Directory", style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
             self.dest_label.SetLabel(dlg.GetPath())
         dlg.Destroy()
 
-    def on_lang_org_toggled(self, event):
+    def on_lang_org_toggled(self, event: Any) -> None:
         """Handle language organization toggle"""
         self.audio_lang_detect_check.Enable(self.lang_org_check.GetValue())
 
-    def on_similarity_toggled(self, event):
+    def on_similarity_toggled(self, event: Any) -> None:
         """Handle audio similarity toggle"""
         self.keep_duplicates_check.Enable(self.audio_similarity_check.GetValue())
 
-    def on_dry_run_clicked(self, event):
+    def on_dry_run_clicked(self, event: Any) -> None:
         """Handle dry run button click"""
         if self.validate_destination():
             event.Skip()
 
-    def on_organize_clicked(self, event):
+    def on_organize_clicked(self, event: Any) -> None:
         """Handle organize button click"""
         if self.validate_destination():
             event.Skip()
 
-    def validate_destination(self):
+    def validate_destination(self) -> bool:
         """Validate that a destination directory is selected"""
         if self.dest_label.GetLabel() == "No destination selected":
             wx.MessageBox(
@@ -138,11 +141,11 @@ class OrganizeTab(wx.Panel):
             return False
         return True
 
-    def get_destination(self):
+    def get_destination(self) -> str:
         """Get the selected destination directory"""
-        return self.dest_label.GetLabel()
+        return str(self.dest_label.GetLabel())
 
-    def get_options(self):
+    def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
         return {
             "organize_by_language": self.lang_org_check.GetValue(),

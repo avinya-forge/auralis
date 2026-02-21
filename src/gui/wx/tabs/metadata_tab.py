@@ -2,6 +2,8 @@
 Stage 3: Metadata Tab (wxPython)
 """
 
+from typing import Any, Dict, Optional
+
 import wx  # type: ignore
 
 from src.gui.wx.dialogs.api_keys_dialog import APIKeysDialog
@@ -11,11 +13,11 @@ from src.utils.config import get_config
 class MetadataTab(wx.Panel):
     """Tab for Stage 3: Metadata"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[wx.Window] = None) -> None:
         super().__init__(parent)
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         """Initialize the UI"""
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -25,22 +27,22 @@ class MetadataTab(wx.Panel):
 
         # MusicBrainz / AcoustID
         self.mb_check = wx.CheckBox(self, label="MusicBrainz / AcoustID")
-        self.mb_check.SetValue(get_config("USE_MUSICBRAINZ", True))
+        self.mb_check.SetValue(bool(get_config("USE_MUSICBRAINZ", True)))
         metadata_sizer.Add(self.mb_check, 0, wx.ALL, 5)
 
         # Discogs
         self.discogs_check = wx.CheckBox(self, label="Discogs")
-        self.discogs_check.SetValue(get_config("USE_DISCOGS", True))
+        self.discogs_check.SetValue(bool(get_config("USE_DISCOGS", True)))
         metadata_sizer.Add(self.discogs_check, 0, wx.ALL, 5)
 
         # Spotify
         self.spotify_check = wx.CheckBox(self, label="Spotify (Requires API Keys)")
-        self.spotify_check.SetValue(get_config("USE_SPOTIFY", False))
+        self.spotify_check.SetValue(bool(get_config("USE_SPOTIFY", False)))
         metadata_sizer.Add(self.spotify_check, 0, wx.ALL, 5)
 
         # Last.fm
         self.lastfm_check = wx.CheckBox(self, label="Last.fm (Requires API Keys)")
-        self.lastfm_check.SetValue(get_config("USE_LASTFM", False))
+        self.lastfm_check.SetValue(bool(get_config("USE_LASTFM", False)))
         metadata_sizer.Add(self.lastfm_check, 0, wx.ALL, 5)
 
         # Configure API Keys Button
@@ -56,7 +58,7 @@ class MetadataTab(wx.Panel):
 
         # Fetch lyrics
         self.lyrics_check = wx.CheckBox(self, label="Fetch and Embed Lyrics")
-        self.lyrics_check.SetValue(get_config("FETCH_LYRICS", True))
+        self.lyrics_check.SetValue(bool(get_config("FETCH_LYRICS", True)))
         self.lyrics_check.SetToolTip(
             "Fetch lyrics from online sources and embed them in the audio files"
         )
@@ -79,7 +81,7 @@ class MetadataTab(wx.Panel):
 
         self.SetSizer(main_sizer)
 
-    def on_configure_api_keys(self, event):
+    def on_configure_api_keys(self, event: Any) -> None:
         """Open the API Keys configuration dialog"""
         dlg = APIKeysDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
@@ -90,12 +92,12 @@ class MetadataTab(wx.Panel):
             )
         dlg.Destroy()
 
-    def on_update_clicked(self, event):
+    def on_update_clicked(self, event: Any) -> None:
         """Handle update button click"""
         # Allow event to propagate
         event.Skip()
 
-    def get_options(self):
+    def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
         return {
             "use_musicbrainz": self.mb_check.GetValue(),
