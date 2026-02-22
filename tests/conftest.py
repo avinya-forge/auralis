@@ -49,13 +49,23 @@ if "PyQt6" not in sys.modules:
     # Mock QtWidgets
     mock_qtwidgets = MagicMock()
     mock_qtwidgets.QApplication = MockQCoreApplication
-    mock_qtwidgets.QMainWindow = MagicMock
+
+    class MockQMainWindow(MagicMock):
+        def _get_child_mock(self, **kw):
+            return MagicMock(**kw)
+
+    mock_qtwidgets.QMainWindow = MockQMainWindow
     mock_qtwidgets.QWidget = MagicMock
     mock_pyqt6.QtWidgets = mock_qtwidgets
 
     # Mock QtGui
     mock_qtgui = MagicMock()
-    mock_qtgui.QAction = MagicMock
+
+    class MockQAction(MagicMock):
+        def __init__(self, *args, **kwargs):
+            super().__init__()
+
+    mock_qtgui.QAction = MockQAction
     mock_qtgui.QIcon = MagicMock
     mock_pyqt6.QtGui = mock_qtgui
 
@@ -99,13 +109,24 @@ mock_mutagen.mp3 = mock_mp3
 mock_id3 = types.ModuleType("mutagen.id3")
 for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK", "ID3", "USLT"]:
     setattr(mock_id3, name, MagicMock)  # Assign class not instance
+# Add ID3NoHeaderError
+class ID3NoHeaderError(Exception):
+    pass
+mock_id3.ID3NoHeaderError = ID3NoHeaderError
 mock_mutagen.id3 = mock_id3
+
+mock_easyid3 = types.ModuleType("mutagen.easyid3")
+class EasyID3(MagicMock):
+    pass
+mock_easyid3.EasyID3 = EasyID3
+mock_mutagen.easyid3 = mock_easyid3
 
 # Register in sys.modules
 sys.modules["mutagen"] = mock_mutagen
 sys.modules["mutagen.flac"] = mock_flac
 sys.modules["mutagen.mp3"] = mock_mp3
 sys.modules["mutagen.id3"] = mock_id3
+sys.modules["mutagen.easyid3"] = mock_easyid3
 
 # Also patch mutagen.File
 mock_mutagen.File = MagicMock()
@@ -151,7 +172,7 @@ for lib in [
     # "PIL.ImageTk",
     # "requests",  # Removed requests and bs4 as they are core dependencies
     # "bs4",
-    "lxml",
+    # "lxml",
     "langdetect",
     "speech_recognition",
 ]:
