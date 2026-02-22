@@ -158,7 +158,7 @@ sys.modules["psutil"] = mock_psutil
 # --- Mock Other Dependencies ---
 # Try to import numpy first to avoid mocking if installed
 try:
-    import numpy
+    import numpy  # noqa: F401
 except ImportError:
     pass
 
