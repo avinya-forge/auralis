@@ -70,9 +70,7 @@ class TestAudioAnalysisService(unittest.TestCase):
             bpm = self.analyzer.get_bpm("/path/to/file.mp3")
 
             self.assertEqual(bpm, 120.0)
-            mock_librosa.load.assert_called_with(
-                "/path/to/file.mp3", sr=None, duration=60
-            )
+            mock_librosa.load.assert_called_with("/path/to/file.mp3", sr=None, duration=60)
             mock_librosa.beat.beat_track.assert_called()
 
     def test_get_bpm_no_librosa(self):

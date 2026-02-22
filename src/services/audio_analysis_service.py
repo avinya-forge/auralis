@@ -13,6 +13,7 @@ import numpy as np
 
 try:
     import librosa
+
     HAS_LIBROSA = True
 except ImportError:
     HAS_LIBROSA = False
