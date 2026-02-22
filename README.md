@@ -21,6 +21,7 @@ Auralis is a powerful cross-platform application for managing music file collect
 - **Audio Language Detection**: Automatically detects the spoken language in audio files for better organization
 - **Lyrics Embedding**: Fetches lyrics from online sources and embeds them in audio files for display in music players
 - **Audio Similarity Detection**: Identifies duplicate tracks based on actual audio content, regardless of filenames or metadata
+- **Audio Analysis**: Automatically detects BPM (Beats Per Minute) and Musical Key using advanced audio signal processing
 
 ## Installation
 

@@ -64,7 +64,7 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        pytest --cov=src --cov-config=.coveragerc --cov-fail-under=60 tests/
+        pytest --cov=src --cov-config=.coveragerc --cov-fail-under=65 tests/
     
   build:
     needs: [lint, test]
