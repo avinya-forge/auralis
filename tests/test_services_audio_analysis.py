@@ -2,9 +2,9 @@
 Tests for AudioAnalysisService
 """
 
+import importlib
 import sys
 import unittest
-import importlib
 from unittest.mock import MagicMock, patch
 
 import numpy as np
