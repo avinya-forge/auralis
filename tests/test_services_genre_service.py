@@ -5,8 +5,9 @@ Unit tests for GenreClassifier
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.services.genre_service import GenreClassifier
 from mutagen.id3 import ID3NoHeaderError
+
+from src.services.genre_service import GenreClassifier
 
 
 class TestGenreClassifier(unittest.TestCase):

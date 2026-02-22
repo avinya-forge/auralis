@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 # Mock wx module
 mock_wx = MagicMock()
 
+
 class MockMenu:
     def __init__(self):
         self.items = []
@@ -19,7 +20,9 @@ class MockMenu:
     def Destroy(self):
         pass
 
+
 mock_wx.Menu = MockMenu
+
 
 class MockPanel:
     def __init__(self, parent=None, **kwargs):

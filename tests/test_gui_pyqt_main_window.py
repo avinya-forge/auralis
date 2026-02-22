@@ -20,7 +20,18 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.MetadataTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
-    def test_init(self, mock_app_cls, mock_timer, mock_meta_tab, mock_org_tab, mock_scan_tab, mock_tm_cls, mock_sys, mock_mo, mock_ms):
+    def test_init(
+        self,
+        mock_app_cls,
+        mock_timer,
+        mock_meta_tab,
+        mock_org_tab,
+        mock_scan_tab,
+        mock_tm_cls,
+        mock_sys,
+        mock_mo,
+        mock_ms,
+    ):
         """Test initialization of MainWindow"""
         # Setup ThemeManager mock
         mock_tm_instance = MagicMock()
@@ -73,7 +84,18 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.MetadataTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
-    def test_change_theme(self, mock_app_cls, mock_timer, mock_meta_tab, mock_org_tab, mock_scan_tab, mock_tm_cls, mock_sys, mock_mo, mock_ms):
+    def test_change_theme(
+        self,
+        mock_app_cls,
+        mock_timer,
+        mock_meta_tab,
+        mock_org_tab,
+        mock_scan_tab,
+        mock_tm_cls,
+        mock_sys,
+        mock_mo,
+        mock_ms,
+    ):
         """Test changing theme"""
         mock_tm_instance = MagicMock()
         mock_tm_instance.get_available_themes.return_value = ["Dark", "Light"]
@@ -99,7 +121,18 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.MetadataTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
-    def test_status_bar_updates(self, mock_app_cls, mock_timer, mock_meta_tab, mock_org_tab, mock_scan_tab, mock_tm_cls, mock_sys, mock_mo, mock_ms):
+    def test_status_bar_updates(
+        self,
+        mock_app_cls,
+        mock_timer,
+        mock_meta_tab,
+        mock_org_tab,
+        mock_scan_tab,
+        mock_tm_cls,
+        mock_sys,
+        mock_mo,
+        mock_ms,
+    ):
         """Test status bar update methods"""
         mock_tm_instance = MagicMock()
         mock_tm_instance.get_available_themes.return_value = ["Dark"]

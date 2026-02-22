@@ -6,6 +6,8 @@ from unittest.mock import MagicMock, patch
 mock_wx = MagicMock()
 
 # Mock FileDropTarget
+
+
 class MockFileDropTarget:
     def __init__(self, data=None):
         pass
@@ -13,9 +15,12 @@ class MockFileDropTarget:
     def OnDropFiles(self, x, y, filenames):
         pass
 
+
 mock_wx.FileDropTarget = MockFileDropTarget
 
 # Mock Panel as a class
+
+
 class MockPanel:
     def __init__(self, parent=None, **kwargs):
         pass
@@ -26,11 +31,15 @@ class MockPanel:
     def Bind(self, event, handler):
         pass
 
+
 mock_wx.Panel = MockPanel
 
 # Mock Widget Helper to swallow arguments and avoid MagicMock(spec=parent)
+
+
 def MockWidget(parent=None, *args, **kwargs):
     return MagicMock()
+
 
 # Mock other wx classes using MockWidget where parent is passed
 mock_wx.ListBox = MockWidget
@@ -74,6 +83,7 @@ class TestScanTabDnD(unittest.TestCase):
             del sys.modules["src.gui.wx.tabs.scan_tab"]
 
         import src.gui.wx.tabs.scan_tab
+
         self.module = src.gui.wx.tabs.scan_tab
         self.ScanTab = self.module.ScanTab
         self.FileDropTarget = self.module.FileDropTarget
@@ -85,7 +95,7 @@ class TestScanTabDnD(unittest.TestCase):
         # Patch get_config
         self.config_patcher = patch("src.gui.wx.tabs.scan_tab.get_config")
         self.mock_get_config = self.config_patcher.start()
-        self.mock_get_config.return_value = True # Default
+        self.mock_get_config.return_value = True  # Default
 
     def tearDown(self):
         self.config_patcher.stop()
@@ -111,6 +121,7 @@ class TestScanTabDnD(unittest.TestCase):
         # Mock isdir behavior
         def side_effect(path):
             return path.startswith("/dir")
+
         self.mock_isdir.side_effect = side_effect
 
         # Mock add_directory
@@ -122,6 +133,7 @@ class TestScanTabDnD(unittest.TestCase):
         self.assertEqual(tab.add_directory.call_count, 2)
         tab.add_directory.assert_any_call("/dir1")
         tab.add_directory.assert_any_call("/dir2")
+
 
 if __name__ == "__main__":
     unittest.main()

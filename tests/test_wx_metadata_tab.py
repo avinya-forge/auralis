@@ -172,7 +172,9 @@ class TestMetadataTab(unittest.TestCase):
 
         tab.set_cover_art("/path/to/image.jpg")
 
-        sys.modules["wx"].Image.assert_called_with("/path/to/image.jpg", sys.modules["wx"].BITMAP_TYPE_ANY)
+        sys.modules["wx"].Image.assert_called_with(
+            "/path/to/image.jpg", sys.modules["wx"].BITMAP_TYPE_ANY
+        )
         mock_img.Scale.assert_called()
         tab.cover_art_preview.SetBitmap.assert_called()
 

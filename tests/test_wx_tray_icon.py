@@ -7,6 +7,8 @@ mock_wx = MagicMock()
 mock_wx.adv = MagicMock()
 
 # Mock TaskBarIcon as a class
+
+
 class MockTaskBarIcon:
     def __init__(self, *args, **kwargs):
         pass
@@ -23,10 +25,13 @@ class MockTaskBarIcon:
     def Bind(self, event, handler):
         pass
 
+
 mock_wx.adv.TaskBarIcon = MockTaskBarIcon
 mock_wx.adv.EVT_TASKBAR_LEFT_DOWN = MagicMock()
 
 # Mock Frame
+
+
 class MockFrame:
     def __init__(self, *args, **kwargs):
         self.shown = True
@@ -71,11 +76,15 @@ class MockFrame:
     def Raise(self):
         pass
 
+
 mock_wx.Frame = MockFrame
 
 # Mock other widgets using MagicMock returning functions
+
+
 def MockWidget(parent=None, *args, **kwargs):
     return MagicMock()
+
 
 mock_wx.Panel = MockWidget
 mock_wx.BoxSizer = MockWidget
@@ -129,12 +138,15 @@ class TestTrayIcon(unittest.TestCase):
         # We set it directly as the function
         mock_newevent_module.NewEvent = mock_new_event
 
-        self.modules_patcher = patch.dict(sys.modules, {
-            "wx": mock_wx,
-            "wx.adv": mock_wx.adv,
-            "wx.lib": mock_wx_lib,
-            "wx.lib.newevent": mock_newevent_module
-        })
+        self.modules_patcher = patch.dict(
+            sys.modules,
+            {
+                "wx": mock_wx,
+                "wx.adv": mock_wx.adv,
+                "wx.lib": mock_wx_lib,
+                "wx.lib.newevent": mock_newevent_module,
+            },
+        )
         self.modules_patcher.start()
 
         # Patch tabs
@@ -153,6 +165,7 @@ class TestTrayIcon(unittest.TestCase):
             del sys.modules["src.gui.wx.main_window"]
 
         import src.gui.wx.main_window
+
         self.module = src.gui.wx.main_window
         self.MainWindow = self.module.MainWindow
         self.AuralisTaskBarIcon = self.module.AuralisTaskBarIcon
@@ -235,6 +248,7 @@ class TestTrayIcon(unittest.TestCase):
 
         # Should NOT hide if no tray icon
         window.Hide.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

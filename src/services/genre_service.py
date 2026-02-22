@@ -43,7 +43,7 @@ class GenreClassifier:
             self.logger.warning(f"Error reading genre from {file_path}: {e}")
             return None
 
-    def set_genre(self, file_path: str, genre: str) -> bool:
+    def set_genre(self, file_path: str, genre: str) -> bool:  # noqa: C901
         """
         Set the genre of a music file.
 

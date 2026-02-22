@@ -6,6 +6,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
+
 try:
     import wx.adv  # type: ignore
 except ImportError:

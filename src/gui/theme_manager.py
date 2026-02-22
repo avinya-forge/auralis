@@ -7,12 +7,10 @@ Handles loading and applying UI themes.
 import json
 import logging
 import os
-from typing import Any, Dict, Optional, TypedDict
+from typing import Dict, List, Optional, TypedDict
 
 from PyQt6.QtGui import QColor, QPalette
 from PyQt6.QtWidgets import QApplication
-
-from src.utils.config import get_config
 
 
 class ThemeColors(TypedDict, total=False):
@@ -134,6 +132,6 @@ class ThemeManager:
         self.logger.info(f"Applied theme: {theme_name}")
         return True
 
-    def get_available_themes(self) -> list[str]:
+    def get_available_themes(self) -> List[str]:
         """Get list of available theme names."""
         return list(self.themes.keys())

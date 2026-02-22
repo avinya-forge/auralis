@@ -3,10 +3,10 @@ Unit tests for ThemeManager
 """
 
 import unittest
-import os
-import json
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, mock_open, patch
+
 from src.gui.theme_manager import ThemeManager
+
 
 class TestThemeManager(unittest.TestCase):
     """Test cases for ThemeManager"""
@@ -40,7 +40,7 @@ class TestThemeManager(unittest.TestCase):
         self.mock_json_load.return_value = {
             "name": "Test Theme",
             "palette": {"window": "#000000"},
-            "stylesheet": "QWidget { color: red; }"
+            "stylesheet": "QWidget { color: red; }",
         }
 
     def tearDown(self):

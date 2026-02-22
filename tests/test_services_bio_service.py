@@ -16,25 +16,38 @@ class TestWikipediaBioProvider(unittest.TestCase):
         """Set up test fixtures."""
         self.provider = WikipediaBioProvider()
 
+    @patch("src.services.bio_service.BeautifulSoup")
     @patch("src.services.bio_service.requests.get")
-    def test_get_bio_success(self, mock_get):
+    def test_get_bio_success(self, mock_get, mock_bs):
         """Test successful bio retrieval."""
         # Mock response
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.content = b"""
-        <div id="mw-content-text">
-            <p>First empty paragraph.</p>
-            <p>
-                <b>The Beatles</b> were an English rock band formed in Liverpool in 1960.
-                With a line-up comprising <a href="/wiki/John_Lennon">John Lennon</a>,
-                <a href="/wiki/Paul_McCartney">Paul McCartney</a>,
-                <a href="/wiki/George_Harrison">George Harrison</a> and
-                <a href="/wiki/Ringo_Starr">Ringo Starr</a>, they are regarded as the most influential band of all time.[1]
-            </p>
-        </div>
-        """
+        # Content doesn't matter much if we mock BS, but keeping it for completeness
+        mock_response.content = b"<html>...</html>"
         mock_get.return_value = mock_response
+
+        # Mock BeautifulSoup behavior
+        mock_soup = MagicMock()
+        mock_bs.return_value = mock_soup
+
+        # Determine logic path in WikipediaBioProvider.get_bio
+        # It finds div id="mw-content-text"
+        # Then finds all 'p'
+        # Iterates p, extracts text
+
+        mock_content_div = MagicMock()
+        mock_soup.find.return_value = mock_content_div
+
+        # Paragraphs
+        p1 = MagicMock()
+        p1.get_text.return_value = "" # First empty
+
+        p2 = MagicMock()
+        p2_text = "The Beatles were an English rock band formed in Liverpool in 1960. With a line-up comprising John Lennon, Paul McCartney, George Harrison and Ringo Starr, they are regarded as the most influential band of all time.[1]"
+        p2.get_text.return_value = p2_text
+
+        mock_content_div.find_all.return_value = [p1, p2]
 
         bio = self.provider.get_bio("The Beatles")
 
@@ -56,8 +69,9 @@ class TestWikipediaBioProvider(unittest.TestCase):
         # Should try base URL + suffixes
         self.assertGreaterEqual(mock_get.call_count, 1)
 
+    @patch("src.services.bio_service.BeautifulSoup")
     @patch("src.services.bio_service.requests.get")
-    def test_get_bio_disambiguation(self, mock_get):
+    def test_get_bio_disambiguation(self, mock_get, mock_bs):
         """Test retrieval with disambiguation suffix."""
         # First call fails (404), second call succeeds (200)
         mock_response_fail = MagicMock()
@@ -65,13 +79,21 @@ class TestWikipediaBioProvider(unittest.TestCase):
 
         mock_response_success = MagicMock()
         mock_response_success.status_code = 200
-        mock_response_success.content = b"""
-        <div id="mw-content-text">
-            <p>A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes.</p>
-        </div>
-        """
+        mock_response_success.content = b"<html>...</html>"
 
         mock_get.side_effect = [mock_response_fail, mock_response_success]
+
+        # Mock BS for the successful call
+        mock_soup = MagicMock()
+        mock_bs.return_value = mock_soup
+
+        mock_content_div = MagicMock()
+        mock_soup.find.return_value = mock_content_div
+
+        p = MagicMock()
+        p.get_text.return_value = "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes."
+
+        mock_content_div.find_all.return_value = [p]
 
         bio = self.provider.get_bio("Common Name")
 
@@ -112,9 +134,10 @@ class TestLastFmBioProvider(unittest.TestCase):
         self.assertFalse(provider.available)
         self.assertIsNone(provider.network)
 
+    @patch("src.services.bio_service.BeautifulSoup")
     @patch("src.services.bio_service.pylast")
     @patch("src.services.bio_service.HAS_LASTFM", True)
-    def test_get_bio_success(self, mock_pylast):
+    def test_get_bio_success(self, mock_pylast, mock_bs):
         """Test successful bio retrieval."""
         provider = LastFmBioProvider()
 
@@ -127,6 +150,11 @@ class TestLastFmBioProvider(unittest.TestCase):
 
         provider.network = mock_network
         mock_network.get_artist.return_value = mock_artist
+
+        # Mock BeautifulSoup used in clean_html
+        mock_soup = MagicMock()
+        mock_bs.return_value = mock_soup
+        mock_soup.get_text.return_value = "Test bio."
 
         bio = provider.get_bio("Artist")
 

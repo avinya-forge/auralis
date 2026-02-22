@@ -5,7 +5,7 @@ Handles sanitization of metadata tags in music files.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import mutagen
 from mutagen.flac import FLAC
@@ -22,7 +22,7 @@ class MetadataSanitizer:
         """Initialize the MetadataSanitizer."""
         self.logger = logging.getLogger(__name__)
 
-    def sanitize(self, file_path: str, options: Optional[Dict[str, Any]] = None) -> bool:
+    def sanitize(self, file_path: str, options: Optional[Dict[str, Any]] = None) -> bool:  # noqa: C901
         """
         Sanitize metadata in a music file based on options.
 
@@ -139,7 +139,7 @@ class MetadataSanitizer:
 
         return modified
 
-    def _trim_whitespace(self, audio: Any) -> bool:
+    def _trim_whitespace(self, audio: Any) -> bool:  # noqa: C901
         """
         Trim whitespace from text tags.
 
