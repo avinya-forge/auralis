@@ -3,7 +3,7 @@ import types
 from unittest.mock import MagicMock
 
 # --- Mock PyQt6 ---
-if "PyQt6" not in sys.modules:
+if "PyQt6" not in sys.modules:  # noqa: C901
     mock_pyqt6 = MagicMock()
     mock_qtcore = MagicMock()
 
@@ -106,18 +106,27 @@ class MP3(MagicMock):
 mock_mp3.MP3 = MP3
 mock_mutagen.mp3 = mock_mp3
 
+
 mock_id3 = types.ModuleType("mutagen.id3")
 for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK", "ID3", "USLT"]:
     setattr(mock_id3, name, MagicMock)  # Assign class not instance
 # Add ID3NoHeaderError
+
+
 class ID3NoHeaderError(Exception):
     pass
+
+
 mock_id3.ID3NoHeaderError = ID3NoHeaderError
 mock_mutagen.id3 = mock_id3
 
 mock_easyid3 = types.ModuleType("mutagen.easyid3")
+
+
 class EasyID3(MagicMock):
     pass
+
+
 mock_easyid3.EasyID3 = EasyID3
 mock_mutagen.easyid3 = mock_easyid3
 
@@ -167,12 +176,12 @@ for lib in [
     "musicbrainzngs",
     "spotipy",
     "pylast",
-    # "PIL",  # Removed PIL as it is a core dependency
-    # "PIL.Image",
-    # "PIL.ImageTk",
-    # "requests",  # Removed requests and bs4 as they are core dependencies
-    # "bs4",
-    # "lxml",
+    "PIL",
+    "PIL.Image",
+    "PIL.ImageTk",
+    "requests",
+    "bs4",
+    "lxml",
     "langdetect",
     "speech_recognition",
 ]:

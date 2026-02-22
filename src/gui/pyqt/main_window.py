@@ -15,13 +15,10 @@ from PyQt6.QtWidgets import (
     QLabel,
     QListWidget,
     QMainWindow,
-    QMenu,
-    QMenuBar,
     QMessageBox,
     QProgressBar,
     QPushButton,
     QSplitter,
-    QStatusBar,
     QTabWidget,
     QTextEdit,
     QVBoxLayout,
@@ -239,7 +236,7 @@ class MainWindow(QMainWindow):
         # Progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setMaximumWidth(200)
-        self.progress_bar.setVisible(False) # Hide when not active
+        self.progress_bar.setVisible(False)  # Hide when not active
         self.status_bar.addPermanentWidget(self.progress_bar)
 
     def setup_process_controls_ui(self, parent_layout: QVBoxLayout) -> None:

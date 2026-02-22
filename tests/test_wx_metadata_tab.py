@@ -35,7 +35,14 @@ if "wx" not in sys.modules:
     mock_wx.StaticText = MockWidget
     mock_wx.Button = MockWidget
     mock_wx.CheckBox = MockWidget
+    mock_wx.StaticBitmap = MockWidget
     mock_wx.MessageBox = MagicMock()
+
+    # Image/Bitmap mocks
+    mock_wx.Image = MagicMock()
+    mock_wx.Bitmap = MagicMock()
+    mock_wx.NullBitmap = MagicMock()
+    mock_wx.Colour = MagicMock()
 
     # Constants
     mock_wx.VERTICAL = 1
@@ -50,6 +57,8 @@ if "wx" not in sys.modules:
     mock_wx.ID_OK = 5100
     mock_wx.OK = 0
     mock_wx.ICON_INFORMATION = 0
+    mock_wx.BITMAP_TYPE_ANY = 1
+    mock_wx.IMAGE_QUALITY_HIGH = 1
 
     # Event binding
     mock_wx.EVT_BUTTON = MagicMock()
@@ -147,6 +156,32 @@ class TestMetadataTab(unittest.TestCase):
 
         tab.on_update_clicked(mock_event)
         mock_event.Skip.assert_called_once()
+
+    def test_set_cover_art(self):
+        """Test setting cover art"""
+        tab = MetadataTab(self.mock_parent)
+
+        # Test valid image
+        mock_img = MagicMock()
+        mock_img.GetWidth.return_value = 300
+        mock_img.GetHeight.return_value = 150
+        # return scaled image
+        mock_img.Scale.return_value = MagicMock()
+
+        sys.modules["wx"].Image.return_value = mock_img
+
+        tab.set_cover_art("/path/to/image.jpg")
+
+        sys.modules["wx"].Image.assert_called_with(
+            "/path/to/image.jpg", sys.modules["wx"].BITMAP_TYPE_ANY
+        )
+        mock_img.Scale.assert_called()
+        tab.cover_art_preview.SetBitmap.assert_called()
+
+        # Test empty path
+        tab.cover_art_preview.SetBitmap.reset_mock()
+        tab.set_cover_art("")
+        tab.cover_art_preview.SetBitmap.assert_called_with(sys.modules["wx"].NullBitmap)
 
 
 if __name__ == "__main__":
