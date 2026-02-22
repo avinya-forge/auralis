@@ -156,6 +156,12 @@ sys.modules["psutil"] = mock_psutil
 
 
 # --- Mock Other Dependencies ---
+# Try to import numpy first to avoid mocking if installed
+try:
+    import numpy
+except ImportError:
+    pass
+
 if "numpy" not in sys.modules:
     mock_numpy = MagicMock()
 

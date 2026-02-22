@@ -76,8 +76,8 @@
 **Focus:** Introducing AI/ML capabilities for autonomous organization and smart playback.
 
 ### Epic 7: Audio Analysis
-- [AUD-001] | Implement `BPMDetector` using `librosa.beat` | [INDEPENDENT] | [TODO]
-- [AUD-002] | Implement `KeyDetector` using `librosa.feature.chroma` | [INDEPENDENT] | [TODO]
+- [AUD-001] | Implement `BPMDetector` using `librosa.beat` | [INDEPENDENT] | [DONE]
+- [AUD-002] | Implement `KeyDetector` using `librosa.feature.chroma` | [INDEPENDENT] | [DONE]
 - [AUD-003] | Implement `MoodAnalyzer` (valence/arousal) skeleton | [INDEPENDENT] | [TODO]
 - [AUD-004] | Create `AnalysisTagHandler` to save BPM/Key to ID3 tags | [BLOCKS-AUD-001, AUD-002] | [TODO]
 - [AUD-005] | optimize `librosa` imports to prevent startup lag | [INDEPENDENT] | [TODO]
