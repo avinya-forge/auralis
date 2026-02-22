@@ -128,3 +128,15 @@
     *   Configured CI to enforce test coverage threshold (currently 60%, targeting 95%) (TST-010).
     *   Added comprehensive unit tests for `AlbumArtFetcher` and `MusixmatchLyricsProvider`.
     *   Added integration tests for `MetadataService` bio fetching.
+
+## Iteration: Swift-Executor-01/Theme-And-Sanitization
+*   **Epic 4: Advanced Metadata (Completed)**
+    *   Implemented `GenreClassifier` (`src/services/genre_service.py`) for managing genre tags (MET-009).
+    *   Implemented `MetadataSanitizer` (`src/services/metadata_sanitizer.py`) to clean comments, ID3v1 tags, and whitespace (MET-010).
+    *   Added comprehensive unit tests for both services with 100% coverage.
+*   **Epic 5: UI/UX Refinement**
+    *   Implemented `ThemeManager` (`src/gui/theme_manager.py`) supporting JSON-based themes (UI-001, UI-002).
+    *   Created "Dark" and "Light" themes in `resources/themes/` (UI-003, UI-004).
+    *   Integrated Theme Switcher into `MainWindow` Menu Bar (UI-005).
+    *   Implemented Status Bar with progress tracking, moving it from the side panel (UI-006).
+    *   Added `tests/test_gui_pyqt_main_window.py` to verify UI integration.

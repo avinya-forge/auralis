@@ -7,17 +7,21 @@ import time
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QCloseEvent, QFont, QIcon
+from PyQt6.QtGui import QAction, QActionGroup, QCloseEvent, QFont, QIcon
 from PyQt6.QtWidgets import (
+    QApplication,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QMainWindow,
+    QMenu,
+    QMenuBar,
     QMessageBox,
     QProgressBar,
     QPushButton,
     QSplitter,
+    QStatusBar,
     QTabWidget,
     QTextEdit,
     QVBoxLayout,
@@ -30,6 +34,7 @@ from src.gui.pyqt.tabs.metadata_tab import MetadataTab
 from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
 from src.gui.pyqt.worker import WorkerThread
+from src.gui.theme_manager import ThemeManager
 from src.utils.config import create_env_example, get_config
 from src.utils.system_utils import SystemMonitor
 
@@ -57,6 +62,7 @@ class MainWindow(QMainWindow):
         self.scanner = MusicScanner()
         self.organizer = MusicOrganizer()
         self.system_monitor = SystemMonitor()
+        self.theme_manager = ThemeManager()
 
         # Initialize data structures
         self.scanned_files: List[Dict[str, Any]] = []  # List of scanned file info dictionaries
@@ -82,6 +88,9 @@ class MainWindow(QMainWindow):
         # Set default directories
         self.set_default_directories()
 
+        # Apply default theme (Dark)
+        self.change_theme("Dark")
+
         # Update UI timer
         self.ui_timer = QTimer(self)
         self.ui_timer.timeout.connect(self.update_ui)
@@ -104,6 +113,12 @@ class MainWindow(QMainWindow):
 
     def setup_ui(self) -> None:
         """Set up the full user interface"""
+        # Menu Bar
+        self.setup_menu_bar()
+
+        # Status Bar
+        self.setup_status_bar()
+
         # Main widget and layout
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
@@ -166,7 +181,7 @@ class MainWindow(QMainWindow):
 
         controls_layout.addWidget(self.stage_tabs)
 
-        # Common controls (progress, log, etc.)
+        # Common controls (log, buttons)
         self.setup_process_controls_ui(controls_layout)
 
         main_splitter.addWidget(controls_container)
@@ -179,24 +194,60 @@ class MainWindow(QMainWindow):
         # Set the central widget
         self.setCentralWidget(main_widget)
 
+    def setup_menu_bar(self) -> None:
+        """Set up the menu bar"""
+        menu_bar = self.menuBar()
+
+        # View Menu
+        view_menu = menu_bar.addMenu("View")
+
+        # Theme Submenu
+        theme_menu = view_menu.addMenu("Theme")
+        self.theme_action_group = QActionGroup(self)
+        self.theme_action_group.setExclusive(True)
+
+        # Add available themes
+        available_themes = self.theme_manager.get_available_themes()
+        # Ensure Dark and Light are there, otherwise fallback
+        if not available_themes:
+            # Fallback if no themes loaded (shouldn't happen with resources)
+            pass
+
+        for theme_name in sorted(available_themes):
+            action = QAction(theme_name, self)
+            action.setCheckable(True)
+            action.triggered.connect(lambda checked, name=theme_name: self.change_theme(name))
+            theme_menu.addAction(action)
+            self.theme_action_group.addAction(action)
+
+            # Check if this is the current theme (default Dark)
+            if theme_name == "Dark":
+                action.setChecked(True)
+
+    def setup_status_bar(self) -> None:
+        """Set up the status bar"""
+        self.status_bar = self.statusBar()
+
+        # Stage label
+        self.stage_label = QLabel("Ready")
+        self.status_bar.addWidget(self.stage_label)
+
+        # Current file label (stretched)
+        self.current_file_label = QLabel("")
+        self.status_bar.addWidget(self.current_file_label, 1)
+
+        # Progress bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMaximumWidth(200)
+        self.progress_bar.setVisible(False) # Hide when not active
+        self.status_bar.addPermanentWidget(self.progress_bar)
+
     def setup_process_controls_ui(self, parent_layout: QVBoxLayout) -> None:
-        """Set up process controls UI"""
+        """Set up process controls UI (Buttons and Log)"""
         process_group = QGroupBox("Process Control")
         process_layout = QVBoxLayout(process_group)
 
-        # Progress bar
-        progress_layout = QHBoxLayout()
-        progress_layout.addWidget(QLabel("Progress:"))
-        self.progress_bar = QProgressBar()
-        progress_layout.addWidget(self.progress_bar)
-        process_layout.addLayout(progress_layout)
-
-        # Current stage and file
-        self.stage_label = QLabel("Ready")
-        process_layout.addWidget(self.stage_label)
-
-        self.current_file_label = QLabel("No file being processed")
-        process_layout.addWidget(self.current_file_label)
+        # Removed Progress Bar and Labels from here as they are now in Status Bar
 
         # Log
         log_layout = QVBoxLayout()
@@ -219,6 +270,16 @@ class MainWindow(QMainWindow):
         process_layout.addWidget(stop_btn)
 
         parent_layout.addWidget(process_group)
+
+    def change_theme(self, theme_name: str) -> None:
+        """Change the application theme"""
+        app = QApplication.instance()
+        if app:
+            self.theme_manager.apply_theme(app, theme_name)
+            # Update checked state in menu if needed (handled by ActionGroup mostly, but explicit check ensures sync)
+            for action in self.theme_action_group.actions():
+                if action.text() == theme_name:
+                    action.setChecked(True)
 
     def set_default_directories(self) -> None:
         """Set default directories from configuration"""
@@ -286,6 +347,7 @@ class MainWindow(QMainWindow):
     def start_scan(self) -> None:
         """Start the scanning process (Stage 1)"""
         # Prepare UI
+        self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log_message("Starting scan...")
@@ -302,6 +364,7 @@ class MainWindow(QMainWindow):
             return
 
         # Prepare UI
+        self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log_message("Starting dry run (no files will be moved)...")
@@ -317,6 +380,7 @@ class MainWindow(QMainWindow):
             return
 
         # Prepare UI
+        self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log_message("Starting organization...")
@@ -332,6 +396,7 @@ class MainWindow(QMainWindow):
             return
 
         # Prepare UI
+        self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log_message("Starting metadata update...")
@@ -350,6 +415,7 @@ class MainWindow(QMainWindow):
             return
 
         # Prepare UI
+        self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log_message("Starting all stages...")
@@ -374,6 +440,9 @@ class MainWindow(QMainWindow):
                 self.worker_thread.terminate()
                 self.worker_thread.wait()
                 self.add_log_message("Processing stopped by user")
+                self.progress_bar.setVisible(False)
+                self.stage_label.setText("Stopped")
+                self.current_file_label.setText("")
 
     def update_progress(self, stage: int, current: int, total: int) -> None:
         """Update progress bar"""
@@ -402,6 +471,10 @@ class MainWindow(QMainWindow):
 
     def processing_completed(self, results: Dict[str, Any]) -> None:
         """Handle completion of processing"""
+        self.progress_bar.setVisible(False)
+        self.stage_label.setText("Ready")
+        self.current_file_label.setText("")
+
         # Check for errors
         if "error" in results:
             self.add_log_message(f"Error: {results['error']}")
