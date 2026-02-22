@@ -1,5 +1,10 @@
 # Auralis - Advanced Music File Management
 
+![CI](https://github.com/patternseekers/auralis/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
+
 Auralis is a powerful cross-platform application for managing music file collections. It offers a 3-stage workflow for scanning, organizing, and enhancing metadata of your music files.
 
 ## Features

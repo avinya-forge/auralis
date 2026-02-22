@@ -29,6 +29,17 @@ if "wx" not in sys.modules:
     sys.modules["wx.lib"] = mock_wx.lib
     sys.modules["wx.lib.newevent"] = mock_wx.lib.newevent
 
+# Mock requests before importing module under test
+if "requests" not in sys.modules:
+    sys.modules["requests"] = MagicMock()
+
+if "PIL" not in sys.modules:
+    sys.modules["PIL"] = MagicMock()
+    sys.modules["PIL.Image"] = MagicMock()
+
+if "bs4" not in sys.modules:
+    sys.modules["bs4"] = MagicMock()
+
 # We do NOT mock core services in sys.modules anymore to avoid polluting other tests.
 # Instead, we rely on patch.multiple to replace them in the worker module.
 

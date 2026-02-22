@@ -6,6 +6,10 @@ import os
 from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
+try:
+    import wx.adv  # type: ignore
+except ImportError:
+    pass
 
 from src.gui.wx.events import EVT_COMPLETED, EVT_FILE, EVT_PROGRESS, EVT_STATUS
 from src.gui.wx.tabs.metadata_tab import MetadataTab
@@ -14,6 +18,54 @@ from src.gui.wx.tabs.scan_tab import ScanTab
 from src.gui.wx.worker import WorkerThread
 from src.utils.config import get_config
 from src.utils.system_utils import SystemMonitor
+
+
+class AuralisTaskBarIcon(wx.adv.TaskBarIcon):
+    """TaskBarIcon implementation for system tray support"""
+
+    def __init__(self, frame: wx.Frame) -> None:
+        super().__init__()
+        self.frame = frame
+        self._set_icon()
+        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_down)
+
+    def _set_icon(self) -> None:
+        """Set the taskbar icon"""
+        icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+            "resources",
+            "icons",
+            "auralis.png",
+        )
+        if os.path.exists(icon_path):
+            icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ANY)
+            self.SetIcon(icon, "Auralis")
+
+    def CreatePopupMenu(self) -> wx.Menu:
+        """Create the popup menu for the taskbar icon"""
+        menu = wx.Menu()
+        restore_item = menu.Append(wx.ID_ANY, "Restore")
+        exit_item = menu.Append(wx.ID_EXIT, "Exit")
+
+        self.Bind(wx.EVT_MENU, self.on_restore, restore_item)
+        self.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+        return menu
+
+    def on_left_down(self, event: Any) -> None:
+        """Handle left click on taskbar icon"""
+        self.on_restore(event)
+
+    def on_restore(self, event: Any) -> None:
+        """Restore the main window"""
+        if self.frame.IsIconized():
+            self.frame.Iconize(False)
+        if not self.frame.IsShown():
+            self.frame.Show(True)
+        self.frame.Raise()
+
+    def on_exit(self, event: Any) -> None:
+        """Exit the application"""
+        self.frame.Close()
 
 
 class MainWindow(wx.Frame):
@@ -57,6 +109,14 @@ class MainWindow(wx.Frame):
 
         # Bind events
         self.Bind(wx.EVT_CLOSE, self.on_close)
+        self.Bind(wx.EVT_ICONIZE, self.on_iconize)
+
+        # Initialize TaskBarIcon
+        try:
+            self.task_bar_icon = AuralisTaskBarIcon(self)
+        except Exception:
+            # Fallback if TaskBarIcon fails or not supported
+            self.task_bar_icon = None
 
         # Bind worker events
         self.Bind(EVT_PROGRESS, self.on_progress)
@@ -268,6 +328,21 @@ class MainWindow(wx.Frame):
         if hasattr(self, "system_monitor"):
             self.system_monitor.stop_monitoring()
 
+        # Remove taskbar icon
+        if hasattr(self, "task_bar_icon") and self.task_bar_icon:
+            self.task_bar_icon.RemoveIcon()
+            self.task_bar_icon.Destroy()
+
+        event.Skip()
+
+    def on_iconize(self, event: Any) -> None:
+        """Handle window minimization"""
+        if event.IsIconized():
+            # Only hide if we have a tray icon to restore from
+            if self.task_bar_icon:
+                self.Hide()
+        else:
+            self.Show()
         event.Skip()
 
     # --- Worker Control ---

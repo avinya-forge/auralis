@@ -5,6 +5,21 @@ from unittest.mock import MagicMock, patch
 # Mock wx module
 mock_wx = MagicMock()
 
+class MockMenu:
+    def __init__(self):
+        self.items = []
+
+    def Append(self, id, text):
+        item = MagicMock()
+        item.GetId.return_value = id
+        item.GetText.return_value = text
+        self.items.append(item)
+        return item
+
+    def Destroy(self):
+        pass
+
+mock_wx.Menu = MockMenu
 
 class MockPanel:
     def __init__(self, parent=None, **kwargs):
@@ -13,7 +28,7 @@ class MockPanel:
     def SetSizer(self, sizer):
         pass
 
-    def Bind(self, event, handler):
+    def Bind(self, event, handler, *args, **kwargs):
         pass
 
 
@@ -93,9 +108,15 @@ class TestScanTab(unittest.TestCase):
         # Reset mocks
         mock_wx.reset_mock()
 
-        # Mock get_config
+        # Mock get_config, set_config, save_config
         self.config_patcher = patch("src.gui.wx.tabs.scan_tab.get_config")
         self.mock_get_config = self.config_patcher.start()
+
+        self.set_config_patcher = patch("src.gui.wx.tabs.scan_tab.set_config")
+        self.mock_set_config = self.set_config_patcher.start()
+
+        self.save_config_patcher = patch("src.gui.wx.tabs.scan_tab.save_config")
+        self.mock_save_config = self.save_config_patcher.start()
 
         # Default behavior for get_config
         def get_config_side_effect(key, default=None):
@@ -107,11 +128,15 @@ class TestScanTab(unittest.TestCase):
                 return True
             if key == "TEST_MODE_FILE_COUNT":
                 return 10
+            if key == "RECENT_FOLDERS":
+                return ["/recent/1", "/recent/2"]
             return default
 
         self.mock_get_config.side_effect = get_config_side_effect
 
     def tearDown(self):
+        self.save_config_patcher.stop()
+        self.set_config_patcher.stop()
         self.config_patcher.stop()
         self.modules_patcher.stop()
 
@@ -120,6 +145,7 @@ class TestScanTab(unittest.TestCase):
         tab = self.ScanTab(None)
         self.assertTrue(hasattr(tab, "source_list"))
         self.assertTrue(hasattr(tab, "add_source_btn"))
+        self.assertTrue(hasattr(tab, "recent_btn"))
         self.assertTrue(hasattr(tab, "remove_source_btn"))
         self.assertTrue(hasattr(tab, "extensions_edit"))
         self.assertTrue(hasattr(tab, "rename_check"))
@@ -136,6 +162,10 @@ class TestScanTab(unittest.TestCase):
         tab.add_directory("/path/to/music")
 
         tab.source_list.Append.assert_called_with("/path/to/music")
+
+        # Verify it saves to recent
+        self.mock_set_config.assert_called()
+        self.mock_save_config.assert_called()
 
     def test_add_directory_duplicate(self):
         """Test adding a duplicate directory"""
@@ -217,3 +247,41 @@ class TestScanTab(unittest.TestCase):
         with patch.object(tab, "validate_source_directories", return_value=False):
             tab.on_scan_clicked(event)
             event.Skip.assert_not_called()
+
+    def test_on_recent_clicked(self):
+        """Test clicking recent button"""
+        tab = self.ScanTab(None)
+        event = MagicMock()
+
+        tab.PopupMenu = MagicMock()
+        tab.Bind = MagicMock()
+
+        tab.on_recent_clicked(event)
+
+        # Should show menu
+        tab.PopupMenu.assert_called()
+
+        # Should bind events
+        self.assertTrue(tab.Bind.called)
+
+    def test_save_recent_folder(self):
+        """Test saving recent folder"""
+        tab = self.ScanTab(None)
+
+        # Initial state: ["/recent/1", "/recent/2"]
+
+        # Add new
+        tab.save_recent_folder("/recent/new")
+        self.mock_set_config.assert_called()
+        args, _ = self.mock_set_config.call_args
+        self.assertEqual(args[0], "RECENT_FOLDERS")
+        self.assertEqual(args[1][0], "/recent/new")
+
+        # Add existing (should move to top)
+        self.mock_set_config.reset_mock()
+        tab.save_recent_folder("/recent/2")
+        args, _ = self.mock_set_config.call_args
+        self.assertEqual(args[1][0], "/recent/2")
+        # Since get_config mock is stateless, it returns the original 2 items
+        # So removing one and adding it back keeps length at 2
+        self.assertEqual(len(args[1]), 2)

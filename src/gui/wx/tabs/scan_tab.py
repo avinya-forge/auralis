@@ -2,11 +2,24 @@
 Stage 1: Scan & Rename Tab (wxPython)
 """
 
+import os
 from typing import Any, Dict, List, Optional
 
 import wx  # type: ignore
 
-from src.utils.config import get_config
+from src.utils.config import get_config, save_config, set_config
+
+
+class FileDropTarget(wx.FileDropTarget):
+    """Drop target for files and directories"""
+
+    def __init__(self, callback: Any) -> None:
+        super().__init__()
+        self.callback = callback
+
+    def OnDropFiles(self, x: int, y: int, filenames: List[str]) -> bool:
+        self.callback(filenames)
+        return True
 
 
 class ScanTab(wx.Panel):
@@ -25,15 +38,25 @@ class ScanTab(wx.Panel):
         source_sizer = wx.StaticBoxSizer(source_sb, wx.VERTICAL)
 
         self.source_list = wx.ListBox(self)
+
+        # Setup Drop Target
+        drop_target = FileDropTarget(self.handle_dropped_files)
+        self.source_list.SetDropTarget(drop_target)
+
         source_sizer.Add(self.source_list, 1, wx.EXPAND | wx.ALL, 5)
 
         source_btn_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.add_source_btn = wx.Button(self, label="Add Directory")
         self.add_source_btn.Bind(wx.EVT_BUTTON, self.on_add_source)
+
+        self.recent_btn = wx.Button(self, label="Recent...")
+        self.recent_btn.Bind(wx.EVT_BUTTON, self.on_recent_clicked)
+
         self.remove_source_btn = wx.Button(self, label="Remove Selected")
         self.remove_source_btn.Bind(wx.EVT_BUTTON, self.on_remove_source)
 
         source_btn_sizer.Add(self.add_source_btn, 0, wx.RIGHT, 5)
+        source_btn_sizer.Add(self.recent_btn, 0, wx.RIGHT, 5)
         source_btn_sizer.Add(self.remove_source_btn, 0)
         source_sizer.Add(source_btn_sizer, 0, wx.ALL, 5)
 
@@ -96,10 +119,46 @@ class ScanTab(wx.Panel):
             self.add_directory(dlg.GetPath())
         dlg.Destroy()
 
+    def on_recent_clicked(self, event: Any) -> None:
+        """Show menu with recent folders"""
+        recent_folders = get_config("RECENT_FOLDERS", [])
+        if not recent_folders:
+            wx.MessageBox("No recent folders.", "Info", wx.OK | wx.ICON_INFORMATION)
+            return
+
+        menu = wx.Menu()
+        for folder in recent_folders:
+            item = menu.Append(wx.ID_ANY, folder)
+            self.Bind(wx.EVT_MENU, lambda evt, path=folder: self.add_directory(path), item)
+
+        self.PopupMenu(menu)
+        menu.Destroy()
+
     def add_directory(self, path: str) -> None:
         """Add a directory path to the list"""
         if self.source_list.FindString(path) == wx.NOT_FOUND:
             self.source_list.Append(path)
+            self.save_recent_folder(path)
+
+    def save_recent_folder(self, path: str) -> None:
+        """Save folder to recent list"""
+        recent_folders = get_config("RECENT_FOLDERS", [])
+        # Ensure it's a list
+        if not isinstance(recent_folders, list):
+            recent_folders = []
+
+        if path in recent_folders:
+            recent_folders.remove(path)
+        recent_folders.insert(0, path)
+        recent_folders = recent_folders[:10]  # Keep last 10
+        set_config("RECENT_FOLDERS", recent_folders)
+        save_config()
+
+    def handle_dropped_files(self, filenames: List[str]) -> None:
+        """Handle files dropped onto the list"""
+        for path in filenames:
+            if os.path.isdir(path):
+                self.add_directory(path)
 
     def on_remove_source(self, event: Any) -> None:
         """Remove the selected source directory"""
