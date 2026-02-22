@@ -41,10 +41,13 @@ class TestWikipediaBioProvider(unittest.TestCase):
 
         # Paragraphs
         p1 = MagicMock()
-        p1.get_text.return_value = "" # First empty
+        p1.get_text.return_value = ""  # First empty
 
         p2 = MagicMock()
-        p2_text = "The Beatles were an English rock band formed in Liverpool in 1960. With a line-up comprising John Lennon, Paul McCartney, George Harrison and Ringo Starr, they are regarded as the most influential band of all time.[1]"
+        p2_text = (
+            "The Beatles were an English rock band formed in Liverpool in 1960. With a line-up comprising John Lennon, "
+            "Paul McCartney, George Harrison and Ringo Starr, they are regarded as the most influential band of all time.[1]"
+        )
         p2.get_text.return_value = p2_text
 
         mock_content_div.find_all.return_value = [p1, p2]
@@ -91,7 +94,9 @@ class TestWikipediaBioProvider(unittest.TestCase):
         mock_soup.find.return_value = mock_content_div
 
         p = MagicMock()
-        p.get_text.return_value = "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes."
+        p.get_text.return_value = (
+            "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes."
+        )
 
         mock_content_div.find_all.return_value = [p]
 

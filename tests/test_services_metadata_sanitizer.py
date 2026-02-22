@@ -6,7 +6,7 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Define Mock classes at module level
+
 class MockMP3(MagicMock):
     pass
 
@@ -59,20 +59,6 @@ class TestMetadataSanitizer(unittest.TestCase):
     @patch("src.services.metadata_sanitizer.mutagen.File")
     def test_sanitize_mp3_remove_id3v1(self, mock_file):
         """Test removing ID3v1 tags from MP3"""
-        # Setup mocks
-        # We need to ensure ID3(...) returns a mock with delete_v1
-        # ID3 is now MockID3 class.
-        # Calling MockID3("file") returns an instance.
-        # We can configure that instance via side_effect or just rely on MagicMock behavior
-
-        # But wait, we need to verify delete_v1 was called on the instance created by ID3()
-        # Since ID3 is MockID3, we can spy on it?
-        # Or we can check if any instance of MockID3 had delete_v1 called?
-
-        # Actually, simpler: we can just check if MockID3 was called, and then check the return value.
-        # But MockID3 is the class.
-
-        # mock_file return value
         mock_audio_file = MagicMock()
         mock_file.return_value = mock_audio_file
 
@@ -81,19 +67,6 @@ class TestMetadataSanitizer(unittest.TestCase):
             "test.mp3",
             {"remove_id3v1": True, "remove_comments": False, "trim_whitespace": False}
         )
-
-        # Verify ID3 was instantiated
-        # Since ID3 is the class MockID3, we can't easily check instantiation unless we wrapped it or it's a Mock object itself acting as class.
-        # MockID3 is a class inheriting MagicMock.
-        # Instantiation: MockID3("test.mp3") -> returns MagicMock instance.
-
-        # We can't verify calls on the class MockID3 directly if it's a real class.
-        # BUT, we can check if we can patch ID3 in the module with a MagicMock that *returns* MockID3 instances?
-        # In setUp: mock_id3_module.ID3 = MagicMock(return_value=MockID3())
-        # Then we can check assert_called_with.
-
-        # Let's try to assume it works if we don't crash, or rely on other tests.
-        # Or we can just skip this verification detail and focus on coverage.
 
         self.assertFalse(result)
 
@@ -104,14 +77,10 @@ class TestMetadataSanitizer(unittest.TestCase):
         mock_audio = MagicMock()
 
         # Create a mock that satisfies isinstance(..., ID3)
-        # mock_audio.tags must be an instance of MockID3
         mock_tags = MockID3()
         mock_audio.tags = mock_tags
 
         # Mock keys() to return list
-        # MockID3 inherits MagicMock.
-        # Iterating over it yields iter(mock).
-        # We want keys() method to return list.
         mock_tags.keys.return_value = ["COMM:desc:eng", "TIT2"]
 
         mock_file.return_value = mock_audio
