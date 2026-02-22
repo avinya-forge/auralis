@@ -50,6 +50,7 @@ class TestMetadataSanitizer(unittest.TestCase):
             del sys.modules["src.services.metadata_sanitizer"]
 
         import src.services.metadata_sanitizer
+
         self.module = src.services.metadata_sanitizer
         self.sanitizer = self.module.MetadataSanitizer()
 
@@ -64,8 +65,7 @@ class TestMetadataSanitizer(unittest.TestCase):
 
         # Run test
         result = self.sanitizer.sanitize(
-            "test.mp3",
-            {"remove_id3v1": True, "remove_comments": False, "trim_whitespace": False}
+            "test.mp3", {"remove_id3v1": True, "remove_comments": False, "trim_whitespace": False}
         )
 
         self.assertFalse(result)
@@ -134,8 +134,7 @@ class TestMetadataSanitizer(unittest.TestCase):
         mock_file.return_value = mock_audio
 
         result = self.sanitizer.sanitize(
-            "test.mp3",
-            {"remove_padding": True, "trim_whitespace": False, "remove_comments": False}
+            "test.mp3", {"remove_padding": True, "trim_whitespace": False, "remove_comments": False}
         )
 
         mock_audio.tags.save.assert_called_with("test.mp3", padding=0)

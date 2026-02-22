@@ -95,7 +95,8 @@ class TestWikipediaBioProvider(unittest.TestCase):
 
         p = MagicMock()
         p.get_text.return_value = (
-            "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes."
+            "A band bio that is long enough to pass the length check of 50 characters. "
+            "This ensures the test passes."
         )
 
         mock_content_div.find_all.return_value = [p]
@@ -104,7 +105,10 @@ class TestWikipediaBioProvider(unittest.TestCase):
 
         self.assertEqual(
             bio,
-            "A band bio that is long enough to pass the length check of 50 characters. This ensures the test passes.",
+            (
+                "A band bio that is long enough to pass the length check of 50 characters. "
+                "This ensures the test passes."
+            ),
         )
         self.assertEqual(mock_get.call_count, 2)
 

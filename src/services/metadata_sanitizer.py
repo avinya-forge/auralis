@@ -22,7 +22,9 @@ class MetadataSanitizer:
         """Initialize the MetadataSanitizer."""
         self.logger = logging.getLogger(__name__)
 
-    def sanitize(self, file_path: str, options: Optional[Dict[str, Any]] = None) -> bool:  # noqa: C901
+    def sanitize(  # noqa: C901
+        self, file_path: str, options: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """
         Sanitize metadata in a music file based on options.
 
