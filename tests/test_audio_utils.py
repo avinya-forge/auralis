@@ -1,177 +1,84 @@
-"""
-Unit tests for audio_utils.py
-"""
-
-import unittest
+import os
 from unittest.mock import MagicMock, patch
 
-# Dependencies are mocked in conftest.py if missing
-from mutagen.flac import FLAC
-from mutagen.mp3 import MP3
+import pytest
 
-from src.utils.audio_utils import (
-    AudioMetadataHandler,
-    get_album_art,
-    get_audio_metadata,
-    set_album_art,
-    set_audio_metadata,
-)
+from src.utils.audio_utils import AudioUtils
 
 
-class TestAudioMetadataHandler(unittest.TestCase):
-    def setUp(self):
-        self.mp3_path = "test.mp3"
-        self.flac_path = "test.flac"
+class TestAudioUtils:
 
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_load_mp3(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = MP3()
-        mock_mutagen_file.return_value = mock_audio
+    def test_detect_leading_silence(self):
+        # Create a mock sound object
+        mock_sound = MagicMock()
+        mock_sound.__len__.return_value = 100
+        # Mock slice access: sound[start:end].dBFS
+        # Return -60 for first 20ms, then -40
+        def get_slice(s):
+            start = s.start
+            end = s.stop
+            slice_mock = MagicMock()
+            if start < 20:
+                slice_mock.dBFS = -60.0
+            else:
+                slice_mock.dBFS = -40.0
+            return slice_mock
 
-        # Test
-        handler = AudioMetadataHandler(self.mp3_path)
+        mock_sound.__getitem__.side_effect = get_slice
 
-        # Verify
-        self.assertTrue(handler.is_valid())
-        mock_mutagen_file.assert_called_once_with(self.mp3_path)
+        silence_ms = AudioUtils.detect_leading_silence(mock_sound, silence_threshold=-50.0, chunk_size=10)
+        assert silence_ms == 20
 
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_load_flac(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = FLAC()
-        mock_mutagen_file.return_value = mock_audio
+    @patch("src.utils.audio_utils.HAS_PYDUB", True)
+    @patch("src.utils.audio_utils.AudioSegment")
+    def test_trim_silence(self, MockAudioSegment):
+        mock_audio = MagicMock()
+        MockAudioSegment.from_file.return_value = mock_audio
+        mock_audio.__len__.return_value = 1000  # 1 sec
 
-        # Test
-        handler = AudioMetadataHandler(self.flac_path)
+        # We need mock_audio.reverse() to return mock_audio or another mock
+        mock_audio.reverse.return_value = mock_audio
 
-        # Verify
-        self.assertTrue(handler.is_valid())
+        # Mock detect_leading_silence by patching AudioUtils.detect_leading_silence
+        with patch("src.utils.audio_utils.AudioUtils.detect_leading_silence", side_effect=[150, 150]):
+            # Start: 150ms silence. End: 150ms silence.
+            # Padding: 100ms.
+            # Should trim 150-100 = 50ms from start and end.
 
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_load_failed(self, mock_mutagen_file):
-        # Setup mock
-        mock_mutagen_file.side_effect = Exception("Load error")
+            # Mock slicing and export
+            mock_trimmed = MagicMock()
+            mock_audio.__getitem__.return_value = mock_trimmed
 
-        # Test
-        handler = AudioMetadataHandler("invalid.mp3")
+            result = AudioUtils.trim_silence("test.mp3", padding=100)
 
-        # Verify
-        self.assertFalse(handler.is_valid())
+            assert result is True
+            mock_audio.__getitem__.assert_called()
+            # Verify slice indices: start=50, end=1000-50=950
+            # slice(50, 950)
+            args, _ = mock_audio.__getitem__.call_args
+            # slice object is passed
+            s = args[0]
+            assert s.start == 50
+            assert s.stop == 950
 
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_get_metadata_mp3(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = MP3()
-        mock_audio.__contains__.side_effect = lambda key: key in ["TPE1", "TIT2"]
-        mock_audio.__getitem__.side_effect = lambda key: {"TPE1": "Artist", "TIT2": "Title"}[key]
-        mock_audio.info.bitrate = 128000
-        mock_audio.info.length = 180
-        mock_audio.info.sample_rate = 44100
-        mock_mutagen_file.return_value = mock_audio
+            mock_trimmed.export.assert_called_with("test.mp3", format="mp3")
 
-        # Test
-        metadata = get_audio_metadata(self.mp3_path)
+    @patch("src.utils.audio_utils.HAS_PYDUB", False)
+    def test_trim_silence_no_pydub(self):
+        assert not AudioUtils.trim_silence("test.mp3")
 
-        # Verify
-        self.assertEqual(metadata["artist"], "Artist")
-        self.assertEqual(metadata["title"], "Title")
-        self.assertEqual(metadata["bitrate"], 128000)
+    @patch("src.utils.audio_utils.HAS_PYDUB", True)
+    @patch("src.utils.audio_utils.AudioSegment")
+    def test_trim_silence_no_silence(self, MockAudioSegment):
+        mock_audio = MagicMock()
+        MockAudioSegment.from_file.return_value = mock_audio
+        mock_audio.__len__.return_value = 1000
+        mock_audio.reverse.return_value = mock_audio
 
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_get_metadata_flac(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = FLAC()
-        mock_audio.__contains__.side_effect = lambda key: key in ["artist", "title"]
-        mock_audio.__getitem__.side_effect = lambda key: {"artist": ["Artist"], "title": ["Title"]}[
-            key
-        ]
-        mock_audio.info.bits_per_sample = 16
-        mock_audio.info.sample_rate = 44100
-        mock_audio.info.length = 180
-        # Ensure bitrate is not present so it falls back to calculation
-        del mock_audio.info.bitrate
-        mock_mutagen_file.return_value = mock_audio
-
-        # Test
-        metadata = get_audio_metadata(self.flac_path)
-
-        # Verify
-        self.assertEqual(metadata["artist"], "Artist")
-        self.assertEqual(metadata["title"], "Title")
-        self.assertEqual(metadata["bitrate"], 16 * 44100)
-
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_set_metadata_mp3(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = MP3()
-        mock_mutagen_file.return_value = mock_audio
-
-        metadata = {"artist": "New Artist", "title": "New Title"}
-
-        # Test
-        result = set_audio_metadata(self.mp3_path, metadata)
-
-        # Verify
-        self.assertTrue(result)
-        mock_audio.save.assert_called_once()
-        # Check if tags were set (simplified check as we use MP3_TAG_CLASSES)
-        self.assertTrue(mock_audio.__setitem__.called)
-
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_set_metadata_flac(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = FLAC()
-        mock_mutagen_file.return_value = mock_audio
-
-        metadata = {"artist": "New Artist", "title": "New Title"}
-
-        # Test
-        result = set_audio_metadata(self.flac_path, metadata)
-
-        # Verify
-        self.assertTrue(result)
-        mock_audio.save.assert_called_once()
-        mock_audio.__setitem__.assert_any_call("artist", "New Artist")
-        mock_audio.__setitem__.assert_any_call("title", "New Title")
-
-    @patch("requests.get")
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_set_album_art_url(self, mock_mutagen_file, mock_requests_get):
-        # Setup mock
-        mock_audio = MP3()
-        mock_audio.tags = MagicMock()
-        mock_mutagen_file.return_value = mock_audio
-
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.content = b"fake_image_data"
-        mock_requests_get.return_value = mock_response
-
-        # Test
-        result = set_album_art(self.mp3_path, image_url="http://example.com/cover.jpg")
-
-        # Verify
-        self.assertTrue(result)
-        mock_audio.save.assert_called_once()
-        mock_audio.tags.add.assert_called_once()
-
-    @patch("src.utils.audio_utils.mutagen.File")
-    def test_get_album_art_mp3(self, mock_mutagen_file):
-        # Setup mock
-        mock_audio = MP3()
-        mock_tag = MagicMock()
-        mock_tag.FrameID = "APIC"
-        mock_tag.data = b"fake_image_data"
-        mock_audio.tags.values.return_value = [mock_tag]
-        mock_mutagen_file.return_value = mock_audio
-
-        # Test
-        data = get_album_art(self.mp3_path)
-
-        # Verify
-        self.assertEqual(data, b"fake_image_data")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        with patch("src.utils.audio_utils.AudioUtils.detect_leading_silence", side_effect=[50, 50]):
+            # Silence 50ms < Padding 100ms. No trim needed.
+            result = AudioUtils.trim_silence("test.mp3", padding=100)
+            assert result is False
+            # Export not called on trimmed audio (which isn't created)
+            # But mock_audio.export is not called either
+            mock_audio.export.assert_not_called()

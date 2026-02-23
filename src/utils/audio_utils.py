@@ -9,6 +9,12 @@ import acoustid
 import mutagen
 import requests  # type: ignore
 from mutagen.flac import FLAC, Picture
+
+try:
+    from pydub import AudioSegment
+    HAS_PYDUB = True
+except ImportError:
+    HAS_PYDUB = False
 from mutagen.id3 import APIC, TALB, TCON, TDRC, TIT2, TPE1, TRCK
 from mutagen.mp3 import MP3
 
@@ -391,3 +397,94 @@ def is_audio_file(file_path: str) -> bool:
         return audio is not None
     except Exception:
         return False
+
+
+class AudioUtils:
+    """Utility class for audio processing."""
+
+    @staticmethod
+    def detect_leading_silence(
+        sound: "AudioSegment", silence_threshold: float = -50.0, chunk_size: int = 10
+    ) -> int:
+        """
+        Detect silence at the beginning of an audio segment.
+
+        Args:
+            sound (AudioSegment): The audio segment.
+            silence_threshold (float): Silence threshold in dBFS.
+            chunk_size (int): Resolution in ms.
+
+        Returns:
+            int: Duration of silence in ms.
+        """
+        trim_ms = 0  # ms
+
+        assert chunk_size > 0  # to avoid infinite loop
+
+        while trim_ms < len(sound) and sound[trim_ms : trim_ms + chunk_size].dBFS < silence_threshold:
+            trim_ms += chunk_size
+
+        return trim_ms
+
+    @staticmethod
+    def trim_silence(
+        file_path: str,
+        threshold: float = -50.0,
+        chunk_size: int = 10,
+        padding: int = 100,
+    ) -> bool:
+        """
+        Trim silence from the beginning and end of an audio file.
+
+        Args:
+            file_path (str): Path to the audio file.
+            threshold (float): Silence threshold in dBFS.
+            chunk_size (int): Resolution in ms.
+            padding (int): Padding in ms to keep at start/end.
+
+        Returns:
+            bool: True if successful (file modified), False otherwise.
+        """
+        if not HAS_PYDUB:
+            return False
+
+        try:
+            # Load audio
+            # pydub auto-detects format, but for export we might need explicit format
+            audio = AudioSegment.from_file(file_path)
+
+            # Detect silence
+            start_trim = AudioUtils.detect_leading_silence(
+                audio, silence_threshold=threshold, chunk_size=chunk_size
+            )
+            end_trim = AudioUtils.detect_leading_silence(
+                audio.reverse(), silence_threshold=threshold, chunk_size=chunk_size
+            )
+
+            duration = len(audio)
+
+            # Check if trimming is needed
+            # (start_trim + end_trim) < duration ensures we don't trim everything if silence detection is aggressive
+            if (start_trim > padding or end_trim > padding) and (start_trim + end_trim < duration):
+                # Adjust trim with padding
+                start_trim = max(0, start_trim - padding)
+                end_trim = max(0, end_trim - padding)
+
+                trimmed_audio = audio[start_trim : duration - end_trim]
+
+                # Export
+                # Determine format from extension
+                ext = os.path.splitext(file_path)[1].lower()
+                fmt = ext.lstrip(".")
+                if fmt == "m4a":
+                    fmt = "ipod"  # ffmpeg format for m4a
+
+                trimmed_audio.export(file_path, format=fmt)
+                return True
+
+            return False
+
+        except Exception as e:
+            # Log error?
+            # print(f"Error trimming silence for {file_path}: {e}")
+            return False

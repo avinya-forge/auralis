@@ -22,7 +22,9 @@ import mutagen.mp3
 from PyQt6.QtCore import QObject, pyqtSignal
 
 from src.services.album_art_service import AlbumArtFetcher
+from src.services.audio_analysis_service import AudioAnalyzer
 from src.services.bio_service import BioService
+from src.services.cache_service import CacheService
 
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics
@@ -699,6 +701,12 @@ class MetadataService(QObject):
         # Initialize bio service
         self.bio_service = BioService()
 
+        # Initialize audio analyzer
+        self.audio_analyzer = AudioAnalyzer()
+
+        # Initialize cache service
+        self.cache_service = CacheService()
+
         # Load saved statistics if available
         self._load_stats()
 
@@ -803,12 +811,11 @@ class MetadataService(QObject):
         Returns:
             List[Dict[str, Any]]: Updated music files.
         """
-        metadata_cache = self._load_metadata_cache()
         self._update_api_keys(options)
 
         total_files = len(music_files)
         files_to_process, processed_count = self._filter_files_for_update(
-            music_files, options, metadata_cache, total_files
+            music_files, options, total_files
         )
 
         # Process files
@@ -816,40 +823,17 @@ class MetadataService(QObject):
             files_to_process,
             music_files,
             options,
-            metadata_cache,
             max_threads,
             processed_count,
             total_files,
         )
 
-        self._save_metadata_cache(metadata_cache)
         self._save_stats()
 
         stats = {name: source.get_stats() for name, source in self.sources.items()}
         self.source_stats_updated.emit(stats)
 
         return music_files
-
-    def _load_metadata_cache(self) -> Dict[str, Any]:
-        """Load metadata cache from local file."""
-        cache_file = Path.home() / ".auralis" / "metadata_cache.json"
-        if cache_file.exists():
-            try:
-                with open(cache_file, "r") as f:
-                    return cast(Dict[str, Any], json.load(f))
-            except Exception as e:
-                print(f"Error loading metadata cache: {str(e)}")
-        return {}
-
-    def _save_metadata_cache(self, metadata_cache: Dict[str, Any]) -> None:
-        """Save metadata cache to local file."""
-        cache_file = Path.home() / ".auralis" / "metadata_cache.json"
-        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-        try:
-            with open(cache_file, "w") as f:
-                json.dump(metadata_cache, f)
-        except Exception as e:
-            print(f"Error saving metadata cache: {str(e)}")
 
     def _update_api_keys(self, options: Dict[str, Any]) -> None:
         """Update API keys for sources from options."""
@@ -875,7 +859,6 @@ class MetadataService(QObject):
         self,
         music_files: List[Dict[str, Any]],
         options: Dict[str, Any],
-        metadata_cache: Dict[str, Any],
         total_files: int,
     ) -> Tuple[List[Tuple[int, Dict[str, Any]]], int]:
         """Filter files that need metadata updates."""
@@ -884,9 +867,12 @@ class MetadataService(QObject):
 
         for i, file_info in enumerate(music_files):
             file_hash = file_info.get("hash")
+            cached_metadata = None
+            if file_hash and not options.get("force_update", False):
+                cached_metadata = self.cache_service.get_metadata(file_hash)
 
-            if file_hash and file_hash in metadata_cache and not options.get("force_update", False):
-                file_info["metadata"].update(metadata_cache[file_hash])
+            if cached_metadata:
+                file_info["metadata"].update(cached_metadata)
                 self.file_updated.emit(f"Using cached metadata for: {file_info['path']}")
                 processed_count += 1
                 self.progress_updated.emit(processed_count, total_files)
@@ -905,7 +891,6 @@ class MetadataService(QObject):
         files_to_process: List[Tuple[int, Dict[str, Any]]],
         music_files: List[Dict[str, Any]],
         options: Dict[str, Any],
-        metadata_cache: Dict[str, Any],
         max_threads: int,
         start_processed_count: int,
         total_files: int,
@@ -919,7 +904,6 @@ class MetadataService(QObject):
                     self._process_file_with_cache,
                     file_info,
                     options,
-                    metadata_cache,
                 ): orig_index
                 for orig_index, file_info in files_to_process
             }
@@ -940,7 +924,6 @@ class MetadataService(QObject):
         self,
         file_info: Dict[str, Any],
         options: Dict[str, Any],
-        metadata_cache: Dict[str, Any],
     ) -> Optional[Dict[str, Any]]:
         """Process a file with caching support."""
         try:
@@ -951,7 +934,9 @@ class MetadataService(QObject):
             if updated_file_info and "hash" in updated_file_info:
                 file_hash = updated_file_info["hash"]
                 if file_hash and "metadata" in updated_file_info:
-                    metadata_cache[file_hash] = updated_file_info["metadata"]
+                    self.cache_service.save_metadata(
+                        file_hash, updated_file_info["metadata"]
+                    )
 
             return updated_file_info
 
@@ -1068,8 +1053,56 @@ class MetadataService(QObject):
             if bio:
                 metadata["bio"] = bio
 
+        # Analyze audio if enabled
+        if options.get("analyze_audio", False):
+            self.file_updated.emit(f"{file_info['path']} (analyzing audio)")
+            self._analyze_audio(file_info, metadata)
+
         # Emit signal
         self.metadata_updated.emit(file_info["path"], metadata)
+
+    def _analyze_audio(self, file_info: Dict[str, Any], metadata: Dict[str, Any]) -> None:
+        """
+        Analyze audio for BPM, Key, and Mood.
+
+        Args:
+            file_info (Dict[str, Any]): File information.
+            metadata (Dict[str, Any]): Metadata dictionary to update.
+        """
+        path = file_info["path"]
+
+        bpm = metadata.get("bpm")
+        if bpm:
+            try:
+                bpm = float(bpm)
+            except (ValueError, TypeError):
+                bpm = None
+
+        key = metadata.get("key")
+        mood = metadata.get("mood")
+
+        changed = False
+
+        if not bpm:
+            bpm = self.audio_analyzer.get_bpm(path)
+            if bpm:
+                metadata["bpm"] = bpm
+                changed = True
+
+        if not key:
+            key = self.audio_analyzer.get_key(path)
+            if key:
+                metadata["key"] = key
+                changed = True
+
+        if not mood and bpm and key:
+            mood = self.audio_analyzer.get_mood(bpm, key)
+            if mood:
+                metadata["mood"] = mood
+                changed = True
+
+        if changed:
+            self.audio_analyzer.save_analysis_tags(path, bpm, key, mood)
 
     def _download_cover_art(
         self, file_info: Dict[str, Any], metadata: Dict[str, Any], options: Dict[str, Any]
