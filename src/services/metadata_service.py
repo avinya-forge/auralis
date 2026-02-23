@@ -1071,38 +1071,49 @@ class MetadataService(QObject):
         """
         path = file_info["path"]
 
-        bpm = metadata.get("bpm")
-        if bpm:
-            try:
-                bpm = float(bpm)
-            except (ValueError, TypeError):
-                bpm = None
-
+        bpm = self._parse_bpm(metadata.get("bpm"))
         key = metadata.get("key")
         mood = metadata.get("mood")
 
+        bpm, key, mood, changed = self._perform_analysis(path, bpm, key, mood)
+
+        if changed:
+            metadata["bpm"] = bpm
+            metadata["key"] = key
+            metadata["mood"] = mood
+            self.audio_analyzer.save_analysis_tags(path, bpm, key, mood)
+
+    def _parse_bpm(self, bpm_value: Any) -> Optional[float]:
+        """Parse BPM value to float."""
+        if bpm_value:
+            try:
+                return float(bpm_value)
+            except (ValueError, TypeError):
+                pass
+        return None
+
+    def _perform_analysis(
+        self, path: str, bpm: Optional[float], key: Optional[str], mood: Optional[str]
+    ) -> Tuple[Optional[float], Optional[str], Optional[str], bool]:
+        """Perform analysis if values are missing."""
         changed = False
 
         if not bpm:
             bpm = self.audio_analyzer.get_bpm(path)
             if bpm:
-                metadata["bpm"] = bpm
                 changed = True
 
         if not key:
             key = self.audio_analyzer.get_key(path)
             if key:
-                metadata["key"] = key
                 changed = True
 
         if not mood and bpm and key:
             mood = self.audio_analyzer.get_mood(bpm, key)
             if mood:
-                metadata["mood"] = mood
                 changed = True
 
-        if changed:
-            self.audio_analyzer.save_analysis_tags(path, bpm, key, mood)
+        return bpm, key, mood, changed
 
     def _download_cover_art(
         self, file_info: Dict[str, Any], metadata: Dict[str, Any], options: Dict[str, Any]

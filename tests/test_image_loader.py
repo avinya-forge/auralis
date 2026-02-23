@@ -1,12 +1,10 @@
-import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-from PyQt6.QtCore import QThreadPool
 
 # Mock QImage before importing ImageLoader if possible
 with patch("PyQt6.QtGui.QImage"):
-    from src.utils.image_loader import ImageLoader, ImageRunnable
+    from src.utils.image_loader import ImageLoader
 
 
 class TestImageLoader:

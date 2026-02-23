@@ -1,7 +1,4 @@
-import os
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from src.utils.audio_utils import AudioUtils
 
@@ -16,7 +13,6 @@ class TestAudioUtils:
         # Return -60 for first 20ms, then -40
         def get_slice(s):
             start = s.start
-            end = s.stop
             slice_mock = MagicMock()
             if start < 20:
                 slice_mock.dBFS = -60.0

@@ -484,7 +484,7 @@ class AudioUtils:
 
             return False
 
-        except Exception as e:
+        except Exception:
             # Log error?
             # print(f"Error trimming silence for {file_path}: {e}")
             return False
