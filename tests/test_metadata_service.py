@@ -273,7 +273,11 @@ class TestMetadataService:
         # Patch init methods to avoid real network/file calls
         with patch.object(MetadataService, "_init_sources"), patch.object(
             MetadataService, "_load_stats"
-        ), patch("src.services.metadata_service.BioService"):
+        ), patch("src.services.metadata_service.BioService"), patch(
+            "src.services.metadata_service.AudioAnalyzer"
+        ), patch(
+            "src.services.metadata_service.CacheService"
+        ):
             service = MetadataService()
             # Manually add mock sources
             service.sources = {}
@@ -364,3 +368,22 @@ class TestMetadataService:
             # Verify bio was fetched
             mock_bio_service.get_artist_bio.assert_called_with("Test Artist")
             assert file_info["metadata"]["bio"] == "Test Bio"
+
+    def test_analyze_audio(self, service):
+        """Test audio analysis"""
+        # Setup mock audio analyzer
+        mock_analyzer = service.audio_analyzer
+        mock_analyzer.get_bpm.return_value = 120.0
+        mock_analyzer.get_key.return_value = "C Major"
+        mock_analyzer.get_mood.return_value = "Happy"
+
+        file_info = {"path": "test.mp3"}
+        metadata = {}
+
+        service._analyze_audio(file_info, metadata)
+
+        assert metadata["bpm"] == 120.0
+        assert metadata["key"] == "C Major"
+        assert metadata["mood"] == "Happy"
+
+        mock_analyzer.save_analysis_tags.assert_called_with("test.mp3", 120.0, "C Major", "Happy")

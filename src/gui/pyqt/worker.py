@@ -174,6 +174,8 @@ class WorkerThread(QThread):
                 "use_musicbrainz": self.options.get("use_musicbrainz", True),
                 "use_discogs": self.options.get("use_discogs", True),
                 "fetch_lyrics": self.options.get("fetch_lyrics", True),
+                "fetch_cover_art": self.options.get("fetch_cover_art", True),
+                "analyze_audio": self.options.get("analyze_audio", False),
                 "force_update": self.options.get("force_metadata_update", False),
             }
 

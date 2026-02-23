@@ -35,14 +35,43 @@ if "PyQt6" not in sys.modules:  # noqa: C901
         def exec(self):
             return 0
 
+    def mock_pyqtSlot(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
     mock_qtcore.QObject = MockQObject
     mock_qtcore.pyqtSignal = MockSignal
+    mock_qtcore.pyqtSlot = mock_pyqtSlot
     mock_qtcore.QCoreApplication = MockQCoreApplication
 
     # Add other needed QtCore classes
     mock_qtcore.QThread = MagicMock
     mock_qtcore.QTimer = MagicMock
     mock_qtcore.Qt = MagicMock()
+
+    class MockQRunnable:
+        def __init__(self):
+            pass
+
+        def run(self):
+            pass
+
+        def setAutoDelete(self, val):
+            pass
+
+    mock_qtcore.QRunnable = MockQRunnable
+
+    class MockQThreadPool:
+        @staticmethod
+        def globalInstance():
+            return MockQThreadPool()
+
+        def start(self, runnable):
+            runnable.run()
+
+    mock_qtcore.QThreadPool = MockQThreadPool
 
     mock_pyqt6.QtCore = mock_qtcore
 
