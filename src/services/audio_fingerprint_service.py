@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple, cast
 # Lazy imports
 try:
     import acoustid  # type: ignore
+
     HAS_ACOUSTID = True
 except ImportError:
     HAS_ACOUSTID = False
