@@ -94,9 +94,9 @@ class LanguageDetectionService:
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
         try:
-            import langdetect
-            import speech_recognition
-            import pydub
+            import langdetect  # noqa: F401
+            import speech_recognition  # noqa: F401
+            import pydub  # noqa: F401
 
             return True
         except ImportError:

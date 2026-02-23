@@ -1,6 +1,7 @@
 import pytest
 from src.services.playlist_service import PlaylistGenerator
 
+
 class TestPlaylistService:
 
     @pytest.fixture
@@ -33,14 +34,14 @@ class TestPlaylistService:
 
         # Test custom threshold
         playlist = generator.generate_chill_playlist(sample_files, max_bpm=115)
-        assert len(playlist) == 2 # chill + mid
+        assert len(playlist) == 2  # chill + mid
 
     def test_generate_playlist_by_mood(self, generator, sample_files):
         playlist = generator.generate_playlist_by_mood(sample_files, "Energetic")
         assert len(playlist) == 1
         assert playlist[0]["path"] == "upbeat.mp3"
 
-        playlist = generator.generate_playlist_by_mood(sample_files, "calm") # Case insensitive
+        playlist = generator.generate_playlist_by_mood(sample_files, "calm")  # Case insensitive
         assert len(playlist) == 1
         assert playlist[0]["path"] == "chill.mp3"
 

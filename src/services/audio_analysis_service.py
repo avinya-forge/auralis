@@ -35,8 +35,8 @@ class AudioAnalyzer:
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
         try:
-            import librosa
-            import numpy
+            import librosa  # noqa: F401
+            import numpy  # noqa: F401
 
             return True
         except ImportError:
@@ -217,22 +217,11 @@ class AudioAnalyzer:
             bpm_str = str(int(round(bpm))) if bpm else ""
 
             if isinstance(audio, mutagen.mp3.MP3):
-                if bpm_str:
-                    audio["TBPM"] = mutagen.id3.TBPM(encoding=3, text=bpm_str)
-                if key:
-                    audio["TKEY"] = mutagen.id3.TKEY(encoding=3, text=key)
-                if mood:
-                    audio["TMOO"] = mutagen.id3.TMOO(encoding=3, text=mood)
-
+                self._save_mp3_tags(audio, bpm_str, key, mood)
             elif isinstance(audio, mutagen.flac.FLAC) or isinstance(
                 audio, mutagen.ogg.OggVorbis
             ):
-                if bpm_str:
-                    audio["bpm"] = bpm_str
-                if key:
-                    audio["initialkey"] = key
-                if mood:
-                    audio["mood"] = mood
+                self._save_vorbis_tags(audio, bpm_str, key, mood)
 
             # Save changes
             audio.save()
@@ -241,3 +230,25 @@ class AudioAnalyzer:
         except Exception as e:
             logger.error(f"Error saving analysis tags for {file_path}: {e}")
             return False
+
+    def _save_mp3_tags(
+        self, audio: Any, bpm_str: str, key: Optional[str], mood: Optional[str]
+    ) -> None:
+        """Save analysis tags to MP3 file."""
+        if bpm_str:
+            audio["TBPM"] = mutagen.id3.TBPM(encoding=3, text=bpm_str)
+        if key:
+            audio["TKEY"] = mutagen.id3.TKEY(encoding=3, text=key)
+        if mood:
+            audio["TMOO"] = mutagen.id3.TMOO(encoding=3, text=mood)
+
+    def _save_vorbis_tags(
+        self, audio: Any, bpm_str: str, key: Optional[str], mood: Optional[str]
+    ) -> None:
+        """Save analysis tags to Vorbis/FLAC file."""
+        if bpm_str:
+            audio["bpm"] = bpm_str
+        if key:
+            audio["initialkey"] = key
+        if mood:
+            audio["mood"] = mood

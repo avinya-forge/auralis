@@ -11,7 +11,7 @@ class TestAudioSimilarityService:
     def mock_dependencies(self):
         """Fixture to mock dependencies and ensure clean import"""
         mock_numpy = MagicMock()
-        mock_numpy.ndarray = MagicMock # Use MagicMock as type placeholder
+        mock_numpy.ndarray = MagicMock  # Use MagicMock as type placeholder
         mock_numpy.std.return_value = 1.0
         mock_numpy.zeros.return_value = MagicMock()
         mock_numpy.ones.return_value = MagicMock()
@@ -73,7 +73,6 @@ class TestAudioSimilarityService:
     def test_compute_fingerprint(self, service, mock_dependencies):
         """Test fingerprint computation"""
         mock_librosa = sys.modules["librosa"]
-        mock_numpy = sys.modules["numpy"]
 
         # Setup mocks
         mock_librosa.load.return_value = (MagicMock(), 22050)
@@ -93,11 +92,6 @@ class TestAudioSimilarityService:
 
     def test_compute_similarity(self, service, mock_dependencies):
         """Test similarity computation"""
-        mock_numpy = sys.modules["numpy"]
-        # We need to mock the import inside the method if it was lazy loaded?
-        # But since we patched sys.modules, import inside method should get our mock.
-
-        mock_sklearn = sys.modules["sklearn"]
         # We need to ensure sklearn.metrics.pairwise.cosine_similarity is mocked
         # The mock setup created mocks for sklearn.metrics.pairwise
         mock_cosine = sys.modules["sklearn.metrics.pairwise"].cosine_similarity

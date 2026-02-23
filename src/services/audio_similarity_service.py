@@ -7,16 +7,10 @@ audio content similarity rather than just metadata or filenames.
 
 import logging
 import os
-from typing import Any, Dict, List, Optional, Set, cast
+from typing import Any, Dict, List, Optional, Set
 
 # Set up logging
 logger = logging.getLogger("auralis.similarity")
-
-# Try to import optional dependencies
-try:
-    import mutagen
-except ImportError:
-    pass
 
 
 class AudioSimilarityService:
@@ -36,10 +30,11 @@ class AudioSimilarityService:
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
         try:
-            import librosa
-            import numpy
-            import pydub
-            from sklearn.metrics.pairwise import cosine_similarity
+            import librosa  # noqa: F401
+            import numpy  # noqa: F401
+            import pydub  # noqa: F401
+            from sklearn.metrics.pairwise import cosine_similarity  # noqa: F401
+
             return True
         except ImportError:
             logger.warning(
@@ -145,6 +140,7 @@ class AudioSimilarityService:
         # 2. Check mutagen
         try:
             import mutagen
+
             audio = mutagen.File(file_info["path"])
             if audio and audio.info:
                 return float(audio.info.length)

@@ -14,15 +14,23 @@ mock_librosa = MagicMock()
 mock_librosa.beat = MagicMock()
 mock_librosa.feature = MagicMock()
 
+
 # Mock Mutagen
 class MockMP3(MagicMock):
     pass
+
+
 class MockFLAC(MagicMock):
     pass
+
+
 class MockID3(MagicMock):
     pass
+
+
 class MockOgg(MagicMock):
     pass
+
 
 mock_mp3 = MagicMock()
 mock_mp3.MP3 = MockMP3
@@ -45,9 +53,11 @@ mock_mutagen.id3 = mock_id3
 mock_mutagen.ogg = mock_ogg
 mock_mutagen.File = MagicMock()
 
+
 class TestAudioAnalysisService(unittest.TestCase):
     def setUp(self):
-        # Patch sys.modules
+        # Patch sys.modules to mock librosa and mutagen
+        # We assume numpy is real and installed in the env
         self.module_patcher = patch.dict(sys.modules, {
             "librosa": mock_librosa,
             "mutagen": mock_mutagen,
@@ -55,7 +65,7 @@ class TestAudioAnalysisService(unittest.TestCase):
             "mutagen.flac": mock_flac,
             "mutagen.id3": mock_id3,
             "mutagen.ogg": mock_ogg,
-            "numpy": np # Use whatever numpy we have (real or mock)
+            "numpy": np
         })
         self.module_patcher.start()
 
@@ -73,6 +83,7 @@ class TestAudioAnalysisService(unittest.TestCase):
         mock_librosa.reset_mock()
         mock_mutagen.reset_mock()
         mock_mutagen.File.reset_mock()
+        # mock_id3.TBPM etc are instances of MagicMock, reset them
         mock_id3.TBPM.reset_mock()
         mock_id3.TKEY.reset_mock()
         mock_id3.TMOO.reset_mock()
@@ -105,12 +116,12 @@ class TestAudioAnalysisService(unittest.TestCase):
         """Test successful BPM detection"""
         # If numpy is mocked, we need special handling if beat_track returns mock
         if isinstance(np, MagicMock):
-             mock_librosa.load.return_value = (MagicMock(), 22050)
-             # Scalar return
-             mock_librosa.beat.beat_track.return_value = (120.0, MagicMock())
+            mock_librosa.load.return_value = (MagicMock(), 22050)
+            # Scalar return
+            mock_librosa.beat.beat_track.return_value = (120.0, MagicMock())
         else:
-             mock_librosa.load.return_value = (np.zeros(100), 22050)
-             mock_librosa.beat.beat_track.return_value = (120.0, np.array([10, 20]))
+            mock_librosa.load.return_value = (np.zeros(100), 22050)
+            mock_librosa.beat.beat_track.return_value = (120.0, np.array([10, 20]))
 
         bpm = self.analyzer.get_bpm("/path/to/file.mp3")
 
@@ -136,23 +147,28 @@ class TestAudioAnalysisService(unittest.TestCase):
     def test_get_bpm_array_return(self):
         """Test BPM detection when beat_track returns an array"""
         if isinstance(np, MagicMock):
-             # Handle mocked numpy
-             # We need return value to be an instance of np.ndarray and behave like float
-             class FloatArray(np.ndarray):
-                 def __float__(self): return 120.0
-                 def __getitem__(self, idx): return 120.0
-                 @property
-                 def size(self): return 1
+            # Handle mocked numpy
+            # We need return value to be an instance of np.ndarray and behave like float
+            class FloatArray(np.ndarray):
+                def __float__(self):
+                    return 120.0
 
-             mock_array = FloatArray()
-             mock_librosa.load.return_value = (MagicMock(), 22050)
-             mock_librosa.beat.beat_track.return_value = (mock_array, MagicMock())
+                def __getitem__(self, idx):
+                    return 120.0
+
+                @property
+                def size(self):
+                    return 1
+
+            mock_array = FloatArray()
+            mock_librosa.load.return_value = (MagicMock(), 22050)
+            mock_librosa.beat.beat_track.return_value = (mock_array, MagicMock())
         else:
-             mock_librosa.load.return_value = (np.zeros(100), 22050)
-             mock_librosa.beat.beat_track.return_value = (
+            mock_librosa.load.return_value = (np.zeros(100), 22050)
+            mock_librosa.beat.beat_track.return_value = (
                 np.array([120.0]),
                 np.array([10, 20]),
-             )
+            )
 
         bpm = self.analyzer.get_bpm("/path/to/file.mp3")
 
@@ -161,10 +177,7 @@ class TestAudioAnalysisService(unittest.TestCase):
     def test_get_key_success(self):
         """Test successful Key detection"""
         if isinstance(np, MagicMock):
-             # Skip or heavily mock math for mocked numpy
-             # Getting math mocks right is tedious and fragile.
-             # We assume if numpy is real, logic holds.
-             return
+            return
 
         mock_librosa.load.return_value = (np.zeros(100), 22050)
         mock_chroma = np.zeros((12, 10))
@@ -181,7 +194,7 @@ class TestAudioAnalysisService(unittest.TestCase):
     def test_get_key_minor(self):
         """Test successful A Minor detection"""
         if isinstance(np, MagicMock):
-             return
+            return
 
         mock_librosa.load.return_value = (np.zeros(100), 22050)
         mock_chroma = np.zeros((12, 10))
@@ -231,6 +244,7 @@ class TestAudioAnalysisService(unittest.TestCase):
 
             self.assertTrue(success)
             mock_audio.save.assert_called()
+
 
 if __name__ == "__main__":
     unittest.main()
