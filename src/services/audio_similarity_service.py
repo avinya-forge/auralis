@@ -14,16 +14,9 @@ logger = logging.getLogger("auralis.similarity")
 
 # Try to import optional dependencies
 try:
-    import librosa
     import mutagen
-    import numpy as np
-    import pydub
-    from sklearn.metrics.pairwise import cosine_similarity
-
-    HAS_AUDIO_FINGERPRINTING = True
 except ImportError:
-    HAS_AUDIO_FINGERPRINTING = False
-    np = None  # type: ignore
+    pass
 
 
 class AudioSimilarityService:
@@ -31,19 +24,31 @@ class AudioSimilarityService:
 
     def __init__(self) -> None:
         """Initialize the audio similarity service"""
-        self.available = HAS_AUDIO_FINGERPRINTING
-        if not self.available:
-            logger.warning(
-                "Audio similarity detection dependencies not installed. "
-                "Please install: librosa, soundfile, scikit-learn, mutagen, pydub"
-            )
+        self.available = self._check_dependencies()
+
         # Cache for fingerprints to avoid recomputing
-        self.fingerprint_cache: Dict[str, "np.ndarray"] = {}
+        # Use Any to avoid direct dependency on numpy in signature
+        self.fingerprint_cache: Dict[str, Any] = {}
 
         # Threshold for similarity (0.0 to 1.0)
         self.similarity_threshold = 0.85
 
-    def compute_fingerprint(self, file_path: str) -> Optional["np.ndarray"]:
+    def _check_dependencies(self) -> bool:
+        """Check if required dependencies are available."""
+        try:
+            import librosa
+            import numpy
+            import pydub
+            from sklearn.metrics.pairwise import cosine_similarity
+            return True
+        except ImportError:
+            logger.warning(
+                "Audio similarity detection dependencies not installed. "
+                "Please install: librosa, soundfile, scikit-learn, mutagen, pydub"
+            )
+            return False
+
+    def compute_fingerprint(self, file_path: str) -> Optional[Any]:
         """
         Compute audio fingerprint for a file
 
@@ -57,9 +62,12 @@ class AudioSimilarityService:
             return None
 
         try:
+            import librosa
+            import numpy as np
+
             # Check cache first
             if file_path in self.fingerprint_cache:
-                return cast("np.ndarray", self.fingerprint_cache[file_path])
+                return self.fingerprint_cache[file_path]
 
             # Load audio file
             y, sr = librosa.load(file_path, sr=22050, mono=True, duration=60)
@@ -83,13 +91,13 @@ class AudioSimilarityService:
             # Cache the fingerprint
             self.fingerprint_cache[file_path] = fingerprint
 
-            return cast("np.ndarray", fingerprint)
+            return fingerprint
 
         except Exception as e:
             logger.error(f"Error computing fingerprint for {file_path}: {str(e)}")
             return None
 
-    def compute_similarity(self, fingerprint1: "np.ndarray", fingerprint2: "np.ndarray") -> float:
+    def compute_similarity(self, fingerprint1: Any, fingerprint2: Any) -> float:
         """
         Compute similarity between two audio fingerprints
 
@@ -104,6 +112,8 @@ class AudioSimilarityService:
             return 0.0
 
         try:
+            from sklearn.metrics.pairwise import cosine_similarity
+
             # Reshape fingerprints for cosine similarity
             fp1 = fingerprint1.reshape(1, -1)
             fp2 = fingerprint2.reshape(1, -1)
@@ -134,6 +144,7 @@ class AudioSimilarityService:
 
         # 2. Check mutagen
         try:
+            import mutagen
             audio = mutagen.File(file_info["path"])
             if audio and audio.info:
                 return float(audio.info.length)
@@ -142,9 +153,9 @@ class AudioSimilarityService:
 
         # 3. Check pydub
         try:
-            if "pydub" in globals():
-                audio = pydub.AudioSegment.from_file(file_info["path"])
-                return float(len(audio) / 1000)  # convert to seconds
+            import pydub
+            audio = pydub.AudioSegment.from_file(file_info["path"])
+            return float(len(audio) / 1000)  # convert to seconds
         except Exception:
             pass
 

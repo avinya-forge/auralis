@@ -44,21 +44,26 @@ class TestLanguageService:
     @pytest.fixture
     def service(self, mock_deps):
         """Get service instance with deps available"""
-        # Force HAS_LANGUAGE_DETECTION to True for testing
-        with patch("src.services.language_service.HAS_LANGUAGE_DETECTION", True):
+        # Patch _check_dependencies to return True
+        with patch.object(
+            mock_deps.LanguageDetectionService, "_check_dependencies", return_value=True
+        ):
             service = mock_deps.LanguageDetectionService()
-            service.available = True
             return service
 
     def test_init_available(self, mock_deps):
         """Test initialization when deps are present"""
-        with patch("src.services.language_service.HAS_LANGUAGE_DETECTION", True):
+        with patch.object(
+            mock_deps.LanguageDetectionService, "_check_dependencies", return_value=True
+        ):
             service = mock_deps.LanguageDetectionService()
             assert service.available is True
 
     def test_init_unavailable(self, mock_deps):
         """Test initialization when deps are missing"""
-        with patch("src.services.language_service.HAS_LANGUAGE_DETECTION", False):
+        with patch.object(
+            mock_deps.LanguageDetectionService, "_check_dependencies", return_value=False
+        ):
             service = mock_deps.LanguageDetectionService()
             assert service.available is False
 
@@ -114,7 +119,7 @@ class TestLanguageService:
 
     def test_detect_language_unavailable(self, service):
         """Test detection when service is unavailable"""
-        service.available = False
+        service._available = False
         code, name = service.detect_language("/path/to/audio.mp3")
         assert code == "unknown"
         assert name == "Unknown"

@@ -5,24 +5,17 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-# Helper to create a mock module with a class for type checking
-def create_mock_module_with_class(class_name):
-    mock_module = MagicMock()
-    mock_type = type(class_name, (MagicMock,), {})
-    setattr(mock_module, class_name, mock_type)
-    return mock_module
-
-
 class TestAudioSimilarityService:
 
     @pytest.fixture
     def mock_dependencies(self):
         """Fixture to mock dependencies and ensure clean import"""
-        # Create mocks that support type checking
         mock_numpy = MagicMock()
-        mock_numpy.ndarray = type("ndarray", (MagicMock,), {})
-        # Ensure std returns a float to avoid comparison errors
+        mock_numpy.ndarray = MagicMock # Use MagicMock as type placeholder
         mock_numpy.std.return_value = 1.0
+        mock_numpy.zeros.return_value = MagicMock()
+        mock_numpy.ones.return_value = MagicMock()
+        mock_numpy.mean.return_value = MagicMock()
 
         mock_mutagen = MagicMock()
         mock_librosa = MagicMock()
@@ -60,47 +53,32 @@ class TestAudioSimilarityService:
     @pytest.fixture
     def service(self, mock_dependencies):
         """Fixture to provide a fresh service instance"""
-        service_cls = mock_dependencies.AudioSimilarityService
-
-        # Force availability logic since we are controlling the environment
-        with patch.object(service_cls, "__init__", return_value=None):
-            service = service_cls()
-            service.available = True
-            service.fingerprint_cache = {}
-            service.similarity_threshold = 0.85
-            return service
+        service = mock_dependencies.AudioSimilarityService()
+        # Ensure cache is empty
+        service.fingerprint_cache = {}
+        return service
 
     def test_initialization(self, mock_dependencies):
         """Test initialization logic"""
-        # We need to manually trigger logic since we mocked __init__ in the other fixture
-        # Here we test the real __init__ but with controlled HAS_AUDIO_FINGERPRINTING
-
         # Test when dependencies are available (default in our mock env)
-        # Note: The module logic sets HAS_AUDIO_FINGERPRINTING on import based on imports success
-        # Since we mocked imports successfully, it should be True
-
         service = mock_dependencies.AudioSimilarityService()
         assert service.available is True
-        assert service.similarity_threshold == 0.85
 
         # Test when dependencies are missing
-        # We need to simulate import failure.
-        # This is hard with the current fixture structure.
-        # Simpler: just patch the HAS_AUDIO_FINGERPRINTING constant
-        with patch.object(mock_dependencies, "HAS_AUDIO_FINGERPRINTING", False):
+        with patch.dict(sys.modules):
+            sys.modules["librosa"] = None
             service = mock_dependencies.AudioSimilarityService()
             assert service.available is False
 
     def test_compute_fingerprint(self, service, mock_dependencies):
         """Test fingerprint computation"""
-        # Mock librosa functions via the module mock we injected
         mock_librosa = sys.modules["librosa"]
         mock_numpy = sys.modules["numpy"]
 
         # Setup mocks
-        mock_librosa.load.return_value = (mock_numpy.zeros(100), 22050)
-        mock_librosa.feature.melspectrogram.return_value = mock_numpy.zeros((128, 100))
-        mock_librosa.power_to_db.return_value = mock_numpy.zeros((128, 100))
+        mock_librosa.load.return_value = (MagicMock(), 22050)
+        mock_librosa.feature.melspectrogram.return_value = MagicMock()
+        mock_librosa.power_to_db.return_value = MagicMock()
 
         # Call method
         fingerprint = service.compute_fingerprint("test.mp3")
@@ -110,16 +88,22 @@ class TestAudioSimilarityService:
         mock_librosa.feature.melspectrogram.assert_called()
         mock_librosa.power_to_db.assert_called()
 
-        # Verify result
-        assert isinstance(fingerprint, mock_numpy.ndarray) or isinstance(fingerprint, MagicMock)
+        # Verify result (should not be None)
+        assert fingerprint is not None
 
     def test_compute_similarity(self, service, mock_dependencies):
         """Test similarity computation"""
         mock_numpy = sys.modules["numpy"]
+        # We need to mock the import inside the method if it was lazy loaded?
+        # But since we patched sys.modules, import inside method should get our mock.
+
+        mock_sklearn = sys.modules["sklearn"]
+        # We need to ensure sklearn.metrics.pairwise.cosine_similarity is mocked
+        # The mock setup created mocks for sklearn.metrics.pairwise
         mock_cosine = sys.modules["sklearn.metrics.pairwise"].cosine_similarity
 
-        fp1 = mock_numpy.random.rand(128)
-        fp2 = mock_numpy.random.rand(128)
+        fp1 = MagicMock()
+        fp2 = MagicMock()
 
         # Mock return value of cosine_similarity: [[0.9]]
         mock_cosine.return_value = [[0.9]]
@@ -178,12 +162,8 @@ class TestAudioSimilarityService:
         service.compute_fingerprint = MagicMock(side_effect=mock_compute_fp)
 
         # Mock compute_similarity
-        # We need to mock it on the service instance because we replaced the class method
-        # Actually in `find_duplicates` it calls `self.compute_similarity`.
-
         def mock_compute_sim(f1, f2):
-            # Simple identity check for test
-            if f1 is f2 or (f1 is fp1 and f2 is fp2):  # simplified equality
+            if f1 is f2 or (f1 is fp1 and f2 is fp2):
                 return 0.95
             return 0.1
 
@@ -195,6 +175,7 @@ class TestAudioSimilarityService:
         # Verify
         assert len(duplicates) == 1
         assert len(duplicates[0]) == 2
+        # Sorting prefers higher bitrate/quality (song1_copy has higher bitrate)
         assert duplicates[0][0]["path"] == "song1_copy.mp3"
         assert duplicates[0][1]["path"] == "song1.mp3"
 

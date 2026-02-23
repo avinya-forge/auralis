@@ -11,15 +11,8 @@ import tempfile
 from pathlib import Path
 from typing import Optional, Tuple, cast
 
-# Import optional dependencies for language detection
-try:
-    import langdetect  # type: ignore
-    import speech_recognition as sr  # type: ignore
-    from pydub import AudioSegment
-
-    HAS_LANGUAGE_DETECTION = True
-except ImportError:
-    HAS_LANGUAGE_DETECTION = False
+# Optional dependencies will be imported lazily
+pass
 
 # Set up logging
 logger = logging.getLogger("auralis.language")
@@ -89,12 +82,29 @@ class LanguageDetectionService:
 
     def __init__(self) -> None:
         """Initialize the language detection service"""
-        self.available = HAS_LANGUAGE_DETECTION
-        if not self.available:
+        self._available: Optional[bool] = None
+
+    @property
+    def available(self) -> bool:
+        """Check if language detection dependencies are available"""
+        if self._available is None:
+            self._available = self._check_dependencies()
+        return self._available
+
+    def _check_dependencies(self) -> bool:
+        """Check if required dependencies are available."""
+        try:
+            import langdetect
+            import speech_recognition
+            import pydub
+
+            return True
+        except ImportError:
             logger.warning(
                 "Language detection dependencies not installed. "
                 "Please install: speech_recognition, langdetect, pydub"
             )
+            return False
 
     def detect_language(self, file_path: str, sample_duration: int = 30) -> Tuple[str, str]:
         """
@@ -108,7 +118,6 @@ class LanguageDetectionService:
             tuple: (language_code, language_name) or ('unknown', 'Unknown')
         """
         if not self.available:
-            logger.warning("Language detection not available")
             return "unknown", "Unknown"
 
         try:
@@ -147,6 +156,8 @@ class LanguageDetectionService:
             return "unknown", "Unknown"
 
     def _extract_audio_sample(self, file_path: str, temp_path: str, sample_duration: int) -> None:
+        from pydub import AudioSegment
+
         audio = AudioSegment.from_file(file_path)
         middle = len(audio) // 2
         start_pos = max(0, middle - (sample_duration * 1000) // 2)
@@ -155,6 +166,8 @@ class LanguageDetectionService:
         audio_sample.export(temp_path, format="wav")
 
     def _recognize_speech(self, temp_path: str) -> Optional[str]:
+        import speech_recognition as sr
+
         recognizer = sr.Recognizer()
         with sr.AudioFile(temp_path) as source:
             audio_data = recognizer.record(source)
@@ -164,6 +177,8 @@ class LanguageDetectionService:
                 return None
 
     def _detect_from_text(self, text: Optional[str], file_path: str) -> Tuple[str, str]:
+        import langdetect
+
         if text and len(text.strip()) > 5:
             lang_code = langdetect.detect(text)
             lang_name = LANGUAGE_NAMES.get(lang_code, lang_code.capitalize())
