@@ -20,11 +20,7 @@ class TestScannerTags:
     def test_parse_mp3_tags_extended(self, scanner):
         # Mock MP3 audio object
         audio = MagicMock()
-        data = {
-            "TBPM": "128",
-            "TKEY": "C Major",
-            "TMOO": "Energetic"
-        }
+        data = {"TBPM": "128", "TKEY": "C Major", "TMOO": "Energetic"}
         audio.__contains__.side_effect = data.__contains__
         audio.__getitem__.side_effect = data.__getitem__
 
@@ -38,11 +34,7 @@ class TestScannerTags:
     def test_parse_flac_tags_extended(self, scanner):
         # Mock FLAC audio object (returns lists)
         audio = MagicMock()
-        data = {
-            "bpm": ["128"],
-            "initialkey": ["C Major"],
-            "mood": ["Energetic"]
-        }
+        data = {"bpm": ["128"], "initialkey": ["C Major"], "mood": ["Energetic"]}
         audio.__contains__.side_effect = data.__contains__
         audio.__getitem__.side_effect = data.__getitem__
 
@@ -56,11 +48,7 @@ class TestScannerTags:
     def test_parse_generic_tags_extended(self, scanner):
         # Mock Generic audio object (returns lists)
         audio = MagicMock()
-        data = {
-            "bpm": ["128"],
-            "initialkey": ["C Major"],
-            "mood": ["Energetic"]
-        }
+        data = {"bpm": ["128"], "initialkey": ["C Major"], "mood": ["Energetic"]}
         audio.__contains__.side_effect = data.__contains__
         audio.__getitem__.side_effect = data.__getitem__
 

@@ -83,9 +83,7 @@ class PlaylistGenerator:
             return []
 
         playlist = []
-        current_track = (
-            start_track if start_track in valid_files else random.choice(valid_files)
-        )
+        current_track = start_track if start_track in valid_files else random.choice(valid_files)
         playlist.append(current_track)
 
         # Keep track of used files to avoid duplicates

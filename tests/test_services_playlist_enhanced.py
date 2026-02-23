@@ -12,25 +12,37 @@ class TestPlaylistServiceEnhanced:
     def sample_files(self):
         return [
             # C Major, 120 BPM
-            {"path": "song1.mp3", "metadata": {"bpm": "120", "key": "C Major", "artist": "A", "title": "1"}},
+            {
+                "path": "song1.mp3",
+                "metadata": {"bpm": "120", "key": "C Major", "artist": "A", "title": "1"},
+            },
             # G Major (Compatible with C), 122 BPM (Within tolerance 5% of 120 is 6 -> 114-126)
-            {"path": "song2.mp3", "metadata": {"bpm": "122", "key": "G Major", "artist": "B", "title": "2"}},
+            {
+                "path": "song2.mp3",
+                "metadata": {"bpm": "122", "key": "G Major", "artist": "B", "title": "2"},
+            },
             # A Minor (Compatible with C), 125 BPM (Within tolerance 5% of 120 is 6 -> 114-126)
-            {"path": "song3.mp3", "metadata": {"bpm": "125", "key": "A Minor", "artist": "C", "title": "3"}},
+            {
+                "path": "song3.mp3",
+                "metadata": {"bpm": "125", "key": "A Minor", "artist": "C", "title": "3"},
+            },
             # F# Major (Incompatible with C), 120 BPM
-            {"path": "song4.mp3", "metadata": {"bpm": "120", "key": "F# Major", "artist": "D", "title": "4"}},
+            {
+                "path": "song4.mp3",
+                "metadata": {"bpm": "120", "key": "F# Major", "artist": "D", "title": "4"},
+            },
             # C Major, 140 BPM (Outside tolerance from 120)
-            {"path": "song5.mp3", "metadata": {"bpm": "140", "key": "C Major", "artist": "E", "title": "5"}},
+            {
+                "path": "song5.mp3",
+                "metadata": {"bpm": "140", "key": "C Major", "artist": "E", "title": "5"},
+            },
         ]
 
     def test_generate_flow_mode_playlist(self, generator, sample_files):
         start_track = sample_files[0]
         # Request 10 minutes, files are 3 mins default. Should pick tracks until no more found.
         playlist = generator.generate_flow_mode_playlist(
-            sample_files,
-            start_track=start_track,
-            length_minutes=10,
-            tolerance_bpm=0.05
+            sample_files, start_track=start_track, length_minutes=10, tolerance_bpm=0.05
         )
 
         # It should pick at least start_track and one of song2 or song3
@@ -58,9 +70,7 @@ class TestPlaylistServiceEnhanced:
 
     def test_flow_mode_random_start(self, generator, sample_files):
         playlist = generator.generate_flow_mode_playlist(
-            sample_files,
-            length_minutes=10,
-            tolerance_bpm=0.05
+            sample_files, length_minutes=10, tolerance_bpm=0.05
         )
         assert len(playlist) >= 1
 
@@ -70,7 +80,7 @@ class TestPlaylistServiceEnhanced:
             sample_files,
             start_track=sample_files[0],
             length_minutes=60,  # Request long playlist
-            tolerance_bpm=0.05
+            tolerance_bpm=0.05,
         )
         # Should stop after 2 tracks
         assert len(playlist) == 2

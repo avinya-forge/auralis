@@ -61,7 +61,7 @@ class TestScannerOptions:
                 "extension": ".mp3",
                 "size": 7,
                 "hash": "hash",
-                "metadata": {}
+                "metadata": {},
             }
 
             # Set max depth 0 (only root)
@@ -88,7 +88,7 @@ class TestScannerOptions:
                 "extension": ".mp3",
                 "size": 7,
                 "hash": "hash",
-                "metadata": {}
+                "metadata": {},
             }
 
             # Set max depth 0 (only root)
