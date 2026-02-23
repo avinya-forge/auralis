@@ -146,7 +146,7 @@ class DependencyChecker:
 
         # Audio Similarity dependencies (import names)
         # Note: scikit-learn is imported as sklearn
-        audio_sim_modules = ["librosa", "sklearn", "soundfile", "pydub", "numpy"]
+        audio_sim_modules = ["librosa", "sklearn", "soundfile", "pydub", "numpy", "acoustid"]
         for mod in audio_sim_modules:
             report["audio_similarity"][mod] = self.check_module(mod)
 
