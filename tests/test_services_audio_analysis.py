@@ -58,20 +58,24 @@ class TestAudioAnalysisService(unittest.TestCase):
     def setUp(self):
         # Patch sys.modules to mock librosa and mutagen
         # We assume numpy is real and installed in the env
-        self.module_patcher = patch.dict(sys.modules, {
-            "librosa": mock_librosa,
-            "mutagen": mock_mutagen,
-            "mutagen.mp3": mock_mp3,
-            "mutagen.flac": mock_flac,
-            "mutagen.id3": mock_id3,
-            "mutagen.ogg": mock_ogg,
-            "numpy": np
-        })
+        self.module_patcher = patch.dict(
+            sys.modules,
+            {
+                "librosa": mock_librosa,
+                "mutagen": mock_mutagen,
+                "mutagen.mp3": mock_mp3,
+                "mutagen.flac": mock_flac,
+                "mutagen.id3": mock_id3,
+                "mutagen.ogg": mock_ogg,
+                "numpy": np,
+            },
+        )
         self.module_patcher.start()
 
         # Reload module under test
         if "src.services.audio_analysis_service" in sys.modules:
             import src.services.audio_analysis_service
+
             importlib.reload(src.services.audio_analysis_service)
         else:
             import src.services.audio_analysis_service
@@ -95,6 +99,7 @@ class TestAudioAnalysisService(unittest.TestCase):
         self.module_patcher.stop()
         if "src.services.audio_analysis_service" in sys.modules:
             import src.services.audio_analysis_service
+
             importlib.reload(src.services.audio_analysis_service)
 
     def test_init(self):

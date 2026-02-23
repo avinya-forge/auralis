@@ -150,6 +150,7 @@ class AudioSimilarityService:
         # 3. Check pydub
         try:
             import pydub
+
             audio = pydub.AudioSegment.from_file(file_info["path"])
             return float(len(audio) / 1000)  # convert to seconds
         except Exception:

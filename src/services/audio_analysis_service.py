@@ -218,9 +218,7 @@ class AudioAnalyzer:
 
             if isinstance(audio, mutagen.mp3.MP3):
                 self._save_mp3_tags(audio, bpm_str, key, mood)
-            elif isinstance(audio, mutagen.flac.FLAC) or isinstance(
-                audio, mutagen.ogg.OggVorbis
-            ):
+            elif isinstance(audio, mutagen.flac.FLAC) or isinstance(audio, mutagen.ogg.OggVorbis):
                 self._save_vorbis_tags(audio, bpm_str, key, mood)
 
             # Save changes
