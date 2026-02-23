@@ -159,3 +159,14 @@
     *   Fixed existing tests to work with lazy loading and mocked environments.
 *   **Epic 5: UI/UX Refinement (Verified)**
     *   Verified implementation of Drag & Drop (UI-007), Recent Folders (UI-008), Cover Art Preview (UI-009), and System Tray (UI-010).
+
+## Iteration: A-SWIFT-EXECUTOR-02/Flow-Mode
+*   **Epic 8: Smart Playlists**
+    *   Implemented "Flow Mode" playlist generation using harmonic mixing (BPM + Key) (PL-004).
+    *   Implemented Playlist Export (.m3u8) functionality (PL-005).
+    *   Implemented Playlist Import (.m3u/.m3u8) functionality (PL-006).
+*   **Epic 7: Audio Analysis**
+    *   Updated `MusicScanner` to extract BPM, Key, and Mood tags from MP3 and FLAC files (AUD-004 enhancement).
+*   **Epic 2: Test Fortress**
+    *   Added `tests/test_services_playlist_enhanced.py` covering harmonic mixing and export/import (100% coverage).
+    *   Added `tests/test_scanner_tags.py` and `tests/test_scanner_options.py` covering new scanner features (86% coverage).

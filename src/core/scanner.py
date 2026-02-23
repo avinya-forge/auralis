@@ -364,6 +364,9 @@ class MusicScanner(QObject):
             "TDRC": "year",
             "TCON": "genre",
             "TRCK": "track",
+            "TBPM": "bpm",
+            "TKEY": "key",
+            "TMOO": "mood",
         }
         for tag, key in tag_map.items():
             if tag in audio:
@@ -387,6 +390,9 @@ class MusicScanner(QObject):
             "date": "year",
             "genre": "genre",
             "tracknumber": "track",
+            "bpm": "bpm",
+            "initialkey": "key",
+            "mood": "mood",
         }
         for tag, key in tag_map.items():
             if tag in audio:
@@ -403,9 +409,20 @@ class MusicScanner(QObject):
             audio (Any): Mutagen audio object.
             metadata (Dict[str, Any]): Dictionary to populate with metadata.
         """
-        for key in ["artist", "title", "album", "date", "genre", "tracknumber"]:
-            if key in audio:
-                metadata[key] = str(audio[key][0])
+        tag_map = {
+            "artist": "artist",
+            "title": "title",
+            "album": "album",
+            "date": "year",
+            "genre": "genre",
+            "tracknumber": "track",
+            "bpm": "bpm",
+            "initialkey": "key",
+            "mood": "mood",
+        }
+        for tag, key in tag_map.items():
+            if tag in audio:
+                metadata[key] = str(audio[tag][0])
 
         if hasattr(audio, "info") and hasattr(audio.info, "bitrate"):
             metadata["bitrate"] = audio.info.bitrate
