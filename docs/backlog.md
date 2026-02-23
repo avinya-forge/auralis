@@ -60,17 +60,17 @@
 - [UI-004] | Create `light_theme.json` | [BLOCKS-UI-002] | [DONE]
 - [UI-005] | Implement Theme Switcher in `MainWindow` Menu | [BLOCKS-UI-001] | [DONE]
 - [UI-006] | Add "Status Bar" detailed progress indicator | [INDEPENDENT] | [DONE]
-- [UI-007] | Implement "Drag and Drop" for folders onto `ScanTab` | [INDEPENDENT] | [TODO]
-- [UI-008] | Add "Recent Folders" history to `ScanTab` | [INDEPENDENT] | [TODO]
-- [UI-009] | Add "Cover Art Preview" in `MetadataTab` | [INDEPENDENT] | [TODO]
-- [UI-010] | Implement "System Tray" icon and minimization | [INDEPENDENT] | [TODO]
+- [UI-007] | Implement "Drag and Drop" for folders onto `ScanTab` | [INDEPENDENT] | [DONE]
+- [UI-008] | Add "Recent Folders" history to `ScanTab` | [INDEPENDENT] | [DONE]
+- [UI-009] | Add "Cover Art Preview" in `MetadataTab` | [INDEPENDENT] | [DONE]
+- [UI-010] | Implement "System Tray" icon and minimization | [INDEPENDENT] | [DONE]
 
 ### Epic 6: Performance Optimization
 - [PERF-001] | Implement `LazyLoader` for album art images | [INDEPENDENT] | [TODO]
 - [PERF-002] | Refactor `Scanner` to use `asyncio` for I/O operations | [INDEPENDENT] | [TODO]
 - [PERF-003] | Implement `MetadataCache` using `sqlite3` | [INDEPENDENT] | [TODO]
-- [PERF-004] | Optimize `LanguageService` initialization (lazy load models) | [INDEPENDENT] | [TODO]
-- [PERF-005] | Profile `AudioSimilarityService` and optimize numpy usage | [INDEPENDENT] | [TODO]
+- [PERF-004] | Optimize `LanguageService` initialization (lazy load models) | [INDEPENDENT] | [DONE]
+- [PERF-005] | Profile `AudioSimilarityService` and optimize numpy usage | [INDEPENDENT] | [DONE]
 
 ## Phase 3: Cognitive Intelligence (The "Neural Network")
 **Focus:** Introducing AI/ML capabilities for autonomous organization and smart playback.
@@ -78,9 +78,9 @@
 ### Epic 7: Audio Analysis
 - [AUD-001] | Implement `BPMDetector` using `librosa.beat` | [INDEPENDENT] | [DONE]
 - [AUD-002] | Implement `KeyDetector` using `librosa.feature.chroma` | [INDEPENDENT] | [DONE]
-- [AUD-003] | Implement `MoodAnalyzer` (valence/arousal) skeleton | [INDEPENDENT] | [TODO]
-- [AUD-004] | Create `AnalysisTagHandler` to save BPM/Key to ID3 tags | [BLOCKS-AUD-001, AUD-002] | [TODO]
-- [AUD-005] | optimize `librosa` imports to prevent startup lag | [INDEPENDENT] | [TODO]
+- [AUD-003] | Implement `MoodAnalyzer` (valence/arousal) skeleton | [INDEPENDENT] | [DONE]
+- [AUD-004] | Create `AnalysisTagHandler` to save BPM/Key to ID3 tags | [BLOCKS-AUD-001, AUD-002] | [DONE]
+- [AUD-005] | optimize `librosa` imports to prevent startup lag | [INDEPENDENT] | [DONE]
 - [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` | [INDEPENDENT] | [TODO]
 - [AUD-007] | Create `DuplicateFinder` based on audio fingerprints | [BLOCKS-AUD-006] | [TODO]
 - [AUD-008] | Implement `SilenceTrimmer` utility | [INDEPENDENT] | [TODO]
@@ -88,9 +88,9 @@
 - [AUD-010] | Integrate Analysis results into `MetadataTab` UI | [INDEPENDENT] | [TODO]
 
 ### Epic 8: Smart Playlists
-- [PL-001] | Create `PlaylistGenerator` service class | [INDEPENDENT] | [TODO]
-- [PL-002] | Implement "Generate Upbeat Playlist" (BPM > 120) | [BLOCKS-PL-001] | [TODO]
-- [PL-003] | Implement "Generate Chill Playlist" (BPM < 100) | [BLOCKS-PL-001] | [TODO]
+- [PL-001] | Create `PlaylistGenerator` service class | [INDEPENDENT] | [DONE]
+- [PL-002] | Implement "Generate Upbeat Playlist" (BPM > 120) | [BLOCKS-PL-001] | [DONE]
+- [PL-003] | Implement "Generate Chill Playlist" (BPM < 100) | [BLOCKS-PL-001] | [DONE]
 - [PL-004] | Implement "Flow Mode" (Match Key + BPM) logic | [BLOCKS-PL-001] | [TODO]
 - [PL-005] | Export Playlists to `.m3u8` format | [INDEPENDENT] | [TODO]
 - [PL-006] | Import Playlists from `.m3u8` | [INDEPENDENT] | [TODO]
