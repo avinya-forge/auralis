@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import MagicMock
-from src.core.scanner import MusicScanner
+
+import pytest
 from PyQt6.QtCore import QCoreApplication
+
+from src.core.scanner import MusicScanner
 
 
 @pytest.fixture(scope="session")

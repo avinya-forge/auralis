@@ -1,8 +1,10 @@
-import pytest
 import os
-from src.core.scanner import MusicScanner
-from PyQt6.QtCore import QCoreApplication
 from unittest.mock import patch
+
+import pytest
+from PyQt6.QtCore import QCoreApplication
+
+from src.core.scanner import MusicScanner
 
 
 @pytest.fixture(scope="session")
