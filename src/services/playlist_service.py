@@ -126,27 +126,27 @@ class PlaylistGenerator:
         compatible_keys = self.KEY_COMPATIBILITY.get(current_key, [])
 
         # First try: Compatible Key AND BPM within tolerance
-        possible_next_tracks = []
-
-        for track in candidates:
-            if track["path"] in used_paths:
-                continue
-
-            bpm = self._get_bpm(track)
-            key = self._get_key(track)
-
-            if bpm is None or key is None:
-                continue
-
-            bpm_diff = abs(bpm - current_bpm) / current_bpm
-
-            if bpm_diff <= tolerance_bpm and key in compatible_keys:
-                possible_next_tracks.append(track)
-
-        if possible_next_tracks:
-            return random.choice(possible_next_tracks)
+        next_track = self._get_random_compatible_track(
+            candidates, used_paths, current_bpm, compatible_keys, tolerance_bpm
+        )
+        if next_track:
+            return next_track
 
         # Fallback: Relax BPM tolerance slightly (2x)
+        return self._get_random_compatible_track(
+            candidates, used_paths, current_bpm, compatible_keys, tolerance_bpm * 2
+        )
+
+    def _get_random_compatible_track(
+        self,
+        candidates: List[Dict[str, Any]],
+        used_paths: Set[str],
+        target_bpm: float,
+        compatible_keys: List[str],
+        tolerance: float,
+    ) -> Optional[Dict[str, Any]]:
+        """Helper to find a random track matching criteria."""
+        matches = []
         for track in candidates:
             if track["path"] in used_paths:
                 continue
@@ -157,14 +157,13 @@ class PlaylistGenerator:
             if bpm is None or key is None:
                 continue
 
-            bpm_diff = abs(bpm - current_bpm) / current_bpm
+            bpm_diff = abs(bpm - target_bpm) / target_bpm
 
-            if bpm_diff <= (tolerance_bpm * 2) and key in compatible_keys:
-                possible_next_tracks.append(track)
+            if bpm_diff <= tolerance and key in compatible_keys:
+                matches.append(track)
 
-        if possible_next_tracks:
-            return random.choice(possible_next_tracks)
-
+        if matches:
+            return random.choice(matches)
         return None
 
     def export_playlist(self, playlist: List[Dict[str, Any]], filepath: str) -> bool:
