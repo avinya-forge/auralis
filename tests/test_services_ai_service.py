@@ -35,8 +35,6 @@ class TestAIConfig(unittest.TestCase):
         mock_torch.backends.mps.is_available.return_value = False
 
         with patch.dict(sys.modules, {"torch": mock_torch}):
-            # We need to reload/re-instantiate or ensure import happens inside the property
-            # Since 'import torch' is inside the 'device' property, it should pick up the mock from sys.modules
             ai_config = AIConfig()
             self.assertEqual(ai_config.device, "cuda")
 
@@ -45,7 +43,7 @@ class TestAIConfig(unittest.TestCase):
 
         mock_torch = MagicMock()
         mock_torch.cuda.is_available.return_value = False
-        # MPS not available
+        # Delete mps from backends to simulate non-Mac or older torch
         del mock_torch.backends.mps
 
         with patch.dict(sys.modules, {"torch": mock_torch}):
@@ -76,21 +74,37 @@ class TestModelLoader(unittest.TestCase):
         mock_config.device = "cpu"
         mock_config.use_fp16 = False
 
-        with patch.dict(sys.modules, {"transformers": MagicMock(), "torch": MagicMock()}):
-            with patch("transformers.pipeline") as mock_pipeline:
-                mock_pipe_instance = MagicMock()
-                mock_pipeline.return_value = mock_pipe_instance
+        mock_torch = MagicMock()
+        mock_transformers = MagicMock()
+        mock_pipeline = MagicMock()
+        mock_transformers.pipeline = mock_pipeline
 
-                loader = ModelLoader()
-                model = loader.load_model("test-model", "test-task")
+        mock_pipe_instance = MagicMock()
+        mock_pipeline.return_value = mock_pipe_instance
 
-                mock_pipeline.assert_called_with(
-                    task="test-task",
-                    model="test-model",
-                    device=-1,
-                    torch_dtype=None,
-                )
-                self.assertEqual(model, mock_pipe_instance)
+        with patch.dict(sys.modules, {"transformers": mock_transformers, "torch": mock_torch}):
+            loader = ModelLoader()
+            model = loader.load_model("test-model", "test-task")
+
+            mock_pipeline.assert_called_with(
+                task="test-task",
+                model="test-model",
+                device=-1,
+                torch_dtype=None,
+            )
+            self.assertEqual(model, mock_pipe_instance)
+
+    @patch("src.services.ai.model_loader.gc")
+    def test_unload_model(self, mock_gc):
+        ModelLoader._instances["test-model"] = "some-object"
+
+        mock_torch = MagicMock()
+
+        with patch.dict(sys.modules, {"torch": mock_torch}):
+            ModelLoader.unload_model("test-model")
+
+            self.assertNotIn("test-model", ModelLoader._instances)
+            mock_gc.collect.assert_called()
 
 
 class TestAIService(unittest.TestCase):
@@ -116,8 +130,24 @@ class TestAIService(unittest.TestCase):
             result = self.service.analyze_audio_classification("nonexistent.mp3")
             self.assertEqual(result, [])
 
-    def test_check_health(self):
-        health = self.service.check_health()
-        self.assertIn("enabled", health)
-        self.assertIn("device", health)
-        self.assertIn("simulation_mode", health)
+    @patch("src.services.ai_service.ai_config")
+    def test_check_health(self, mock_config):
+        mock_config.enabled = True
+        mock_config.device = "cuda"
+        mock_config.simulation_mode = False
+        mock_config.model_cache_dir = "/tmp"
+        mock_config.use_fp16 = True
+
+        mock_torch = MagicMock()
+        mock_torch.cuda.is_available.return_value = True
+
+        with patch.dict(sys.modules, {"torch": mock_torch}):
+            # Re-instantiate service to ensure it picks up patched config if needed,
+            # though here we patched the imported module object used by the instance
+            service = AIService()
+            health = service.check_health()
+
+            self.assertTrue(health["enabled"])
+            self.assertEqual(health["device"], "cuda")
+            self.assertTrue(health["torch_available"])
+            self.assertTrue(health["gpu_available"])

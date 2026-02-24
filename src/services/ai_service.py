@@ -29,16 +29,36 @@ class AIService:
         Returns:
             Dict[str, Any]: Health status report.
         """
-        return {
+        health = {
             "enabled": self.config.enabled,
             "device": self.config.device,
             "simulation_mode": self.config.simulation_mode,
             "cache_dir": self.config.model_cache_dir,
             "use_fp16": self.config.use_fp16,
+            "torch_available": False,
+            "gpu_available": False,
         }
 
+        try:
+            import torch  # noqa: F401
+
+            health["torch_available"] = True
+            if self.config.device == "cuda":
+                health["gpu_available"] = torch.cuda.is_available()
+            elif self.config.device == "mps":
+                health["gpu_available"] = (
+                    hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
+                )
+        except ImportError:
+            pass
+
+        return health
+
     def analyze_audio_classification(
-        self, file_path: str, model_name: str = "dima806/music_genres_classification"
+        self,
+        file_path: str,
+        model_name: str = "dima806/music_genres_classification",
+        task: str = "audio-classification",
     ) -> List[Dict[str, Any]]:
         """
         Analyze audio using a classification model.
@@ -46,6 +66,7 @@ class AIService:
         Args:
             file_path (str): Path to audio file.
             model_name (str): Hugging Face model ID. Defaults to a music genre classifier.
+            task (str): Task type. Defaults to 'audio-classification'.
 
         Returns:
             List[Dict[str, Any]]: List of classification results.
@@ -55,9 +76,6 @@ class AIService:
             return []
 
         try:
-            # Task name might vary, using generic for now as placeholder
-            task = "audio-classification"
-
             pipe = self.loader.load_model(model_name, task)
 
             # Pipeline usually accepts path or bytes
@@ -65,7 +83,7 @@ class AIService:
 
             # Result format: [{'label': 'rock', 'score': 0.99}, ...]
             if isinstance(result, list):
-                return result
+                return result  # type: ignore
             return [result]  # type: ignore
 
         except Exception as e:

@@ -41,6 +41,7 @@ setup(
             "torch>=2.0.0",
             "torchaudio>=2.0.0",
             "scipy>=1.9.0",
+            "librosa>=0.9.0",
         ],
         "all": [
             "spotipy>=2.19.0",

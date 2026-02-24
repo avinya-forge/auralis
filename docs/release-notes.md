@@ -15,6 +15,14 @@
 - [AI-PROTOTYPE] | Create `prototypes/ai_demo.py` for MERT/CLAP integration | [DONE]
 - [AI-SIMULATION] | Implement "Simulation Mode" for prototype when deps are missing | [DONE]
 
+## Iteration: A-SWIFT-EXECUTOR-03/AI-Infrastructure
+*   **Epic 11: Neural Core Infrastructure**
+    *   Implemented `AIService` module (`src/services/ai_service.py`) as the central orchestration point for neural tasks (AI-001).
+    *   Implemented `ModelLoader` class (`src/services/ai/model_loader.py`) for lazy-loading and unloading Transformers (AI-002).
+    *   Implemented `AIConfig` class (`src/services/ai/config.py`) to manage device selection (CUDA/MPS/CPU) and model cache (AI-008).
+    *   Updated `setup.py` to include `transformers`, `torch`, and `librosa` in `ai` extras (AI-003).
+    *   Added comprehensive unit tests for AI components mocking `torch` and `transformers`.
+
 ## [0.2.0] - Roadmap Reconstruction
 
 ### Architectural Pivot
