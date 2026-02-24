@@ -101,10 +101,10 @@ class TestModelLoader(unittest.TestCase):
         mock_torch = MagicMock()
 
         with patch.dict(sys.modules, {"torch": mock_torch}):
-             ModelLoader.unload_model("test-model")
+            ModelLoader.unload_model("test-model")
 
-             self.assertNotIn("test-model", ModelLoader._instances)
-             mock_gc.collect.assert_called()
+            self.assertNotIn("test-model", ModelLoader._instances)
+            mock_gc.collect.assert_called()
 
 
 class TestAIService(unittest.TestCase):

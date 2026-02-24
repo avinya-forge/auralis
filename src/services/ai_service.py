@@ -4,7 +4,7 @@ Auralis - AI Service Module
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from src.services.ai.config import ai_config
 from src.services.ai.model_loader import ModelLoader
