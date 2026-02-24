@@ -56,7 +56,9 @@ class ModelLoader:
                 task=task,
                 model=model_name,
                 device=device,
-                torch_dtype=torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None,
+                torch_dtype=(
+                    torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None
+                ),
             )
 
             cls._instances[model_name] = pipe
