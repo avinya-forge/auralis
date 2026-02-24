@@ -1,5 +1,20 @@
 # Release Notes
 
+## [0.3.0] - Neural Genesis (AI Feasibility)
+
+### Feature Highlight: Neural Architecture
+-   **AI Feasibility Report**: Completed analysis of Hugging Face models (MERT, CLAP) for Raga, Cover Song, and Mood identification.
+-   **Process Documentation**: Added detailed `docs/process_flow.md` visualizing the 3-Stage workflow (Scan > Organize > Metadata).
+-   **Conceptual Prototype**: Created `prototypes/ai_demo.py` demonstrating Zero-Shot Classification and Embedding extraction using `transformers`.
+
+### Archived Tasks (Vaulted from Backlog)
+
+#### Phase 3: Cognitive Intelligence (Pre-Alpha)
+- [DOC-PROCESS] | Create `docs/process_flow.md` with ASCII interaction diagrams | [DONE]
+- [AI-FEASIBILITY] | Research and document Hugging Face models for Raga/Cover ID | [DONE]
+- [AI-PROTOTYPE] | Create `prototypes/ai_demo.py` for MERT/CLAP integration | [DONE]
+- [AI-SIMULATION] | Implement "Simulation Mode" for prototype when deps are missing | [DONE]
+
 ## [0.2.0] - Roadmap Reconstruction
 
 ### Architectural Pivot

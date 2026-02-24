@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="auralis",
-    version="0.2.0",
+    version="0.3.0",
     packages=find_packages(),
     install_requires=[
         "PyQt6>=6.0.0",

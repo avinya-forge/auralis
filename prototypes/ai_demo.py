@@ -76,10 +76,12 @@ class MusicAI:
 
         try:
             # Load and resample audio
-            audio, sr = librosa.load(audio_path, sr=48000) # CLAP expects 48kHz
+            audio, sr = librosa.load(audio_path, sr=48000)  # CLAP expects 48kHz
 
             # Process inputs
-            inputs = self.clap_processor(text=candidate_labels, audios=audio, return_tensors="pt", padding=True, sampling_rate=48000)
+            inputs = self.clap_processor(
+                text=candidate_labels, audios=audio, return_tensors="pt", padding=True, sampling_rate=48000
+            )
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
             # Run inference
@@ -112,7 +114,7 @@ class MusicAI:
 
         try:
             # Load and resample audio
-            audio, sr = librosa.load(audio_path, sr=24000) # MERT expects 24kHz
+            audio, sr = librosa.load(audio_path, sr=24000)  # MERT expects 24kHz
 
             # Process inputs
             inputs = self.mert_processor(audio, sampling_rate=24000, return_tensors="pt")
@@ -124,8 +126,8 @@ class MusicAI:
 
             # Aggregate hidden states (e.g., mean of last layer)
             all_layer_hidden_states = torch.stack(outputs.hidden_states).squeeze()
-            last_hidden_state = all_layer_hidden_states[-1] # [seq_len, hidden_dim]
-            embedding = last_hidden_state.mean(dim=0).cpu().numpy() # [hidden_dim]
+            last_hidden_state = all_layer_hidden_states[-1]  # [seq_len, hidden_dim]
+            embedding = last_hidden_state.mean(dim=0).cpu().numpy()  # [hidden_dim]
 
             return embedding
 
@@ -147,6 +149,7 @@ def demo_raga_identification(ai, audio_path):
     results = ai.classify_zero_shot(audio_path, ragas)
     for label, score in results.items():
         print(f"{label}: {score:.4f}")
+
 
 def demo_cover_song_identification(ai, original_path, cover_path):
     print(f"\n--- Comparing Cover Song: {cover_path} vs Original: {original_path} ---")

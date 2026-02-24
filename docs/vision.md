@@ -19,6 +19,7 @@ A task is only "Done" when it meets the following atomic criteria:
 
 ## Ideal State
 -   **Zero-Touch Organization:** Drop a folder of chaotic MP3s, and Auralis sorts, tags, and artworks them instantly.
+-   **Neural Audio Understanding:** Identifies Ragas, Cover Songs, and Moods using Zero-Shot Transformers (CLAP/MERT) without relying on external databases.
 -   **Universal Playback:** Plays FLAC, MP3, WAV, OGG, and streams seamlessly.
 -   **Deep Metadata:** Lyrics, artist bios, and similar tracks are fetched automatically.
 -   **Fluid UI:** A responsive, modern interface (PyQt6/wxPython) that feels native on every OS.
