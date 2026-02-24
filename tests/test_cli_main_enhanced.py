@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 import unittest
 import sys
 
+
 class TestCLIEnhanced(unittest.TestCase):
     def setUp(self):
         # Create mocks for the modules we want to mock
@@ -11,11 +12,14 @@ class TestCLIEnhanced(unittest.TestCase):
 
         # Patch sys.modules to include our mocks
         # We use patch.dict so it's reversed after the test
-        self.modules_patcher = patch.dict(sys.modules, {
-            "src.services.playlist_service": self.mock_playlist_service,
-            "src.services.audio_analysis_service": self.mock_audio_analysis,
-            "src.services.metadata_service": self.mock_metadata_service
-        })
+        self.modules_patcher = patch.dict(
+            sys.modules,
+            {
+                "src.services.playlist_service": self.mock_playlist_service,
+                "src.services.audio_analysis_service": self.mock_audio_analysis,
+                "src.services.metadata_service": self.mock_metadata_service,
+            },
+        )
         self.modules_patcher.start()
 
         # Import the module under test here, after patching
@@ -24,6 +28,7 @@ class TestCLIEnhanced(unittest.TestCase):
         # However, to be safe against persistent imports from other tests, we should perhaps reload.
         import src.cli.cli_main
         import importlib
+
         importlib.reload(src.cli.cli_main)
         self.cli_main = src.cli.cli_main
 
