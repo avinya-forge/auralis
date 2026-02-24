@@ -3,7 +3,7 @@ Auralis - Model Loader Module
 """
 
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 
 from src.services.ai.config import ai_config
 

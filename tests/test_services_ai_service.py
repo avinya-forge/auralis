@@ -35,10 +35,10 @@ class TestAIConfig(unittest.TestCase):
         mock_torch.backends.mps.is_available.return_value = False
 
         with patch.dict(sys.modules, {"torch": mock_torch}):
-             # We need to reload/re-instantiate or ensure import happens inside the property
-             # Since 'import torch' is inside the 'device' property, it should pick up the mock from sys.modules
-             ai_config = AIConfig()
-             self.assertEqual(ai_config.device, "cuda")
+            # We need to reload/re-instantiate or ensure import happens inside the property
+            # Since 'import torch' is inside the 'device' property, it should pick up the mock from sys.modules
+            ai_config = AIConfig()
+            self.assertEqual(ai_config.device, "cuda")
 
     def test_device_detection_cpu(self):
         self.mock_config.get.return_value = "auto"
@@ -49,8 +49,8 @@ class TestAIConfig(unittest.TestCase):
         del mock_torch.backends.mps
 
         with patch.dict(sys.modules, {"torch": mock_torch}):
-             ai_config = AIConfig()
-             self.assertEqual(ai_config.device, "cpu")
+            ai_config = AIConfig()
+            self.assertEqual(ai_config.device, "cpu")
 
 
 class TestModelLoader(unittest.TestCase):

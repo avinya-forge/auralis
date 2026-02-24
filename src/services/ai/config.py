@@ -4,7 +4,6 @@ Auralis - AI Configuration Module
 
 import logging
 import os
-from typing import Optional
 
 from src.utils.config import config
 
