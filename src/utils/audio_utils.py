@@ -12,6 +12,7 @@ from mutagen.flac import FLAC, Picture
 
 try:
     from pydub import AudioSegment
+
     HAS_PYDUB = True
 except ImportError:
     HAS_PYDUB = False
@@ -421,7 +422,9 @@ class AudioUtils:
 
         assert chunk_size > 0  # to avoid infinite loop
 
-        while trim_ms < len(sound) and sound[trim_ms : trim_ms + chunk_size].dBFS < silence_threshold:
+        while (
+            trim_ms < len(sound) and sound[trim_ms : trim_ms + chunk_size].dBFS < silence_threshold
+        ):
             trim_ms += chunk_size
 
         return trim_ms

@@ -23,7 +23,9 @@ class TestAudioUtils:
 
         mock_sound.__getitem__.side_effect = get_slice
 
-        silence_ms = AudioUtils.detect_leading_silence(mock_sound, silence_threshold=-50.0, chunk_size=10)
+        silence_ms = AudioUtils.detect_leading_silence(
+            mock_sound, silence_threshold=-50.0, chunk_size=10
+        )
         assert silence_ms == 20
 
     @patch("src.utils.audio_utils.HAS_PYDUB", True)
@@ -37,7 +39,9 @@ class TestAudioUtils:
         mock_audio.reverse.return_value = mock_audio
 
         # Mock detect_leading_silence by patching AudioUtils.detect_leading_silence
-        with patch("src.utils.audio_utils.AudioUtils.detect_leading_silence", side_effect=[150, 150]):
+        with patch(
+            "src.utils.audio_utils.AudioUtils.detect_leading_silence", side_effect=[150, 150]
+        ):
             # Start: 150ms silence. End: 150ms silence.
             # Padding: 100ms.
             # Should trim 150-100 = 50ms from start and end.
