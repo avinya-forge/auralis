@@ -934,9 +934,7 @@ class MetadataService(QObject):
             if updated_file_info and "hash" in updated_file_info:
                 file_hash = updated_file_info["hash"]
                 if file_hash and "metadata" in updated_file_info:
-                    self.cache_service.save_metadata(
-                        file_hash, updated_file_info["metadata"]
-                    )
+                    self.cache_service.save_metadata(file_hash, updated_file_info["metadata"])
 
             return updated_file_info
 

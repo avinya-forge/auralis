@@ -24,12 +24,14 @@ class TestImageLoader:
             def make_connect(name):
                 def connect(callback):
                     instance.callbacks[name] = callback
+
                 return connect
 
             def make_emit(name):
                 def emit(arg):
                     if name in instance.callbacks:
                         instance.callbacks[name](arg)
+
                 return emit
 
             instance.loaded.connect.side_effect = make_connect("loaded")
@@ -49,8 +51,9 @@ class TestImageLoader:
         print(f"DEBUG: thread_pool type: {type(image_loader.thread_pool)}")
         print(f"DEBUG: thread_pool start: {image_loader.thread_pool.start}")
 
-        with patch("src.utils.image_loader.requests.get") as mock_get, \
-             patch("src.utils.image_loader.QImage") as MockQImage:
+        with patch("src.utils.image_loader.requests.get") as mock_get, patch(
+            "src.utils.image_loader.QImage"
+        ) as MockQImage:
 
             mock_response = MagicMock()
             mock_response.content = b"fake image data"

@@ -168,23 +168,17 @@ def setup_parser() -> argparse.ArgumentParser:
     # Generate
     gen_parser = pl_subparsers.add_parser("generate", help="Generate a playlist")
     gen_parser.add_argument("source", help="Source directory or JSON file")
-    gen_parser.add_argument(
-        "--type", choices=["upbeat", "chill", "flow", "mood"], required=True
-    )
+    gen_parser.add_argument("--type", choices=["upbeat", "chill", "flow", "mood"], required=True)
     gen_parser.add_argument("--output", required=True, help="Output .m3u8 file")
     gen_parser.add_argument("--mood", help="Target mood (required for --type mood)")
     gen_parser.add_argument("--bpm", type=float, help="BPM threshold/target")
-    gen_parser.add_argument(
-        "--length", type=int, default=60, help="Length in minutes (for flow)"
-    )
+    gen_parser.add_argument("--length", type=int, default=60, help="Length in minutes (for flow)")
 
     # Analyze command
     an_parser = subparsers.add_parser("analyze", help="Analyze audio files")
     an_parser.add_argument("source", help="Source directory or JSON file")
     an_parser.add_argument("--save", action="store_true", help="Save tags to file")
-    an_parser.add_argument(
-        "--replay-gain", action="store_true", help="Calculate ReplayGain"
-    )
+    an_parser.add_argument("--replay-gain", action="store_true", help="Calculate ReplayGain")
 
     # Check command
     subparsers.add_parser("check", help="Check system and Python dependencies")
@@ -413,9 +407,7 @@ def run_playlist(args: argparse.Namespace) -> None:
         _run_generate_playlist(args, PlaylistGenerator, PlaylistHistory)
 
 
-def _run_generate_playlist(
-    args: argparse.Namespace, generator_cls: Any, history_cls: Any
-) -> None:
+def _run_generate_playlist(args: argparse.Namespace, generator_cls: Any, history_cls: Any) -> None:
     print(f"Generating {args.type} playlist from {args.source}...")
     files = _load_files(args.source)
     if not files:
@@ -455,9 +447,7 @@ def _generate_playlist_by_type(
         if not args.mood:
             print("Error: --mood is required for mood playlist.")
             return []
-        return cast(
-            List[Dict[str, Any]], generator.generate_playlist_by_mood(files, args.mood)
-        )
+        return cast(List[Dict[str, Any]], generator.generate_playlist_by_mood(files, args.mood))
     elif args.type == "flow":
         return cast(
             List[Dict[str, Any]],

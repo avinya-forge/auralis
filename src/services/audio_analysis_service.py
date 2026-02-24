@@ -251,9 +251,7 @@ class AudioAnalyzer:
         if mood:
             audio["mood"] = mood
 
-    def calculate_replay_gain(
-        self, file_path: str, target_dbfs: float = -14.0
-    ) -> Optional[float]:
+    def calculate_replay_gain(self, file_path: str, target_dbfs: float = -14.0) -> Optional[float]:
         """
         Calculate ReplayGain (Track Gain) to reach target dBFS.
 

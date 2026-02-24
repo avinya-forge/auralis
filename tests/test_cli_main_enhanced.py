@@ -2,17 +2,34 @@ from unittest.mock import MagicMock, patch
 import unittest
 import sys
 
-# Mock dependencies to avoid import errors if they rely on system tools
-sys.modules["src.services.playlist_service"] = MagicMock()
-sys.modules["src.services.audio_analysis_service"] = MagicMock()
-sys.modules["src.services.metadata_service"] = MagicMock()
-
-# We need to import the module under test AFTER mocking if it has top-level side effects
-# But cli_main imports inside functions mostly.
-from src.cli.cli_main import run_playlist, run_analyze  # noqa: E402
-
-
 class TestCLIEnhanced(unittest.TestCase):
+    def setUp(self):
+        # Create mocks for the modules we want to mock
+        self.mock_playlist_service = MagicMock()
+        self.mock_audio_analysis = MagicMock()
+        self.mock_metadata_service = MagicMock()
+
+        # Patch sys.modules to include our mocks
+        # We use patch.dict so it's reversed after the test
+        self.modules_patcher = patch.dict(sys.modules, {
+            "src.services.playlist_service": self.mock_playlist_service,
+            "src.services.audio_analysis_service": self.mock_audio_analysis,
+            "src.services.metadata_service": self.mock_metadata_service
+        })
+        self.modules_patcher.start()
+
+        # Import the module under test here, after patching
+        # We need to reload it to ensure it uses the mocked modules if they are imported at top level
+        # But src.cli.cli_main imports them locally inside functions, so just importing is enough if not already imported.
+        # However, to be safe against persistent imports from other tests, we should perhaps reload.
+        import src.cli.cli_main
+        import importlib
+        importlib.reload(src.cli.cli_main)
+        self.cli_main = src.cli.cli_main
+
+    def tearDown(self):
+        self.modules_patcher.stop()
+
     @patch("src.cli.cli_main._load_files")
     def test_run_playlist_generate(self, mock_load):
         args = MagicMock()
@@ -24,18 +41,17 @@ class TestCLIEnhanced(unittest.TestCase):
 
         mock_load.return_value = [{"path": "1.mp3"}]
 
-        # Configure the mocks in sys.modules
-        pl_module = sys.modules["src.services.playlist_service"]
-        mock_gen = pl_module.PlaylistGenerator
+        # Configure the mocks
+        mock_gen = self.mock_playlist_service.PlaylistGenerator
         mock_gen_instance = mock_gen.return_value
         mock_gen_instance.generate_upbeat_playlist.return_value = [{"path": "1.mp3"}]
         mock_gen_instance.export_playlist.return_value = True
 
-        run_playlist(args)
+        self.cli_main.run_playlist(args)
 
         mock_gen_instance.generate_upbeat_playlist.assert_called_once()
         mock_gen_instance.export_playlist.assert_called_once()
-        pl_module.PlaylistHistory.return_value.add_entry.assert_called_once()
+        self.mock_playlist_service.PlaylistHistory.return_value.add_entry.assert_called_once()
 
     @patch("src.cli.cli_main._load_files")
     @patch("src.cli.cli_main.ConsoleHandler")
@@ -47,11 +63,7 @@ class TestCLIEnhanced(unittest.TestCase):
 
         mock_load.return_value = [{"path": "1.mp3", "metadata": {}}]
 
-        # Configure mocks
-        meta_module = sys.modules["src.services.metadata_service"]
-        aa_module = sys.modules["src.services.audio_analysis_service"]
+        self.cli_main.run_analyze(args)
 
-        run_analyze(args)
-
-        meta_module.MetadataService.return_value.update_metadata.assert_called_once()
-        aa_module.AudioAnalyzer.return_value.calculate_replay_gain.assert_called()
+        self.mock_metadata_service.MetadataService.return_value.update_metadata.assert_called_once()
+        self.mock_audio_analysis.AudioAnalyzer.return_value.calculate_replay_gain.assert_called()
