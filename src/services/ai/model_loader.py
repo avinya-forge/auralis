@@ -3,7 +3,8 @@ Auralis - Model Loader Module
 """
 
 import logging
-from typing import Any, Dict, Union
+import gc
+from typing import Any, Dict, Union, Optional
 
 from src.services.ai.config import ai_config
 
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class ModelLoader:
     """
-    Handles lazy loading of AI models.
+    Handles lazy loading and lifecycle of AI models.
     """
 
     _instances: Dict[str, Any] = {}
@@ -43,13 +44,14 @@ class ModelLoader:
             logger.info(f"Loading model {model_name} on {ai_config.device}")
 
             # Map device string to pipeline compatible format
-            device: Union[int, str, torch.device] = -1
+            # device=-1 for CPU, device=0 for CUDA:0, device="mps" for MPS
+            device: Union[int, str] = -1
             if ai_config.device == "cuda":
                 device = 0  # Use first GPU
             elif ai_config.device == "mps":
                 device = "mps"
-            else:
-                device = -1  # CPU
+
+            # For CPU, device remains -1
 
             # Use pipeline for simplicity
             pipe = pipeline(
@@ -71,6 +73,19 @@ class ModelLoader:
             logger.error(f"Failed to load model {model_name}: {str(e)}")
             return cls._create_mock_model(model_name)
 
+    @classmethod
+    def unload_model(cls, model_name: str) -> None:
+        """
+        Unload a specific model from memory.
+
+        Args:
+            model_name (str): The name of the model to unload.
+        """
+        if model_name in cls._instances:
+            logger.info(f"Unloading model {model_name}")
+            del cls._instances[model_name]
+            cls._clear_gpu_cache()
+
     @staticmethod
     def _create_mock_model(model_name: str) -> Any:
         """Create a mock model for simulation or error fallback."""
@@ -84,8 +99,14 @@ class ModelLoader:
 
     @classmethod
     def clear_cache(cls) -> None:
-        """Clear loaded models from memory."""
+        """Clear all loaded models from memory."""
         cls._instances.clear()
+        cls._clear_gpu_cache()
+
+    @staticmethod
+    def _clear_gpu_cache() -> None:
+        """Helper to clear GPU memory."""
+        gc.collect()
         try:
             import torch
 

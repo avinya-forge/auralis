@@ -4,6 +4,7 @@ Auralis - AI Configuration Module
 
 import logging
 import os
+from typing import Optional
 
 from src.utils.config import config
 
@@ -17,17 +18,25 @@ class AIConfig:
 
     @property
     def model_cache_dir(self) -> str:
-        """Directory to store downloaded models."""
+        """
+        Directory to store downloaded models.
+
+        Returns:
+            str: Absolute path to the model cache directory.
+        """
         default_path = os.path.join(os.path.expanduser("~"), ".cache", "auralis", "models")
-        return config.get("AI_MODEL_CACHE_DIR", default_path)
+        path = config.get("AI_MODEL_CACHE_DIR", default_path)
+        return os.path.expanduser(path)
 
     @property
     def device(self) -> str:
         """
         Get the device to run models on.
-        Returns: 'cuda', 'mps', or 'cpu'.
+
+        Returns:
+            str: 'cuda', 'mps', or 'cpu'.
         """
-        configured_device = config.get("AI_DEVICE", "auto")
+        configured_device: str = config.get("AI_DEVICE", "auto")
         if configured_device != "auto":
             return configured_device
 
@@ -46,17 +55,32 @@ class AIConfig:
 
     @property
     def use_fp16(self) -> bool:
-        """Whether to use half-precision for inference."""
+        """
+        Whether to use half-precision for inference.
+
+        Returns:
+            bool: True if FP16 is enabled.
+        """
         return config.get("AI_USE_FP16", True)
 
     @property
     def enabled(self) -> bool:
-        """Whether AI features are enabled."""
+        """
+        Whether AI features are enabled.
+
+        Returns:
+            bool: True if AI is enabled.
+        """
         return config.get("AI_ENABLED", True)
 
     @property
     def simulation_mode(self) -> bool:
-        """Whether to run in simulation mode (no actual inference)."""
+        """
+        Whether to run in simulation mode (no actual inference).
+
+        Returns:
+            bool: True if running in simulation mode.
+        """
         return config.get("AI_SIMULATION_MODE", False)
 
 
