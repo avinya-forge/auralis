@@ -135,6 +135,7 @@ class DependencyChecker:
             "core": {},
             "audio_similarity": {},
             "language_detection": {},
+            "ai": {},
             "system_tools": {},
             "libraries": {},
         }
@@ -160,6 +161,11 @@ class DependencyChecker:
         lang_det_modules = ["speech_recognition", "langdetect", "pydub", "pyaudio"]
         for mod in lang_det_modules:
             report["language_detection"][mod] = self.check_module(mod)
+
+        # AI dependencies (import names)
+        ai_modules = ["transformers", "torch", "torchaudio", "scipy"]
+        for mod in ai_modules:
+            report["ai"][mod] = self.check_module(mod)
 
         # System Tools
         tools = ["ffmpeg", "ffprobe", "fpcalc"]

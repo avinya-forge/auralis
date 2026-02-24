@@ -36,6 +36,12 @@ setup(
             "SpeechRecognition>=3.8.0",
             "langdetect>=1.0.9",
         ],
+        "ai": [
+            "transformers>=4.30.0",
+            "torch>=2.0.0",
+            "torchaudio>=2.0.0",
+            "scipy>=1.9.0",
+        ],
         "all": [
             "spotipy>=2.19.0",
             "pylast>=4.3.0",
@@ -44,6 +50,10 @@ setup(
             "soundfile>=0.10.0",
             "SpeechRecognition>=3.8.0",
             "langdetect>=1.0.9",
+            "transformers>=4.30.0",
+            "torch>=2.0.0",
+            "torchaudio>=2.0.0",
+            "scipy>=1.9.0",
         ],
     },
     entry_points={
