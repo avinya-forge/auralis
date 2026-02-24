@@ -2,8 +2,8 @@
 Auralis - Model Loader Module
 """
 
-import logging
 import gc
+import logging
 from typing import Any, Dict, Union
 
 from src.services.ai.config import ai_config
@@ -38,8 +38,8 @@ class ModelLoader:
             return cls._create_mock_model(model_name)
 
         try:
-            from transformers import pipeline
             import torch
+            from transformers import pipeline
 
             logger.info(f"Loading model {model_name} on {ai_config.device}")
 
