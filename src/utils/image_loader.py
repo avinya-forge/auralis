@@ -66,9 +66,7 @@ class ImageLoader:
         self.thread_pool = QThreadPool.globalInstance()
         self.cache: Dict[str, QImage] = {}
 
-    def load_image(
-        self, path_or_url: str, callback: Callable[[Optional[QImage]], None]
-    ) -> None:
+    def load_image(self, path_or_url: str, callback: Callable[[Optional[QImage]], None]) -> None:
         """
         Load an image from a path or URL.
 

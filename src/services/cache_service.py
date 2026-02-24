@@ -52,15 +52,13 @@ class CacheService:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS metadata (
                         file_hash TEXT PRIMARY KEY,
                         data TEXT,
                         last_updated REAL
                     )
-                    """
-                )
+                    """)
                 conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Error initializing cache database: {e}")
@@ -81,9 +79,7 @@ class CacheService:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT data FROM metadata WHERE file_hash = ?", (file_hash,)
-                )
+                cursor.execute("SELECT data FROM metadata WHERE file_hash = ?", (file_hash,))
                 row = cursor.fetchone()
                 if row:
                     return json.loads(row[0])
@@ -108,6 +104,7 @@ class CacheService:
 
         try:
             import time
+
             current_time = time.time()
             json_data = json.dumps(data)
 
