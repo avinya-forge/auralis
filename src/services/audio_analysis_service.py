@@ -250,3 +250,70 @@ class AudioAnalyzer:
             audio["initialkey"] = key
         if mood:
             audio["mood"] = mood
+
+    def calculate_replay_gain(
+        self, file_path: str, target_dbfs: float = -14.0
+    ) -> Optional[float]:
+        """
+        Calculate ReplayGain (Track Gain) to reach target dBFS.
+
+        Args:
+            file_path (str): Path to audio file.
+            target_dbfs (float): Target loudness in dBFS.
+
+        Returns:
+            Optional[float]: Gain in dB.
+        """
+        try:
+            from pydub import AudioSegment
+        except ImportError:
+            logger.warning("pydub not installed. Cannot calculate ReplayGain.")
+            return None
+
+        try:
+            # Load audio
+            audio = AudioSegment.from_file(file_path)
+            current_dbfs = audio.dBFS
+            gain = target_dbfs - current_dbfs
+            return float(gain)
+        except Exception as e:
+            logger.error(f"Error calculating ReplayGain for {file_path}: {e}")
+            return None
+
+    def save_replay_gain_tags(self, file_path: str, gain: float) -> bool:
+        """
+        Save ReplayGain tags to audio file.
+
+        Args:
+            file_path (str): Path to audio file.
+            gain (float): Gain value in dB.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        if not HAS_MUTAGEN:
+            logger.warning("Mutagen not installed. Cannot save ReplayGain tags.")
+            return False
+
+        try:
+            audio = mutagen.File(file_path)
+            if not audio:
+                return False
+
+            gain_str = f"{gain:.2f} dB"
+
+            if isinstance(audio, mutagen.mp3.MP3):
+                # ID3v2.4 RVA2 or TXXX:REPLAYGAIN_TRACK_GAIN
+                # Using TXXX for broader compatibility
+                audio.tags.add(
+                    mutagen.id3.TXXX(encoding=3, desc="REPLAYGAIN_TRACK_GAIN", text=gain_str)
+                )
+            elif isinstance(audio, mutagen.flac.FLAC) or isinstance(audio, mutagen.ogg.OggVorbis):
+                audio["REPLAYGAIN_TRACK_GAIN"] = gain_str
+
+            audio.save()
+            return True
+
+        except Exception as e:
+            logger.error(f"Error saving ReplayGain tags for {file_path}: {e}")
+            return False

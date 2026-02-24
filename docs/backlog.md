@@ -28,7 +28,7 @@
 - [TST-007] | Create `tests/test_services_language_service.py` (mock langdetect) | [INDEPENDENT] | [DONE]
 - [TST-008] | Create `tests/test_core_scanner_edge_cases.py` (permission errors, corrupt files) | [INDEPENDENT] | [DONE]
 - [TST-009] | Implement `conftest.py` with global mocks for optional deps | [INDEPENDENT] | [DONE]
-- [TST-010] | Configure CI to fail if coverage < 95% | [INDEPENDENT] | [TODO]
+- [TST-010] | Configure CI to fail if coverage < 95% | [INDEPENDENT] | [DONE]
 
 ### Epic 3: Lint Zero & Documentation
 - [LNT-001] | Fix all `flake8` warnings in `src/gui` | [INDEPENDENT] | [DONE]
@@ -36,7 +36,7 @@
 - [DOC-001] | Add Google-style docstrings to `src/core/scanner.py` | [INDEPENDENT] | [DONE]
 - [DOC-002] | Add Google-style docstrings to `src/services/metadata_service.py` | [INDEPENDENT] | [DONE]
 - [DOC-003] | Add Google-style docstrings to `src/gui/wx/main_window.py` | [INDEPENDENT] | [DONE]
-- [DOC-004] | Update `README.md` with new badge status | [INDEPENDENT] | [TODO]
+- [DOC-004] | Update `README.md` with new badge status | [INDEPENDENT] | [DONE]
 
 ## Phase 2: Feature Enhancement (Metadata & UI)
 **Focus:** Expanding capabilities based on the Vision (Deep Metadata, Fluid UI).
@@ -81,22 +81,22 @@
 - [AUD-003] | Implement `MoodAnalyzer` (valence/arousal) skeleton | [INDEPENDENT] | [DONE]
 - [AUD-004] | Create `AnalysisTagHandler` to save BPM/Key to ID3 tags | [BLOCKS-AUD-001, AUD-002] | [DONE]
 - [AUD-005] | optimize `librosa` imports to prevent startup lag | [INDEPENDENT] | [DONE]
-- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` | [INDEPENDENT] | [TODO]
-- [AUD-007] | Create `DuplicateFinder` based on audio fingerprints | [BLOCKS-AUD-006] | [TODO]
-- [AUD-008] | Implement `SilenceTrimmer` utility | [INDEPENDENT] | [TODO]
-- [AUD-009] | Add "Loudness Normalization" (ReplayGain) calculator | [INDEPENDENT] | [TODO]
-- [AUD-010] | Integrate Analysis results into `MetadataTab` UI | [INDEPENDENT] | [TODO]
+- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` | [INDEPENDENT] | [DONE]
+- [AUD-007] | Create `DuplicateFinder` based on audio fingerprints | [BLOCKS-AUD-006] | [DONE]
+- [AUD-008] | Implement `SilenceTrimmer` utility | [INDEPENDENT] | [DONE]
+- [AUD-009] | Add "Loudness Normalization" (ReplayGain) calculator | [INDEPENDENT] | [DONE]
+- [AUD-010] | Integrate Analysis results into `MetadataTab` UI | [INDEPENDENT] | [DONE]
 
 ### Epic 8: Smart Playlists
 - [PL-001] | Create `PlaylistGenerator` service class | [INDEPENDENT] | [DONE]
 - [PL-002] | Implement "Generate Upbeat Playlist" (BPM > 120) | [BLOCKS-PL-001] | [DONE]
 - [PL-003] | Implement "Generate Chill Playlist" (BPM < 100) | [BLOCKS-PL-001] | [DONE]
-- [PL-004] | Implement "Flow Mode" (Match Key + BPM) logic | [BLOCKS-PL-001] | [TODO]
-- [PL-005] | Export Playlists to `.m3u8` format | [INDEPENDENT] | [TODO]
-- [PL-006] | Import Playlists from `.m3u8` | [INDEPENDENT] | [TODO]
-- [PL-007] | Implement "Similar Tracks" finder (Cosine Similarity) | [INDEPENDENT] | [TODO]
+- [PL-004] | Implement "Flow Mode" (Match Key + BPM) logic | [BLOCKS-PL-001] | [DONE]
+- [PL-005] | Export Playlists to `.m3u8` format | [INDEPENDENT] | [DONE]
+- [PL-006] | Import Playlists from `.m3u8` | [INDEPENDENT] | [DONE]
+- [PL-007] | Implement "Similar Tracks" finder (Cosine Similarity) | [INDEPENDENT] | [DONE]
 - [PL-008] | Add "Playlist Editor" UI Tab | [INDEPENDENT] | [TODO]
-- [PL-009] | Implement "History" tracker for generated playlists | [INDEPENDENT] | [TODO]
+- [PL-009] | Implement "History" tracker for generated playlists | [INDEPENDENT] | [DONE]
 - [PL-010] | Add "Export to Spotify" (CSV/API) stub | [INDEPENDENT] | [TODO]
 
 ## Phase 4: Ecosystem Expansion
@@ -109,9 +109,11 @@
 - [PLG-004] | Add "Plugins" settings tab in UI | [INDEPENDENT] | [TODO]
 - [PLG-005] | Implement `PluginSandbox` restrictions | [INDEPENDENT] | [TODO]
 
-### Epic 10: Remote API
+### Epic 10: Remote API & CLI
 - [API-001] | Design REST API spec (OpenAPI/Swagger) | [INDEPENDENT] | [TODO]
 - [API-002] | Implement lightweight Flask/FastAPI server | [INDEPENDENT] | [TODO]
 - [API-003] | Implement `GET /status` endpoint | [BLOCKS-API-002] | [TODO]
 - [API-004] | Implement `POST /scan` endpoint | [BLOCKS-API-002] | [TODO]
 - [API-005] | Implement `POST /organize` endpoint | [BLOCKS-API-002] | [TODO]
+- [CLI-001] | Add playlist commands to CLI | [INDEPENDENT] | [DONE]
+- [CLI-002] | Add analyze command to CLI | [INDEPENDENT] | [DONE]

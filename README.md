@@ -1,6 +1,7 @@
 # Auralis - Advanced Music File Management
 
 ![CI](https://github.com/patternseekers/auralis/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)

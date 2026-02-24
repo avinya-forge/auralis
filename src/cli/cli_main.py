@@ -7,7 +7,7 @@ import json
 import logging
 import os
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 from src.utils.dependency_checker import DependencyChecker
 
@@ -161,6 +161,31 @@ def setup_parser() -> argparse.ArgumentParser:
         "--force", action="store_true", help="Force update even if metadata exists"
     )
 
+    # Playlist command
+    pl_parser = subparsers.add_parser("playlist", help="Manage playlists")
+    pl_subparsers = pl_parser.add_subparsers(dest="pl_command", help="Playlist command")
+
+    # Generate
+    gen_parser = pl_subparsers.add_parser("generate", help="Generate a playlist")
+    gen_parser.add_argument("source", help="Source directory or JSON file")
+    gen_parser.add_argument(
+        "--type", choices=["upbeat", "chill", "flow", "mood"], required=True
+    )
+    gen_parser.add_argument("--output", required=True, help="Output .m3u8 file")
+    gen_parser.add_argument("--mood", help="Target mood (required for --type mood)")
+    gen_parser.add_argument("--bpm", type=float, help="BPM threshold/target")
+    gen_parser.add_argument(
+        "--length", type=int, default=60, help="Length in minutes (for flow)"
+    )
+
+    # Analyze command
+    an_parser = subparsers.add_parser("analyze", help="Analyze audio files")
+    an_parser.add_argument("source", help="Source directory or JSON file")
+    an_parser.add_argument("--save", action="store_true", help="Save tags to file")
+    an_parser.add_argument(
+        "--replay-gain", action="store_true", help="Calculate ReplayGain"
+    )
+
     # Check command
     subparsers.add_parser("check", help="Check system and Python dependencies")
 
@@ -169,29 +194,41 @@ def setup_parser() -> argparse.ArgumentParser:
 
 def run_cli() -> None:
     """Run the CLI application"""
-    # Ensure headless mode for Qt
-    if not os.environ.get("QT_QPA_PLATFORM"):
-        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    _configure_environment()
 
     parser = setup_parser()
     args = parser.parse_args()
 
-    # If check command, run it without requiring PyQt6 or other dependencies
     if args.command == "check":
         run_check(args)
         return
 
-    # For other commands, ensure PyQt6 is available
+    _check_dependencies()
+    _configure_logging(args)
+
+    if not args.command:
+        parser.print_help()
+        return
+
+    _dispatch_command(args)
+
+
+def _configure_environment() -> None:
+    if not os.environ.get("QT_QPA_PLATFORM"):
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
+
+def _check_dependencies() -> None:
     if not HAS_PYQT:
         print("Error: PyQt6 is required for this command but not installed.")
         print("Run 'python auralis.py check' to see missing dependencies.")
         sys.exit(1)
 
     # Initialize QCoreApplication
-    # We need to assign it to a variable to keep it alive, even if not used directly
     _app = QCoreApplication(sys.argv)  # noqa: F841
 
-    # Configure logging
+
+def _configure_logging(args: argparse.Namespace) -> None:
     log_level = getattr(logging, args.log_level)
     if args.debug:
         log_level = logging.DEBUG
@@ -201,16 +238,18 @@ def run_cli() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    if not args.command:
-        parser.print_help()
-        return
 
+def _dispatch_command(args: argparse.Namespace) -> None:
     if args.command == "scan":
         run_scan(args)
     elif args.command == "organize":
         run_organize(args)
     elif args.command == "metadata":
         run_metadata(args)
+    elif args.command == "playlist":
+        run_playlist(args)
+    elif args.command == "analyze":
+        run_analyze(args)
 
 
 def run_scan(args: argparse.Namespace) -> None:
@@ -356,6 +395,146 @@ def run_metadata(args: argparse.Namespace) -> None:
     except Exception as e:
         handler.close()
         print(f"Error during metadata update: {e}")
+
+
+def run_playlist(args: argparse.Namespace) -> None:
+    """Execute playlist command"""
+    try:
+        from src.services.playlist_service import PlaylistGenerator, PlaylistHistory
+    except ImportError as e:
+        print(f"Error importing PlaylistService: {e}")
+        return
+
+    if not args.pl_command:
+        print("No playlist command specified. Use --help.")
+        return
+
+    if args.pl_command == "generate":
+        _run_generate_playlist(args, PlaylistGenerator, PlaylistHistory)
+
+
+def _run_generate_playlist(
+    args: argparse.Namespace, generator_cls: Any, history_cls: Any
+) -> None:
+    print(f"Generating {args.type} playlist from {args.source}...")
+    files = _load_files(args.source)
+    if not files:
+        return
+
+    generator = generator_cls()
+    playlist = _generate_playlist_by_type(args, generator, files)
+
+    if not playlist:
+        print("No tracks found matching criteria.")
+        return
+
+    print(f"Generated playlist with {len(playlist)} tracks.")
+    if generator.export_playlist(playlist, args.output):
+        print(f"Saved to {args.output}")
+        # Add to history
+        history = history_cls()
+        history.add_entry(f"CLI {args.type} Playlist", playlist)
+    else:
+        print("Error saving playlist.")
+
+
+def _generate_playlist_by_type(
+    args: argparse.Namespace, generator: Any, files: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    if args.type == "upbeat":
+        return cast(
+            List[Dict[str, Any]],
+            generator.generate_upbeat_playlist(files, min_bpm=args.bpm or 120.0),
+        )
+    elif args.type == "chill":
+        return cast(
+            List[Dict[str, Any]],
+            generator.generate_chill_playlist(files, max_bpm=args.bpm or 100.0),
+        )
+    elif args.type == "mood":
+        if not args.mood:
+            print("Error: --mood is required for mood playlist.")
+            return []
+        return cast(
+            List[Dict[str, Any]], generator.generate_playlist_by_mood(files, args.mood)
+        )
+    elif args.type == "flow":
+        return cast(
+            List[Dict[str, Any]],
+            generator.generate_flow_mode_playlist(files, length_minutes=args.length),
+        )
+    return []
+
+
+def run_analyze(args: argparse.Namespace) -> None:
+    """Execute analyze command"""
+    try:
+        from src.services.audio_analysis_service import AudioAnalyzer
+        from src.services.metadata_service import MetadataService
+    except ImportError as e:
+        print(f"Error importing services: {e}")
+        return
+
+    print(f"Analyzing audio files in {args.source}...")
+    files = _load_files(args.source)
+    if not files:
+        return
+
+    _perform_analysis(args, files, MetadataService, AudioAnalyzer)
+
+
+def _perform_analysis(
+    args: argparse.Namespace,
+    files: List[Dict[str, Any]],
+    meta_service_cls: Any,
+    analyzer_cls: Any,
+) -> None:
+    service = meta_service_cls()
+    handler = ConsoleHandler()
+
+    service.progress_updated.connect(handler.on_progress_updated)
+    service.file_updated.connect(handler.on_file_updated)
+
+    options = {
+        "use_musicbrainz": False,
+        "use_discogs": False,
+        "fetch_lyrics": False,
+        "fetch_cover_art": False,
+        "analyze_audio": True,
+        "force_update": True,
+    }
+
+    try:
+        service.update_metadata(files, options)
+        handler.close()
+
+        if args.replay_gain:
+            _calculate_replay_gain_batch(args, files, analyzer_cls())
+
+        print("Analysis complete.")
+
+    except Exception as e:
+        handler.close()
+        print(f"Error during analysis: {e}")
+
+
+def _calculate_replay_gain_batch(
+    args: argparse.Namespace, files: List[Dict[str, Any]], analyzer: Any
+) -> None:
+    print("Calculating ReplayGain...")
+    total = len(files)
+    count = 0
+    for f in files:
+        count += 1
+        path = f["path"]
+        if count % 5 == 0 or count == total:
+            print(f"ReplayGain: {count}/{total}")
+
+        gain = analyzer.calculate_replay_gain(path)
+        if gain is not None:
+            if args.save:
+                analyzer.save_replay_gain_tags(path, gain)
+            f["metadata"]["replay_gain"] = gain
 
 
 def run_check(args: argparse.Namespace) -> None:

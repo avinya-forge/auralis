@@ -78,6 +78,19 @@ class MetadataTab(wx.Panel):
 
         left_sizer.Add(lyrics_sizer, 0, wx.EXPAND | wx.ALL, 5)
 
+        # Audio Analysis options
+        analysis_sb = wx.StaticBox(self, label="Audio Analysis")
+        analysis_sizer = wx.StaticBoxSizer(analysis_sb, wx.VERTICAL)
+
+        self.analyze_check = wx.CheckBox(self, label="Analyze Audio (BPM, Key, Mood)")
+        self.analyze_check.SetValue(bool(get_config("ANALYZE_AUDIO", False)))
+        self.analyze_check.SetToolTip(
+            "Analyze audio files to detect BPM, Key, and Mood (Computationally Intensive)"
+        )
+        analysis_sizer.Add(self.analyze_check, 0, wx.ALL, 5)
+
+        left_sizer.Add(analysis_sizer, 0, wx.EXPAND | wx.ALL, 5)
+
         main_h_sizer.Add(left_sizer, 1, wx.EXPAND | wx.ALL, 0)
 
         # Right Panel (Preview)
@@ -97,6 +110,20 @@ class MetadataTab(wx.Panel):
         preview_sizer.Add(self.cover_art_preview, 0, wx.ALIGN_CENTER | wx.ALL, 10)
 
         right_sizer.Add(preview_sizer, 0, wx.EXPAND | wx.ALL, 5)
+
+        # Analysis Results Preview
+        analysis_preview_sb = wx.StaticBox(self, label="Analysis Results")
+        analysis_preview_sizer = wx.StaticBoxSizer(analysis_preview_sb, wx.VERTICAL)
+
+        self.bpm_label = wx.StaticText(self, label="BPM: -")
+        self.key_label = wx.StaticText(self, label="Key: -")
+        self.mood_label = wx.StaticText(self, label="Mood: -")
+
+        analysis_preview_sizer.Add(self.bpm_label, 0, wx.ALL, 5)
+        analysis_preview_sizer.Add(self.key_label, 0, wx.ALL, 5)
+        analysis_preview_sizer.Add(self.mood_label, 0, wx.ALL, 5)
+
+        right_sizer.Add(analysis_preview_sizer, 0, wx.EXPAND | wx.ALL, 5)
 
         main_h_sizer.Add(right_sizer, 0, wx.EXPAND | wx.ALL, 0)
 
@@ -152,6 +179,14 @@ class MetadataTab(wx.Panel):
             # Log error?
             pass
 
+    def update_analysis_display(
+        self, bpm: Optional[float], key: Optional[str], mood: Optional[str]
+    ) -> None:
+        """Update analysis results display"""
+        self.bpm_label.SetLabel(f"BPM: {int(bpm) if bpm else '-'}")
+        self.key_label.SetLabel(f"Key: {key if key else '-'}")
+        self.mood_label.SetLabel(f"Mood: {mood if mood else '-'}")
+
     def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
         return {
@@ -160,4 +195,5 @@ class MetadataTab(wx.Panel):
             "use_spotify": self.spotify_check.GetValue(),
             "use_lastfm": self.lastfm_check.GetValue(),
             "fetch_lyrics": self.lyrics_check.GetValue(),
+            "analyze_audio": self.analyze_check.GetValue(),
         }

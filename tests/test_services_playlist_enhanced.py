@@ -118,3 +118,47 @@ class TestPlaylistServiceEnhanced:
         files = [{"path": "bad.mp3", "metadata": {}}]  # No BPM/Key
         playlist = generator.generate_flow_mode_playlist(files)
         assert len(playlist) == 0
+
+    def test_find_similar_tracks(self, generator, sample_files):
+        target = sample_files[0]  # C Major, 120
+        # song3: A Minor (Same key vector), 125 (Close BPM) -> High similarity
+        # song5: C Major (Same key vector), 140 (Farther BPM) -> High similarity
+        # song2: G Major (Close key), 122 (Close BPM) -> High similarity
+        # song4: F# Major (Opposite key), 120 -> Low similarity
+
+        similar = generator.find_similar_tracks(target, sample_files, limit=3)
+
+        assert len(similar) == 3
+        paths = [t["path"] for t in similar]
+
+        # F# Major is musically opposite to C Major in Circle of Fifths (distance 6)
+        # So it should have very low cosine similarity (close to -1 for key part)
+        assert "song4.mp3" not in paths
+
+    def test_playlist_history(self, tmp_path):
+        from src.services.playlist_service import PlaylistHistory
+        from unittest.mock import patch
+
+        # Mock Path.home to return tmp_path
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            history = PlaylistHistory()
+            assert history.get_history() == []
+
+            # Add entry
+            playlist = [{"path": "song1.mp3"}, {"path": "song2.mp3"}]
+            history.add_entry("My Playlist", playlist)
+
+            assert len(history.get_history()) == 1
+            entry = history.get_history()[0]
+            assert entry["name"] == "My Playlist"
+            assert entry["count"] == 2
+            assert "song1.mp3" in entry["tracks"]
+
+            # Verify file created
+            hist_file = tmp_path / ".auralis" / "playlist_history.json"
+            assert hist_file.exists()
+
+            # Test loading
+            history2 = PlaylistHistory()
+            assert len(history2.get_history()) == 1
+            assert history2.get_history()[0]["name"] == "My Playlist"

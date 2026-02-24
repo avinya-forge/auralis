@@ -5,8 +5,11 @@ This module provides functionality to generate smart playlists based on
 audio analysis data (BPM, Key, Mood).
 """
 
+import json
 import logging
 import random
+import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, cast
 
 logger = logging.getLogger("auralis.playlist")
@@ -342,3 +345,169 @@ class PlaylistGenerator:
             return float(metadata["duration"])
 
         return 180.0  # Default 3 minutes
+
+    def find_similar_tracks(
+        self,
+        target_track: Dict[str, Any],
+        pool: List[Dict[str, Any]],
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """
+        Find similar tracks using cosine similarity on BPM and Key features.
+
+        Args:
+            target_track (Dict[str, Any]): The track to find similarities for.
+            pool (List[Dict[str, Any]]): Pool of tracks to search.
+            limit (int): Maximum number of similar tracks to return.
+
+        Returns:
+            List[Dict[str, Any]]: List of similar tracks sorted by similarity score.
+        """
+        # Get features for target
+        target_features = self._extract_features(target_track)
+        if target_features is None:
+            return []
+
+        results = []
+
+        for track in pool:
+            if track["path"] == target_track["path"]:
+                continue
+
+            track_features = self._extract_features(track)
+            if track_features is None:
+                continue
+
+            similarity = self._calculate_cosine_similarity(target_features, track_features)
+            results.append((similarity, track))
+
+        # Sort by similarity (descending)
+        results.sort(key=lambda x: x[0], reverse=True)
+
+        return [track for _, track in results[:limit]]
+
+    def _extract_features(self, track: Dict[str, Any]) -> Optional[List[float]]:
+        """Extract features (BPM, Key Vector) from track."""
+        import math
+
+        bpm = self._get_bpm(track)
+        key = self._get_key(track)
+
+        if bpm is None or key is None:
+            return None
+
+        # Normalize BPM (simple scaling, assume 60-180 range usually)
+        # Use Z-score approx: (bpm - 120) / 30
+        bpm_norm = (bpm - 120.0) / 30.0
+
+        # Vectorize Key (Circle of Fifths)
+        # Map key to index 0-11
+        key_map = {
+            "C Major": 0,
+            "A Minor": 0,
+            "G Major": 1,
+            "E Minor": 1,
+            "D Major": 2,
+            "B Minor": 2,
+            "A Major": 3,
+            "F# Minor": 3,
+            "E Major": 4,
+            "C# Minor": 4,
+            "B Major": 5,
+            "G# Minor": 5,
+            "F# Major": 6,
+            "D# Minor": 6,
+            "Gb Major": 6,
+            "Eb Minor": 6,
+            "C# Major": 7,
+            "A# Minor": 7,
+            "Db Major": 7,
+            "Bb Minor": 7,
+            "G# Major": 8,
+            "F Minor": 8,
+            "Ab Major": 8,
+            "D# Major": 9,
+            "C Minor": 9,
+            "Eb Major": 9,
+            "A# Major": 10,
+            "G Minor": 10,
+            "Bb Major": 10,
+            "F Major": 11,
+            "D Minor": 11,
+        }
+
+        # Simple string matching for now (fuzzy matching handled elsewhere usually)
+        key_idx = -1
+        for k, v in key_map.items():
+            if k.lower() == key.lower():
+                key_idx = v
+                break
+
+        if key_idx == -1:
+            return None
+
+        angle = key_idx * (2 * math.pi / 12)
+        key_x = math.cos(angle)
+        key_y = math.sin(angle)
+
+        # Features: [bpm, key_x, key_y]
+        # Weighting: Key is important. BPM is important.
+        return [bpm_norm, key_x, key_y]
+
+    def _calculate_cosine_similarity(self, v1: List[float], v2: List[float]) -> float:
+        """Calculate cosine similarity between two vectors."""
+        import math
+
+        if len(v1) != len(v2):
+            return 0.0
+
+        dot_product = sum(a * b for a, b in zip(v1, v2))
+        norm1 = math.sqrt(sum(a * a for a in v1))
+        norm2 = math.sqrt(sum(b * b for b in v2))
+
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+
+        return dot_product / (norm1 * norm2)
+
+
+class PlaylistHistory:
+    """Manages history of generated playlists."""
+
+    def __init__(self) -> None:
+        self.history_file = Path.home() / ".auralis" / "playlist_history.json"
+        self.history: List[Dict[str, Any]] = self._load_history()
+
+    def _load_history(self) -> List[Dict[str, Any]]:
+        if not self.history_file.exists():
+            return []
+        try:
+            with open(self.history_file, "r") as f:
+                return cast(List[Dict[str, Any]], json.load(f))
+        except Exception as e:
+            logger.error(f"Error loading playlist history: {e}")
+            return []
+
+    def add_entry(self, name: str, playlist: List[Dict[str, Any]]) -> None:
+        """Add a playlist to history."""
+        entry = {
+            "name": name,
+            "timestamp": time.time(),
+            "tracks": [t["path"] for t in playlist],
+            "count": len(playlist),
+        }
+        self.history.insert(0, entry)
+        # Keep last 50
+        self.history = self.history[:50]
+        self._save_history()
+
+    def _save_history(self) -> None:
+        try:
+            self.history_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.history_file, "w") as f:
+                json.dump(self.history, f, indent=2)
+        except Exception as e:
+            logger.error(f"Error saving playlist history: {e}")
+
+    def get_history(self) -> List[Dict[str, Any]]:
+        return cast(List[Dict[str, Any]], self.history)
