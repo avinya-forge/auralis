@@ -91,7 +91,7 @@ class ModelLoader:
         """Create a mock model for simulation or error fallback."""
 
         class MockPipeline:
-            def __call__(self, *args, **kwargs) -> Any:
+            def __call__(self, *args: Any, **kwargs: Any) -> Any:
                 # Return generic structure matching common audio classification outputs
                 return [{"label": "simulation", "score": 0.99}]
 
