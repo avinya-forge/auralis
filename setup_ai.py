@@ -10,7 +10,7 @@ import logging
 import platform
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 from src.utils.dependency_checker import DependencyChecker
 
@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def install_packages(packages: List[str], index_url: str = None) -> bool:
+def install_packages(packages: List[str], index_url: Optional[str] = None) -> bool:
     """
     Install packages using pip, optionally with a specific index URL.
 
@@ -42,6 +42,68 @@ def install_packages(packages: List[str], index_url: str = None) -> bool:
         return False
 
 
+def get_torch_index_url(args: argparse.Namespace) -> Optional[str]:
+    """
+    Determine the correct PyTorch index URL based on platform and arguments.
+    """
+    # CUDA 12.1 (Stable as of late 2023/2024)
+    cuda_index = "https://download.pytorch.org/whl/cu121"
+    # CPU only
+    cpu_index = "https://download.pytorch.org/whl/cpu"
+
+    system = platform.system()
+    index_url: Optional[str] = None
+
+    if args.cpu:
+        # Force CPU
+        if system == "Linux" or system == "Windows":
+            index_url = cpu_index
+        # Mac doesn't use index-url for CPU (it's same package)
+    elif args.gpu:
+        # Force GPU (CUDA)
+        if system == "Linux" or system == "Windows":
+            index_url = cuda_index
+        elif system == "Darwin":
+            logger.warning("CUDA is not available on macOS. Using standard install (MPS capable).")
+    else:
+        # Auto-detect: Default to CUDA on Linux/Windows as users running this script
+        # likely want GPU support.
+        if system == "Linux" or system == "Windows":
+            index_url = cuda_index
+        # Mac uses default PyPI
+
+    return index_url
+
+
+def report_status(report: dict) -> None:
+    """Log the current installation status."""
+    logger.info("All AI dependencies are installed!")
+    torch_info = report.get("torch", {})
+    if torch_info.get("cuda"):
+        logger.info(f"CUDA is available (Torch {torch_info.get('version')})")
+    elif torch_info.get("mps"):
+        logger.info(f"MPS is available (Torch {torch_info.get('version')})")
+    else:
+        logger.info(f"Running on CPU (Torch {torch_info.get('version')})")
+
+
+def get_confirmation(args: argparse.Namespace, missing_deps: List[str]) -> bool:
+    """Ask user for confirmation unless --yes is specified."""
+    if args.yes:
+        return True
+
+    print(f"\nThe following packages will be installed/updated: {', '.join(missing_deps)}")
+    if args.cpu:
+        print("Target: CPU (No GPU acceleration)")
+    elif args.gpu:
+        print("Target: CUDA (GPU acceleration)")
+    else:
+        print(f"Target: Auto-detect ({platform.system()})")
+
+    response = input("\nDo you want to proceed? [y/N]: ").lower()
+    return response == "y"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Install Auralis AI dependencies.")
     parser.add_argument("--cpu", action="store_true", help="Force CPU-only installation")
@@ -58,7 +120,6 @@ def main() -> int:
 
     # Determine what needs to be done
     missing_deps = []
-
     # Core AI deps
     required = ["torch", "torchaudio", "transformers", "scipy", "librosa"]
 
@@ -67,32 +128,12 @@ def main() -> int:
             missing_deps.append(req)
 
     if not missing_deps and not args.force:
-        logger.info("All AI dependencies are installed!")
-
-        # Report status
-        torch_info = report.get("torch", {})
-        if torch_info.get("cuda"):
-            logger.info(f"CUDA is available (Torch {torch_info.get('version')})")
-        elif torch_info.get("mps"):
-            logger.info(f"MPS is available (Torch {torch_info.get('version')})")
-        else:
-            logger.info(f"Running on CPU (Torch {torch_info.get('version')})")
-
+        report_status(report)
         return 0
 
-    if not args.yes:
-        print(f"\nThe following packages will be installed/updated: {', '.join(missing_deps)}")
-        if args.cpu:
-            print("Target: CPU (No GPU acceleration)")
-        elif args.gpu:
-            print("Target: CUDA (GPU acceleration)")
-        else:
-            print(f"Target: Auto-detect ({platform.system()})")
-
-        response = input("\nDo you want to proceed? [y/N]: ").lower()
-        if response != "y":
-            logger.info("Installation cancelled.")
-            return 1
+    if not get_confirmation(args, missing_deps):
+        logger.info("Installation cancelled.")
+        return 1
 
     # Installation Logic
     logger.info("Installing dependencies...")
@@ -103,34 +144,7 @@ def main() -> int:
     other_pkgs = [p for p in missing_deps if p not in ["torch", "torchaudio"]]
 
     if torch_pkgs:
-        # Default index (PyPI)
-        index_url = None
-
-        # CUDA 12.1 (Stable as of late 2023/2024)
-        cuda_index = "https://download.pytorch.org/whl/cu121"
-        # CPU only
-        cpu_index = "https://download.pytorch.org/whl/cpu"
-
-        system = platform.system()
-
-        if args.cpu:
-            # Force CPU
-            if system == "Linux" or system == "Windows":
-                index_url = cpu_index
-            # Mac doesn't use index-url for CPU (it's same package)
-        elif args.gpu:
-             # Force GPU (CUDA)
-            if system == "Linux" or system == "Windows":
-                index_url = cuda_index
-            elif system == "Darwin":
-                logger.warning("CUDA is not available on macOS. Using standard install (MPS capable).")
-        else:
-            # Auto-detect: Default to CUDA on Linux/Windows as users running this script
-            # likely want GPU support.
-            if system == "Linux" or system == "Windows":
-                index_url = cuda_index
-            # Mac uses default PyPI
-
+        index_url = get_torch_index_url(args)
         logger.info(f"Installing PyTorch packages: {', '.join(torch_pkgs)}")
         if not install_packages(torch_pkgs, index_url):
             success = False
