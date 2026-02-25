@@ -2,9 +2,8 @@
 Tests for setup_ai.py script logic.
 """
 
-import subprocess
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -58,9 +57,9 @@ def test_main_install_defaults(mock_checker):
                 assert set(args2[0]) == {"transformers", "scipy", "librosa"}
                 # Check optional arg
                 if len(args2) > 1:
-                     assert args2[1] is None
+                    assert args2[1] is None
                 else:
-                     assert kwargs2.get("index_url") is None
+                    assert kwargs2.get("index_url") is None
 
 
 def test_main_install_cpu(mock_checker):
@@ -120,9 +119,9 @@ def test_main_install_macos(mock_checker):
                 # Torch call should have NO index URL (None)
                 args1, kwargs1 = mock_install.call_args_list[0]
                 if len(args1) > 1:
-                     assert args1[1] is None
+                    assert args1[1] is None
                 else:
-                     assert kwargs1.get("index_url") is None
+                    assert kwargs1.get("index_url") is None
 
 
 def test_main_all_installed(mock_checker):
