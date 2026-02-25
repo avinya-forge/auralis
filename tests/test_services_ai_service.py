@@ -96,7 +96,7 @@ class TestModelLoader(unittest.TestCase):
                     model="test-model",
                     device=-1,
                     torch_dtype=None,
-                    model_kwargs={"cache_dir": "/tmp/cache"}
+                    model_kwargs={"cache_dir": "/tmp/cache"},
                 )
 
     @patch("src.services.ai.model_loader.gc")

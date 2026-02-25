@@ -17,7 +17,10 @@ def checker():
 
 def test_check_ai_dependencies_missing(checker):
     """Test check_ai_dependencies when modules are missing."""
-    with patch.dict(sys.modules, {"torch": None, "transformers": None, "torchaudio": None, "scipy": None, "librosa": None}):
+    with patch.dict(
+        sys.modules,
+        {"torch": None, "transformers": None, "torchaudio": None, "scipy": None, "librosa": None},
+    ):
         report = checker.check_ai_dependencies()
 
         assert report["torch"]["installed"] is False
