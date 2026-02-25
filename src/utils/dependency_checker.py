@@ -63,6 +63,39 @@ class DependencyChecker:
         """
         return ctypes.util.find_library(library_name)
 
+    @staticmethod
+    def get_package_size(package_name: str) -> int:
+        """
+        Calculate the size of an installed package in bytes.
+
+        Args:
+            package_name (str): Name of the package to check.
+
+        Returns:
+            int: Size in bytes, or 0 if not found/error.
+        """
+        try:
+            module = importlib.import_module(package_name)
+
+            if hasattr(module, "__file__") and module.__file__:
+                # If it's a package (directory with __init__.py)
+                if os.path.basename(module.__file__) == "__init__.py":
+                    path = os.path.dirname(module.__file__)
+                    total_size = 0
+                    for dirpath, _, filenames in os.walk(path):
+                        for f in filenames:
+                            fp = os.path.join(dirpath, f)
+                            # Skip symbolic links
+                            if not os.path.islink(fp):
+                                total_size += os.path.getsize(fp)
+                    return total_size
+                else:
+                    # Single file module
+                    return os.path.getsize(module.__file__)
+        except (ImportError, AttributeError, OSError, PermissionError):
+            return 0
+        return 0
+
     def check_audio_capabilities(self) -> Dict[str, Any]:
         """
         Test audio loading capabilities by generating and loading a sample file.
@@ -130,7 +163,13 @@ class DependencyChecker:
             Dict[str, Any]: AI dependency status report.
         """
         report: Dict[str, Any] = {
-            "torch": {"installed": False, "version": None, "cuda": False, "mps": False},
+            "torch": {
+                "installed": False,
+                "version": None,
+                "cuda": False,
+                "mps": False,
+                "size": 0,
+            },
             "torchaudio": {"installed": False, "version": None},
             "transformers": {"installed": False, "version": None},
             "scipy": {"installed": False, "version": None},
@@ -147,6 +186,7 @@ class DependencyChecker:
             report["torch"]["mps"] = (
                 hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
             )
+            report["torch"]["size"] = self.get_package_size("torch")
         except ImportError:
             pass
 
