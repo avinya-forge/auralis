@@ -104,6 +104,28 @@ def get_confirmation(args: argparse.Namespace, missing_deps: List[str]) -> bool:
     return response == "y"
 
 
+def check_variant_mismatch(args: argparse.Namespace, torch_info: dict) -> bool:
+    """Check if installed PyTorch variant matches requested mode."""
+    installed_variant = torch_info.get("variant", "Unknown")
+    variant_mismatch = False
+
+    if torch_info.get("installed"):
+        # If user wants GPU but we have CPU version (and not on Mac where they are same)
+        if args.gpu and "CUDA" not in installed_variant and platform.system() != "Darwin":
+            logger.warning(
+                f"Variant Mismatch: Requested GPU (CUDA) but installed PyTorch is '{installed_variant}'."
+            )
+            variant_mismatch = True
+        # If user wants CPU but we have CUDA version
+        elif args.cpu and "CUDA" in installed_variant:
+            logger.warning(
+                f"Variant Mismatch: Requested CPU but installed PyTorch is '{installed_variant}'."
+            )
+            variant_mismatch = True
+
+    return variant_mismatch
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Install Auralis AI dependencies.")
     parser.add_argument("--cpu", action="store_true", help="Force CPU-only installation")
@@ -123,8 +145,16 @@ def main() -> int:
     # Core AI deps
     required = ["torch", "torchaudio", "transformers", "scipy", "librosa"]
 
+    # Check for variant mismatch (specifically CPU vs CUDA on Linux/Windows)
+    torch_info = report.get("torch", {})
+    variant_mismatch = check_variant_mismatch(args, torch_info)
+
     for req in required:
-        if not report.get(req, {}).get("installed", False) or args.force:
+        if (
+            not report.get(req, {}).get("installed", False)
+            or args.force
+            or (req == "torch" and variant_mismatch)
+        ):
             missing_deps.append(req)
 
     if not missing_deps and not args.force:

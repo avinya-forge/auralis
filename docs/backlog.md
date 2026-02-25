@@ -4,11 +4,6 @@
 **Focus:** Integrating Deep Learning models (Hugging Face Transformers) for zero-shot classification and advanced audio understanding.
 
 ### Epic 11: Neural Core Infrastructure (AIService)
-- [AI-004] | Implement `DependencyChecker` logic for AI deps (torch size check) | [BLOCKS-AI-003] | [TODO]
-- [AI-005] | Create `setup_ai.py` script to install heavy dependencies | [BLOCKS-AI-003] | [TODO]
-- [AI-006] | Implement "Simulation Mode" in `AIService` for CI/CD compatibility | [BLOCKS-AI-001] | [TODO]
-- [AI-007] | Write unit tests for `AIService` (mocking transformers) | [BLOCKS-AI-001] | [TODO]
-- [AI-009] | Implement `ModelCache` to store downloaded HF models locally | [BLOCKS-AI-002] | [TODO]
 - [AI-010] | Add `auralis ai check` CLI command to verify environment | [BLOCKS-AI-004] | [TODO]
 
 ### Epic 12: Neural Features (The Brain)

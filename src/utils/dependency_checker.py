@@ -122,6 +122,35 @@ class DependencyChecker:
 
         return report
 
+    def _get_package_size(self, module_name: str) -> str:
+        """
+        Estimate the size of an installed package.
+
+        Args:
+            module_name (str): The name of the module/package.
+
+        Returns:
+            str: The estimated size (e.g., "1.2 GB" or "50 MB") or "Unknown".
+        """
+        try:
+            mod = importlib.import_module(module_name)
+            if hasattr(mod, "__file__") and mod.__file__:
+                package_path = os.path.dirname(mod.__file__)
+                total_size = 0
+                for dirpath, _, filenames in os.walk(package_path):
+                    for f in filenames:
+                        fp = os.path.join(dirpath, f)
+                        if not os.path.islink(fp):
+                            total_size += os.path.getsize(fp)
+
+                # Convert to MB or GB
+                if total_size > 1024 * 1024 * 1024:
+                    return f"{total_size / (1024 * 1024 * 1024):.2f} GB"
+                return f"{total_size / (1024 * 1024):.2f} MB"
+        except Exception:
+            pass
+        return "Unknown"
+
     def check_ai_dependencies(self) -> Dict[str, Any]:
         """
         Check for AI-specific dependencies with detailed version/device info.
@@ -130,7 +159,14 @@ class DependencyChecker:
             Dict[str, Any]: AI dependency status report.
         """
         report: Dict[str, Any] = {
-            "torch": {"installed": False, "version": None, "cuda": False, "mps": False},
+            "torch": {
+                "installed": False,
+                "version": None,
+                "cuda": False,
+                "mps": False,
+                "variant": "Unknown",
+                "size": "Unknown",
+            },
             "torchaudio": {"installed": False, "version": None},
             "transformers": {"installed": False, "version": None},
             "scipy": {"installed": False, "version": None},
@@ -147,8 +183,20 @@ class DependencyChecker:
             report["torch"]["mps"] = (
                 hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
             )
+            report["torch"]["size"] = self._get_package_size("torch")
+
+            # Determine variant
+            if report["torch"]["cuda"]:
+                report["torch"]["variant"] = f"CUDA {torch.version.cuda}"
+            elif report["torch"]["mps"]:
+                report["torch"]["variant"] = "MPS"
+            elif torch.version.cuda:
+                report["torch"]["variant"] = f"CUDA {torch.version.cuda} (No GPU)"
+            else:
+                report["torch"]["variant"] = "CPU"
+
         except ImportError:
-            pass
+            report["torch"]["variant"] = "Not Installed"
 
         # Check other AI dependencies
         for module in ["torchaudio", "transformers", "scipy", "librosa"]:

@@ -22,6 +22,12 @@
     *   Implemented `AIConfig` class (`src/services/ai/config.py`) to manage device selection (CUDA/MPS/CPU) and model cache (AI-008).
     *   Updated `setup.py` to include `transformers`, `torch`, and `librosa` in `ai` extras (AI-003).
     *   Added comprehensive unit tests for AI components mocking `torch` and `transformers`.
+    *   **Enhanced Dependency Management:**
+        *   Implemented robust PyTorch variant detection (CPU/CUDA/MPS) in `DependencyChecker` (AI-004).
+        *   Enhanced `setup_ai.py` to detect mismatches between requested hardware target and installed PyTorch variant (AI-005).
+        *   Configured `ModelLoader` to respect `AIConfig.model_cache_dir` for localized model storage (AI-009).
+        *   Verified "Simulation Mode" in `AIService` for CI/CD compatibility (AI-006).
+        *   Refactored `AIService` tests for better reliability and coverage (AI-007).
 
 ## [0.2.0] - Roadmap Reconstruction
 
