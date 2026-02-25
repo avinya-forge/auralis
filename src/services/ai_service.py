@@ -71,6 +71,10 @@ class AIService:
         Returns:
             List[Dict[str, Any]]: List of classification results.
         """
+        if self.config.simulation_mode:
+            logger.warning("Simulation Mode: Returning mock classification data.")
+            return [{"label": "simulation_genre", "score": 1.0}]
+
         if not os.path.exists(file_path):
             logger.error(f"File not found: {file_path}")
             return []

@@ -122,6 +122,45 @@ class DependencyChecker:
 
         return report
 
+    def check_ai_dependencies(self) -> Dict[str, Any]:
+        """
+        Check for AI-specific dependencies with detailed version/device info.
+
+        Returns:
+            Dict[str, Any]: AI dependency status report.
+        """
+        report: Dict[str, Any] = {
+            "torch": {"installed": False, "version": None, "cuda": False, "mps": False},
+            "torchaudio": {"installed": False, "version": None},
+            "transformers": {"installed": False, "version": None},
+            "scipy": {"installed": False, "version": None},
+            "librosa": {"installed": False, "version": None},
+        }
+
+        # Check PyTorch specifically
+        try:
+            import torch
+
+            report["torch"]["installed"] = True
+            report["torch"]["version"] = torch.__version__
+            report["torch"]["cuda"] = torch.cuda.is_available()
+            report["torch"]["mps"] = (
+                hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
+            )
+        except ImportError:
+            pass
+
+        # Check other AI dependencies
+        for module in ["torchaudio", "transformers", "scipy", "librosa"]:
+            try:
+                mod = importlib.import_module(module)
+                report[module]["installed"] = True
+                report[module]["version"] = getattr(mod, "__version__", "unknown")
+            except ImportError:
+                pass
+
+        return report
+
     def check_all(self) -> Dict[str, Any]:
         """
         Run a comprehensive check of all known dependencies.
@@ -162,10 +201,10 @@ class DependencyChecker:
         for mod in lang_det_modules:
             report["language_detection"][mod] = self.check_module(mod)
 
-        # AI dependencies (import names)
-        ai_modules = ["transformers", "torch", "torchaudio", "scipy"]
-        for mod in ai_modules:
-            report["ai"][mod] = self.check_module(mod)
+        # AI dependencies (detailed check)
+        ai_report = self.check_ai_dependencies()
+        for mod, data in ai_report.items():
+            report["ai"][mod] = data["installed"]
 
         # System Tools
         tools = ["ffmpeg", "ffprobe", "fpcalc"]

@@ -67,6 +67,12 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     # Test Mode
     "TEST_MODE_ENABLED": True,
     "TEST_MODE_FILE_COUNT": 10,
+    # AI Configuration
+    "AI_ENABLED": True,
+    "AI_DEVICE": "auto",
+    "AI_SIMULATION_MODE": False,
+    "AI_MODEL_CACHE_DIR": "",  # Empty means use default
+    "AI_USE_FP16": True,
 }
 
 # Set platform-specific defaults
