@@ -26,6 +26,8 @@ class AIConfig:
         """
         default_path = os.path.join(os.path.expanduser("~"), ".cache", "auralis", "models")
         path = cast(str, config.get("AI_MODEL_CACHE_DIR", default_path))
+        if not path:
+            path = default_path
         return os.path.expanduser(path)
 
     @property
