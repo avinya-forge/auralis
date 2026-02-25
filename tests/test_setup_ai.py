@@ -77,6 +77,37 @@ def test_main_install_cpu(mock_checker):
                 assert "cpu" in args1[1]
 
 
+def test_main_install_mismatch(mock_checker):
+    """Test variant mismatch (CPU installed, GPU requested)."""
+    # Simulate CPU installed
+    mock_checker.check_ai_dependencies.return_value = {
+        "torch": {
+            "installed": True,
+            "version": "2.1.0+cpu",
+            "cuda": False,
+            "mps": False,
+            "variant": "CPU",
+        },
+        # Other deps missing to trigger install loop
+        "torchaudio": {"installed": False},
+        "transformers": {"installed": False},
+        "scipy": {"installed": False},
+        "librosa": {"installed": False},
+    }
+
+    with patch.object(sys, "argv", ["setup_ai.py", "--gpu", "--yes"]):
+        with patch("setup_ai.install_packages", return_value=True) as mock_install:
+            with patch("platform.system", return_value="Linux"):
+                exit_code = main()
+                assert exit_code == 0
+
+                # Should trigger install of torch because of mismatch
+                args1, kwargs1 = mock_install.call_args_list[0]
+                assert "torch" in args1[0]
+                # And it should be CUDA index
+                assert "cu121" in args1[1]
+
+
 def test_main_install_macos(mock_checker):
     """Test macOS installation (no index URL)."""
     with patch.object(sys, "argv", ["setup_ai.py", "--yes"]):

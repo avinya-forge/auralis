@@ -31,6 +31,7 @@ def test_check_ai_dependencies_torch_cpu(checker):
     mock_torch.__version__ = "2.1.0+cpu"
     mock_torch.cuda.is_available.return_value = False
     mock_torch.backends.mps.is_available.return_value = False
+    mock_torch.version.cuda = None
 
     with patch.dict(sys.modules, {"torch": mock_torch}):
         report = checker.check_ai_dependencies()
@@ -39,6 +40,7 @@ def test_check_ai_dependencies_torch_cpu(checker):
         assert report["torch"]["version"] == "2.1.0+cpu"
         assert report["torch"]["cuda"] is False
         assert report["torch"]["mps"] is False
+        assert report["torch"]["variant"] == "CPU"
 
 
 def test_check_ai_dependencies_torch_cuda(checker):
@@ -46,6 +48,7 @@ def test_check_ai_dependencies_torch_cuda(checker):
     mock_torch = MagicMock()
     mock_torch.__version__ = "2.1.0+cu118"
     mock_torch.cuda.is_available.return_value = True
+    mock_torch.version.cuda = "11.8"
 
     with patch.dict(sys.modules, {"torch": mock_torch}):
         report = checker.check_ai_dependencies()
@@ -53,6 +56,7 @@ def test_check_ai_dependencies_torch_cuda(checker):
         assert report["torch"]["installed"] is True
         assert report["torch"]["version"] == "2.1.0+cu118"
         assert report["torch"]["cuda"] is True
+        assert report["torch"]["variant"] == "CUDA 11.8"
 
 
 def test_check_ai_dependencies_other_libs(checker):
