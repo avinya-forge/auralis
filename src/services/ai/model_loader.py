@@ -4,6 +4,7 @@ Auralis - Model Loader Module
 
 import gc
 import logging
+import os
 from typing import Any, Dict, Union
 
 from src.services.ai.config import ai_config
@@ -53,6 +54,11 @@ class ModelLoader:
 
             # For CPU, device remains -1
 
+            # Ensure cache directory exists
+            cache_dir = ai_config.model_cache_dir
+            if not os.path.exists(cache_dir):
+                os.makedirs(cache_dir, exist_ok=True)
+
             # Use pipeline for simplicity
             pipe = pipeline(
                 task=task,
@@ -61,6 +67,7 @@ class ModelLoader:
                 torch_dtype=(
                     torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None
                 ),
+                model_kwargs={"cache_dir": cache_dir},
             )
 
             cls._instances[model_name] = pipe
