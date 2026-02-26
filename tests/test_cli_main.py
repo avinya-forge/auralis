@@ -4,34 +4,9 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Mock dependencies before imports
-sys.modules["mutagen"] = MagicMock()
-sys.modules["mutagen.mp3"] = MagicMock()
-sys.modules["mutagen.flac"] = MagicMock()
-
-# Mock PyQt6 if not available
-if "PyQt6" not in sys.modules:
-    mock_qt_core = MagicMock()
-
-    # Define a proper class for QObject to allow inheritance
-    class MockQObject:
-        def __init__(self, *args, **kwargs):
-            pass
-
-    # Assign the class to the mock module
-    mock_qt_core.QObject = MockQObject
-    mock_qt_core.QCoreApplication = MagicMock()
-
-    sys.modules["PyQt6"] = MagicMock()
-    sys.modules["PyQt6.QtCore"] = mock_qt_core
-    sys.modules["PyQt6.QtWidgets"] = MagicMock()
-
 # Add src to path if needed
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Import modules to ensure they are available for patching
-import src.core.organizer  # noqa: E402, F401
-import src.core.scanner  # noqa: E402, F401
 from src.cli.cli_main import run_cli, run_organize, run_scan, setup_parser  # noqa: E402
 
 

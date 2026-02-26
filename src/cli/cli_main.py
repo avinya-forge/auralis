@@ -164,6 +164,13 @@ def setup_parser() -> argparse.ArgumentParser:
     # Check command
     subparsers.add_parser("check", help="Check system and Python dependencies")
 
+    # AI command
+    ai_parser = subparsers.add_parser("ai", help="AI related commands")
+    ai_subparsers = ai_parser.add_subparsers(dest="ai_command", help="AI Subcommands")
+
+    # AI Check
+    ai_subparsers.add_parser("check", help="Check AI environment")
+
     return parser
 
 
@@ -179,6 +186,11 @@ def run_cli() -> None:
     # If check command, run it without requiring PyQt6 or other dependencies
     if args.command == "check":
         run_check(args)
+        return
+
+    # AI check also doesn't require PyQt6
+    if args.command == "ai" and args.ai_command == "check":
+        run_ai_check(args)
         return
 
     # For other commands, ensure PyQt6 is available
@@ -356,6 +368,28 @@ def run_metadata(args: argparse.Namespace) -> None:
     except Exception as e:
         handler.close()
         print(f"Error during metadata update: {e}")
+
+
+def run_ai_check(args: argparse.Namespace) -> None:
+    """Execute ai check command"""
+    print("Checking AI environment...")
+    checker = DependencyChecker()
+    report = checker.check_ai_dependencies()
+
+    print(f"\nPyTorch Status: {'✓' if report['torch']['installed'] else '✗'}")
+    if report['torch']['installed']:
+        print(f"  Version: {report['torch']['version']}")
+        print(f"  Variant: {report['torch']['variant']}")
+        print(f"  CUDA Available: {'Yes' if report['torch']['cuda'] else 'No'}")
+        print(f"  MPS Available: {'Yes' if report['torch']['mps'] else 'No'}")
+        print(f"  Est. Size: {report['torch']['size']}")
+
+    print("\nOther AI Dependencies:")
+    for lib in ["transformers", "torchaudio", "scipy", "librosa"]:
+        info = report.get(lib, {})
+        status = "✓" if info.get("installed") else "✗"
+        version = info.get("version", "N/A")
+        print(f"  {status} {lib} ({version})")
 
 
 def run_check(args: argparse.Namespace) -> None:
