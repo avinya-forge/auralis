@@ -299,9 +299,7 @@ class TestAudioAnalysisService(unittest.TestCase):
         mock_mutagen.File.return_value = mock_audio
 
         with patch("src.services.audio_analysis_service.HAS_MUTAGEN", True):
-            success = self.analyzer.save_analysis_tags(
-                "test.mp3", replay_gain=-4.5
-            )
+            success = self.analyzer.save_analysis_tags("test.mp3", replay_gain=-4.5)
 
             self.assertTrue(success)
             mock_audio.save.assert_called()
@@ -320,9 +318,7 @@ class TestAudioAnalysisService(unittest.TestCase):
         mock_mutagen.File.return_value = mock_audio
 
         with patch("src.services.audio_analysis_service.HAS_MUTAGEN", True):
-            success = self.analyzer.save_analysis_tags(
-                "test.flac", replay_gain=-4.5
-            )
+            success = self.analyzer.save_analysis_tags("test.flac", replay_gain=-4.5)
 
             self.assertTrue(success)
             mock_audio.save.assert_called()

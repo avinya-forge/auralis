@@ -17,22 +17,37 @@ class PlaylistGenerator:
 
     # Key Angles for Circle of Fifths (Index 0-11)
     KEY_ANGLES: Dict[str, int] = {
-        "C Major": 0, "A Minor": 0,
-        "G Major": 1, "E Minor": 1,
-        "D Major": 2, "B Minor": 2,
-        "A Major": 3, "F# Minor": 3,
-        "E Major": 4, "C# Minor": 4,
-        "B Major": 5, "G# Minor": 5,
-        "F# Major": 6, "D# Minor": 6,
-        "Db Major": 7, "Bb Minor": 7,  # C# Major equivalent position
-        "C# Major": 7, "A# Minor": 7,
-        "Ab Major": 8, "F Minor": 8,
-        "Eb Major": 9, "C Minor": 9,
-        "Bb Major": 10, "G Minor": 10,
-        "F Major": 11, "D Minor": 11,
+        "C Major": 0,
+        "A Minor": 0,
+        "G Major": 1,
+        "E Minor": 1,
+        "D Major": 2,
+        "B Minor": 2,
+        "A Major": 3,
+        "F# Minor": 3,
+        "E Major": 4,
+        "C# Minor": 4,
+        "B Major": 5,
+        "G# Minor": 5,
+        "F# Major": 6,
+        "D# Minor": 6,
+        "Db Major": 7,
+        "Bb Minor": 7,  # C# Major equivalent position
+        "C# Major": 7,
+        "A# Minor": 7,
+        "Ab Major": 8,
+        "F Minor": 8,
+        "Eb Major": 9,
+        "C Minor": 9,
+        "Bb Major": 10,
+        "G Minor": 10,
+        "F Major": 11,
+        "D Minor": 11,
         # Enharmonics
-        "Gb Major": 6, "Eb Minor": 6,
-        "Cb Major": 5, "Ab Minor": 5,
+        "Gb Major": 6,
+        "Eb Minor": 6,
+        "Cb Major": 5,
+        "Ab Minor": 5,
     }
 
     # Key compatibility map (Simplified Circle of Fifths + Relative Major/Minor)

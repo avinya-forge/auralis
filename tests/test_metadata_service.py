@@ -388,4 +388,6 @@ class TestMetadataService:
         assert metadata["mood"] == "Happy"
         assert metadata["replay_gain"] == -3.5
 
-        mock_analyzer.save_analysis_tags.assert_called_with("test.mp3", 120.0, "C Major", "Happy", -3.5)
+        mock_analyzer.save_analysis_tags.assert_called_with(
+            "test.mp3", 120.0, "C Major", "Happy", -3.5
+        )

@@ -22,6 +22,7 @@ except ImportError:
 
 try:
     from pydub import AudioSegment
+
     HAS_PYDUB = True
 except ImportError:
     HAS_PYDUB = False
