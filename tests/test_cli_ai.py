@@ -1,28 +1,10 @@
 import argparse
 import io
-import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Mock dependencies before imports
-sys.modules["mutagen"] = MagicMock()
-sys.modules["mutagen.mp3"] = MagicMock()
-sys.modules["mutagen.flac"] = MagicMock()
+from src.cli.cli_main import run_ai_check, setup_parser, run_cli
 
-# Mock PyQt6 if not available
-if "PyQt6" not in sys.modules:
-    mock_qt_core = MagicMock()
-    class MockQObject:
-        def __init__(self, *args, **kwargs):
-            pass
-    mock_qt_core.QObject = MockQObject
-    mock_qt_core.QCoreApplication = MagicMock()
-    sys.modules["PyQt6"] = MagicMock()
-    sys.modules["PyQt6.QtCore"] = mock_qt_core
-    sys.modules["PyQt6.QtWidgets"] = MagicMock()
-
-import src.cli.cli_main as cli
-from src.cli.cli_main import run_ai_check, setup_parser
 
 class TestCLIAI(unittest.TestCase):
     def test_setup_parser_ai_check(self):
@@ -86,9 +68,10 @@ class TestCLIAI(unittest.TestCase):
         with patch("src.cli.cli_main.HAS_PYQT", False):
             # Mock QCoreApplication just in case, though it shouldn't be reached
             with patch("src.cli.cli_main.QCoreApplication"):
-                 cli.run_cli()
+                run_cli()
 
         mock_run_ai_check.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
