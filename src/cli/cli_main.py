@@ -377,7 +377,7 @@ def run_ai_check(args: argparse.Namespace) -> None:
     report = checker.check_ai_dependencies()
 
     print(f"\nPyTorch Status: {'✓' if report['torch']['installed'] else '✗'}")
-    if report['torch']['installed']:
+    if report["torch"]["installed"]:
         print(f"  Version: {report['torch']['version']}")
         print(f"  Variant: {report['torch']['variant']}")
         print(f"  CUDA Available: {'Yes' if report['torch']['cuda'] else 'No'}")

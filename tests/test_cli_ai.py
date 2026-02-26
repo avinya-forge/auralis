@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 # Add src to path if needed (matches test_cli_main.py)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.cli.cli_main import run_ai_check, setup_parser, run_cli  # noqa: E402
+from src.cli.cli_main import run_ai_check, run_cli, setup_parser  # noqa: E402
 
 
 class TestCLIAI(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestCLIAI(unittest.TestCase):
                 "cuda": True,
                 "mps": False,
                 "variant": "CUDA 11.8",
-                "size": "2.1 GB"
+                "size": "2.1 GB",
             },
             "transformers": {"installed": True, "version": "4.30.0"},
             "torchaudio": {"installed": False},

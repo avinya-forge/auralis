@@ -376,6 +376,7 @@ class TestMetadataService:
         mock_analyzer.get_bpm.return_value = 120.0
         mock_analyzer.get_key.return_value = "C Major"
         mock_analyzer.get_mood.return_value = "Happy"
+        mock_analyzer.calculate_replay_gain.return_value = -3.5
 
         file_info = {"path": "test.mp3"}
         metadata = {}
@@ -385,5 +386,8 @@ class TestMetadataService:
         assert metadata["bpm"] == 120.0
         assert metadata["key"] == "C Major"
         assert metadata["mood"] == "Happy"
+        assert metadata["replay_gain"] == -3.5
 
-        mock_analyzer.save_analysis_tags.assert_called_with("test.mp3", 120.0, "C Major", "Happy")
+        mock_analyzer.save_analysis_tags.assert_called_with(
+            "test.mp3", 120.0, "C Major", "Happy", -3.5
+        )

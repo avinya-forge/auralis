@@ -3,12 +3,12 @@ Tests for AI Service Simulation Mode
 """
 
 import os
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
-from src.services.ai_service import AIService
 from src.services.ai.config import AIConfig
+from src.services.ai_service import AIService
 
 
 @pytest.fixture

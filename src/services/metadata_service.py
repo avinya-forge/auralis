@@ -1061,7 +1061,7 @@ class MetadataService(QObject):
 
     def _analyze_audio(self, file_info: Dict[str, Any], metadata: Dict[str, Any]) -> None:
         """
-        Analyze audio for BPM, Key, and Mood.
+        Analyze audio for BPM, Key, Mood, and ReplayGain.
 
         Args:
             file_info (Dict[str, Any]): File information.
@@ -1072,14 +1072,27 @@ class MetadataService(QObject):
         bpm = self._parse_bpm(metadata.get("bpm"))
         key = metadata.get("key")
         mood = metadata.get("mood")
+        replay_gain = metadata.get("replay_gain")
+        # Ensure replay_gain is float if present (string conversion if needed)
+        if isinstance(replay_gain, str):
+            try:
+                # Remove " dB" if present
+                replay_gain = float(replay_gain.replace(" dB", "").replace("dB", "").strip())
+            except ValueError:
+                replay_gain = None
 
-        bpm, key, mood, changed = self._perform_analysis(path, bpm, key, mood)
+        bpm, key, mood, replay_gain, changed = self._perform_analysis(
+            path, bpm, key, mood, replay_gain
+        )
 
         if changed:
             metadata["bpm"] = bpm
             metadata["key"] = key
             metadata["mood"] = mood
-            self.audio_analyzer.save_analysis_tags(path, bpm, key, mood)
+            if replay_gain is not None:
+                metadata["replay_gain"] = replay_gain
+
+            self.audio_analyzer.save_analysis_tags(path, bpm, key, mood, replay_gain)
 
     def _parse_bpm(self, bpm_value: Any) -> Optional[float]:
         """Parse BPM value to float."""
@@ -1091,8 +1104,13 @@ class MetadataService(QObject):
         return None
 
     def _perform_analysis(
-        self, path: str, bpm: Optional[float], key: Optional[str], mood: Optional[str]
-    ) -> Tuple[Optional[float], Optional[str], Optional[str], bool]:
+        self,
+        path: str,
+        bpm: Optional[float],
+        key: Optional[str],
+        mood: Optional[str],
+        replay_gain: Optional[float],
+    ) -> Tuple[Optional[float], Optional[str], Optional[str], Optional[float], bool]:
         """Perform analysis if values are missing."""
         changed = False
 
@@ -1111,7 +1129,12 @@ class MetadataService(QObject):
             if mood:
                 changed = True
 
-        return bpm, key, mood, changed
+        if replay_gain is None:
+            replay_gain = self.audio_analyzer.calculate_replay_gain(path)
+            if replay_gain is not None:
+                changed = True
+
+        return bpm, key, mood, replay_gain, changed
 
     def _download_cover_art(
         self, file_info: Dict[str, Any], metadata: Dict[str, Any], options: Dict[str, Any]
