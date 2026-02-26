@@ -195,9 +195,8 @@ def run_cli() -> None:
         run_check(args)
         return
 
-    # AI check also doesn't require PyQt6
-    if args.command == "ai" and args.ai_command == "check":
-        run_ai_check(args)
+    # Handle AI subcommands that don't require full app initialization
+    if _handle_headless_ai_commands(args):
         return
 
     # For other commands, ensure PyQt6 is available
@@ -224,14 +223,29 @@ def run_cli() -> None:
         parser.print_help()
         return
 
+    _dispatch_command(args)
+
+
+def _handle_headless_ai_commands(args: argparse.Namespace) -> bool:
+    """Handle AI commands that can run without PyQt6. Returns True if handled."""
+    if args.command == "ai":
+        if args.ai_command == "check":
+            run_ai_check(args)
+            return True
+    return False
+
+
+def _dispatch_command(args: argparse.Namespace) -> None:
+    """Dispatch main commands after app initialization."""
     if args.command == "scan":
         run_scan(args)
     elif args.command == "organize":
         run_organize(args)
     elif args.command == "metadata":
         run_metadata(args)
-    elif args.command == "ai" and args.ai_command == "analyze":
-        run_ai_analyze(args)
+    elif args.command == "ai":
+        if args.ai_command == "analyze":
+            run_ai_analyze(args)
 
 
 def run_scan(args: argparse.Namespace) -> None:

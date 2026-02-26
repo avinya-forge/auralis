@@ -9,7 +9,7 @@ import logging
 import sqlite3
 import threading
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 logger = logging.getLogger("auralis.cache")
 
@@ -82,7 +82,7 @@ class CacheService:
                 cursor.execute("SELECT data FROM metadata WHERE file_hash = ?", (file_hash,))
                 row = cursor.fetchone()
                 if row:
-                    return json.loads(row[0])
+                    return cast(Dict[str, Any], json.loads(row[0]))
         except (sqlite3.Error, json.JSONDecodeError) as e:
             logger.error(f"Error retrieving metadata for hash {file_hash}: {e}")
 
