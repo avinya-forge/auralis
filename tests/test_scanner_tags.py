@@ -35,10 +35,7 @@ class TestScannerTags:
         txxx_ai_mood.desc = "AI_MOOD"
         txxx_ai_mood.text = ["Meditative"]
 
-        audio.tags = {
-            "TXXX:RAGA": txxx_raga,
-            "TXXX:AI_MOOD": txxx_ai_mood
-        }
+        audio.tags = {"TXXX:RAGA": txxx_raga, "TXXX:AI_MOOD": txxx_ai_mood}
         # audio.tags is a dict, so keys() works by default, no need to mock it unless audio.tags was a Mock
 
         metadata = {}
@@ -58,7 +55,7 @@ class TestScannerTags:
             "initialkey": ["C Major"],
             "mood": ["Energetic"],
             "raga": ["Bhairavi"],
-            "ai_mood": ["Meditative"]
+            "ai_mood": ["Meditative"],
         }
         audio.__contains__.side_effect = data.__contains__
         audio.__getitem__.side_effect = data.__getitem__
@@ -80,7 +77,7 @@ class TestScannerTags:
             "initialkey": ["C Major"],
             "mood": ["Energetic"],
             "raga": ["Bhairavi"],
-            "ai_mood": ["Meditative"]
+            "ai_mood": ["Meditative"],
         }
         audio.__contains__.side_effect = data.__contains__
         audio.__getitem__.side_effect = data.__getitem__

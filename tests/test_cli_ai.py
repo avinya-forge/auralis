@@ -103,9 +103,7 @@ class TestCLIAI(unittest.TestCase):
             {"label": "pop", "score": 0.05},
         ]
 
-        args = argparse.Namespace(
-            file="test.mp3", model="custom/model"
-        )
+        args = argparse.Namespace(file="test.mp3", model="custom/model")
 
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             run_ai_analyze(args)
@@ -124,9 +122,7 @@ class TestCLIAI(unittest.TestCase):
         """Test ai analyze with missing file"""
         mock_exists.return_value = False
 
-        args = argparse.Namespace(
-            file="missing.mp3", model="default"
-        )
+        args = argparse.Namespace(file="missing.mp3", model="default")
 
         # Setup mock service
         mock_ai_service_module = sys.modules["src.services.ai_service"]
@@ -145,8 +141,12 @@ class TestCLIAI(unittest.TestCase):
         """Test that run_cli correctly dispatches to run_ai_analyze"""
         mock_parser = MagicMock()
         mock_parser.parse_args.return_value = argparse.Namespace(
-            command="ai", ai_command="analyze", log_level="INFO", debug=False,
-            file="test.mp3", model="default"
+            command="ai",
+            ai_command="analyze",
+            log_level="INFO",
+            debug=False,
+            file="test.mp3",
+            model="default",
         )
         mock_setup_parser.return_value = mock_parser
 
