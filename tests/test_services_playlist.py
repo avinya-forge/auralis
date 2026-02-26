@@ -48,3 +48,28 @@ class TestPlaylistService:
 
         playlist = generator.generate_playlist_by_mood(sample_files, "NonExistent")
         assert len(playlist) == 0
+
+    def test_find_similar_tracks(self, generator):
+        target = {"path": "target.mp3", "metadata": {"bpm": "120", "key": "C Major"}}
+
+        # Similar BPM and Key
+        similar1 = {"path": "similar1.mp3", "metadata": {"bpm": "120", "key": "C Major"}}
+
+        # Compatible Key (G Major is 1 step away), Similar BPM
+        similar2 = {"path": "similar2.mp3", "metadata": {"bpm": "122", "key": "G Major"}}
+
+        # Far Key (F# Major is 6 steps away), Same BPM
+        diff1 = {"path": "diff1.mp3", "metadata": {"bpm": "120", "key": "F# Major"}}
+
+        # Very different BPM, Same Key
+        diff2 = {"path": "diff2.mp3", "metadata": {"bpm": "60", "key": "C Major"}}
+
+        pool = [similar1, similar2, diff1, diff2, target]
+
+        results = generator.find_similar_tracks(target, pool, limit=3)
+
+        assert len(results) == 3
+        # similar1 should be first (exact match vector)
+        assert results[0]["path"] == "similar1.mp3"
+        # similar2 should be second (close key)
+        assert results[1]["path"] == "similar2.mp3"

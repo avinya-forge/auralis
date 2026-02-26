@@ -15,6 +15,26 @@ logger = logging.getLogger("auralis.playlist")
 class PlaylistGenerator:
     """Generates playlists based on various criteria."""
 
+    # Key Angles for Circle of Fifths (Index 0-11)
+    KEY_ANGLES: Dict[str, int] = {
+        "C Major": 0, "A Minor": 0,
+        "G Major": 1, "E Minor": 1,
+        "D Major": 2, "B Minor": 2,
+        "A Major": 3, "F# Minor": 3,
+        "E Major": 4, "C# Minor": 4,
+        "B Major": 5, "G# Minor": 5,
+        "F# Major": 6, "D# Minor": 6,
+        "Db Major": 7, "Bb Minor": 7,  # C# Major equivalent position
+        "C# Major": 7, "A# Minor": 7,
+        "Ab Major": 8, "F Minor": 8,
+        "Eb Major": 9, "C Minor": 9,
+        "Bb Major": 10, "G Minor": 10,
+        "F Major": 11, "D Minor": 11,
+        # Enharmonics
+        "Gb Major": 6, "Eb Minor": 6,
+        "Cb Major": 5, "Ab Minor": 5,
+    }
+
     # Key compatibility map (Simplified Circle of Fifths + Relative Major/Minor)
     KEY_COMPATIBILITY: Dict[str, List[str]] = {
         # Major Keys
@@ -271,6 +291,84 @@ class PlaylistGenerator:
             if mood and mood.lower() == target_mood.lower():
                 playlist.append(file_info)
         return playlist
+
+    def find_similar_tracks(
+        self,
+        target_track: Dict[str, Any],
+        pool: List[Dict[str, Any]],
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """
+        Find similar tracks using Cosine Similarity on BPM and Key.
+
+        Args:
+            target_track (Dict[str, Any]): The reference track.
+            pool (List[Dict[str, Any]]): List of candidate tracks.
+            limit (int): Maximum number of results.
+
+        Returns:
+            List[Dict[str, Any]]: Top similar tracks.
+        """
+        target_vector = self._get_track_vector(target_track)
+        if target_vector is None:
+            return []
+
+        scored_tracks = []
+        for track in pool:
+            # Skip same track (by path)
+            if track.get("path") == target_track.get("path"):
+                continue
+
+            vector = self._get_track_vector(track)
+            if vector is None:
+                continue
+
+            similarity = self._cosine_similarity(target_vector, vector)
+            scored_tracks.append((similarity, track))
+
+        # Sort by similarity (descending)
+        scored_tracks.sort(key=lambda x: x[0], reverse=True)
+
+        return [t for _, t in scored_tracks[:limit]]
+
+    def _get_track_vector(self, track: Dict[str, Any]) -> Optional[List[float]]:
+        """Create a feature vector for a track [bpm_norm, key_x, key_y]."""
+        bpm = self._get_bpm(track)
+        key = self._get_key(track)
+
+        if bpm is None or key is None:
+            return None
+
+        # Normalize BPM (assuming 120 is standard, range usually 60-180)
+        # We use a simple scaling.
+        # Multiply by 2.0 to give BPM more weight than Key (which has mag 1.0)
+        bpm_norm = (min(bpm, 180.0) / 180.0) * 2.0
+
+        # Vectorize Key
+        angle_idx = self.KEY_ANGLES.get(key)
+        if angle_idx is None:
+            return None
+
+        import math
+
+        angle = angle_idx * (2 * math.pi / 12)
+        key_x = math.cos(angle)
+        key_y = math.sin(angle)
+
+        return [bpm_norm, key_x, key_y]
+
+    def _cosine_similarity(self, v1: List[float], v2: List[float]) -> float:
+        """Calculate cosine similarity between two vectors."""
+        import math
+
+        dot_product = sum(a * b for a, b in zip(v1, v2))
+        magnitude1 = math.sqrt(sum(a * a for a in v1))
+        magnitude2 = math.sqrt(sum(b * b for b in v2))
+
+        if magnitude1 == 0 or magnitude2 == 0:
+            return 0.0
+
+        return dot_product / (magnitude1 * magnitude2)
 
     def _get_bpm(self, file_info: Dict[str, Any]) -> Optional[float]:
         """

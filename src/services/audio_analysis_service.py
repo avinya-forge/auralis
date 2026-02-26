@@ -20,6 +20,12 @@ try:
 except ImportError:
     HAS_MUTAGEN = False
 
+try:
+    from pydub import AudioSegment
+    HAS_PYDUB = True
+except ImportError:
+    HAS_PYDUB = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,6 +48,30 @@ class AudioAnalyzer:
         except ImportError:
             logger.warning("Librosa or numpy not installed. Audio analysis will not work.")
             return False
+
+    def calculate_replay_gain(self, file_path: str, target_dbfs: float = -14.0) -> Optional[float]:
+        """
+        Calculate ReplayGain to normalize loudness to target dBFS.
+
+        Args:
+            file_path (str): Path to audio file.
+            target_dbfs (float): Target loudness in dBFS (default: -14.0).
+
+        Returns:
+            Optional[float]: Gain in dB needed to reach target, or None.
+        """
+        if not HAS_PYDUB:
+            logger.warning("Pydub not installed. Cannot calculate ReplayGain.")
+            return None
+
+        try:
+            audio = AudioSegment.from_file(file_path)
+            current_dbfs = audio.dBFS
+            gain_needed = target_dbfs - current_dbfs
+            return float(gain_needed)
+        except Exception as e:
+            logger.error(f"Error calculating ReplayGain for {file_path}: {e}")
+            return None
 
     def get_bpm(self, file_path: str) -> Optional[float]:
         """
@@ -191,6 +221,7 @@ class AudioAnalyzer:
         bpm: Optional[float] = None,
         key: Optional[str] = None,
         mood: Optional[str] = None,
+        replay_gain: Optional[float] = None,
     ) -> bool:
         """
         Save analysis results to audio file tags.
@@ -200,6 +231,7 @@ class AudioAnalyzer:
             bpm (Optional[float]): BPM value.
             key (Optional[str]): Key value.
             mood (Optional[str]): Mood value.
+            replay_gain (Optional[float]): ReplayGain value in dB.
 
         Returns:
             bool: True if successful, False otherwise.
@@ -217,9 +249,9 @@ class AudioAnalyzer:
             bpm_str = str(int(round(bpm))) if bpm else ""
 
             if isinstance(audio, mutagen.mp3.MP3):
-                self._save_mp3_tags(audio, bpm_str, key, mood)
+                self._save_mp3_tags(audio, bpm_str, key, mood, replay_gain)
             elif isinstance(audio, mutagen.flac.FLAC) or isinstance(audio, mutagen.ogg.OggVorbis):
-                self._save_vorbis_tags(audio, bpm_str, key, mood)
+                self._save_vorbis_tags(audio, bpm_str, key, mood, replay_gain)
 
             # Save changes
             audio.save()
@@ -230,7 +262,12 @@ class AudioAnalyzer:
             return False
 
     def _save_mp3_tags(
-        self, audio: Any, bpm_str: str, key: Optional[str], mood: Optional[str]
+        self,
+        audio: Any,
+        bpm_str: str,
+        key: Optional[str],
+        mood: Optional[str],
+        replay_gain: Optional[float],
     ) -> None:
         """Save analysis tags to MP3 file."""
         if bpm_str:
@@ -239,9 +276,19 @@ class AudioAnalyzer:
             audio["TKEY"] = mutagen.id3.TKEY(encoding=3, text=key)
         if mood:
             audio["TMOO"] = mutagen.id3.TMOO(encoding=3, text=mood)
+        if replay_gain is not None:
+            gain_str = f"{replay_gain:+.2f} dB"
+            audio.tags.add(
+                mutagen.id3.TXXX(encoding=3, desc="REPLAYGAIN_TRACK_GAIN", text=gain_str)
+            )
 
     def _save_vorbis_tags(
-        self, audio: Any, bpm_str: str, key: Optional[str], mood: Optional[str]
+        self,
+        audio: Any,
+        bpm_str: str,
+        key: Optional[str],
+        mood: Optional[str],
+        replay_gain: Optional[float],
     ) -> None:
         """Save analysis tags to Vorbis/FLAC file."""
         if bpm_str:
@@ -250,3 +297,5 @@ class AudioAnalyzer:
             audio["initialkey"] = key
         if mood:
             audio["mood"] = mood
+        if replay_gain is not None:
+            audio["REPLAYGAIN_TRACK_GAIN"] = f"{replay_gain:+.2f} dB"

@@ -14,6 +14,10 @@ mock_librosa = MagicMock()
 mock_librosa.beat = MagicMock()
 mock_librosa.feature = MagicMock()
 
+mock_pydub = MagicMock()
+mock_audio_segment = MagicMock()
+mock_pydub.AudioSegment = mock_audio_segment
+
 
 # Mock Mutagen
 class MockMP3(MagicMock):
@@ -42,6 +46,7 @@ mock_id3 = MagicMock()
 mock_id3.TBPM = MagicMock()
 mock_id3.TKEY = MagicMock()
 mock_id3.TMOO = MagicMock()
+mock_id3.TXXX = MagicMock()
 
 mock_ogg = MagicMock()
 mock_ogg.OggVorbis = MockOgg
@@ -68,6 +73,7 @@ class TestAudioAnalysisService(unittest.TestCase):
                 "mutagen.id3": mock_id3,
                 "mutagen.ogg": mock_ogg,
                 "numpy": np,
+                "pydub": mock_pydub,
             },
         )
         self.module_patcher.start()
@@ -91,8 +97,11 @@ class TestAudioAnalysisService(unittest.TestCase):
         mock_id3.TBPM.reset_mock()
         mock_id3.TKEY.reset_mock()
         mock_id3.TMOO.reset_mock()
+        mock_id3.TXXX.reset_mock()
 
         mock_librosa.load.side_effect = None
+        mock_audio_segment.reset_mock()
+        mock_audio_segment.from_file.side_effect = None
         mock_librosa.beat.beat_track.side_effect = None
 
     def tearDown(self):
@@ -249,6 +258,77 @@ class TestAudioAnalysisService(unittest.TestCase):
 
             self.assertTrue(success)
             mock_audio.save.assert_called()
+
+    def test_calculate_replay_gain_success(self):
+        """Test successful ReplayGain calculation"""
+        # Mock AudioSegment.from_file
+        mock_segment = MagicMock()
+        mock_segment.dBFS = -18.0
+        mock_audio_segment.from_file.return_value = mock_segment
+
+        with patch("src.services.audio_analysis_service.HAS_PYDUB", True):
+            # Target -14.0, Current -18.0 -> Need +4.0
+            gain = self.analyzer.calculate_replay_gain("test.mp3", target_dbfs=-14.0)
+            self.assertEqual(gain, 4.0)
+
+            # Target -14.0, Current -10.0 -> Need -4.0
+            mock_segment.dBFS = -10.0
+            gain = self.analyzer.calculate_replay_gain("test.mp3", target_dbfs=-14.0)
+            self.assertEqual(gain, -4.0)
+
+        mock_audio_segment.from_file.assert_called_with("test.mp3")
+
+    def test_calculate_replay_gain_no_pydub(self):
+        """Test ReplayGain without pydub"""
+        with patch("src.services.audio_analysis_service.HAS_PYDUB", False):
+            gain = self.analyzer.calculate_replay_gain("test.mp3")
+            self.assertIsNone(gain)
+
+    def test_calculate_replay_gain_error(self):
+        """Test ReplayGain calculation error"""
+        mock_audio_segment.from_file.side_effect = Exception("Load error")
+        with patch("src.services.audio_analysis_service.HAS_PYDUB", True):
+            gain = self.analyzer.calculate_replay_gain("test.mp3")
+            self.assertIsNone(gain)
+
+    def test_save_replay_gain_tags_mp3(self):
+        """Test saving ReplayGain tags to MP3"""
+        mock_audio = MockMP3()
+        # Mock tags.add method
+        mock_audio.tags = MagicMock()
+        mock_mutagen.File.return_value = mock_audio
+
+        with patch("src.services.audio_analysis_service.HAS_MUTAGEN", True):
+            success = self.analyzer.save_analysis_tags(
+                "test.mp3", replay_gain=-4.5
+            )
+
+            self.assertTrue(success)
+            mock_audio.save.assert_called()
+
+            # Verify TXXX frame creation
+            mock_id3.TXXX.assert_called_with(
+                encoding=3, desc="REPLAYGAIN_TRACK_GAIN", text="-4.50 dB"
+            )
+            mock_audio.tags.add.assert_called()
+
+    def test_save_replay_gain_tags_flac(self):
+        """Test saving ReplayGain tags to FLAC"""
+        mock_audio = MockFLAC()
+        # Mock dictionary behavior
+        mock_audio.__setitem__ = MagicMock()
+        mock_mutagen.File.return_value = mock_audio
+
+        with patch("src.services.audio_analysis_service.HAS_MUTAGEN", True):
+            success = self.analyzer.save_analysis_tags(
+                "test.flac", replay_gain=-4.5
+            )
+
+            self.assertTrue(success)
+            mock_audio.save.assert_called()
+
+            # Verify tag setting
+            mock_audio.__setitem__.assert_called_with("REPLAYGAIN_TRACK_GAIN", "-4.50 dB")
 
 
 if __name__ == "__main__":
