@@ -171,6 +171,13 @@ def setup_parser() -> argparse.ArgumentParser:
     # AI Check
     ai_subparsers.add_parser("check", help="Check AI environment")
 
+    # AI Analyze
+    ai_analyze_parser = ai_subparsers.add_parser("analyze", help="Analyze audio file with AI")
+    ai_analyze_parser.add_argument("file", help="Audio file to analyze")
+    ai_analyze_parser.add_argument(
+        "--model", default="dima806/music_genres_classification", help="Hugging Face model ID"
+    )
+
     return parser
 
 
@@ -223,6 +230,8 @@ def run_cli() -> None:
         run_organize(args)
     elif args.command == "metadata":
         run_metadata(args)
+    elif args.command == "ai" and args.ai_command == "analyze":
+        run_ai_analyze(args)
 
 
 def run_scan(args: argparse.Namespace) -> None:
@@ -390,6 +399,29 @@ def run_ai_check(args: argparse.Namespace) -> None:
         status = "✓" if info.get("installed") else "✗"
         version = info.get("version", "N/A")
         print(f"  {status} {lib} ({version})")
+
+
+def run_ai_analyze(args: argparse.Namespace) -> None:
+    """Execute ai analyze command"""
+    try:
+        from src.services.ai_service import AIService
+    except ImportError as e:
+        print(f"Error importing AIService: {e}")
+        return
+
+    file_path = args.file
+    if not os.path.exists(file_path):
+        print(f"Error: File not found: {file_path}")
+        return
+
+    print(f"Analyzing {file_path} using {args.model}...")
+
+    service = AIService()
+    results = service.analyze_audio_classification(file_path, model_name=args.model)
+
+    print("\nAnalysis Results:")
+    for result in results:
+        print(f"  - {result['label']}: {result['score']:.4f}")
 
 
 def run_check(args: argparse.Namespace) -> None:

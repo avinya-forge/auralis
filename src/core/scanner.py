@@ -372,6 +372,16 @@ class MusicScanner(QObject):
             if tag in audio:
                 metadata[key] = str(audio[tag])
 
+        # Check for AI tags (TXXX frames)
+        if hasattr(audio, "tags"):
+            for frame_key in audio.tags.keys():
+                if frame_key.startswith("TXXX:"):
+                    frame = audio.tags[frame_key]
+                    if frame.desc == "RAGA":
+                        metadata["raga"] = str(frame.text[0])
+                    elif frame.desc == "AI_MOOD":
+                        metadata["ai_mood"] = str(frame.text[0])
+
         if audio.info:
             metadata["bitrate"] = audio.info.bitrate
 
@@ -393,6 +403,8 @@ class MusicScanner(QObject):
             "bpm": "bpm",
             "initialkey": "key",
             "mood": "mood",
+            "raga": "raga",
+            "ai_mood": "ai_mood",
         }
         for tag, key in tag_map.items():
             if tag in audio:
@@ -419,6 +431,8 @@ class MusicScanner(QObject):
             "bpm": "bpm",
             "initialkey": "key",
             "mood": "mood",
+            "raga": "raga",
+            "ai_mood": "ai_mood",
         }
         for tag, key in tag_map.items():
             if tag in audio:

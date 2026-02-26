@@ -4,7 +4,7 @@
 **Focus:** Integrating Deep Learning models (Hugging Face Transformers) for zero-shot classification and advanced audio understanding.
 
 ### Epic 11: Neural Core Infrastructure (AIService)
-- [AI-010] | Add `auralis ai check` CLI command to verify environment | [BLOCKS-AI-004] | [TODO]
+- [AI-010] | Add `auralis ai check` CLI command to verify environment | [BLOCKS-AI-004] | [DONE]
 
 ### Epic 12: Neural Features (The Brain)
 - [NEU-001] | Implement `RagaClassifier` using Zero-Shot CLAP | [BLOCKS-AI-002] | [TODO]
@@ -34,13 +34,13 @@
 **Focus:** Closing gaps in existing Audio/Playlist functionality.
 
 ### Epic 7: Audio Analysis (Legacy Completion)
-- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [INDEPENDENT] | [TODO]
-- [AUD-007] | Create `DuplicateFinder` based on audio fingerprints (Exact Match) | [BLOCKS-AUD-006] | [TODO]
-- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [INDEPENDENT] | [TODO]
-- [AUD-009] | Add "Loudness Normalization" (ReplayGain) calculator | [INDEPENDENT] | [TODO]
-- [AUD-010] | Integrate ReplayGain tags into `MetadataService` | [BLOCKS-AUD-009] | [TODO]
-- [AUD-011] | Add unit tests for `SilenceTrimmer` | [BLOCKS-AUD-008] | [TODO]
-- [AUD-012] | Add unit tests for `ReplayGain` calculator | [BLOCKS-AUD-009] | [TODO]
+- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [INDEPENDENT] | [DONE]
+- [AUD-007] | Create `DuplicateFinder` based on audio fingerprints (Exact Match) | [BLOCKS-AUD-006] | [DONE]
+- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [INDEPENDENT] | [DONE]
+- [AUD-009] | Add "Loudness Normalization" (ReplayGain) calculator | [INDEPENDENT] | [DONE]
+- [AUD-010] | Integrate ReplayGain tags into `MetadataService` | [BLOCKS-AUD-009] | [DONE]
+- [AUD-011] | Add unit tests for `SilenceTrimmer` | [BLOCKS-AUD-008] | [DONE]
+- [AUD-012] | Add unit tests for `ReplayGain` calculator | [BLOCKS-AUD-009] | [DONE]
 
 ### Epic 8: Smart Playlists (Legacy Completion)
 - [PL-004] | Implement "Flow Mode" (Match Key + BPM) logic details | [INDEPENDENT] | [TODO]
