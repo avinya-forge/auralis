@@ -1,9 +1,14 @@
 import argparse
 import io
+import os
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.cli.cli_main import run_ai_check, setup_parser, run_cli
+# Add src to path if needed (matches test_cli_main.py)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.cli.cli_main import run_ai_check, setup_parser, run_cli  # noqa: E402
 
 
 class TestCLIAI(unittest.TestCase):
