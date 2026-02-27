@@ -1,5 +1,23 @@
 # Release Notes
 
+## [0.4.0] - Autonomous Awakening
+
+### Archived Tasks (Vaulted from Backlog)
+
+#### Phase 3: Cognitive Intelligence (Neural Audio)
+- [AI-010] | Add `auralis ai check` CLI command to verify environment | [DONE]
+- [NEU-001] | Implement `RagaClassifier` using Zero-Shot CLAP | [DONE]
+- [NEU-007] | Add `TXXX:RAGA` and `TXXX:AI_MOOD` tag handlers in `MusicScanner` | [DONE]
+- [NEU-010] | Write integration tests for `RagaClassifier` (using sample audio) | [DONE]
+
+#### Phase 2: Feature Enhancement (Residual Debt)
+- [AUD-007] | Create `DuplicateFinder` based on audio fingerprints (Exact Match) | [DONE]
+- [AUD-009] | Add "Loudness Normalization" (ReplayGain) calculator | [DONE]
+- [AUD-010] | Integrate ReplayGain tags into `MetadataService` | [DONE]
+- [AUD-012] | Add unit tests for `ReplayGain` calculator | [DONE]
+- [PL-004] | Implement "Flow Mode" (Match Key + BPM) logic details | [DONE]
+- [PL-007] | Implement "Similar Tracks" finder (Cosine Similarity - Legacy Features) | [DONE]
+
 ## [0.3.0] - Neural Genesis (AI Feasibility)
 
 ### Feature Highlight: Neural Architecture

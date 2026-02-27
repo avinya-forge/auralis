@@ -8,6 +8,7 @@ Auralis is not just a music player; it is an intelligent, self-organizing system
 1.  **Test Fortress:** All code (Core, GUI, CLI, Utils) must be covered by tests. Target coverage: 95%. Mocking is mandatory for UI components. No regression is acceptable.
 2.  **Lint Zero:** Zero tolerance for linting errors. `flake8` and `mypy` (strict mode, `disallow_untyped_defs = True`, no global ignores) must pass clean.
 3.  **Complexity Cap:** No function shall exceed a Cyclomatic Complexity of 10. Refactor ruthlessly.
+4.  **Latest Stable Env Only:** Always use the latest stable environment and dependencies unless strictly impossible.
 
 ## Definition of Done (DoD)
 A task is only "Done" when it meets the following atomic criteria:
