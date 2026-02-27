@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 
 from src.services.ai.config import ai_config
 from src.services.ai.model_loader import ModelLoader
+from src.services.ai.raga_classifier import RagaClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class AIService:
         """Initialize the AI Service."""
         self.config = ai_config
         self.loader = ModelLoader
+        self.raga_classifier = RagaClassifier()
 
     def check_health(self) -> Dict[str, Any]:
         """
@@ -53,6 +55,18 @@ class AIService:
             pass
 
         return health
+
+    def analyze_raga(self, file_path: str) -> Dict[str, Any]:
+        """
+        Analyze audio to identify Raga.
+
+        Args:
+            file_path (str): Path to audio file.
+
+        Returns:
+            Dict[str, Any]: Raga classification result.
+        """
+        return self.raga_classifier.classify(file_path)
 
     def analyze_audio_classification(
         self,
