@@ -11,7 +11,10 @@ from src.services.ai.raga_classifier import RagaClassifier
 
 class TestRagaClassifier(unittest.TestCase):
     def setUp(self):
-        # Patch transformers and torch locally for this test case
+        # Patch transformers and torch locally for this test case using patch.dict.
+        # This is critical to prevent polluting the global sys.modules, which causes
+        # side effects in other tests (e.g., DependencyChecker tests failing because
+        # they see these mocks instead of the real environment state).
         self.modules_patcher = patch.dict(
             sys.modules, {"transformers": MagicMock(), "torch": MagicMock()}
         )
