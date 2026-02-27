@@ -6,7 +6,6 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.services.ai.config import ai_config
 from src.services.ai.raga_classifier import RagaClassifier
 
 # Mock transformers to prevent ImportError in ModelLoader
