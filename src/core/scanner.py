@@ -372,6 +372,12 @@ class MusicScanner(QObject):
             if tag in audio:
                 metadata[key] = str(audio[tag])
 
+        # Parse TXXX:RAGA and TXXX:AI_MOOD
+        if "TXXX:RAGA" in audio:
+            metadata["raga"] = str(audio["TXXX:RAGA"])
+        if "TXXX:AI_MOOD" in audio:
+            metadata["ai_mood"] = str(audio["TXXX:AI_MOOD"])
+
         if audio.info:
             metadata["bitrate"] = audio.info.bitrate
 
@@ -393,6 +399,8 @@ class MusicScanner(QObject):
             "bpm": "bpm",
             "initialkey": "key",
             "mood": "mood",
+            "raga": "raga",
+            "ai_mood": "ai_mood",
         }
         for tag, key in tag_map.items():
             if tag in audio:
