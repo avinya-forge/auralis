@@ -14,10 +14,10 @@ Prerequisites:
 import sys
 
 try:
-    import numpy as np
     import librosa
+    import numpy as np
     import torch
-    from transformers import AutoProcessor, ClapModel, Wav2Vec2FeatureExtractor, AutoModel
+    from transformers import AutoModel, AutoProcessor, ClapModel, Wav2Vec2FeatureExtractor
     TRANSFORMERS_AVAILABLE = True
 except ImportError as e:
     TRANSFORMERS_AVAILABLE = False

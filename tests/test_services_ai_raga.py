@@ -8,14 +8,21 @@ from unittest.mock import MagicMock, patch
 
 from src.services.ai.raga_classifier import RagaClassifier
 
-# Mock transformers to prevent ImportError in ModelLoader
-sys.modules["transformers"] = MagicMock()
-sys.modules["torch"] = MagicMock()
-
 
 class TestRagaClassifier(unittest.TestCase):
     def setUp(self):
+        # Patch transformers and torch locally for this test case using patch.dict.
+        # This is critical to prevent polluting the global sys.modules, which causes
+        # side effects in other tests (e.g., DependencyChecker tests failing because
+        # they see these mocks instead of the real environment state).
+        self.modules_patcher = patch.dict(
+            sys.modules, {"transformers": MagicMock(), "torch": MagicMock()}
+        )
+        self.modules_patcher.start()
         self.classifier = RagaClassifier()
+
+    def tearDown(self):
+        self.modules_patcher.stop()
 
     @patch("src.services.ai.raga_classifier.ai_config")
     def test_classify_simulation_mode(self, mock_config):
