@@ -118,3 +118,25 @@ class TestPlaylistServiceEnhanced:
         files = [{"path": "bad.mp3", "metadata": {}}]  # No BPM/Key
         playlist = generator.generate_flow_mode_playlist(files)
         assert len(playlist) == 0
+
+    def test_export_to_spotify_csv(self, generator, sample_files, tmp_path):
+        playlist = sample_files[:2]
+        filepath = tmp_path / "spotify_export.csv"
+
+        assert generator.export_to_spotify_csv(playlist, str(filepath)) is True
+        assert filepath.exists()
+
+        import csv
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        assert len(rows) == 3  # Header + 2 rows
+        assert rows[0] == ["Track Name", "Artist Name", "Album Name"]
+        assert rows[1] == ["1", "A", "Unknown Album"]
+        assert rows[2] == ["2", "B", "Unknown Album"]
+
+    def test_export_to_spotify_csv_error(self, generator, sample_files):
+        # Invalid path should return False
+        assert generator.export_to_spotify_csv(sample_files, "/invalid/path/test.csv") is False

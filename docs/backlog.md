@@ -36,8 +36,8 @@
 
 ### Epic 8: Smart Playlists (Legacy Completion)
 - [PL-008] | Add "Playlist Editor" UI Tab (CRUD operations) | [INDEPENDENT] | [TODO]
-- [PL-009] | Implement "History" tracker persistence | [INDEPENDENT] | [TODO]
-- [PL-010] | Add "Export to Spotify" (CSV) stub | [INDEPENDENT] | [TODO]
+- [PL-009] | Implement "History" tracker persistence | [INDEPENDENT] | [DONE]
+- [PL-010] | Add "Export to Spotify" (CSV) stub | [INDEPENDENT] | [DONE]
 
 ### Epic 6: Performance Optimization (Legacy Completion)
 - [PERF-001] | Implement `LazyLoader` for album art images in ListWidget | [INDEPENDENT] | [TODO]

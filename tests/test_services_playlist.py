@@ -73,3 +73,45 @@ class TestPlaylistService:
         assert results[0]["path"] == "similar1.mp3"
         # similar2 should be second (close key)
         assert results[1]["path"] == "similar2.mp3"
+
+
+class TestPlaylistHistory:
+    @pytest.fixture
+    def history_filepath(self, tmp_path):
+        return str(tmp_path / "playlist_history.json")
+
+    @pytest.fixture
+    def history(self, history_filepath):
+        from src.services.playlist_service import PlaylistHistory
+
+        return PlaylistHistory(filepath=history_filepath)
+
+    def test_playlist_history_init(self, history, history_filepath):
+        import os
+
+        assert history.filepath == history_filepath
+        assert os.path.exists(os.path.dirname(history_filepath))
+
+    def test_playlist_history_add_and_get(self, history):
+        tracks = [
+            {"path": "song1.mp3", "metadata": {"title": "Song 1", "artist": "Artist 1"}},
+            {"path": "song2.mp3", "metadata": {"title": "Song 2", "artist": "Artist 2"}},
+        ]
+
+        assert history.add_to_history("My Playlist", tracks) is True
+
+        hist_data = history.get_history()
+        assert len(hist_data) == 1
+        assert hist_data[0]["name"] == "My Playlist"
+        assert hist_data[0]["track_count"] == 2
+        assert len(hist_data[0]["tracks"]) == 2
+        assert hist_data[0]["tracks"][0]["title"] == "Song 1"
+
+    def test_playlist_history_clear(self, history):
+        tracks = [{"path": "song1.mp3", "metadata": {"title": "Song 1"}}]
+        history.add_to_history("Test", tracks)
+
+        assert len(history.get_history()) == 1
+
+        assert history.clear_history() is True
+        assert len(history.get_history()) == 0
