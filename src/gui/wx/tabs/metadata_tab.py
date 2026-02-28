@@ -10,6 +10,40 @@ from src.gui.wx.dialogs.api_keys_dialog import APIKeysDialog
 from src.utils.config import get_config
 
 
+
+class AIPanel(wx.Panel):
+    """Panel for AI Analysis options"""
+    def __init__(self, parent: Optional[wx.Window] = None) -> None:
+        super().__init__(parent)
+        self.init_ui()
+
+    def init_ui(self) -> None:
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # AI Options
+        ai_sb = wx.StaticBox(self, label="AI Analysis (Neural Audio)")
+        ai_sizer = wx.StaticBoxSizer(ai_sb, wx.VERTICAL)
+
+        self.ai_analyze_check = wx.CheckBox(self, label="Enable AI Analysis")
+        self.ai_analyze_check.SetValue(bool(get_config("USE_AI_ANALYSIS", False)))
+        self.ai_analyze_check.SetToolTip("Use deep learning to analyze Raga, Mood, and Genre")
+        ai_sizer.Add(self.ai_analyze_check, 0, wx.ALL, 5)
+
+        ai_info = wx.StaticText(
+            self,
+            label="Note: AI analysis requires significant system resources."
+        )
+        ai_info.Wrap(400)
+        ai_sizer.Add(ai_info, 0, wx.ALL, 5)
+
+        sizer.Add(ai_sizer, 0, wx.EXPAND | wx.ALL, 0)
+        self.SetSizer(sizer)
+
+    def get_options(self) -> Dict[str, Any]:
+        return {
+            "use_ai_analysis": self.ai_analyze_check.GetValue()
+        }
+
 class MetadataTab(wx.Panel):
     """Tab for Stage 3: Metadata"""
 
@@ -76,7 +110,12 @@ class MetadataTab(wx.Panel):
         lyrics_info.Wrap(400)  # Wrap text
         lyrics_sizer.Add(lyrics_info, 0, wx.ALL, 5)
 
+
         left_sizer.Add(lyrics_sizer, 0, wx.EXPAND | wx.ALL, 5)
+
+        # AI Panel
+        self.ai_panel = AIPanel(self)
+        left_sizer.Add(self.ai_panel, 0, wx.EXPAND | wx.ALL, 5)
 
         main_h_sizer.Add(left_sizer, 1, wx.EXPAND | wx.ALL, 0)
 
@@ -154,10 +193,12 @@ class MetadataTab(wx.Panel):
 
     def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
-        return {
+        options = {
             "use_musicbrainz": self.mb_check.GetValue(),
             "use_discogs": self.discogs_check.GetValue(),
             "use_spotify": self.spotify_check.GetValue(),
             "use_lastfm": self.lastfm_check.GetValue(),
             "fetch_lyrics": self.lyrics_check.GetValue(),
         }
+        options.update(self.ai_panel.get_options())
+        return options

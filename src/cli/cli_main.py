@@ -171,6 +171,14 @@ def setup_parser() -> argparse.ArgumentParser:
     # AI Check
     ai_subparsers.add_parser("check", help="Check AI environment")
 
+    # AI Analyze
+    ai_analyze_parser = ai_subparsers.add_parser("analyze", help="Analyze audio file using AI")
+    ai_analyze_parser.add_argument("file", help="Path to the audio file to analyze")
+
+    # AI Covers
+    ai_covers_parser = ai_subparsers.add_parser("covers", help="Find cover songs in directory")
+    ai_covers_parser.add_argument("directory", help="Directory to scan for cover songs")
+
     return parser
 
 
@@ -189,9 +197,16 @@ def run_cli() -> None:
         return
 
     # AI check also doesn't require PyQt6
-    if args.command == "ai" and args.ai_command == "check":
-        run_ai_check(args)
-        return
+    if args.command == "ai":
+        if args.ai_command == "check":
+            run_ai_check(args)
+            return
+        elif args.ai_command == "analyze":
+            run_ai_analyze(args)
+            return
+        elif args.ai_command == "covers":
+            run_ai_covers(args)
+            return
 
     # For other commands, ensure PyQt6 is available
     if not HAS_PYQT:
@@ -498,3 +513,42 @@ def _load_files(source: str) -> List[Dict[str, Any]]:
 
 if __name__ == "__main__":
     run_cli()
+
+def run_ai_analyze(args: argparse.Namespace) -> None:
+    """Execute ai analyze command"""
+    file_path = args.file
+    if not os.path.exists(file_path):
+        print(f"Error: File not found: {file_path}")
+        return
+
+    print(f"Initializing AI Service to analyze: {file_path}")
+
+    try:
+        from src.services.ai_service import AIService
+        service = AIService()
+
+        print("\nAnalyzing Raga and Mood...")
+        result = service.analyze_raga(file_path)
+
+        print("\nResults:")
+        print(f"  Raga: {result.get('raga', 'Unknown')}")
+        print(f"  Mood: {result.get('mood', 'Unknown')}")
+        if "confidence" in result:
+            print(f"  Confidence: {result['confidence']:.2%}")
+
+    except ImportError as e:
+        print(f"Error initializing AI Service: {e}")
+        print("Please ensure AI dependencies are installed.")
+    except Exception as e:
+        print(f"Error analyzing file: {e}")
+
+def run_ai_covers(args: argparse.Namespace) -> None:
+    """Execute ai covers command"""
+    directory = args.directory
+    if not os.path.isdir(directory):
+        print(f"Error: Directory not found: {directory}")
+        return
+
+    print(f"Analyzing covers in directory: {directory}")
+    print("CoverSongDetector is currently a [TODO] feature. This command is a placeholder.")
+    # Future implementation will call AIService.detect_covers(directory) here.

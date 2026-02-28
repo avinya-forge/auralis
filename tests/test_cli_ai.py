@@ -78,5 +78,75 @@ class TestCLIAI(unittest.TestCase):
         mock_run_ai_check.assert_called_once()
 
 
+
+    @patch("src.cli.cli_main.run_ai_analyze")
+    @patch("src.cli.cli_main.setup_parser")
+    def test_run_cli_dispatch_ai_analyze(self, mock_setup_parser, mock_run_ai_analyze):
+        """Test that run_cli correctly dispatches to run_ai_analyze"""
+        mock_parser = MagicMock()
+        mock_parser.parse_args.return_value = argparse.Namespace(
+            command="ai", ai_command="analyze", file="test.mp3", log_level="INFO", debug=False
+        )
+        mock_setup_parser.return_value = mock_parser
+
+        with patch("src.cli.cli_main.HAS_PYQT", False):
+            with patch("src.cli.cli_main.QCoreApplication"):
+                run_cli()
+
+        mock_run_ai_analyze.assert_called_once()
+
+    @patch("os.path.exists", return_value=True)
+    def test_run_ai_analyze_success(self, mock_exists):
+        args = argparse.Namespace(file="test.mp3")
+
+        mock_service = MagicMock()
+        mock_service.analyze_raga.return_value = {
+            "raga": "Bhairavi",
+            "mood": "Devotion",
+            "confidence": 0.95
+        }
+
+        # Patch the local import of AIService inside run_ai_analyze
+        with patch.dict(sys.modules, {"src.services.ai_service": MagicMock(AIService=MagicMock(return_value=mock_service))}):
+            # We must import run_ai_analyze here so it picks up the mock from sys.modules
+            from src.cli.cli_main import run_ai_analyze
+            with patch("sys.stdout", new=io.StringIO()) as fake_out:
+                run_ai_analyze(args)
+                output = fake_out.getvalue()
+
+        self.assertIn("Initializing AI Service to analyze: test.mp3", output)
+        self.assertIn("Raga: Bhairavi", output)
+        self.assertIn("Mood: Devotion", output)
+        self.assertIn("Confidence: 95.00%", output)
+
+    @patch("src.cli.cli_main.run_ai_covers")
+    @patch("src.cli.cli_main.setup_parser")
+    def test_run_cli_dispatch_ai_covers(self, mock_setup_parser, mock_run_ai_covers):
+        """Test that run_cli correctly dispatches to run_ai_covers"""
+        mock_parser = MagicMock()
+        mock_parser.parse_args.return_value = argparse.Namespace(
+            command="ai", ai_command="covers", directory="/tmp", log_level="INFO", debug=False
+        )
+        mock_setup_parser.return_value = mock_parser
+
+        with patch("src.cli.cli_main.HAS_PYQT", False):
+            with patch("src.cli.cli_main.QCoreApplication"):
+                run_cli()
+
+        mock_run_ai_covers.assert_called_once()
+
+    @patch("os.path.isdir", return_value=True)
+    def test_run_ai_covers_success(self, mock_isdir):
+        args = argparse.Namespace(directory="/tmp")
+
+        from src.cli.cli_main import run_ai_covers
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            run_ai_covers(args)
+            output = fake_out.getvalue()
+
+        self.assertIn("Analyzing covers in directory: /tmp", output)
+        self.assertIn("CoverSongDetector is currently a [TODO]", output)
+
+
 if __name__ == "__main__":
     unittest.main()

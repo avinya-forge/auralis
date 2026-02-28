@@ -110,9 +110,11 @@ class TestMetadataTab(unittest.TestCase):
         self.assertTrue(hasattr(tab, "spotify_check"))
         self.assertTrue(hasattr(tab, "lastfm_check"))
         self.assertTrue(hasattr(tab, "lyrics_check"))
+        self.assertTrue(hasattr(tab, "ai_panel"))
 
         # Verify config usage
         self.mock_get_config.assert_any_call("USE_MUSICBRAINZ", True)
+
 
     def test_get_options(self):
         """Test retrieving options"""
@@ -124,6 +126,9 @@ class TestMetadataTab(unittest.TestCase):
         tab.lastfm_check.GetValue.return_value = False
         tab.lyrics_check.GetValue.return_value = True
 
+        # Mock AIPanel options
+        tab.ai_panel.get_options = MagicMock(return_value={"use_ai_analysis": True})
+
         options = tab.get_options()
 
         self.assertTrue(options["use_musicbrainz"])
@@ -131,6 +136,32 @@ class TestMetadataTab(unittest.TestCase):
         self.assertTrue(options["use_spotify"])
         self.assertFalse(options["use_lastfm"])
         self.assertTrue(options["fetch_lyrics"])
+        self.assertTrue(options["use_ai_analysis"])
+
+class TestAIPanel(unittest.TestCase):
+    def setUp(self):
+        self.mock_parent = MagicMock()
+        self.config_patcher = patch("src.gui.wx.tabs.metadata_tab.get_config")
+        self.mock_get_config = self.config_patcher.start()
+        self.mock_get_config.return_value = True
+
+    def tearDown(self):
+        self.config_patcher.stop()
+
+    def test_initialization(self):
+        from src.gui.wx.tabs.metadata_tab import AIPanel
+        panel = AIPanel(self.mock_parent)
+        self.assertTrue(hasattr(panel, "ai_analyze_check"))
+        self.mock_get_config.assert_called_with("USE_AI_ANALYSIS", False)
+
+    def test_get_options(self):
+        from src.gui.wx.tabs.metadata_tab import AIPanel
+        panel = AIPanel(self.mock_parent)
+        panel.ai_analyze_check.GetValue.return_value = True
+        options = panel.get_options()
+        self.assertTrue(options["use_ai_analysis"])
+
+
 
     def test_configure_api_keys(self):
         """Test opening API keys dialog"""
