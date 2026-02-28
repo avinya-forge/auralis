@@ -5,11 +5,106 @@ This module provides functionality to generate smart playlists based on
 audio analysis data (BPM, Key, Mood).
 """
 
+import json
 import logging
+import os
 import random
+import time
 from typing import Any, Dict, List, Optional, Set, cast
 
 logger = logging.getLogger("auralis.playlist")
+
+
+class PlaylistHistory:
+    """Manages history tracker persistence for generated playlists."""
+
+    def __init__(self, filepath: Optional[str] = None) -> None:
+        """Initialize the PlaylistHistory."""
+        if filepath:
+            self.filepath = filepath
+        else:
+            self.filepath = os.path.expanduser("~/.auralis/playlist_history.json")
+        self._ensure_dir()
+
+    def _ensure_dir(self) -> None:
+        """Ensure the directory for the history file exists."""
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+
+    def add_to_history(self, playlist_name: str, tracks: List[Dict[str, Any]]) -> bool:
+        """
+        Add a playlist to the history.
+
+        Args:
+            playlist_name (str): The name of the playlist.
+            tracks (List[Dict[str, Any]]): List of track info dictionaries.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        try:
+            history = self.get_history()
+
+            # Extract basic track info to save space
+            compact_tracks = []
+            for track in tracks:
+                metadata = track.get("metadata", {})
+                compact_tracks.append(
+                    {
+                        "path": track.get("path", ""),
+                        "title": metadata.get("title", "Unknown Title"),
+                        "artist": metadata.get("artist", "Unknown Artist"),
+                    }
+                )
+
+            entry = {
+                "name": playlist_name,
+                "timestamp": time.time(),
+                "track_count": len(tracks),
+                "tracks": compact_tracks,
+            }
+
+            history.append(entry)
+
+            with open(self.filepath, "w", encoding="utf-8") as f:
+                json.dump(history, f, indent=2)
+            return True
+        except Exception as e:
+            logger.error(f"Error adding to playlist history: {e}")
+            return False
+
+    def get_history(self) -> List[Dict[str, Any]]:
+        """
+        Get the playlist history.
+
+        Returns:
+            List[Dict[str, Any]]: The history entries.
+        """
+        if not os.path.exists(self.filepath):
+            return []
+
+        try:
+            with open(self.filepath, "r", encoding="utf-8") as f:
+                return cast(List[Dict[str, Any]], json.load(f))
+        except json.JSONDecodeError:
+            return []
+        except Exception as e:
+            logger.error(f"Error reading playlist history: {e}")
+            return []
+
+    def clear_history(self) -> bool:
+        """
+        Clear the playlist history.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        try:
+            if os.path.exists(self.filepath):
+                os.remove(self.filepath)
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing playlist history: {e}")
+            return False
 
 
 class PlaylistGenerator:
@@ -224,6 +319,37 @@ class PlaylistGenerator:
             return True
         except Exception as e:
             logger.error(f"Error exporting playlist: {e}")
+            return False
+
+    def export_to_spotify_csv(self, playlist: List[Dict[str, Any]], filepath: str) -> bool:
+        """
+        Export playlist to a CSV file formatted for easy import to Spotify.
+
+        The CSV will contain columns: Track Name, Artist Name, Album Name
+
+        Args:
+            playlist (List[Dict[str, Any]]): List of file info dicts.
+            filepath (str): Output file path.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        import csv
+
+        try:
+            with open(filepath, "w", encoding="utf-8", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(["Track Name", "Artist Name", "Album Name"])
+
+                for track in playlist:
+                    metadata = track.get("metadata", {})
+                    track_name = metadata.get("title", "Unknown Title")
+                    artist_name = metadata.get("artist", "Unknown Artist")
+                    album_name = metadata.get("album", "Unknown Album")
+                    writer.writerow([track_name, artist_name, album_name])
+            return True
+        except Exception as e:
+            logger.error(f"Error exporting to Spotify CSV: {e}")
             return False
 
     def import_playlist(self, filepath: str) -> List[str]:
