@@ -50,7 +50,7 @@
 ### Epic 9: Plugin System
 - [PLG-001] | Define `PluginInterface` abstract base class | [INDEPENDENT] | [DONE]
 - [PLG-002] | Create `PluginLoader` using `importlib` | [BLOCKS-PLG-001] | [DONE]
-- [PLG-003] | Implement "Hello World" sample plugin | [BLOCKS-PLG-002] | [TODO]
+- [PLG-003] | Implement "Hello World" sample plugin | [BLOCKS-PLG-002] | [DONE]
 - [PLG-004] | Add "Plugins" settings tab in UI | [INDEPENDENT] | [TODO]
 - [PLG-005] | Implement `PluginSandbox` restrictions | [INDEPENDENT] | [TODO]
 - [PLG-006] | Create documentation for Plugin API | [BLOCKS-PLG-001] | [TODO]
