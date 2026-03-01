@@ -171,10 +171,18 @@ def setup_parser() -> argparse.ArgumentParser:
     # AI Check
     ai_subparsers.add_parser("check", help="Check AI environment")
 
+    # AI Analyze
+    ai_analyze_parser = ai_subparsers.add_parser("analyze", help="Analyze audio file with AI")
+    ai_analyze_parser.add_argument("file", help="Audio file to analyze")
+
+    # AI Covers
+    ai_covers_parser = ai_subparsers.add_parser("covers", help="Find cover songs in directory")
+    ai_covers_parser.add_argument("dir", help="Directory to scan for covers")
+
     return parser
 
 
-def run_cli() -> None:
+def run_cli() -> None:  # noqa: C901
     """Run the CLI application"""
     # Ensure headless mode for Qt
     if not os.environ.get("QT_QPA_PLATFORM"):
@@ -188,9 +196,16 @@ def run_cli() -> None:
         run_check(args)
         return
 
-    # AI check also doesn't require PyQt6
-    if args.command == "ai" and args.ai_command == "check":
-        run_ai_check(args)
+    # AI commands
+    if args.command == "ai":
+        if args.ai_command == "check":
+            run_ai_check(args)
+        elif args.ai_command == "analyze":
+            run_ai_analyze(args)
+        elif args.ai_command == "covers":
+            run_ai_covers(args)
+        else:
+            print(f"AI command '{args.ai_command}' not fully implemented yet.")
         return
 
     # For other commands, ensure PyQt6 is available
@@ -368,6 +383,69 @@ def run_metadata(args: argparse.Namespace) -> None:
     except Exception as e:
         handler.close()
         print(f"Error during metadata update: {e}")
+
+
+def run_ai_analyze(args: argparse.Namespace) -> None:
+    """Execute ai analyze command"""
+    print(f"Analyzing {args.file} with AI...")
+    from src.services.ai_service import AIService
+
+    ai_service = AIService()
+    health = ai_service.check_health()
+    if not health.get("enabled", False):
+        print("Error: AI capabilities are currently disabled or unavailable.")
+        return
+
+    result = ai_service.analyze_raga(args.file)
+    print("\n--- AI Analysis Result ---")
+    if "predicted_raga" in result:
+        print(f"Predicted Raga: {result['predicted_raga']}")
+        if "confidence" in result:
+            print(f"Confidence: {result['confidence']:.2f}")
+    if "predicted_mood" in result:
+        print(f"Predicted Mood: {result['predicted_mood']}")
+        if "mood_confidence" in result:
+            print(f"Mood Confidence: {result['mood_confidence']:.2f}")
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    print("--------------------------")
+
+
+def run_ai_covers(args: argparse.Namespace) -> None:
+    """Execute ai covers command"""
+    print(f"Scanning directory {args.dir} for cover songs and duplicates...")
+
+    # We will use the AudioFingerprintService as a proxy for covers for now,
+    # as DuplicateFinder specifically looks for audio matches.
+    from src.core.scanner import MusicScanner
+    from src.services.audio_fingerprint_service import DuplicateFinder
+
+    scanner = MusicScanner()
+    files = scanner.scan_directories([args.dir])
+    if not files:
+        print("No files found to scan.")
+        return
+
+    file_paths = [f["path"] for f in files]
+    print(f"Found {len(file_paths)} files. Fingerprinting...")
+
+    finder = DuplicateFinder()
+    if not finder.fingerprinter.has_dependencies:
+        print("Error: Audio fingerprinting dependencies (acoustid/fpcalc) are not available.")
+        return
+
+    duplicates = finder.find_duplicates(file_paths)
+
+    if not duplicates:
+        print("No covers/duplicates found.")
+        return
+
+    print("\n--- Found Covers/Duplicates ---")
+    for fp, dup_list in duplicates.items():
+        print(f"\nGroup (Fingerprint: {fp[:8]}...):")
+        for p in dup_list:
+            print(f"  - {p}")
+    print("\n-------------------------------")
 
 
 def run_ai_check(args: argparse.Namespace) -> None:

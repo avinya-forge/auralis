@@ -23,8 +23,8 @@
 - [AUX-006] | Implement "Smart Tagging" wizard (Auto-apply high confidence tags) | [BLOCKS-AUX-001] | [TODO]
 - [AUX-007] | Add visual "Brain" icon/indicator when AI processing is active | [INDEPENDENT] | [TODO]
 - [AUX-008] | Implement "Similar Tracks" visual graph/list based on embeddings | [BLOCKS-NEU-005] | [TODO]
-- [AUX-009] | Add CLI command `auralis ai analyze <file>` | [INDEPENDENT] | [TODO]
-- [AUX-010] | Add CLI command `auralis ai covers <dir>` | [INDEPENDENT] | [TODO]
+- [AUX-009] | Add CLI command `auralis ai analyze <file>` | [INDEPENDENT] | [DONE]
+- [AUX-010] | Add CLI command `auralis ai covers <dir>` | [INDEPENDENT] | [DONE]
 
 ## Phase 2: Feature Enhancement (Residual Debt)
 **Focus:** Closing gaps in existing Audio/Playlist functionality.

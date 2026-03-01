@@ -36,7 +36,7 @@ class GenreClassifier:
             audio = mutagen.File(file_path, easy=True)
 
             if audio and "genre" in audio and audio["genre"]:
-                return audio["genre"][0]
+                return str(audio["genre"][0])  # type: ignore
 
             return None
         except Exception as e:

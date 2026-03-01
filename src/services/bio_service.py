@@ -10,7 +10,7 @@ import re
 from typing import Any, List, Optional
 from urllib.parse import quote
 
-import requests
+import requests  # type: ignore
 from bs4 import BeautifulSoup
 
 try:

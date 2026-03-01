@@ -82,7 +82,7 @@ class CacheService:
                 cursor.execute("SELECT data FROM metadata WHERE file_hash = ?", (file_hash,))
                 row = cursor.fetchone()
                 if row:
-                    return json.loads(row[0])
+                    return json.loads(row[0])  # type: ignore
         except (sqlite3.Error, json.JSONDecodeError) as e:
             logger.error(f"Error retrieving metadata for hash {file_hash}: {e}")
 
