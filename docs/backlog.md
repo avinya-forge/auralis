@@ -6,7 +6,7 @@
 ### Epic 11: Neural Core Infrastructure (AIService)
 
 ### Epic 12: Neural Features (The Brain)
-- [NEU-002] | Define standard list of 20+ common Ragas for classification prompt | [BLOCKS-NEU-001] | [TODO]
+- [NEU-002] | Define standard list of 20+ common Ragas for classification prompt | [BLOCKS-NEU-001] | [DONE]
 - [NEU-003] | Implement `MusicTagger` (Genre/Mood/Instrument) using CLAP | [BLOCKS-AI-002] | [TODO]
 - [NEU-004] | Implement `CoverSongDetector` using MERT Embeddings (Cosine Sim) | [BLOCKS-AI-002] | [TODO]
 - [NEU-005] | Create `EmbeddingDatabase` (SQLite/JSON) to store track vectors | [BLOCKS-NEU-004] | [TODO]
@@ -30,9 +30,9 @@
 **Focus:** Closing gaps in existing Audio/Playlist functionality.
 
 ### Epic 7: Audio Analysis (Legacy Completion)
-- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [INDEPENDENT] | [TODO]
-- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [INDEPENDENT] | [TODO]
-- [AUD-011] | Add unit tests for `SilenceTrimmer` | [BLOCKS-AUD-008] | [TODO]
+- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [INDEPENDENT] | [DONE]
+- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [INDEPENDENT] | [DONE]
+- [AUD-011] | Add unit tests for `SilenceTrimmer` | [BLOCKS-AUD-008] | [DONE]
 
 ### Epic 8: Smart Playlists (Legacy Completion)
 - [PL-008] | Add "Playlist Editor" UI Tab (CRUD operations) | [INDEPENDENT] | [TODO]
@@ -48,8 +48,8 @@
 **Focus:** Extending Auralis beyond the desktop app.
 
 ### Epic 9: Plugin System
-- [PLG-001] | Define `PluginInterface` abstract base class | [INDEPENDENT] | [TODO]
-- [PLG-002] | Create `PluginLoader` using `importlib` | [BLOCKS-PLG-001] | [TODO]
+- [PLG-001] | Define `PluginInterface` abstract base class | [INDEPENDENT] | [DONE]
+- [PLG-002] | Create `PluginLoader` using `importlib` | [BLOCKS-PLG-001] | [DONE]
 - [PLG-003] | Implement "Hello World" sample plugin | [BLOCKS-PLG-002] | [TODO]
 - [PLG-004] | Add "Plugins" settings tab in UI | [INDEPENDENT] | [TODO]
 - [PLG-005] | Implement `PluginSandbox` restrictions | [INDEPENDENT] | [TODO]
@@ -57,7 +57,7 @@
 - [PLG-007] | Implement plugin dependency resolver | [BLOCKS-PLG-002] | [TODO]
 - [PLG-008] | Add "Enable/Disable" plugin toggle logic | [BLOCKS-PLG-002] | [TODO]
 - [PLG-009] | Create `ThemePlugin` specialization | [BLOCKS-PLG-001] | [TODO]
-- [PLG-010] | Write unit tests for `PluginLoader` | [BLOCKS-PLG-002] | [TODO]
+- [PLG-010] | Write unit tests for `PluginLoader` | [BLOCKS-PLG-002] | [DONE]
 
 ### Epic 10: Remote API
 - [API-001] | Design REST API spec (OpenAPI/Swagger) | [INDEPENDENT] | [TODO]

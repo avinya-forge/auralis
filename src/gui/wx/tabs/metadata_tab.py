@@ -10,9 +10,9 @@ from src.gui.wx.dialogs.api_keys_dialog import APIKeysDialog
 from src.utils.config import get_config
 
 
-
 class AIPanel(wx.Panel):
     """Panel for AI Analysis options"""
+
     def __init__(self, parent: Optional[wx.Window] = None) -> None:
         super().__init__(parent)
         self.init_ui()
@@ -30,8 +30,7 @@ class AIPanel(wx.Panel):
         ai_sizer.Add(self.ai_analyze_check, 0, wx.ALL, 5)
 
         ai_info = wx.StaticText(
-            self,
-            label="Note: AI analysis requires significant system resources."
+            self, label="Note: AI analysis requires significant system resources."
         )
         ai_info.Wrap(400)
         ai_sizer.Add(ai_info, 0, wx.ALL, 5)
@@ -40,9 +39,8 @@ class AIPanel(wx.Panel):
         self.SetSizer(sizer)
 
     def get_options(self) -> Dict[str, Any]:
-        return {
-            "use_ai_analysis": self.ai_analyze_check.GetValue()
-        }
+        return {"use_ai_analysis": self.ai_analyze_check.GetValue()}
+
 
 class MetadataTab(wx.Panel):
     """Tab for Stage 3: Metadata"""
@@ -109,7 +107,6 @@ class MetadataTab(wx.Panel):
         )
         lyrics_info.Wrap(400)  # Wrap text
         lyrics_sizer.Add(lyrics_info, 0, wx.ALL, 5)
-
 
         left_sizer.Add(lyrics_sizer, 0, wx.EXPAND | wx.ALL, 5)
 

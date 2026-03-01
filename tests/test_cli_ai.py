@@ -77,8 +77,6 @@ class TestCLIAI(unittest.TestCase):
 
         mock_run_ai_check.assert_called_once()
 
-
-
     @patch("src.cli.cli_main.run_ai_analyze")
     @patch("src.cli.cli_main.setup_parser")
     def test_run_cli_dispatch_ai_analyze(self, mock_setup_parser, mock_run_ai_analyze):
@@ -103,13 +101,17 @@ class TestCLIAI(unittest.TestCase):
         mock_service.analyze_raga.return_value = {
             "raga": "Bhairavi",
             "mood": "Devotion",
-            "confidence": 0.95
+            "confidence": 0.95,
         }
 
         # Patch the local import of AIService inside run_ai_analyze
-        with patch.dict(sys.modules, {"src.services.ai_service": MagicMock(AIService=MagicMock(return_value=mock_service))}):
+        with patch.dict(
+            sys.modules,
+            {"src.services.ai_service": MagicMock(AIService=MagicMock(return_value=mock_service))},
+        ):
             # We must import run_ai_analyze here so it picks up the mock from sys.modules
             from src.cli.cli_main import run_ai_analyze
+
             with patch("sys.stdout", new=io.StringIO()) as fake_out:
                 run_ai_analyze(args)
                 output = fake_out.getvalue()
@@ -140,6 +142,7 @@ class TestCLIAI(unittest.TestCase):
         args = argparse.Namespace(directory="/tmp")
 
         from src.cli.cli_main import run_ai_covers
+
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             run_ai_covers(args)
             output = fake_out.getvalue()
