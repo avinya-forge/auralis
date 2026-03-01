@@ -182,6 +182,20 @@ def setup_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _handle_ai_command(args: argparse.Namespace) -> bool:
+    """Handle AI subcommands."""
+    if args.command != "ai":
+        return False
+
+    if args.ai_command == "check":
+        run_ai_check(args)
+    elif args.ai_command == "analyze":
+        run_ai_analyze(args)
+    elif args.ai_command == "covers":
+        run_ai_covers(args)
+    return True
+
+
 def run_cli() -> None:
     """Run the CLI application"""
     # Ensure headless mode for Qt
@@ -197,16 +211,8 @@ def run_cli() -> None:
         return
 
     # AI check also doesn't require PyQt6
-    if args.command == "ai":
-        if args.ai_command == "check":
-            run_ai_check(args)
-            return
-        elif args.ai_command == "analyze":
-            run_ai_analyze(args)
-            return
-        elif args.ai_command == "covers":
-            run_ai_covers(args)
-            return
+    if _handle_ai_command(args):
+        return
 
     # For other commands, ensure PyQt6 is available
     if not HAS_PYQT:
@@ -232,12 +238,19 @@ def run_cli() -> None:
         parser.print_help()
         return
 
+    _execute_command(args)
+
+
+def _execute_command(args: argparse.Namespace) -> None:
+    """Execute the appropriate main command."""
     if args.command == "scan":
         run_scan(args)
     elif args.command == "organize":
         run_organize(args)
     elif args.command == "metadata":
         run_metadata(args)
+    elif args.command == "playlist":
+        pass
 
 
 def run_scan(args: argparse.Namespace) -> None:
@@ -514,6 +527,7 @@ def _load_files(source: str) -> List[Dict[str, Any]]:
 if __name__ == "__main__":
     run_cli()
 
+
 def run_ai_analyze(args: argparse.Namespace) -> None:
     """Execute ai analyze command"""
     file_path = args.file
@@ -525,6 +539,7 @@ def run_ai_analyze(args: argparse.Namespace) -> None:
 
     try:
         from src.services.ai_service import AIService
+
         service = AIService()
 
         print("\nAnalyzing Raga and Mood...")
@@ -541,6 +556,7 @@ def run_ai_analyze(args: argparse.Namespace) -> None:
         print("Please ensure AI dependencies are installed.")
     except Exception as e:
         print(f"Error analyzing file: {e}")
+
 
 def run_ai_covers(args: argparse.Namespace) -> None:
     """Execute ai covers command"""

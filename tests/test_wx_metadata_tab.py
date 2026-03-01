@@ -115,7 +115,6 @@ class TestMetadataTab(unittest.TestCase):
         # Verify config usage
         self.mock_get_config.assert_any_call("USE_MUSICBRAINZ", True)
 
-
     def test_get_options(self):
         """Test retrieving options"""
         tab = MetadataTab(self.mock_parent)
@@ -138,6 +137,7 @@ class TestMetadataTab(unittest.TestCase):
         self.assertTrue(options["fetch_lyrics"])
         self.assertTrue(options["use_ai_analysis"])
 
+
 class TestAIPanel(unittest.TestCase):
     def setUp(self):
         self.mock_parent = MagicMock()
@@ -150,18 +150,18 @@ class TestAIPanel(unittest.TestCase):
 
     def test_initialization(self):
         from src.gui.wx.tabs.metadata_tab import AIPanel
+
         panel = AIPanel(self.mock_parent)
         self.assertTrue(hasattr(panel, "ai_analyze_check"))
         self.mock_get_config.assert_called_with("USE_AI_ANALYSIS", False)
 
     def test_get_options(self):
         from src.gui.wx.tabs.metadata_tab import AIPanel
+
         panel = AIPanel(self.mock_parent)
         panel.ai_analyze_check.GetValue.return_value = True
         options = panel.get_options()
         self.assertTrue(options["use_ai_analysis"])
-
-
 
     def test_configure_api_keys(self):
         """Test opening API keys dialog"""
