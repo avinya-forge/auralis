@@ -13,10 +13,13 @@ class MockFrame:
     def SetIcon(self, icon):
         pass
 
-    def CreateStatusBar(self):
+    def CreateStatusBar(self, number=1):
         pass
 
-    def SetStatusText(self, text):
+    def SetStatusWidths(self, widths):
+        pass
+
+    def SetStatusText(self, text, number=0):
         pass
 
     def Center(self):
@@ -282,6 +285,14 @@ class TestMainWindow(unittest.TestCase):
 
         win.progress_bar.SetValue.assert_called_with(50)
         win.stage_label.SetLabel.assert_called()
+
+    @patch("src.gui.wx.main_window.MainWindow.SetStatusText")
+    def test_set_ai_processing_active(self, mock_set_status_text):
+        win = self.MainWindow()
+        win.set_ai_processing_active(True)
+        mock_set_status_text.assert_any_call("🧠 AI Active", 1)
+        win.set_ai_processing_active(False)
+        mock_set_status_text.assert_any_call("", 1)
 
     def test_on_status(self):
         win = self.MainWindow()

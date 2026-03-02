@@ -121,6 +121,48 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.MetadataTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
+    def test_set_ai_processing_active(
+        self,
+        mock_app_cls,
+        mock_timer,
+        mock_meta_tab,
+        mock_org_tab,
+        mock_scan_tab,
+        mock_tm_cls,
+        mock_sys_mon,
+        mock_org,
+        mock_scan,
+    ):
+        """Test setting AI processing active state"""
+        from PyQt6.QtWidgets import QApplication
+
+        if not QApplication.instance():
+            self.app = QApplication([])
+
+        window = MainWindow()
+
+        # In PyQt tests, a newly created widget that hasn't been shown might report isVisible() as False
+        # But if mock objects are involved, we can mock it or just rely on its setup state.
+        # Actually `isVisible()` on a QWidget returns True if it and its parents are visible.
+        # However, we called setVisible(False) in setup, so it should be False.
+        # Let's mock the QLabel to verify the calls directly if actual QWidget returns unexpected state.
+
+        with patch.object(window.ai_indicator, "setVisible") as mock_set_visible:
+            window.set_ai_processing_active(True)
+            mock_set_visible.assert_called_with(True)
+
+            window.set_ai_processing_active(False)
+            mock_set_visible.assert_called_with(False)
+
+    @patch("src.gui.pyqt.main_window.MusicScanner")
+    @patch("src.gui.pyqt.main_window.MusicOrganizer")
+    @patch("src.gui.pyqt.main_window.SystemMonitor")
+    @patch("src.gui.pyqt.main_window.ThemeManager")
+    @patch("src.gui.pyqt.main_window.ScanTab")
+    @patch("src.gui.pyqt.main_window.OrganizeTab")
+    @patch("src.gui.pyqt.main_window.MetadataTab")
+    @patch("src.gui.pyqt.main_window.QTimer")
+    @patch("src.gui.pyqt.main_window.QApplication")
     def test_status_bar_updates(
         self,
         mock_app_cls,

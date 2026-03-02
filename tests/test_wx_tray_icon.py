@@ -46,10 +46,13 @@ class MockFrame:
     def Center(self):
         pass
 
-    def CreateStatusBar(self):
+    def CreateStatusBar(self, number=1):
         pass
 
-    def SetStatusText(self, text):
+    def SetStatusWidths(self, widths):
+        pass
+
+    def SetStatusText(self, text, number=0):
         pass
 
     def SetMenuBar(self, menu_bar):

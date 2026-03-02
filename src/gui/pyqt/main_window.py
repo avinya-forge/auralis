@@ -229,6 +229,12 @@ class MainWindow(QMainWindow):
         self.stage_label = QLabel("Ready")
         self.status_bar.addWidget(self.stage_label)
 
+        # AI Indicator
+        self.ai_indicator = QLabel("🧠")
+        self.ai_indicator.setVisible(False)
+        self.ai_indicator.setToolTip("AI Processing Active")
+        self.status_bar.addWidget(self.ai_indicator)
+
         # Current file label (stretched)
         self.current_file_label = QLabel("")
         self.status_bar.addWidget(self.current_file_label, 1)
@@ -465,6 +471,10 @@ class MainWindow(QMainWindow):
         sb = self.log_text.verticalScrollBar()
         if sb:
             sb.setValue(sb.maximum())
+
+    def set_ai_processing_active(self, active: bool) -> None:
+        """Toggle the AI processing indicator"""
+        self.ai_indicator.setVisible(active)
 
     def processing_completed(self, results: Dict[str, Any]) -> None:
         """Handle completion of processing"""
