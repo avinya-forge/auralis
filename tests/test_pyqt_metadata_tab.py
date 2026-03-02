@@ -15,6 +15,7 @@ class TestPyQtMetadataTab(unittest.TestCase):
     @patch("src.utils.config.get_config")
     def test_aipanel_init_and_options(self, mock_get_config):
         """Test AIPanel initialization and get_options"""
+
         def mock_config(key, default=None):
             if key == "USE_AI_ANALYSIS":
                 return True
@@ -24,13 +25,13 @@ class TestPyQtMetadataTab(unittest.TestCase):
 
         # We temporarily unmock QGroupBox in PyQt6.QtWidgets to let python parse the module normally
         with patch.dict(sys.modules):
-            if 'src.gui.pyqt.tabs.metadata_tab' in sys.modules:
-                del sys.modules['src.gui.pyqt.tabs.metadata_tab']
+            if "src.gui.pyqt.tabs.metadata_tab" in sys.modules:
+                del sys.modules["src.gui.pyqt.tabs.metadata_tab"]
 
-            with patch('PyQt6.QtWidgets.QGroupBox', type('QGroupBox', (object,), {})):
-                module = importlib.import_module('src.gui.pyqt.tabs.metadata_tab')
-                init_ui_func = module.AIPanel.__dict__['init_ui']
-                get_options_func = module.AIPanel.__dict__['get_options']
+            with patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})):
+                module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
+                init_ui_func = module.AIPanel.__dict__["init_ui"]
+                get_options_func = module.AIPanel.__dict__["get_options"]
 
                 mock_self = MagicMock()
                 with (
@@ -55,6 +56,7 @@ class TestPyQtMetadataTab(unittest.TestCase):
     @patch("src.utils.config.get_config")
     def test_metadata_tab_get_options_includes_ai(self, mock_get_config):
         """Test MetadataTab gets options from AIPanel"""
+
         def mock_config(key, default=None):
             if key == "USE_AI_ANALYSIS":
                 return True
@@ -65,8 +67,8 @@ class TestPyQtMetadataTab(unittest.TestCase):
         # Similar to AIPanel, we need to temporarily unmock the base class
         # to properly load the logic without global side effects
         with patch.dict(sys.modules):
-            if 'src.gui.pyqt.tabs.metadata_tab' in sys.modules:
-                del sys.modules['src.gui.pyqt.tabs.metadata_tab']
+            if "src.gui.pyqt.tabs.metadata_tab" in sys.modules:
+                del sys.modules["src.gui.pyqt.tabs.metadata_tab"]
 
             # MetadataTab inherits from QWidget
             with (
@@ -74,7 +76,7 @@ class TestPyQtMetadataTab(unittest.TestCase):
                 patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})),
             ):
                 module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
-                get_options_func = module.MetadataTab.__dict__['get_options']
+                get_options_func = module.MetadataTab.__dict__["get_options"]
 
                 mock_tab = MagicMock()
 
