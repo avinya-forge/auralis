@@ -24,3 +24,9 @@ A task is only "Done" when it meets the following atomic criteria:
 -   **Universal Playback:** Plays FLAC, MP3, WAV, OGG, and streams seamlessly.
 -   **Deep Metadata:** Lyrics, artist bios, and similar tracks are fetched automatically.
 -   **Fluid UI:** A responsive, modern interface (PyQt6/wxPython) that feels native on every OS.
+
+
+## Phase 5 Expansion Laws
+- **Modularity First**: All new ecosystem features must be built as optional modules.
+- **Performance Budget**: Background services (Sync, DJ Tools, AI) must not degrade main UI thread responsiveness.
+- **Offline Fallback**: Cloud and Social features must fail gracefully without internet.

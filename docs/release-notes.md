@@ -1,5 +1,24 @@
 # Release Notes
 
+## [0.5.0] - The Autonomous Swarm
+
+### Archived Tasks (Vaulted from Backlog)
+
+- [PLG-010] | Write unit tests for `PluginLoader` | [DONE]
+- [PLG-003] | Implement "Hello World" sample plugin | [DONE]
+- [PLG-002] | Create `PluginLoader` using `importlib` | [DONE]
+- [PLG-001] | Define `PluginInterface` abstract base class | [DONE]
+- [PL-010] | Add "Export to Spotify" (CSV) stub | [DONE]
+- [PL-009] | Implement "History" tracker persistence | [DONE]
+- [AUD-011] | Add unit tests for `SilenceTrimmer` | [DONE]
+- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [DONE]
+- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [DONE]
+- [AUX-010] | Add CLI command `auralis ai covers <dir>` | [DONE]
+- [AUX-009] | Add CLI command `auralis ai analyze <file>` | [DONE]
+- [AUX-007] | Add visual "Brain" icon/indicator when AI processing is active | [DONE]
+- [AUX-001] | Create `AIPanel` widget for `MetadataTab` | [DONE]
+- [NEU-002] | Define standard list of 20+ common Ragas for classification prompt | [DONE]
+
 ## [0.4.0] - Autonomous Awakening
 
 ### Archived Tasks (Vaulted from Backlog)
