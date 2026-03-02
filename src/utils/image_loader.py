@@ -8,7 +8,7 @@ in the background without freezing the UI.
 import os
 from typing import Callable, Dict, Optional
 
-import requests
+import requests  # type: ignore
 from PyQt6.QtCore import QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QImage
 

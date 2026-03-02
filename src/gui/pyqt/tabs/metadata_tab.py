@@ -20,6 +20,29 @@ from src.utils.config import get_config
 from src.utils.image_loader import ImageLoader
 
 
+class AIPanel(QGroupBox):
+    """Panel for AI Analysis options"""
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__("AI Analysis (Neural Audio)", parent)
+        self.init_ui()
+
+    def init_ui(self) -> None:
+        layout = QVBoxLayout(self)
+
+        self.ai_analyze_check = QCheckBox("Enable AI Analysis")
+        self.ai_analyze_check.setChecked(bool(get_config("USE_AI_ANALYSIS", False)))
+        self.ai_analyze_check.setToolTip("Use deep learning to analyze Raga, Mood, and Genre")
+        layout.addWidget(self.ai_analyze_check)
+
+        ai_info = QLabel("Note: AI analysis requires significant system resources.")
+        ai_info.setWordWrap(True)
+        layout.addWidget(ai_info)
+
+    def get_options(self) -> Dict[str, Any]:
+        return {"use_ai_analysis": self.ai_analyze_check.isChecked()}
+
+
 class MetadataTab(QWidget):
     """Tab for Stage 3: Metadata"""
 
@@ -91,6 +114,10 @@ class MetadataTab(QWidget):
 
         left_layout.addWidget(enrichment_group)
 
+        # AI Panel
+        self.ai_panel = AIPanel()
+        left_layout.addWidget(self.ai_panel)
+
         # Update button
         update_btn = QPushButton("Update Metadata")
         update_btn.clicked.connect(self.update_requested.emit)
@@ -125,13 +152,15 @@ class MetadataTab(QWidget):
 
     def get_options(self) -> Dict[str, Any]:
         """Get options relevant to this tab"""
-        return {
+        options = {
             "use_musicbrainz": self.mb_check.isChecked(),
             "use_discogs": self.discogs_check.isChecked(),
             "fetch_lyrics": self.lyrics_check.isChecked(),
             "fetch_cover_art": self.cover_art_check.isChecked(),
             "analyze_audio": self.analyze_check.isChecked(),
         }
+        options.update(self.ai_panel.get_options())
+        return options
 
     def set_cover_art(self, path_or_url: Optional[str]) -> None:
         """Set the cover art preview image"""
