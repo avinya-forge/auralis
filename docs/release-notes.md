@@ -1,5 +1,23 @@
 # Release Notes
 
+## [0.5.0] - Recursive Traversal
+
+### Archived Tasks (Vaulted from Backlog)
+- [NEU-002] | Define standard list of 20+ common Ragas for classification prompt | [BLOCKS-NEU-001] | [DONE]
+- [AUX-001] | Create `AIPanel` widget for `MetadataTab` | [INDEPENDENT] | [DONE]
+- [AUX-007] | Add visual "Brain" icon/indicator when AI processing is active | [INDEPENDENT] | [DONE]
+- [AUX-009] | Add CLI command `auralis ai analyze <file>` | [INDEPENDENT] | [DONE]
+- [AUX-010] | Add CLI command `auralis ai covers <dir>` | [INDEPENDENT] | [DONE]
+- [AUD-006] | Implement `AudioFingerprinter` using `pyacoustid` (Chromaprint) | [INDEPENDENT] | [DONE]
+- [AUD-008] | Implement `SilenceTrimmer` utility using `pydub` | [INDEPENDENT] | [DONE]
+- [AUD-011] | Add unit tests for `SilenceTrimmer` | [BLOCKS-AUD-008] | [DONE]
+- [PL-009] | Implement "History" tracker persistence | [INDEPENDENT] | [DONE]
+- [PL-010] | Add "Export to Spotify" (CSV) stub | [INDEPENDENT] | [DONE]
+- [PLG-001] | Define `PluginInterface` abstract base class | [INDEPENDENT] | [DONE]
+- [PLG-002] | Create `PluginLoader` using `importlib` | [BLOCKS-PLG-001] | [DONE]
+- [PLG-003] | Implement "Hello World" sample plugin | [BLOCKS-PLG-002] | [DONE]
+- [PLG-010] | Write unit tests for `PluginLoader` | [BLOCKS-PLG-002] | [DONE]
+
 ## [0.4.0] - Autonomous Awakening
 
 ### Archived Tasks (Vaulted from Backlog)

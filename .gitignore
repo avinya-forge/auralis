@@ -141,4 +141,7 @@ cache/
 error.log
 *.tmp
 *.bak
-.DS_Store 
+.DS_Store
+
+# Memory protocol
+.memory/
