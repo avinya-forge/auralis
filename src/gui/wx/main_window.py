@@ -145,8 +145,9 @@ class MainWindow(wx.Frame):
         self._create_menu()
 
         # Create Status Bar
-        self.CreateStatusBar()
-        self.SetStatusText("Ready")
+        self.CreateStatusBar(2)
+        self.SetStatusWidths([-1, 100])
+        self.SetStatusText("Ready", 0)
 
         # Main Panel
         panel = wx.Panel(self)
@@ -346,6 +347,13 @@ class MainWindow(wx.Frame):
             self.Show()
         event.Skip()
 
+    def set_ai_processing_active(self, active: bool) -> None:
+        """Toggle the AI processing indicator in the status bar"""
+        if active:
+            self.SetStatusText("🧠 AI Active", 1)
+        else:
+            self.SetStatusText("", 1)
+
     # --- Worker Control ---
 
     def start_worker(
@@ -521,7 +529,7 @@ class MainWindow(wx.Frame):
         Args:
             event (Any): The custom status event.
         """
-        self.SetStatusText(event.message)
+        self.SetStatusText(event.message, 0)
         self.log_text.AppendText(f"{event.message}\n")
 
     def on_file(self, event: Any) -> None:

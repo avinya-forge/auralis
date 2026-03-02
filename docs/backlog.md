@@ -21,7 +21,7 @@
 - [AUX-004] | Create `ModelDownloadDialog` with progress bar for 1GB+ downloads | [INDEPENDENT] | [TODO]
 - [AUX-005] | Add "AI Settings" tab (Device selection, Model selection) | [INDEPENDENT] | [TODO]
 - [AUX-006] | Implement "Smart Tagging" wizard (Auto-apply high confidence tags) | [BLOCKS-AUX-001] | [TODO]
-- [AUX-007] | Add visual "Brain" icon/indicator when AI processing is active | [INDEPENDENT] | [TODO]
+- [AUX-007] | Add visual "Brain" icon/indicator when AI processing is active | [INDEPENDENT] | [DONE]
 - [AUX-008] | Implement "Similar Tracks" visual graph/list based on embeddings | [BLOCKS-NEU-005] | [TODO]
 - [AUX-009] | Add CLI command `auralis ai analyze <file>` | [INDEPENDENT] | [DONE]
 - [AUX-010] | Add CLI command `auralis ai covers <dir>` | [INDEPENDENT] | [DONE]
