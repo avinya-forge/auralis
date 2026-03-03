@@ -30,7 +30,7 @@
 - [PL-008] | Add "Playlist Editor" UI Tab (CRUD operations) | [INDEPENDENT] | [TODO]
 
 ### Epic 6: Performance Optimization (Legacy Completion)
-- [PERF-001] | Implement `LazyLoader` for album art images in ListWidget | [INDEPENDENT] | [TODO]
+- [PERF-001] | Implement `LazyLoader` for album art images in ListWidget | [INDEPENDENT] | [DONE]
 - [PERF-002] | Refactor `Scanner` to use `asyncio` for I/O operations (Experiment) | [INDEPENDENT] | [TODO]
 - [PERF-003] | Implement `MetadataCache` using `sqlite3` (Persistent) | [INDEPENDENT] | [TODO]
 
