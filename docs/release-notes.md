@@ -1,5 +1,13 @@
 # Release Notes
 
+## [0.6.0] - The Dependency Awakening
+
+### Archived Tasks (Vaulted from Backlog)
+
+- [PERF-001] | Implement `LazyLoader` for album art images in ListWidget | [INDEPENDENT] | [DONE]
+- [CLD-001] | Define `CloudProviderInterface` abstract class for sync [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [INDEPENDENT] | [DONE]
+
+
 ## [0.5.0] - The Autonomous Swarm
 
 ### Archived Tasks (Vaulted from Backlog)

@@ -42,7 +42,7 @@ def main():
     setup_logging()
 
     # Load configuration
-    config_loaded = get_config("VERSION", "0.1.0")
+    config_loaded = get_config("VERSION", "0.6.0")
     logging.info(f"Starting Auralis v{config_loaded}")
 
     # Create application
