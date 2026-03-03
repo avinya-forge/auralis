@@ -17,7 +17,7 @@ if app is None:
 class TestImageLoadWorker(unittest.TestCase):
     def setUp(self):
         # We patch QThread directly for the worker tests so we don't have to deal with thread mocks
-        self.qthread_patcher = patch('src.gui.pyqt.lazy_loader.QThread')
+        self.qthread_patcher = patch("src.gui.pyqt.lazy_loader.QThread")
         self.mock_qthread = self.qthread_patcher.start()
 
         self.worker = ImageLoadWorker()
@@ -38,7 +38,7 @@ class TestImageLoadWorker(unittest.TestCase):
         self.worker.add_task("file1.mp3")
         self.assertEqual(len(self.worker._queue), 1)
 
-    @patch('src.gui.pyqt.lazy_loader.get_album_art')
+    @patch("src.gui.pyqt.lazy_loader.get_album_art")
     def test_run_loads_image(self, mock_get_album_art):
         """Test the run method loading an image from a file."""
         self.worker.image_loaded = MagicMock()
@@ -48,7 +48,7 @@ class TestImageLoadWorker(unittest.TestCase):
 
         self.worker._queue.append("test.mp3")
 
-        with patch.object(self.worker, 'msleep', side_effect=Exception("StopLoop")):
+        with patch.object(self.worker, "msleep", side_effect=Exception("StopLoop")):
             try:
                 self.worker.run()
             except Exception as e:
@@ -63,15 +63,15 @@ class TestImageLoadWorker(unittest.TestCase):
         self.assertEqual(self.worker.image_loaded.emit.call_args[0][0], "test.mp3")
         self.assertEqual(self.worker.image_loaded.emit.call_args[0][1], b"fake_image_data")
 
-    @patch('src.gui.pyqt.lazy_loader.get_album_art')
+    @patch("src.gui.pyqt.lazy_loader.get_album_art")
     def test_run_exception(self, mock_get_album_art):
         """Test the run method handling exceptions."""
         mock_get_album_art.side_effect = Exception("File not found")
 
         self.worker._queue.append("error.mp3")
 
-        with patch('builtins.print') as mock_print:
-            with patch.object(self.worker, 'msleep', side_effect=Exception("StopLoop")):
+        with patch("builtins.print") as mock_print:
+            with patch.object(self.worker, "msleep", side_effect=Exception("StopLoop")):
                 try:
                     self.worker.run()
                 except Exception as e:
@@ -84,14 +84,14 @@ class TestImageLoadWorker(unittest.TestCase):
 
     def test_stop(self):
         """Test stop method"""
-        with patch.object(self.worker, 'wait') as mock_wait:
+        with patch.object(self.worker, "wait") as mock_wait:
             self.worker.stop()
             self.assertFalse(self.worker._is_running)
             mock_wait.assert_called_once()
 
 
 class TestLazyLoader(unittest.TestCase):
-    @patch('src.gui.pyqt.lazy_loader.ImageLoadWorker')
+    @patch("src.gui.pyqt.lazy_loader.ImageLoadWorker")
     def setUp(self, MockWorker):
         self.list_widget = MagicMock()
         self.list_widget.count.return_value = 0
@@ -104,8 +104,8 @@ class TestLazyLoader(unittest.TestCase):
 
     def test_add_item(self):
         """Test adding an item to the loader."""
-        with patch.object(self.loader, '_check_visible_items') as mock_check:
-            with patch('src.gui.pyqt.lazy_loader.QListWidgetItem') as mock_item_class:
+        with patch.object(self.loader, "_check_visible_items") as mock_check:
+            with patch("src.gui.pyqt.lazy_loader.QListWidgetItem") as mock_item_class:
                 mock_item = mock_item_class.return_value
 
                 item = self.loader.add_item("test.mp3", "Test Track")
@@ -184,7 +184,7 @@ class TestLazyLoader(unittest.TestCase):
         mock_item.icon().isNull.return_value = True
         self.list_widget.item.return_value = mock_item
 
-        with patch.object(self.loader, '_apply_pixmap') as mock_apply:
+        with patch.object(self.loader, "_apply_pixmap") as mock_apply:
             self.loader._check_visible_items()
 
             # Since it's in cache, we shouldn't add task
@@ -197,11 +197,11 @@ class TestLazyLoader(unittest.TestCase):
         mock_item = MagicMock()
         self.loader._items["test1.mp3"] = mock_item
 
-        with patch('src.gui.pyqt.lazy_loader.QPixmap') as mock_pixmap_class:
+        with patch("src.gui.pyqt.lazy_loader.QPixmap") as mock_pixmap_class:
             mock_pixmap = mock_pixmap_class.return_value
             mock_pixmap.loadFromData.return_value = True
 
-            with patch.object(self.loader, '_apply_pixmap') as mock_apply:
+            with patch.object(self.loader, "_apply_pixmap") as mock_apply:
                 self.loader._on_image_loaded("test1.mp3", b"image_data")
 
                 mock_pixmap.loadFromData.assert_called_once_with(b"image_data")
@@ -220,7 +220,7 @@ class TestLazyLoader(unittest.TestCase):
         mock_scaled_pixmap = MagicMock()
         mock_pixmap.scaled.return_value = mock_scaled_pixmap
 
-        with patch('src.gui.pyqt.lazy_loader.QIcon') as mock_icon_class:
+        with patch("src.gui.pyqt.lazy_loader.QIcon") as mock_icon_class:
             mock_icon = mock_icon_class.return_value
 
             self.loader._apply_pixmap("test1.mp3", mock_pixmap)
@@ -242,5 +242,5 @@ class TestLazyLoader(unittest.TestCase):
         self.mock_worker_instance.stop.assert_called_once()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
