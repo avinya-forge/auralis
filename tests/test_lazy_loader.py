@@ -2,11 +2,13 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
+from PyQt6.QtWidgets import QApplication
+
+from src.gui.pyqt.lazy_loader import ImageLoadWorker, LazyLoader
+
 # Need to run without real PyQt objects in test mode as the environment
 # globally patches QThread and QPixmap making testing hard
 
-from PyQt6.QtWidgets import QApplication
-from src.gui.pyqt.lazy_loader import ImageLoadWorker, LazyLoader
 
 # Initialize QApplication before any tests
 app = QApplication.instance()
