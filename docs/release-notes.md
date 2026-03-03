@@ -1,5 +1,12 @@
 # Release Notes
 
+## [0.7.0] - The Quad-Node Stack
+
+### Archived Tasks (Vaulted from Backlog)
+
+- [DEP-001] | Pin all dependencies to exact latest stable versions (requirements.txt) | [DONE]
+
+
 ## [0.6.0] - The Dependency Awakening
 
 ### Archived Tasks (Vaulted from Backlog)
