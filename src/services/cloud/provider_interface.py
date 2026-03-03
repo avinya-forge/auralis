@@ -5,7 +5,7 @@ This module defines the abstract base class for cloud sync providers.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class CloudProviderInterface(ABC):
