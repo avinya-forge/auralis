@@ -96,7 +96,7 @@
 **Focus:** Expanding the capabilities of Auralis to form a complete music management ecosystem.
 
 ### Epic 19: Cloud Sync Engine
-- [CLD-001] | Define `CloudProviderInterface` abstract class for sync [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [INDEPENDENT] | [TODO]
+- [CLD-001] | Define `CloudProviderInterface` abstract class for sync [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [INDEPENDENT] | [DONE]
 - [CLD-002] | Implement `AWSProvider` for S3 backing [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [BLOCKS-CLD-001] | [TODO]
 - [CLD-003] | Implement `GoogleDriveProvider` for Drive backing [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [BLOCKS-CLD-001] | [TODO]
 - [CLD-004] | Add Cloud Settings Tab to configure provider [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | [INDEPENDENT] | [TODO]
