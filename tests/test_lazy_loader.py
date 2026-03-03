@@ -1,22 +1,17 @@
-import os
 import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
 # Need to run without real PyQt objects in test mode as the environment
 # globally patches QThread and QPixmap making testing hard
-import tests.conftest
 
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QApplication, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QApplication
+from src.gui.pyqt.lazy_loader import ImageLoadWorker, LazyLoader
 
 # Initialize QApplication before any tests
 app = QApplication.instance()
 if app is None:
     app = QApplication(sys.argv)
-
-from src.gui.pyqt.lazy_loader import ImageLoadWorker, LazyLoader
 
 
 class TestImageLoadWorker(unittest.TestCase):
@@ -245,6 +240,7 @@ class TestLazyLoader(unittest.TestCase):
         """Test stopping the loader."""
         self.loader.stop()
         self.mock_worker_instance.stop.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()
