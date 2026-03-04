@@ -56,7 +56,10 @@ class AlbumArtFetcher:
                 mime_type = response.headers.get("Content-Type", "image/jpeg")
                 # Normalize mime type if needed, but usually headers are fine or we can guess from img.format
                 if not mime_type or "image" not in mime_type:
-                    mime_type = Image.MIME.get(img.format, "image/jpeg")
+                    if img.format is not None:
+                        mime_type = Image.MIME.get(img.format, "image/jpeg")
+                    else:
+                        mime_type = "image/jpeg"
 
                 return image_data, mime_type
 
