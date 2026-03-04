@@ -106,7 +106,9 @@ class MusicScanner(QObject):
         """Helper to parse a string list."""
         if isinstance(value, str):
             return [v.strip() for v in value.split(",")]
-        return value
+        elif isinstance(value, list):
+            return [str(v) for v in value]
+        return []
 
     def _update_options(self, options: Optional[Dict[str, Any]]) -> None:
         """
