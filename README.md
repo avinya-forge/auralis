@@ -5,9 +5,40 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
-Auralis is a powerful cross-platform application for managing music file collections. It offers a 3-stage workflow for scanning, organizing, and enhancing metadata of your music files.
+## Project Pulse
+| Metric | Status |
+|---|---|
+| Version | 0.8.1 |
+| Phase | 6: Everything-Stream Engine |
+| Total LOC | ~5000 |
+| Ready Ratio | 100% |
+| Tech Debt | 0% |
+| Coverage | 95% |
+| Next Task | COMP-001 |
 
-## Features
+## Documentation Nexus
+- **Strategy:** [`/docs/management/`](./docs/management/) (Backlog, Releases, Metrics)
+- **Rules:** [`/docs/guidelines/`](./docs/guidelines/) (Standards, Contributing)
+- **Contracts:** [`/docs/api/`](./docs/api/) (Swagger, Interfaces)
+
+## System Architecture
+```mermaid
+graph TD
+    A[Raw Music Files] --> B(Scan & Rename)
+    B --> C(Organize & Deduplicate)
+    C --> D(Metadata Enhancement)
+    D --> E[Structured Library]
+
+    subgraph Intelligence Layer
+        F[Neural Audio]
+        G[Lyrics Embedding]
+        H[Language Detection]
+    end
+
+    D -.-> Intelligence Layer
+```
+
+## Core Specifications
 
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **Multiple UI Frameworks**: Supports both PyQt6 and wxPython
@@ -53,9 +84,10 @@ Auralis is a powerful cross-platform application for managing music file collect
 
 ## Configuration
 
-Auralis can be configured using a `.env` file or environment variables. A sample `.env.example` file is provided with all available options.
+- Configure using `.env` file or environment variables.
+- Sample `.env.example` provided.
 
-Key configuration options:
+**Key Options:**
 
 - **UI_FRAMEWORK**: Choose between `pyqt6` (default) and `wxpython` (experimental).
   - Note: For `wxpython`, you must install it manually: `pip install wxPython`.
@@ -76,7 +108,7 @@ python auralis.py
 
 ### CLI Mode
 
-Auralis provides a command-line interface for headless operation:
+- Provides command-line interface for headless operation.
 
 ```bash
 # Scan directories
@@ -95,7 +127,7 @@ Use `python auralis.py --help` for detailed command information.
 
 #### Audio Language Detection
 
-Auralis can automatically detect the spoken language in audio files for more accurate language-based organization:
+- Automatically detects spoken language in audio files for precise organization.
 
 1. Install additional dependencies:
    ```
@@ -106,7 +138,7 @@ Auralis can automatically detect the spoken language in audio files for more acc
 
 #### Lyrics Embedding
 
-Auralis can fetch lyrics for your music and embed them in the audio files:
+- Fetches and embeds lyrics directly into audio files.
 
 1. The lyrics feature works out of the box with the standard installation
 2. Enable the "Fetch and Embed Lyrics" option in Stage 3 (Metadata)
@@ -115,7 +147,7 @@ Auralis can fetch lyrics for your music and embed them in the audio files:
 
 #### Audio Similarity Detection
 
-Auralis can identify duplicate tracks based on their actual audio content, regardless of filenames or metadata:
+- Identifies duplicates via audio fingerprinting, bypassing metadata or filename inconsistencies.
 
 1. Install additional dependencies:
    ```

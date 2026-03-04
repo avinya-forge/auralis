@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="auralis",
-    version="0.8.0",
+    version="0.8.1",
     packages=find_packages(),
     install_requires=[
         "PyQt6==6.10.2",
@@ -18,7 +18,7 @@ setup(
         "pillow==11.1.0",
         "numpy==1.26.4",
         "psutil==6.1.1",
-        "python-dotenv==1.2.2",
+        "python-dotenv==1.2.1",
         "pydub==0.25.1",
         "tqdm==4.67.3",
     ],
