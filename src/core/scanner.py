@@ -102,6 +102,12 @@ class MusicScanner(QObject):
         self.scan_completed.emit(self.files)
         return self.files
 
+    def _parse_string_list(self, value: Any) -> List[str]:
+        """Helper to parse a string list."""
+        if isinstance(value, str):
+            return [v.strip() for v in value.split(",")]
+        return value
+
     def _update_options(self, options: Optional[Dict[str, Any]]) -> None:
         """
         Update scanner configuration from options dictionary.
@@ -112,28 +118,32 @@ class MusicScanner(QObject):
         if not options:
             return
 
-        # Set supported extensions
         if "file_extensions" in options:
-            exts = options["file_extensions"]
-            if isinstance(exts, str):
-                # Convert comma-separated string to list
-                exts = [ext.strip() for ext in exts.split(",")]
-
-            # Ensure extensions start with a dot
+            exts = self._parse_string_list(options["file_extensions"])
             self.supported_extensions = {f".{ext.lstrip('.')}" for ext in exts}
 
-        # Set exclude patterns
         if "exclude_patterns" in options:
-            patterns = options["exclude_patterns"]
-            if isinstance(patterns, str):
-                # Convert comma-separated string to list
-                patterns = [p.strip() for p in patterns.split(",")]
+            self.exclude_patterns = self._parse_string_list(options["exclude_patterns"])
 
-            self.exclude_patterns = patterns
-
-        # Set max scan depth
         if "max_scan_depth" in options:
             self.max_scan_depth = int(options["max_scan_depth"])
+
+    def _filter_dirs(self, root: str, dirs: List[str], directory: str) -> None:
+        """
+        Filter directories in-place to exclude hidden, matched patterns, or exceeded depth.
+
+        Args:
+            root (str): Current root directory from os.walk.
+            dirs (List[str]): List of directory names to filter in-place.
+            directory (str): Base scanning directory for depth calculation.
+        """
+        dirs[:] = [d for d in dirs if not self._should_exclude_dir(d)]
+
+        # Check scan depth
+        rel_path = os.path.relpath(root, directory)
+        depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
+        if depth >= self.max_scan_depth:
+            dirs[:] = []  # Stop descending
 
     def _count_music_files(self, directory: str) -> int:
         """
@@ -148,24 +158,29 @@ class MusicScanner(QObject):
         count = 0
         try:
             for root, dirs, files in os.walk(directory):
-                # Skip excluded directories
-                dirs[:] = [d for d in dirs if not self._should_exclude_dir(d)]
-
-                # Check scan depth
-                rel_path = os.path.relpath(root, directory)
-                depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
-                if depth > self.max_scan_depth:
-                    dirs[:] = []  # Stop descending
-                    continue
-
-                # Count music files
-                for file in files:
-                    if self._is_music_file(file):
-                        count += 1
+                self._filter_dirs(root, dirs, directory)
+                count += sum(1 for file in files if self._is_music_file(file))
         except Exception as e:
             print(f"Error counting files in {directory}: {str(e)}")
 
         return count
+
+    def _process_single_file(self, file_path: str) -> Optional[Dict[str, Any]]:
+        """Process a single music file."""
+        self.file_scanned.emit(file_path)
+        file_info = self._extract_file_info(file_path)
+        if file_info:
+            file_info["modified_date"] = self._get_modification_time(file_path)
+            file_info["processing_history"] = [
+                {
+                    "stage": "Scan",
+                    "action": "File discovered",
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            ]
+            self.file_found.emit(file_info)
+            return file_info
+        return None
 
     def _process_directory(
         self, directory: str, processed_files: int, total_files: int
@@ -183,42 +198,13 @@ class MusicScanner(QObject):
         """
         try:
             for root, dirs, files in os.walk(directory):
-                # Skip excluded directories
-                dirs[:] = [d for d in dirs if not self._should_exclude_dir(d)]
+                self._filter_dirs(root, dirs, directory)
 
-                # Check scan depth
-                rel_path = os.path.relpath(root, directory)
-                depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
-                if depth > self.max_scan_depth:
-                    dirs[:] = []  # Stop descending
-                    continue
-
-                # Process music files
                 for file in files:
                     if self._is_music_file(file):
                         file_path = os.path.join(root, file)
-
-                        # Emit signal for file being processed
-                        self.file_scanned.emit(file_path)
-
-                        # Extract file info
-                        file_info = self._extract_file_info(file_path)
+                        file_info = self._process_single_file(file_path)
                         if file_info:
-                            # Add file modification date
-                            file_info["modified_date"] = self._get_modification_time(file_path)
-
-                            # Add initial processing history
-                            file_info["processing_history"] = [
-                                {
-                                    "stage": "Scan",
-                                    "action": "File discovered",
-                                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                                }
-                            ]
-
-                            # Emit signal for file discovery with the complete file info
-                            self.file_found.emit(file_info)
-
                             yield file_info
 
         except Exception as e:
@@ -301,6 +287,24 @@ class MusicScanner(QObject):
             print(f"Error processing file {file_path}: {str(e)}")
             return None
 
+    def _fallback_to_filename(self, metadata: Dict[str, Any], filename: str) -> None:
+        """Extract artist and title from filename if missing in metadata."""
+        if "artist" not in metadata or "title" not in metadata:
+            artist, title = self._parse_filename(filename)
+            if artist and "artist" not in metadata:
+                metadata["artist"] = artist
+            if title and "title" not in metadata:
+                metadata["title"] = title
+
+    def _fallback_to_filename_on_error(self, file_info: Dict[str, Any]) -> None:
+        """Set basic metadata from filename when extraction fails entirely."""
+        artist, title = self._parse_filename(file_info["filename"])
+        if artist or title:
+            file_info["metadata"] = {
+                "artist": artist if artist else "Unknown Artist",
+                "title": title if title else "Unknown Title",
+            }
+
     def _extract_metadata(self, file_path: str, file_info: Dict[str, Any]) -> None:
         """
         Helper to extract metadata and update file_info.
@@ -314,25 +318,10 @@ class MusicScanner(QObject):
             if audio:
                 metadata: Dict[str, Any] = {}
                 self._parse_audio_tags(audio, metadata)
-
                 file_info["metadata"] = metadata
-
-                # Try to extract artist and title from filename if not in metadata
-                if "artist" not in metadata or "title" not in metadata:
-                    artist, title = self._parse_filename(file_info["filename"])
-                    if artist and "artist" not in metadata:
-                        metadata["artist"] = artist
-                    if title and "title" not in metadata:
-                        metadata["title"] = title
-
+                self._fallback_to_filename(metadata, file_info["filename"])
         except Exception:
-            # If metadata extraction fails, try to parse from filename
-            artist, title = self._parse_filename(file_info["filename"])
-            if artist or title:
-                file_info["metadata"] = {
-                    "artist": artist if artist else "Unknown Artist",
-                    "title": title if title else "Unknown Title",
-                }
+            self._fallback_to_filename_on_error(file_info)
 
     def _parse_audio_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:
         """
