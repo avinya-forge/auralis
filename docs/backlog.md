@@ -3064,3 +3064,20 @@ This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
 | ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
 | FEAT: ORG-010 | As a user, I want to create organization summary report generator so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create organization summary report generator | 461/461 | NONE | [TODO] |
+
+### Epic 62: Redundancy & Drift Control (Architect-Supreme)
+
+**Epic Summary:**
+This Epic is decomposed into 2 atomic tasks for systematic cleanup.
+
+#### Feature 1: Eliminate Redundant Logic across App Components
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| CHORE: CLN-001 | As a user, I want to remove one-off components and replace with standardized reusable helpers. | src/modules/all | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Must | 2hr | -200 | Cleanup Remove duplicate utility functions | 462/461 | CLN-002 | [TODO] |
+
+#### Feature 2: Expand Mock Data Sets to cover entire swagger.yaml definitions
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| CHORE: CLN-002 | As a user, I want mock definitions mapped for testing. | src/modules/api | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Must | 3hr | +300 | Mock Expansion Provide full coverage mocks based on docs/swagger.yaml | 463/461 | NONE | [TODO] |
