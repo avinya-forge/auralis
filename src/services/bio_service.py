@@ -10,8 +10,8 @@ import re
 from typing import Any, List, Optional
 from urllib.parse import quote
 
-import requests
-from bs4 import BeautifulSoup
+import requests  # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
 
 try:
     import pylast  # type: ignore

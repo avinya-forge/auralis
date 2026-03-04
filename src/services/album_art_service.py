@@ -33,6 +33,9 @@ class AlbumArtFetcher:
         Returns:
             Optional[Tuple[bytes, str]]: Tuple of (image_data, mime_type) if successful and meets criteria, else None.
         """
+        if not url:
+            return None
+
         try:
             response = requests.get(url, timeout=timeout)
             if response.status_code != 200:

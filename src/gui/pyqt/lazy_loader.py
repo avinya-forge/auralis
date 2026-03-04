@@ -71,7 +71,9 @@ class LazyLoader(QObject):
         self.worker.start()
 
         # Connect to scrollbar to trigger loading when scrolling
-        self.list_widget.verticalScrollBar().valueChanged.connect(self._check_visible_items)
+        scrollbar = self.list_widget.verticalScrollBar()
+        if scrollbar:
+            scrollbar.valueChanged.connect(self._check_visible_items)
 
     def add_item(self, file_path: str, display_text: str) -> QListWidgetItem:
         """Add an item to the list widget with a placeholder icon."""
@@ -93,9 +95,13 @@ class LazyLoader(QObject):
         if self.list_widget.count() == 0:
             return
 
+        viewport = self.list_widget.viewport()
+        if not viewport:
+            return
+
         # Get visible rows
-        top_row = self.list_widget.indexAt(self.list_widget.viewport().rect().topLeft()).row()
-        bottom_row = self.list_widget.indexAt(self.list_widget.viewport().rect().bottomLeft()).row()
+        top_row = self.list_widget.indexAt(viewport.rect().topLeft()).row()
+        bottom_row = self.list_widget.indexAt(viewport.rect().bottomLeft()).row()
 
         if top_row < 0:
             top_row = 0

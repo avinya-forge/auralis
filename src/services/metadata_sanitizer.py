@@ -54,7 +54,7 @@ class MetadataSanitizer:
                     # ID3(file_path).delete_v1() handles removal of v1 tags
                     # But we need to check if we can open it first
                     audio_id3 = ID3(file_path)
-                    audio_id3.delete_v1()
+                    audio_id3.delete_v1()  # type: ignore
                     # We need to save if we want to persist the deletion of v1?
                     # delete_v1() usually saves immediately if it's a method on ID3(filename).
                     # Checking mutagen docs: delete_v1() deletes ID3v1 tags from the file.
