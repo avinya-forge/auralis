@@ -2742,3 +2742,325 @@ This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
 | ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
 | FEAT: EXP57-010 | As a user, I want to design database module for epic 57 phase so that the system behavior is improved. | src/modules/exp57 | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Could | 1-2hr | 50-150 | Implement Design Database Module for epic 57 phase | 411/411 | NONE | [TODO] |
+## Phase 6: Everything-Stream Engine
+**Focus:** Integrating Multi-Tier Audio Comparison, Security Scrutiny, and UI Control.
+
+### Epic 58: Audio Comparison Engine
+
+**Epic Summary:**
+This Epic is decomposed into 20 atomic tasks. Total Effort: 30.0hrs.
+
+#### Feature 1: Initialize Tier 1 Acoustic Fingerprinting via Chromaprint
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-001 | As a user, I want to initialize tier 1 acoustic fingerprinting via chromaprint so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Initialize Tier 1 Acoustic Fingerprinting via Chromaprint | 412/461 | COMP-002 | [TODO] |
+
+#### Feature 2: Integrate fpcalc subprocess wrapper for Chromaprint
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-002 | As a user, I want to integrate fpcalc subprocess wrapper for chromaprint so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Integrate fpcalc subprocess wrapper for Chromaprint | 413/461 | COMP-003 | [TODO] |
+
+#### Feature 3: Define Fingerprint Dataclass for Tier 1 results
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-003 | As a user, I want to define fingerprint dataclass for tier 1 results so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Define Fingerprint Dataclass for Tier 1 results | 414/461 | COMP-004 | [TODO] |
+
+#### Feature 4: Implement batched Chromaprint generation
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-004 | As a user, I want to implement batched chromaprint generation so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement batched Chromaprint generation | 415/461 | COMP-005 | [TODO] |
+
+#### Feature 5: Create SQlite table for caching Chromaprint hashes
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-005 | As a user, I want to create sqlite table for caching chromaprint hashes so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create SQlite table for caching Chromaprint hashes | 416/461 | COMP-006 | [TODO] |
+
+#### Feature 6: Implement Tier 1 exact match logic
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-006 | As a user, I want to implement tier 1 exact match logic so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Tier 1 exact match logic | 417/461 | COMP-007 | [TODO] |
+
+#### Feature 7: Implement Tier 1 near match logic (Hamming distance)
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-007 | As a user, I want to implement tier 1 near match logic (hamming distance) so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Tier 1 near match logic (Hamming distance) | 418/461 | COMP-008 | [TODO] |
+
+#### Feature 8: Initialize Tier 2 Spectral Analysis module
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-008 | As a user, I want to initialize tier 2 spectral analysis module so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Initialize Tier 2 Spectral Analysis module | 419/461 | COMP-009 | [TODO] |
+
+#### Feature 9: Integrate Librosa for loading audio buffers
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-009 | As a user, I want to integrate librosa for loading audio buffers so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Integrate Librosa for loading audio buffers | 420/461 | COMP-010 | [TODO] |
+
+#### Feature 10: Implement MFCC generation logic via Librosa
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-010 | As a user, I want to implement mfcc generation logic via librosa so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement MFCC generation logic via Librosa | 421/461 | COMP-011 | [TODO] |
+
+#### Feature 11: Define Spectrogram Dataclass for Tier 2 results
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-011 | As a user, I want to define spectrogram dataclass for tier 2 results so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Define Spectrogram Dataclass for Tier 2 results | 422/461 | COMP-012 | [TODO] |
+
+#### Feature 12: Implement batched MFCC generation
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-012 | As a user, I want to implement batched mfcc generation so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement batched MFCC generation | 423/461 | COMP-013 | [TODO] |
+
+#### Feature 13: Create SQlite table for caching MFCC features
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-013 | As a user, I want to create sqlite table for caching mfcc features so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create SQlite table for caching MFCC features | 424/461 | COMP-014 | [TODO] |
+
+#### Feature 14: Implement Cosine Similarity scoring for MFCCs
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-014 | As a user, I want to implement cosine similarity scoring for mfccs so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Cosine Similarity scoring for MFCCs | 425/461 | COMP-015 | [TODO] |
+
+#### Feature 15: Implement Dynamic Time Warping (DTW) for length-mismatched MFCCs
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-015 | As a user, I want to implement dynamic time warping (dtw) for length-mismatched mfccs so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Dynamic Time Warping (DTW) for length-mismatched MFCCs | 426/461 | COMP-016 | [TODO] |
+
+#### Feature 16: Create cross-tier validation orchestrator
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-016 | As a user, I want to create cross-tier validation orchestrator so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create cross-tier validation orchestrator | 427/461 | COMP-017 | [TODO] |
+
+#### Feature 17: Implement Confidence Score generator (Tier 1 + Tier 2)
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-017 | As a user, I want to implement confidence score generator (tier 1 + tier 2) so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Confidence Score generator (Tier 1 + Tier 2) | 428/461 | COMP-018 | [TODO] |
+
+#### Feature 18: Build Comparison Queue for async background processing
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-018 | As a user, I want to build comparison queue for async background processing so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Build Comparison Queue for async background processing | 429/461 | COMP-019 | [TODO] |
+
+#### Feature 19: Create Comparison Report payload generator
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-019 | As a user, I want to create comparison report payload generator so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create Comparison Report payload generator | 430/461 | COMP-020 | [TODO] |
+
+#### Feature 20: Implement duplicate resolution auto-selector based on confidence
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: COMP-020 | As a user, I want to implement duplicate resolution auto-selector based on confidence so that the system behavior is improved. | src/modules/comparison | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement duplicate resolution auto-selector based on confidence | 431/461 | SEC-S-001 | [TODO] |
+
+### Epic 59: Security Sieve
+
+**Epic Summary:**
+This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
+
+#### Feature 1: Initialize ClamAV subprocess wrapper
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-001 | As a user, I want to initialize clamav subprocess wrapper so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Initialize ClamAV subprocess wrapper | 432/461 | SEC-S-002 | [TODO] |
+
+#### Feature 2: Implement batched ClamAV scanning for ingested blobs
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-002 | As a user, I want to implement batched clamav scanning for ingested blobs so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement batched ClamAV scanning for ingested blobs | 433/461 | SEC-S-003 | [TODO] |
+
+#### Feature 3: Integrate VirusTotal API for suspicious file hashes
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-003 | As a user, I want to integrate virustotal api for suspicious file hashes so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Integrate VirusTotal API for suspicious file hashes | 434/461 | SEC-S-004 | [TODO] |
+
+#### Feature 4: Create quarantine protocol for infected files
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-004 | As a user, I want to create quarantine protocol for infected files so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create quarantine protocol for infected files | 435/461 | SEC-S-005 | [TODO] |
+
+#### Feature 5: Implement ID3 tag extraction via Mutagen
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-005 | As a user, I want to implement id3 tag extraction via mutagen so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement ID3 tag extraction via Mutagen | 436/461 | SEC-S-006 | [TODO] |
+
+#### Feature 6: Implement strict regex-based metadata sanitization rules
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-006 | As a user, I want to implement strict regex-based metadata sanitization rules so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement strict regex-based metadata sanitization rules | 437/461 | SEC-S-007 | [TODO] |
+
+#### Feature 7: Create malicious payload detector in ID3 comments
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-007 | As a user, I want to create malicious payload detector in id3 comments so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create malicious payload detector in ID3 comments | 438/461 | SEC-S-008 | [TODO] |
+
+#### Feature 8: Implement auto-correction of malformed ID3 frames
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-008 | As a user, I want to implement auto-correction of malformed id3 frames so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement auto-correction of malformed ID3 frames | 439/461 | SEC-S-009 | [TODO] |
+
+#### Feature 9: Create audit log for sanitized metadata operations
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-009 | As a user, I want to create audit log for sanitized metadata operations so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create audit log for sanitized metadata operations | 440/461 | SEC-S-010 | [TODO] |
+
+#### Feature 10: Implement security pre-flight check for all new files
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: SEC-S-010 | As a user, I want to implement security pre-flight check for all new files so that the system behavior is improved. | src/modules/security | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement security pre-flight check for all new files | 441/461 | VUI-001 | [TODO] |
+
+### Epic 60: Visualizer UI
+
+**Epic Summary:**
+This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
+
+#### Feature 1: Initialize React/Next.js dashboard repository
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-001 | As a user, I want to initialize react/next.js dashboard repository so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Initialize React/Next.js dashboard repository | 442/461 | VUI-002 | [TODO] |
+
+#### Feature 2: Create base layout and navigation components
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-002 | As a user, I want to create base layout and navigation components so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create base layout and navigation components | 443/461 | VUI-003 | [TODO] |
+
+#### Feature 3: Implement Next.js API routes for backend communication
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-003 | As a user, I want to implement next.js api routes for backend communication so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement Next.js API routes for backend communication | 444/461 | VUI-004 | [TODO] |
+
+#### Feature 4: Build 'Library Health' summary widget
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-004 | As a user, I want to build 'library health' summary widget so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Build 'Library Health' summary widget | 445/461 | VUI-005 | [TODO] |
+
+#### Feature 5: Create Spectrogram visualization component using Web Audio API
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-005 | As a user, I want to create spectrogram visualization component using web audio api so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create Spectrogram visualization component using Web Audio API | 446/461 | VUI-006 | [TODO] |
+
+#### Feature 6: Implement side-by-side waveform comparison view
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-006 | As a user, I want to implement side-by-side waveform comparison view so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement side-by-side waveform comparison view | 447/461 | VUI-007 | [TODO] |
+
+#### Feature 7: Build 'Duplicate Conflict' resolution modal
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-007 | As a user, I want to build 'duplicate conflict' resolution modal so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Build 'Duplicate Conflict' resolution modal | 448/461 | VUI-008 | [TODO] |
+
+#### Feature 8: Implement manual conflict override actions
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-008 | As a user, I want to implement manual conflict override actions so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement manual conflict override actions | 449/461 | VUI-009 | [TODO] |
+
+#### Feature 9: Create real-time comparison pipeline status indicator
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-009 | As a user, I want to create real-time comparison pipeline status indicator so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create real-time comparison pipeline status indicator | 450/461 | VUI-010 | [TODO] |
+
+#### Feature 10: Implement responsive design for mobile dashboard access
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: VUI-010 | As a user, I want to implement responsive design for mobile dashboard access so that the system behavior is improved. | src/modules/visualizer | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement responsive design for mobile dashboard access | 451/461 | ORG-001 | [TODO] |
+
+### Epic 61: Organization Engine
+
+**Epic Summary:**
+This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
+
+#### Feature 1: Initialize MusicBrainz API client
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-001 | As a user, I want to initialize musicbrainz api client so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Initialize MusicBrainz API client | 452/461 | ORG-002 | [TODO] |
+
+#### Feature 2: Implement metadata lookup by AcoustID
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-002 | As a user, I want to implement metadata lookup by acoustid so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement metadata lookup by AcoustID | 453/461 | ORG-003 | [TODO] |
+
+#### Feature 3: Implement fuzzy search fallback for MusicBrainz
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-003 | As a user, I want to implement fuzzy search fallback for musicbrainz so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement fuzzy search fallback for MusicBrainz | 454/461 | ORG-004 | [TODO] |
+
+#### Feature 4: Create directory mapping template parser ({Artist}/{Album}/{Track})
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-004 | As a user, I want to create directory mapping template parser ({artist}/{album}/{track}) so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create directory mapping template parser ({Artist}/{Album}/{Track}) | 455/461 | ORG-005 | [TODO] |
+
+#### Feature 5: Implement atomic file move operations
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-005 | As a user, I want to implement atomic file move operations so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement atomic file move operations | 456/461 | ORG-006 | [TODO] |
+
+#### Feature 6: Create rollback mechanism for failed organization tasks
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-006 | As a user, I want to create rollback mechanism for failed organization tasks so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create rollback mechanism for failed organization tasks | 457/461 | ORG-007 | [TODO] |
+
+#### Feature 7: Implement symlink generation for compilation albums
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-007 | As a user, I want to implement symlink generation for compilation albums so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement symlink generation for compilation albums | 458/461 | ORG-008 | [TODO] |
+
+#### Feature 8: Create 'Unmatched Files' review queue
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-008 | As a user, I want to create 'unmatched files' review queue so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create 'Unmatched Files' review queue | 459/461 | ORG-009 | [TODO] |
+
+#### Feature 9: Implement batch metadata tagging before move
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-009 | As a user, I want to implement batch metadata tagging before move so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Implement batch metadata tagging before move | 460/461 | ORG-010 | [TODO] |
+
+#### Feature 10: Create organization summary report generator
+
+| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| FEAT: ORG-010 | As a user, I want to create organization summary report generator so that the system behavior is improved. | src/modules/organization | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Should | 1-2hr | 50-150 | Implement Create organization summary report generator | 461/461 | NONE | [TODO] |
