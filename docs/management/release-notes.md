@@ -1,5 +1,11 @@
 # Release Notes
 
+## [0.8.1] - The Quad-Node Stack Continuation
+
+### Archived Tasks (Vaulted from Backlog)
+
+- [LNT-001] | Refactor `MusicScanner` complexity to be < 10 | [DONE]
+
 ## [0.7.0] - The Quad-Node Stack
 
 ### Archived Tasks (Vaulted from Backlog)

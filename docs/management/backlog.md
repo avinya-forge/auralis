@@ -1395,13 +1395,7 @@ This Epic is decomposed into 10 atomic tasks. Total Effort: 15.0hrs.
 ### Epic 35: Code Quality & Consistency
 
 **Epic Summary:**
-This Epic is decomposed into 6 atomic tasks. Total Effort: 9.0hrs.
-
-#### Feature 1: Refactor `MusicScanner` complexity to be < 10
-
-| ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
-|---|---|---|---|---|---|---|---|---|---|---|
-| CHORE: LNT-001 | As a user, I want to refactor `musicscanner` complexity to be < 10 so that the system behavior is improved. | src/modules/lnt | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Must | 1-2hr | 50-150 | Implement Refactor `MusicScanner` complexity to be < 10 | 206/411 | LNT-002 | [DONE] |
+This Epic is decomposed into 5 atomic tasks. Total Effort: 7.5hrs.
 
 #### Feature 2: Implement explicit Pytest fixture typing across test suite
 
