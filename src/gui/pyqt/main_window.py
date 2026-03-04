@@ -194,12 +194,19 @@ class MainWindow(QMainWindow):
     def setup_menu_bar(self) -> None:
         """Set up the menu bar"""
         menu_bar = self.menuBar()
+        if not menu_bar:
+            return
 
         # View Menu
         view_menu = menu_bar.addMenu("View")
+        if not view_menu:
+            return
 
         # Theme Submenu
         theme_menu = view_menu.addMenu("Theme")
+        if not theme_menu:
+            return
+
         self.theme_action_group = QActionGroup(self)
         self.theme_action_group.setExclusive(True)
 
@@ -224,6 +231,8 @@ class MainWindow(QMainWindow):
     def setup_status_bar(self) -> None:
         """Set up the status bar"""
         self.status_bar = self.statusBar()
+        if not self.status_bar:
+            return
 
         # Stage label
         self.stage_label = QLabel("Ready")
@@ -278,7 +287,8 @@ class MainWindow(QMainWindow):
         """Change the application theme"""
         app = QApplication.instance()
         if app:
-            self.theme_manager.apply_theme(app, theme_name)
+            # We assume app is a QApplication instance or mock equivalent
+            self.theme_manager.apply_theme(app, theme_name)  # type: ignore
             # Update checked state in menu if needed (handled by ActionGroup mostly, but explicit check ensures sync)
             for action in self.theme_action_group.actions():
                 if action.text() == theme_name:

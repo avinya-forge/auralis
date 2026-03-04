@@ -33,6 +33,9 @@ class AlbumArtFetcher:
         Returns:
             Optional[Tuple[bytes, str]]: Tuple of (image_data, mime_type) if successful and meets criteria, else None.
         """
+        if not url:
+            return None
+
         try:
             response = requests.get(url, timeout=timeout)
             if response.status_code != 200:
@@ -53,7 +56,10 @@ class AlbumArtFetcher:
                 mime_type = response.headers.get("Content-Type", "image/jpeg")
                 # Normalize mime type if needed, but usually headers are fine or we can guess from img.format
                 if not mime_type or "image" not in mime_type:
-                    mime_type = Image.MIME.get(img.format, "image/jpeg")
+                    if img.format is not None:
+                        mime_type = Image.MIME.get(img.format, "image/jpeg")
+                    else:
+                        mime_type = "image/jpeg"
 
                 return image_data, mime_type
 

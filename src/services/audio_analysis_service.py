@@ -249,9 +249,9 @@ class AudioAnalyzer:
             # Round BPM
             bpm_str = str(int(round(bpm))) if bpm else ""
 
-            if isinstance(audio, mutagen.mp3.MP3):
+            if isinstance(audio, mutagen.mp3.MP3):  # type: ignore
                 self._save_mp3_tags(audio, bpm_str, key, mood, replay_gain)
-            elif isinstance(audio, mutagen.flac.FLAC) or isinstance(audio, mutagen.ogg.OggVorbis):
+            elif isinstance(audio, mutagen.flac.FLAC) or isinstance(audio, mutagen.ogg.OggVorbis):  # type: ignore
                 self._save_vorbis_tags(audio, bpm_str, key, mood, replay_gain)
 
             # Save changes

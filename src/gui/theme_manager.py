@@ -39,6 +39,7 @@ class ThemeManager:
     """
 
     _instance = None
+    _initialized: bool = False
 
     def __new__(cls) -> "ThemeManager":
         if cls._instance is None:
@@ -118,7 +119,7 @@ class ThemeManager:
 
             for key, role in color_roles.items():
                 if key in colors:
-                    palette.setColor(role, QColor(colors[key]))
+                    palette.setColor(role, QColor(colors[key]))  # type: ignore
 
             app.setPalette(palette)
 

@@ -92,7 +92,8 @@ class ImageLoader:
         runnable.signals.error.connect(lambda err: self._on_error(err, callback))
 
         # Start task
-        self.thread_pool.start(runnable)
+        if self.thread_pool is not None:
+            self.thread_pool.start(runnable)
 
     def _on_loaded(
         self, path: str, image: QImage, callback: Callable[[Optional[QImage]], None]

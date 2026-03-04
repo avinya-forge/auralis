@@ -113,11 +113,12 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_ICONIZE, self.on_iconize)
 
         # Initialize TaskBarIcon
+        self.task_bar_icon: Optional[AuralisTaskBarIcon] = None
         try:
             self.task_bar_icon = AuralisTaskBarIcon(self)
         except Exception:
             # Fallback if TaskBarIcon fails or not supported
-            self.task_bar_icon = None
+            pass
 
         # Bind worker events
         self.Bind(EVT_PROGRESS, self.on_progress)
