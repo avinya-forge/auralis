@@ -5,15 +5,21 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
-## Project Pulse
+## North Star
+**The Autonomous, High-Fidelity Music Neural Network.**
+
+## Pulse Table
 | Milestone | Version | Phase | Status | Debt | Density |
 |---|---|---|---|---|---|
 | M1 | 0.8.1 | Phase 3: Cognitive Intelligence | Active | 0% | 60 Tasks |
 
-## Documentation Nexus
-- **Strategy:** [`/docs/management/`](./docs/management/) (Backlog, Releases, Metrics)
-- **Rules:** [`/docs/guidelines/`](./docs/guidelines/) (Standards, Contributing)
-- **Contracts:** [`/docs/api/`](./docs/api/) (Swagger, Interfaces)
+## Document Triad (Hyperlinked Doc-Map)
+- [Constitution & Tech-Lock](./docs/vision.md)
+- [Gated Blueprint](./docs/backlog.md)
+- [Immutable History](./docs/release-notes.md)
+- [Habits](./docs/rules/habits.md)
+- [Hygiene](./docs/rules/hygiene.md)
+- [Ultra Lean Standards](./docs/standards/ultra-lean.md)
 
 ## System Architecture
 ```mermaid

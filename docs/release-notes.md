@@ -1,5 +1,8 @@
 # Release Notes
 
+Current Session ID: S3-ALIGN-01
+Last Action: Architectural alignment and doc-shrink
+
 ## [0.8.1] - The Quad-Node Stack Continuation
 
 ### Archived Tasks (Vaulted from Backlog)
@@ -62,13 +65,13 @@
 
 ### Feature Highlight: Neural Architecture
 -   **AI Feasibility Report**: Completed analysis of Hugging Face models (MERT, CLAP) for Raga, Cover Song, and Mood identification.
--   **Process Documentation**: Added detailed `docs/process_flow.md` visualizing the 3-Stage workflow (Scan > Organize > Metadata).
+-   **Process Documentation**: Added detailed `docs/process-flow.md` visualizing the 3-Stage workflow (Scan > Organize > Metadata).
 -   **Conceptual Prototype**: Created `prototypes/ai_demo.py` demonstrating Zero-Shot Classification and Embedding extraction using `transformers`.
 
 ### Archived Tasks (Vaulted from Backlog)
 
 #### Phase 3: Cognitive Intelligence (Pre-Alpha)
-- [DOC-PROCESS] | Create `docs/process_flow.md` with ASCII interaction diagrams | [DONE]
+- [DOC-PROCESS] | Create `docs/process-flow.md` with ASCII interaction diagrams | [DONE]
 - [AI-FEASIBILITY] | Research and document Hugging Face models for Raga/Cover ID | [DONE]
 - [AI-PROTOTYPE] | Create `prototypes/ai_demo.py` for MERT/CLAP integration | [DONE]
 - [AI-SIMULATION] | Implement "Simulation Mode" for prototype when deps are missing | [DONE]
