@@ -8,25 +8,25 @@ from pathlib import Path
 class TestDocumentation:
     def test_backlog_exists(self):
         """Ensure backlog.md exists and is not empty"""
-        path = Path("docs/management/backlog.md")
+        path = Path("docs/backlog.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_release_notes_exists(self):
-        """Ensure release-notes.md exists and is not empty"""
-        path = Path("docs/management/release-notes.md")
+        """Ensure releasenotes.md exists and is not empty"""
+        path = Path("docs/releasenotes.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_vision_exists(self):
         """Ensure vision.md exists and is not empty"""
-        path = Path("docs/management/vision.md")
+        path = Path("docs/vision.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_standards_exists(self):
-        """Ensure standards.md exists and is not empty"""
-        path = Path("docs/guidelines/standards.md")
+        """Ensure ultra_lean.md exists and is not empty"""
+        path = Path("docs/standards/ultra_lean.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
