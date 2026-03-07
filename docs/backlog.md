@@ -87,7 +87,7 @@
 - **SPEC:** Design `ThemePluginInterface` inheriting from base. Force implementation of `get_stylesheet() -> str` and `get_palette() -> dict`. Inject result into global `QApplication.setStyleSheet()`.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-001: Design rest api spec (openapi/swagger)** | [TODO] | [src/modules/api]
+- **TASK API-001: Design rest api spec (openapi/swagger)** | [DONE] | [src/modules/api]
 - **SPEC:** Write `docs/api/swagger.yaml` containing minimum OpenAPI 3.0 definitions for `/status`, `/library`, and `/scan`. Include JSON schemas for `Track` and `ScanJob` return types.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
