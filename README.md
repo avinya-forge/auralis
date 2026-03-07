@@ -6,15 +6,9 @@
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 ## Project Pulse
-| Metric | Status |
-|---|---|
-| Version | 0.8.1 |
-| Phase | 6: Everything-Stream Engine |
-| Total LOC | ~5000 |
-| Ready Ratio | 100% |
-| Tech Debt | 0% |
-| Coverage | 95% |
-| Next Task | COMP-001 |
+| Milestone | Version | Phase | Status | Debt | Density |
+|---|---|---|---|---|---|
+| M1 | 0.8.1 | Phase 3: Cognitive Intelligence | Active | 0% | 60 Tasks |
 
 ## Documentation Nexus
 - **Strategy:** [`/docs/management/`](./docs/management/) (Backlog, Releases, Metrics)
