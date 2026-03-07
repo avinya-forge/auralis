@@ -26,3 +26,8 @@ a task is only "done" when it meets the following atomic criteria:
 - **commit messages:** descriptive, imperative mood (e.g., "add feature x", not "added feature x").
 - **branching:** create feature branches from `main`. use descriptive names (e.g., `feature/add-wxpython-support`).
 - **pull requests:** meaningful description, link to backlog item.
+
+## Component Reusability Standards
+
+- Avoid one-off components. Use and contribute to the unified framework.
+- Any API MUST be documented first with a Swagger/OpenAPI contract in `docs/swagger.yaml` and mock data before implementation begins.

@@ -13,8 +13,8 @@ class TestDocumentation:
         assert path.stat().st_size > 0
 
     def test_release_notes_exists(self):
-        """Ensure releasenotes.md exists and is not empty"""
-        path = Path("docs/releasenotes.md")
+        """Ensure release-notes.md exists and is not empty"""
+        path = Path("docs/release-notes.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
@@ -25,21 +25,20 @@ class TestDocumentation:
         assert path.stat().st_size > 0
 
     def test_standards_exists(self):
-        """Ensure ultra_lean.md exists and is not empty"""
-        path = Path("docs/standards/ultra_lean.md")
+        """Ensure ultra-lean.md exists and is not empty"""
+        path = Path("docs/standards/ultra-lean.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_user_guide_exists(self):
-        """Ensure user_guide.md exists and is not empty"""
-        path = Path("docs/guidelines/user_guide.md")
-        assert path.exists()
-        assert path.stat().st_size > 0
+        """Ensure user guide is now within vision.md"""
+        path = Path("docs/vision.md")
+        content = path.read_text(encoding="utf-8")
+        assert "## User Guide" in content
 
     def test_user_guide_content(self):
-        """Check user guide for essential sections"""
-        path = Path("docs/guidelines/user_guide.md")
+        """Check user guide (inside vision.md) for essential sections"""
+        path = Path("docs/vision.md")
         content = path.read_text(encoding="utf-8")
-        assert "# Auralis User Guide" in content
-        assert "## Installation" in content
-        assert "## Troubleshooting" in content
+        assert "### Installation" in content
+        assert "### Troubleshooting" in content
