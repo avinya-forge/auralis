@@ -31,7 +31,7 @@ class UIFactory:
             return QApplication(*args, **kwargs)
         elif framework == "wxpython":
             try:
-                import wx  # type: ignore
+                import wx
 
                 return wx.App(*args, **kwargs)
             except ImportError:

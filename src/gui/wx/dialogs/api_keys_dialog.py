@@ -5,7 +5,7 @@ Auralis - wxPython API Keys Dialog
 import os
 from typing import Any, Dict, List, Optional
 
-import wx  # type: ignore
+import wx
 
 
 class APIKeysDialog(wx.Dialog):

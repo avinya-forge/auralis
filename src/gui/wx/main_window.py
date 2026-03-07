@@ -5,10 +5,10 @@ Auralis - wxPython Main Window Implementation
 import os
 from typing import Any, Dict, List, Optional
 
-import wx  # type: ignore
+import wx
 
 try:
-    import wx.adv  # type: ignore
+    import wx.adv
 except ImportError:
     pass
 

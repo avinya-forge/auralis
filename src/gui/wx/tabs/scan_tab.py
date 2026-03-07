@@ -5,7 +5,7 @@ Stage 1: Scan & Rename Tab (wxPython)
 import os
 from typing import Any, Dict, List, Optional
 
-import wx  # type: ignore
+import wx
 
 from src.utils.config import get_config, save_config, set_config
 

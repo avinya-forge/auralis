@@ -5,7 +5,7 @@ Stage 2: Organize Tab (wxPython)
 import os
 from typing import Any, Dict, Optional
 
-import wx  # type: ignore
+import wx
 
 from src.utils.config import get_config
 
