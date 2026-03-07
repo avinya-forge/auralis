@@ -1407,7 +1407,7 @@ This Epic is decomposed into 5 atomic tasks. Total Effort: 7.5hrs.
 
 | ID | User Story | Technical Scope | Acceptance Criteria | Priority | Effort | Est. LOC | Impl Logic | Task Index | Next Task | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| CHORE: LNT-003 | As a user, I want to enable missing `mypy` strict flags for gui modules so that the system behavior is improved. | src/modules/lnt | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Must | 1-2hr | 50-150 | Implement Enable missing `mypy` strict flags for GUI modules | 208/411 | SEC-001 | [TODO] |
+| CHORE: LNT-003 | As a user, I want to enable missing `mypy` strict flags for gui modules so that the system behavior is improved. | src/modules/lnt | [Test (95%), Lint (0-err), Opt (Big O), Sec (Sanitize)] | Must | 1-2hr | 50-150 | Implement Enable missing `mypy` strict flags for GUI modules | 208/411 | SEC-001 | [DONE] |
 
 #### Feature 4: Audit and fix unsafe deserialization vectors
 

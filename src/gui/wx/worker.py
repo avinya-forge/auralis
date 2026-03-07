@@ -6,7 +6,7 @@ import threading
 import traceback
 from typing import Any, Dict, List, Optional
 
-import wx  # type: ignore
+import wx
 
 from src.core.organizer import MusicOrganizer
 from src.core.scanner import MusicScanner

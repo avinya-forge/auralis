@@ -4,7 +4,7 @@ Stage 3: Metadata Tab (wxPython)
 
 from typing import Any, Dict, Optional
 
-import wx  # type: ignore
+import wx
 
 from src.gui.wx.dialogs.api_keys_dialog import APIKeysDialog
 from src.utils.config import get_config

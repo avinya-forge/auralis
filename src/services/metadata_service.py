@@ -162,7 +162,7 @@ class MusicBrainzSource(MetadataSource):
             import subprocess
 
             result = subprocess.run(
-                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             return result.returncode == 0
         except BaseException:
