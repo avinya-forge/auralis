@@ -55,8 +55,12 @@
 - **SPEC:** Create `PlaylistEditorTab` in `src/modules/pl`. Use `QListWidget` for track reordering (drag/drop). Add buttons for Save, Rename, and Export. Connect to `PlaylistService` CRUD endpoints.
 
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-002: Refactor `scanner` to use `asyncio` for i/o operations (experiment)** | [TODO] | [src/modules/perf]
-- **SPEC:** Rewrite `MusicScanner.scan_directories` using `asyncio.gather`. Implement `aiofiles` for asynchronous OS stat calls and mutagen tag reads to speed up recursive directory traversal.
+- **TASK PERF-002A: Refactor `scanner` to use `asyncio.gather` for directory traversal** | [TODO] | [src/modules/perf]
+- **SPEC:** Rewrite `MusicScanner.scan_directories` using `asyncio.gather` to speed up recursive directory traversal.
+
+- **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK PERF-002B: Implement `aiofiles` for asynchronous mutagen tag reads** | [TODO] | [src/modules/perf]
+- **SPEC:** Implement `aiofiles` for asynchronous OS stat calls and mutagen tag reads to prevent blocking.
 
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK PERF-003: Implement `metadatacache` using `sqlite3` (persistent)** | [TODO] | [src/modules/perf]
@@ -91,8 +95,12 @@
 - **SPEC:** Write `docs/api/swagger.yaml` containing minimum OpenAPI 3.0 definitions for `/status`, `/library`, and `/scan`. Include JSON schemas for `Track` and `ScanJob` return types.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-002: Implement lightweight flask/fastapi server** | [TODO] | [src/modules/api]
-- **SPEC:** Bootstrap `FastAPI` instance in `src/modules/api`. Initialize it within a `uvicorn.run` daemon thread. Create dependency injection hooks connecting FastAPI endpoints to `MusicScanner` singleton.
+- **TASK API-002A: Implement lightweight fastapi server & DI hooks** | [TODO] | [src/modules/api]
+- **SPEC:** Bootstrap `FastAPI` instance in `src/modules/api`. Create dependency injection hooks connecting FastAPI endpoints to `MusicScanner` singleton.
+
+- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK API-002B: Initialize fastapi within a `uvicorn.run` daemon thread** | [TODO] | [src/modules/api]
+- **SPEC:** Initialize the FastAPI app within a `uvicorn.run` daemon thread to run in the background.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK API-003: Implement `get /status` endpoint** | [TODO] | [src/modules/api]
@@ -103,7 +111,7 @@
 - **SPEC:** Implement `@app.post('/scan')` accepting `dir_path`. Trigger `MusicScanner` via signal queue and return a `job_id` 202 Accepted. Ensure the endpoint does not block during scan.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-005: Implement `post /organize` endpoint** | [TODO] | [src/modules/api]
+- **TASK API-005: Implement `post /organize` endpoint** | [BLOCKED] | [src/modules/api]
 - **SPEC:** Implement `@app.post('/organize')` accepting target payload and metadata. Dispatch to `OrganizationService` asynchronously. Respond with dry-run delta JSON.
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
