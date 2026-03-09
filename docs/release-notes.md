@@ -1,7 +1,13 @@
 # Release Notes
 
-Current Session ID: S3-ALIGN-01
-Last Action: Architectural alignment and doc-shrink
+Current Session ID: S4-RELEASE
+Last Action: Archive DONE tasks
+
+## [0.9.0] - Ecosystem Expansion Genesis
+
+### Archived Tasks (Vaulted from Backlog)
+
+- [API-001] | Design rest api spec (openapi/swagger) | [DONE]
 
 ## [0.8.1] - The Quad-Node Stack Continuation
 

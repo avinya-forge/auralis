@@ -11,7 +11,7 @@
 ## Pulse Table
 | Milestone | Version | Phase | Status | Debt | Density |
 |---|---|---|---|---|---|
-| M1 | 0.8.1 | Phase 3: Cognitive Intelligence | Active | 0% | 60 Tasks |
+| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% | 60 Tasks |
 
 ## Document Triad (Hyperlinked Doc-Map)
 - [Constitution & Tech-Lock](./docs/vision.md)

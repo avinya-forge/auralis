@@ -113,11 +113,6 @@
 
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-001: Design rest api spec (openapi/swagger)** | [DONE] | [src/modules/api]
-- **SPEC:** Write `docs/api/swagger.yaml` containing minimum OpenAPI 3.0 definitions for `/status`, `/library`, and `/scan`. Include JSON schemas for `Track` and `ScanJob` return types.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK API-002: Implement lightweight flask/fastapi server** | [TODO] | [src/modules/api]
 - **SPEC:** Bootstrap `FastAPI` instance in `src/modules/api`. Initialize it within a `uvicorn.run` daemon thread. Create dependency injection hooks connecting FastAPI endpoints to `MusicScanner` singleton.
 
