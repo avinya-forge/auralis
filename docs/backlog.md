@@ -88,21 +88,6 @@
 
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PLG-005: Implement `pluginsandbox` restrictions** | [TODO] | [src/modules/plg]
-- **SPEC:** Subclass `importlib.abc.MetaPathFinder` to restrict sys.modules loading. Block native OS modules (`os`, `subprocess`, `sys`) from being imported within dynamically loaded plugin namespaces.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PLG-006: Create documentation for plugin api** | [TODO] | [src/modules/plg]
-- **SPEC:** Draft `docs/api/plugins.md` detailing `PluginInterface` usage. Include minimum required properties (`name`, `version`, `init()`), event hooking patterns, and provide a full 'Hello World' markdown code block example.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PLG-007: Implement plugin dependency resolver** | [TODO] | [src/modules/plg]
-- **SPEC:** Create `DependencyResolver` using topological sort (Kahn's algorithm) to validate plugin dependencies based on `metadata.json` lists. Refuse to initialize if a circular dependency loop is detected.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK PLG-008: Add "enable/disable" plugin toggle logic** | [TODO] | [src/modules/plg]
 - **SPEC:** Inject a SQLite table `plugin_state` tracking `plugin_id`, `is_active`. Update `PluginLoader` to query this table on app startup before calling `init()` on discovered `.py` modules.
 
@@ -173,11 +158,6 @@
 
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK MOB-004: Design offline caching strategy using sqlite** | [TODO] | [src/modules/mob]
-- **SPEC:** Build `OfflineCache` singleton on mobile payload. Store down-sampled `.opus` files in local storage mapped via SQLite `mobile_tracks` with eviction LRU strategy.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK MOB-005: Create syncsettingstab in preferences** | [TODO] | [src/modules/mob]
 - **SPEC:** Implement `SyncSettings` UI to define max cache size (e.g., 5GB), target bitrate for transcode (e.g., 128kbps), and whitelist of synced playlists.
 
@@ -200,11 +180,6 @@
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK P2P-004: Add "discover network libraries" ui widget** | [TODO] | [src/modules/p2p]
 - **SPEC:** Add a new QTreeWidget tab 'Mesh Network'. Query DHT for active peers, populate their shared track counts, and allow users to browse remote folders asynchronously.
-
-
-- **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK P2P-005: Establish network security/encryption layer** | [TODO] | [src/modules/p2p]
-- **SPEC:** Enforce Noise protocol handshake for libp2p connections. Generate ed25519 keypairs per node on first boot to guarantee encrypted transport layer.
 
 
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]

@@ -266,3 +266,11 @@ Last Action: Archive DONE tasks
 *   **Epic 2: Test Fortress**
     *   Added `tests/test_services_playlist_enhanced.py` covering harmonic mixing and export/import (100% coverage).
     *   Added `tests/test_scanner_tags.py` and `tests/test_scanner_options.py` covering new scanner features (86% coverage).
+
+## Iteration: Architect-Jules-01/Ecosystem-Expansion-Design
+*   **Epic 4: Ecosystem Expansion**
+    *   Completed PLG-005: Implemented `PluginSandbox` restrictions architecture.
+    *   Completed PLG-006: Created documentation for Plugin API.
+    *   Completed PLG-007: Implemented `DependencyResolver` architectural logic.
+    *   Completed MOB-004: Designed offline caching strategy using SQLite.
+    *   Completed P2P-005: Established network security/encryption layer design.
