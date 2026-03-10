@@ -51,8 +51,8 @@ class TestPlaylistEditorTab(unittest.TestCase):
         mock_item2 = MagicMock()
         mock_item2.data.return_value = "/path/to/track2.mp3"
 
-        self.tab.track_list.count = MagicMock(return_value=2) # type: ignore
-        self.tab.track_list.item = MagicMock(side_effect=[mock_item1, mock_item2]) # type: ignore
+        self.tab.track_list.count = MagicMock(return_value=2)  # type: ignore
+        self.tab.track_list.item = MagicMock(side_effect=[mock_item1, mock_item2])  # type: ignore
 
         ordered = self.tab.get_ordered_tracks()
         self.assertEqual(len(ordered), 2)
@@ -75,7 +75,7 @@ class TestPlaylistEditorTab(unittest.TestCase):
         self.tab.load_tracks(self.sample_tracks)
 
         # Mock ordered tracks retrieval
-        self.tab.get_ordered_tracks = MagicMock(return_value=self.sample_tracks) # type: ignore
+        self.tab.get_ordered_tracks = MagicMock(return_value=self.sample_tracks)  # type: ignore
         self.tab.playlist_history.add_to_history = MagicMock(return_value=True)  # type: ignore
 
         self.tab.on_save_clicked()
@@ -88,7 +88,7 @@ class TestPlaylistEditorTab(unittest.TestCase):
     @patch("src.modules.pl.playlist_editor_tab.QMessageBox.warning")
     def test_save_empty_playlist(self, mock_warning: MagicMock) -> None:
         """Test saving empty playlist shows warning"""
-        self.tab.get_ordered_tracks = MagicMock(return_value=[]) # type: ignore
+        self.tab.get_ordered_tracks = MagicMock(return_value=[])  # type: ignore
         self.tab.on_save_clicked()
 
         mock_warning.assert_called_once()
@@ -98,7 +98,7 @@ class TestPlaylistEditorTab(unittest.TestCase):
     def test_export_playlist_success(self, mock_info: MagicMock, mock_get_file: MagicMock) -> None:
         """Test exporting playlist successfully"""
         self.tab.load_tracks(self.sample_tracks)
-        self.tab.get_ordered_tracks = MagicMock(return_value=self.sample_tracks) # type: ignore
+        self.tab.get_ordered_tracks = MagicMock(return_value=self.sample_tracks)  # type: ignore
         mock_get_file.return_value = ("/path/to/output.m3u8", "Playlist Files (*.m3u8)")
         self.tab.playlist_generator.export_playlist = MagicMock(return_value=True)  # type: ignore
 
