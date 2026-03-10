@@ -30,6 +30,7 @@ from src.core.scanner import MusicScanner
 from src.gui.pyqt.tabs.metadata_tab import MetadataTab
 from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
+from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
 from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
 from src.utils.config import create_env_example, get_config
@@ -175,6 +176,10 @@ class MainWindow(QMainWindow):
         self.metadata_tab = MetadataTab()
         self.metadata_tab.update_requested.connect(self.start_metadata_update)
         self.stage_tabs.addTab(self.metadata_tab, "Stage 3: Metadata")
+
+        # Stage 4: Playlist Editor
+        self.playlist_editor_tab = PlaylistEditorTab()
+        self.stage_tabs.addTab(self.playlist_editor_tab, "Playlist Editor")
 
         controls_layout.addWidget(self.stage_tabs)
 
