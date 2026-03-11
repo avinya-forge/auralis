@@ -185,6 +185,43 @@ class PlaylistGenerator:
         """Initialize the PlaylistGenerator."""
         pass
 
+    def save_playlist(self, name: str, tracks: List[Dict[str, Any]]) -> bool:
+        """Save a playlist."""
+        if not hasattr(self, "_playlists"):
+            self._playlists = {}
+        self._playlists[name] = list(tracks)
+        return True
+
+    def get_playlist(self, name: str) -> Optional[List[Dict[str, Any]]]:
+        """Get a playlist by name."""
+        if not hasattr(self, "_playlists"):
+            return None
+        return self._playlists.get(name)
+
+    def delete_playlist(self, name: str) -> bool:
+        """Delete a playlist by name."""
+        if not hasattr(self, "_playlists"):
+            return False
+        if name in self._playlists:
+            del self._playlists[name]
+            return True
+        return False
+
+    def rename_playlist(self, old_name: str, new_name: str) -> bool:
+        """Rename an existing playlist."""
+        if not hasattr(self, "_playlists"):
+            return False
+        if old_name in self._playlists and new_name not in self._playlists:
+            self._playlists[new_name] = self._playlists.pop(old_name)
+            return True
+        return False
+
+    def get_all_playlists(self) -> List[str]:
+        """Get a list of all playlist names."""
+        if not hasattr(self, "_playlists"):
+            return []
+        return list(self._playlists.keys())
+
     def generate_flow_mode_playlist(
         self,
         files: List[Dict[str, Any]],

@@ -3,7 +3,7 @@
 > **North Star**: Orchestrating Roadmap via Milestone Schema.
 
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PL-008: Add "playlist editor" ui tab (crud operations)** | [TODO] | [src/modules/pl]
+- **TASK PL-008: Add "playlist editor" ui tab (crud operations)** | [DONE] | [src/modules/pl]
 - **SPEC:** Create `PlaylistEditorTab` in `src/modules/pl`. Use `QListWidget` for track reordering (drag/drop). Add buttons for Save, Rename, and Export. Connect to `PlaylistService` CRUD endpoints.
 
 

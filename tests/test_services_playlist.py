@@ -75,6 +75,43 @@ class TestPlaylistService:
         assert results[1]["path"] == "similar2.mp3"
 
 
+
+    def test_save_playlist(self, generator):
+        """Test saving a playlist to memory."""
+        tracks = [{"path": "/music/track1.mp3"}]
+        assert generator.save_playlist("My List", tracks) is True
+        assert generator.get_playlist("My List") == tracks
+
+    def test_get_playlist(self, generator):
+        """Test getting an existing and non-existing playlist."""
+        assert generator.get_playlist("Non-existent") is None
+        generator.save_playlist("Test List", [{"path": "/path"}])
+        assert generator.get_playlist("Test List") is not None
+
+    def test_delete_playlist(self, generator):
+        """Test deleting a playlist."""
+        assert generator.delete_playlist("Non-existent") is False
+        generator.save_playlist("To Delete", [{"path": "/path"}])
+        assert generator.delete_playlist("To Delete") is True
+        assert generator.get_playlist("To Delete") is None
+
+    def test_rename_playlist(self, generator):
+        """Test renaming a playlist."""
+        assert generator.rename_playlist("Non-existent", "New") is False
+        generator.save_playlist("Old Name", [{"path": "/path"}])
+        assert generator.rename_playlist("Old Name", "New Name") is True
+        assert generator.get_playlist("Old Name") is None
+        assert generator.get_playlist("New Name") is not None
+
+    def test_get_all_playlists(self, generator):
+        """Test retrieving all playlist names."""
+        generator.save_playlist("List A", [{"path": "/path1"}])
+        generator.save_playlist("List B", [{"path": "/path2"}])
+        playlists = generator.get_all_playlists()
+        assert "List A" in playlists
+        assert "List B" in playlists
+        assert len(playlists) >= 2
+
 class TestPlaylistHistory:
     @pytest.fixture
     def history_filepath(self, tmp_path):
