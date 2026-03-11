@@ -18,12 +18,14 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.ScanTab")
     @patch("src.gui.pyqt.main_window.OrganizeTab")
     @patch("src.gui.pyqt.main_window.MetadataTab")
+    @patch("src.gui.pyqt.main_window.PlaylistEditorTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
     def test_init(
         self,
         mock_app_cls,
         mock_timer,
+        mock_pl_tab,
         mock_meta_tab,
         mock_org_tab,
         mock_scan_tab,
@@ -58,6 +60,7 @@ class TestMainWindow(unittest.TestCase):
         mock_scan_tab.assert_called()
         mock_org_tab.assert_called()
         mock_meta_tab.assert_called()
+        mock_pl_tab.assert_called()
 
         # Verify default theme applied
         # Note: MainWindow calls self.change_theme("Dark") in init
@@ -82,12 +85,14 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.ScanTab")
     @patch("src.gui.pyqt.main_window.OrganizeTab")
     @patch("src.gui.pyqt.main_window.MetadataTab")
+    @patch("src.gui.pyqt.main_window.PlaylistEditorTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
     def test_change_theme(
         self,
         mock_app_cls,
         mock_timer,
+        mock_pl_tab,
         mock_meta_tab,
         mock_org_tab,
         mock_scan_tab,
@@ -119,12 +124,14 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.ScanTab")
     @patch("src.gui.pyqt.main_window.OrganizeTab")
     @patch("src.gui.pyqt.main_window.MetadataTab")
+    @patch("src.gui.pyqt.main_window.PlaylistEditorTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
     def test_set_ai_processing_active(
         self,
         mock_app_cls,
         mock_timer,
+        mock_pl_tab,
         mock_meta_tab,
         mock_org_tab,
         mock_scan_tab,
@@ -161,12 +168,14 @@ class TestMainWindow(unittest.TestCase):
     @patch("src.gui.pyqt.main_window.ScanTab")
     @patch("src.gui.pyqt.main_window.OrganizeTab")
     @patch("src.gui.pyqt.main_window.MetadataTab")
+    @patch("src.gui.pyqt.main_window.PlaylistEditorTab")
     @patch("src.gui.pyqt.main_window.QTimer")
     @patch("src.gui.pyqt.main_window.QApplication")
     def test_status_bar_updates(
         self,
         mock_app_cls,
         mock_timer,
+        mock_pl_tab,
         mock_meta_tab,
         mock_org_tab,
         mock_scan_tab,
