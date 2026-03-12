@@ -30,9 +30,9 @@ from src.core.scanner import MusicScanner
 from src.gui.pyqt.tabs.metadata_tab import MetadataTab
 from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
-from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
 from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
+from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
 from src.utils.config import create_env_example, get_config
 from src.utils.system_utils import SystemMonitor
 
