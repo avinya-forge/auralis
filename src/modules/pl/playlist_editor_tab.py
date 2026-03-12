@@ -68,6 +68,7 @@ class PlaylistEditorTab(QWidget):
     def load_tracks(self, tracks: List[Dict[str, Any]]) -> None:
         """Load tracks into the editor."""
         from PyQt6.QtCore import Qt
+
         self.current_tracks = tracks.copy()
         self.track_list.clear()
         for track in self.current_tracks:
@@ -82,6 +83,7 @@ class PlaylistEditorTab(QWidget):
     def get_ordered_tracks(self) -> List[Dict[str, Any]]:
         """Get the tracks in their current UI order."""
         from PyQt6.QtCore import Qt
+
         ordered_tracks = []
         path_to_track = {track.get("path"): track for track in self.current_tracks}
 

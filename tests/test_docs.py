@@ -8,37 +8,37 @@ from pathlib import Path
 class TestDocumentation:
     def test_backlog_exists(self):
         """Ensure backlog.md exists and is not empty"""
-        path = Path("docs/backlog.md")
+        path = Path("docs/planning/backlog.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_release_notes_exists(self):
         """Ensure releasenotes.md exists and is not empty"""
-        path = Path("docs/release-notes.md")
+        path = Path("docs/release/release-notes.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_vision_exists(self):
         """Ensure vision.md exists and is not empty"""
-        path = Path("docs/vision.md")
+        path = Path("docs/architecture/vision.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_standards_exists(self):
         """Ensure ultra_lean.md exists and is not empty"""
-        path = Path("docs/standards/ultra-lean.md")
+        path = Path("docs/rules/standards.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_user_guide_exists(self):
         """Ensure user_guide.md exists and is not empty"""
-        path = Path("docs/guidelines/user-guide.md")
+        path = Path("docs/planning/map.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
     def test_user_guide_content(self):
         """Check user guide for essential sections"""
-        path = Path("docs/guidelines/user-guide.md")
+        path = Path("docs/planning/map.md")
         content = path.read_text(encoding="utf-8")
         assert "# Auralis User Guide" in content
         assert "## Installation" in content
