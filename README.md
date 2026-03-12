@@ -9,17 +9,35 @@
 **The Autonomous, High-Fidelity Music Neural Network.**
 
 ## Pulse Table
-| Milestone | Version | Phase | Status | Debt | Density |
+| Milestone | Version | Phase | Status | Debt% | Density |
 |---|---|---|---|---|---|
 | M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% | 60 Tasks |
 
-## Document Triad (Hyperlinked Doc-Map)
-- [Constitution & Tech-Lock](./docs/vision.md)
-- [Gated Blueprint](./docs/backlog.md)
-- [Immutable History](./docs/release-notes.md)
-- [Habits](./docs/rules/habits.md)
-- [Hygiene](./docs/rules/hygiene.md)
-- [Ultra Lean Standards](./docs/standards/ultra-lean.md)
+## IO_SSOT Index
+- **Plan**:
+  - [Backlog](./docs/planning/backlog.md)
+  - [Map](./docs/planning/map.md)
+  - [Doubts](./docs/planning/doubts.md)
+  - [Conflict Map](./docs/planning/conflict-map.md)
+- **Architecture**:
+  - [Architecture](./docs/architecture/arch.md)
+  - [Vision](./docs/architecture/vision.md)
+  - [Decisions](./docs/architecture/decisions.md)
+  - [Network Security](./docs/architecture/network-security.md)
+  - [Offline Caching Strategy](./docs/architecture/offline-caching-strategy.md)
+  - [Plugin Sandbox](./docs/architecture/plugin-sandbox.md)
+  - [Plugin Dependency Resolver](./docs/architecture/plugin-dependency-resolver.md)
+  - [Swagger API Specs](./docs/architecture/swagger.yaml)
+- **Rules**:
+  - [Standards](./docs/rules/standards.md)
+  - [Habits](./docs/rules/habits.md)
+  - [Hygiene](./docs/rules/hygiene.md)
+  - [Process Flow](./docs/rules/process-flow.md)
+- **Release**:
+  - [Release Notes](./docs/release/release-notes.md)
+  - [Metrics](./docs/release/metrics.md)
+  - [Project Health](./docs/release/project-health.md)
+  - [System Health](./docs/release/system-health.md)
 
 ## System Architecture
 ```mermaid
@@ -221,4 +239,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Credits
 
-Developed by PatternSeekers 
+Developed by PatternSeekers
