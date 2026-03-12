@@ -346,8 +346,3 @@
 
 - **RESOLVE-003**: Implement integration hooks for run.sh to properly execute --skills endpoint logic from skills.sh.
 - **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
-
-- **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC AI-001: Establish Core AI Service Foundation & Prototype** | [TODO] | [HIGH-RISK] | [src/services/ai_service.py]
-- **SPEC:** Implement AIService class for lazy-loading Hugging Face models (MERT/CLAP). Create prototypes/ai_demo.py with analyze_raga_zero_shot and analyze_mood_genre functions.
-  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]

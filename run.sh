@@ -50,7 +50,7 @@ case "$1" in
         curl -s https://skills.sh/ > scripts/skills_remote.sh
         if [ $? -eq 0 ]; then
             echo "[SKILLS] Sync complete. Patterns downloaded."
-            echo "[SKILLS] Injecting skills functionality..."
+            # Placeholder for safe dynamic evaluation logic
         else
             echo "[SKILLS] Sync failed."
             log_resolve "Failed to sync agentic patterns from skills.sh"
