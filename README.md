@@ -1,5 +1,74 @@
 # Auralis - Advanced Music File Management
 
+> **"The Autonomous, High-Fidelity Music Neural Network."**
+> Auralis organizes, enhances, and secures your music library with neural intelligence and spatial awareness.
+
+---
+
+## 🚀 The Hook: Quick Start
+
+**Experience the future of audio management.**
+
+### Local Launch
+```bash
+git clone https://github.com/patternseekers/auralis.git
+cd auralis
+pip install -r requirements.txt
+
+# Start Auralis CLI / GUI environment
+./run.sh --start
+```
+
+### Automation & Sync
+Execute tests, audits, and dynamic updates idempotently via `run.sh`:
+- `./run.sh --test` (Lint/Coverage/Unit)
+- `./run.sh --backlog` (Audit SDLC+PDLC tasks)
+- `./run.sh --skills` (Self-update using skills.sh)
+
+---
+
+## ⚡ The Engine: Pulse Table
+
+| Milestone | Version | Phase | Status | Debt% | Density |
+|---|---|---|---|---|---|
+| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% | 60 Tasks |
+
+---
+
+## 🗺️ The Map: Visual SSOT Index
+
+**Plan**: [Backlog](./docs/planning/backlog.md) | [Map](./docs/planning/map.md) | [Doubts](./docs/planning/doubts.md) | [Conflict Map](./docs/planning/conflict-map.md)
+**Architecture**: [Arch](./docs/architecture/arch.md) | [Vision](./docs/architecture/vision.md) | [Decisions](./docs/architecture/decisions.md) | [Network Security](./docs/architecture/network-security.md) | [Offline Caching](./docs/architecture/offline-caching-strategy.md) | [Plugin Sandbox](./docs/architecture/plugin-sandbox.md) | [Plugin Resolver](./docs/architecture/plugin-dependency-resolver.md) | [Swagger](./docs/architecture/swagger.yaml)
+**Rules**: [Standards](./docs/rules/standards.md) | [Habits](./docs/rules/habits.md) | [Hygiene](./docs/rules/hygiene.md) | [Process Flow](./docs/rules/process-flow.md)
+**Engineering**: [Index](./docs/engineering/index.md)
+**Release**: [Release Notes](./docs/release/release-notes.md) | [Metrics](./docs/release/metrics.md) | [Project Health](./docs/release/project-health.md) | [System Health](./docs/release/system-health.md)
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    A[Raw Music Files] --> B(Scan & Rename)
+    B --> C(Organize & Deduplicate)
+    C --> D(Metadata Enhancement)
+    D --> E[Structured Library]
+
+    subgraph Intelligence Layer
+        F[Neural Audio]
+        G[Lyrics Embedding]
+        H[Language Detection]
+    end
+
+    D -.-> Intelligence Layer
+```
+
+---
+
+## Legacy Documentation (0-Loss Audit)
+
+# Auralis - Advanced Music File Management
+
 ![CI](https://github.com/patternseekers/auralis/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)

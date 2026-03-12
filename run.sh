@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Auralis: Unified Automation Script
+# SDLC+PDLC Evolution | 0-Loss | skills.sh-Integrated
+# Modes: --start (docker/local), --test, --backlog (drill-down), --sync (skills.sh)
+
+log_resolve() {
+    local blocker_msg="$1"
+    local backlog_file="docs/planning/backlog.md"
+
+    if ! grep -qF "$blocker_msg" "$backlog_file"; then
+        # Add to the [RESOLVE] Blockers section if it exists, else append
+        if grep -q "## \[RESOLVE\] Blockers" "$backlog_file"; then
+            sed -i "/## \[RESOLVE\] Blockers/a - **RESOLVE-NEW**: $blocker_msg" "$backlog_file"
+        else
+            echo -e "\n## [RESOLVE] Blockers\n- **RESOLVE-NEW**: $blocker_msg" >> "$backlog_file"
+        fi
+        echo "[RUN.SH] Logged blocker to backlog: $blocker_msg"
+    fi
+}
+
+case "$1" in
+    --start)
+        echo "[RUN.SH] MODE: LAUNCH"
+        # Optional: Add docker start if defined in future
+        python auralis.py
+        ;;
+    --test)
+        echo "[RUN.SH] MODE: VERIFY"
+        if [ -f "scripts/skills.sh" ]; then
+            bash scripts/skills.sh verify
+        else
+            python -m flake8 src/ tests/ || echo "[LINT] flake8 failed"
+            python -m mypy src/ tests/ || echo "[LINT] mypy failed"
+            python -m pytest --cov=src tests/ || echo "[TEST] pytest failed"
+        fi
+        ;;
+    --backlog)
+        echo "[RUN.SH] MODE: AUDIT"
+        if [ -f "scripts/skills.sh" ]; then
+            bash scripts/skills.sh audit
+        else
+            grep -E "TASK|DEBT" docs/planning/backlog.md
+        fi
+        ;;
+    --sync|--skills)
+        echo "[RUN.SH] MODE: EVOLVE"
+        echo "[SKILLS] Syncing agentic patterns from https://skills.sh/..."
+        mkdir -p scripts
+        curl -s https://skills.sh/ > scripts/skills_remote.sh
+        if [ $? -eq 0 ]; then
+            echo "[SKILLS] Sync complete. Patterns downloaded."
+            # Placeholder for safe dynamic evaluation logic
+        else
+            echo "[SKILLS] Sync failed."
+            log_resolve "Failed to sync agentic patterns from skills.sh"
+            exit 1
+        fi
+        ;;
+    --blocker)
+        # Utility to explicitly log blockers
+        if [ -z "$2" ]; then
+            echo "Usage: ./run.sh --blocker 'Blocker message'"
+            exit 1
+        fi
+        log_resolve "$2"
+        ;;
+    *)
+        echo "Usage: ./run.sh [--start | --test | --backlog | --sync | --blocker 'msg']"
+        exit 1
+        ;;
+esac

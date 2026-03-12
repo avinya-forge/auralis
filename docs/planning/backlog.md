@@ -27,7 +27,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-003: Implement `metadatacache` using `sqlite3` (persistent)** | [TODO] | [HIGH-RISK] | [src/modules/perf]
+- **TASK PERF-003: Implement `metadatacache` using `sqlite3` (persistent)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/perf]
 - **SPEC:** Replace memory-dict in `MetadataService` with `MetadataCache` using SQLite. Schema: `hash (PRIMARY KEY)`, `json_data`, `last_updated`. Implement a 7-day TTL expiration logic.
 
 
@@ -45,13 +45,13 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [TODO] | [HIGH-RISK] | [src/modules/neu]
+- **TASK NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Build a lightweight SQLite adapter `EmbeddingDatabase` in `src/modules/neu`. The schema must include `track_id (VARCHAR)`, `vector_blob (BLOB)`, and `model_version (VARCHAR)`. Implement `upsert_embedding` and `search_similar`.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-006: Implement `originalversionfinder` logic (release date + similarity)** | [TODO] | [HIGH-RISK] | [src/modules/neu]
+- **TASK NEU-006: Implement `originalversionfinder` logic (release date + similarity)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Create `OriginalVersionFinder` in `src/modules/neu`. Logic: query `EmbeddingDatabase` for vectors with >0.9 similarity, then query `MusicBrainz` API for release dates. Return the oldest track as the original.
 
 
@@ -111,7 +111,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PLG-008: Add "enable/disable" plugin toggle logic** | [TODO] | [HIGH-RISK] | [src/modules/plg]
+- **TASK PLG-008: Add "enable/disable" plugin toggle logic** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
 - **SPEC:** Inject a SQLite table `plugin_state` tracking `plugin_id`, `is_active`. Update `PluginLoader` to query this table on app startup before calling `init()` on discovered `.py` modules.
 
 
@@ -123,67 +123,67 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-002: Implement lightweight flask/fastapi server** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-002: Implement lightweight flask/fastapi server** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Bootstrap `FastAPI` instance in `src/modules/api`. Initialize it within a `uvicorn.run` daemon thread. Create dependency injection hooks connecting FastAPI endpoints to `MusicScanner` singleton.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-003: Implement `get /status` endpoint** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-003: Implement `get /status` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/status')` endpoint returning JSON with `uptime`, `version`, `total_tracks`, and `active_workers`. Ensure 200 OK response under 10ms.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-004: Implement `post /scan` endpoint** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-004: Implement `post /scan` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.post('/scan')` accepting `dir_path`. Trigger `MusicScanner` via signal queue and return a `job_id` 202 Accepted. Ensure the endpoint does not block during scan.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-005: Implement `post /organize` endpoint** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-005: Implement `post /organize` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.post('/organize')` accepting target payload and metadata. Dispatch to `OrganizationService` asynchronously. Respond with dry-run delta JSON.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-006: Implement `get /library` endpoint (pagination)** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-006: Implement `get /library` endpoint (pagination)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/library')` using pagination params (`limit`, `offset`). Query SQLite database for tracks, sort by `added_date`, and return array of serialized track objects.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-007: Implement `get /track/{id}` endpoint** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-007: Implement `get /track/{id}` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/track/{id}')` pulling full track details including lyrics, cover art blob (Base64), and audio embeddings from `EmbeddingDatabase`.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-008: Add api authentication (basic/token)** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-008: Add api authentication (basic/token)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Add middleware `AuthMiddleware` to FastAPI. Require an `X-API-Key` header matching a hashed token in SQLite `api_keys` table. Return 401 Unauthorized if invalid.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-009: Create `apiserverthread` for gui integration** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-009: Create `apiserverthread` for gui integration** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Create `QThread` subclass `APIServerThread`. Connect a stop signal to gracefully shutdown `uvicorn`. Connect server logs to emit to `MainWindow` console debug panel.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-010: Add "enable remote api" toggle in settings** | [TODO] | [HIGH-RISK] | [src/modules/api]
+- **TASK API-010: Add "enable remote api" toggle in settings** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Add QCheckBox 'Enable Remote API' to UI Settings. Toggle triggers start/stop of `APIServerThread`. Allow user to configure custom TCP port (default 8000).
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK MOB-001: Create mobilesyncservice for local network discovery** | [TODO] | [HIGH-RISK] | [src/modules/mob]
+- **TASK MOB-001: Create mobilesyncservice for local network discovery** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Integrate `zeroconf` to broadcast Auralis service via mDNS `_auralis._tcp.local.`. Enable mobile app discovery of desktop IP address and API port without manual entry.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK MOB-002: Implement websocket api for real-time track updates** | [TODO] | [HIGH-RISK] | [src/modules/mob]
+- **TASK MOB-002: Implement websocket api for real-time track updates** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Use `websockets` library to spin up WS endpoint at `/ws`. Emit real-time JSON payloads for `play`, `pause`, `seek`, and `track_changed` events.
 
 
@@ -237,7 +237,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-002B: Map classified intent to predefined sql schema queries** | [TODO] | [HIGH-RISK] | [src/modules/llm]
+- **TASK LLM-002B: Map classified intent to predefined sql schema queries** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/llm]
 - **SPEC:** Map natural language intent to predefined SQL schema queries (e.g., 'play upbeat rock' -> `WHERE genre='Rock' AND bpm>120`).
 
 
@@ -255,7 +255,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-005: Create memory context window for chained queries** | [TODO] | [HIGH-RISK] | [src/modules/llm]
+- **TASK LLM-005: Create memory context window for chained queries** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/llm]
 - **SPEC:** Create a `ChatContext` class holding the last 5 user queries in memory. Allow relative querying (e.g., 'now filter it to just Nirvana' appending to previous SQL tree).
 
 
@@ -291,7 +291,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-001: Create local user authentication schema (sqlite)** | [TODO] | [HIGH-RISK] | [src/modules/id]
+- **TASK ID-001: Create local user authentication schema (sqlite)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Expand base SQLite schema with `users` table (`id`, `username`, `password_hash`, `salt`). Implement `bcrypt` password hashing logic for local auth.
 
 
@@ -303,7 +303,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-003: Segment playlist and history tables by user id** | [TODO] | [HIGH-RISK] | [src/modules/id]
+- **TASK ID-003: Segment playlist and history tables by user id** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Add `user_id` foreign key to `playlists` and `play_history` tables. Update `PlaylistService` CRUD ops to filter strictly by the currently authenticated user session.
 
 
@@ -315,7 +315,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-005: Implement profile export/import (json)** | [TODO] | [HIGH-RISK] | [src/modules/id]
+- **TASK ID-005: Implement profile export/import (json)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Implement `export_profile` creating a zipped JSON payload of user settings and history. Implement `import_profile` parsing JSON back into SQLite tables avoiding PK collisions.
 
 
@@ -327,20 +327,22 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-003: Implement `googledriveprovider` for drive backing** | [TODO] | [HIGH-RISK] | [src/modules/cld]
+- **TASK CLD-003: Implement `googledriveprovider` for drive backing** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
 - **SPEC:** Integrate `google-api-python-client`. Implement `GoogleDriveProvider` handling OAuth2 flow. Implement chunked resumable media uploads to Google Drive.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-004: Add cloud settings tab to configure provider** | [TODO] | [HIGH-RISK] | [src/modules/cld]
+- **TASK CLD-004: Add cloud settings tab to configure provider** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
 - **SPEC:** Design `CloudSettingsTab` UI. Add radio buttons for AWS/Google. Display fields for API Keys / OAuth secrets and a 'Test Connection' button.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-005: Create sqlite-based `syncstatetracker`** | [TODO] | [HIGH-RISK] | [src/modules/cld]
+- **TASK CLD-005: Create sqlite-based `syncstatetracker`** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
 - **SPEC:** Create `sync_state` SQLite table. Track `file_hash`, `remote_id`, `last_sync_timestamp`. Prevent duplicate uploads by querying this state before pushing blobs.
 
 
-  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **RESOLVE-003**: Implement integration hooks for run.sh to properly execute --skills endpoint logic from skills.sh.
+- **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
