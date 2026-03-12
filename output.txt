@@ -1,9 +1,31 @@
-1. **STATE**: [Seal] | **DENSITY**: [X/Threshold] | **GIT**: [Rebased]
-2. **PULSE**: (Cleaned up messy workspace, restored `scanner.py` __init__ signature to match original codebase, fixed test warnings, reapplied async refactor safely.)
-3. **FILE UPDATES**:
-   - docs/rules/decisions.md
-   - src/modules/__init__.py
-   - src/modules/neu/__init__.py
-   - src/modules/perf/__init__.py
-   - src/modules/pl/__init__.py
-4. **VERIFICATION**: All 348 tests passed (0 skipped, 0 failed) with test coverage of 72%.
+**PHASE:** 2-Backlog | **SCENARIO:** S3 | **STATE:** Todo:1 | **STATUS:** backlog-epic-atomized
+
+### [UPDATES]
+```diff
+--- docs/planning/backlog.md
++++ docs/planning/backlog.md
+@@ -20,6 +20,13 @@
+ - **TASK PERF-002A: Rewrite `MusicScanner` with `asyncio.gather`** | [TODO] | [src/modules/perf]
+ - **SPEC:** Rewrite `MusicScanner.scan_directories` using `asyncio.gather` for recursive directory traversal.
+
++> **🎯 EPIC:** PERF-002A | **Target:** src/core/scanner.py | **DoD:** 0 err, >95% cov
++> - **[ ] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
++>   - **Spec:** Convert scan_directories to async, use asyncio.gather for parallel dir traversal | **Deps:** asyncio, os | **Hygiene:** Update error handling
++> - **[ ] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
++>   - **Spec:** Update unit tests to mock and await the new async scan method | **Deps:** pytest.mark.asyncio, unittest.mock | **Hygiene:** Maintain >95% test coverage
++
+   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+ - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+```
+
+### [DRILL_DOWN]
+> **🎯 EPIC:** PERF-002A | **Target:** src/core/scanner.py | **DoD:** 0 err, >95% cov
+> - **[ ] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
+>   - **Spec:** Convert scan_directories to async, use asyncio.gather for parallel dir traversal | **Deps:** asyncio, os | **Hygiene:** Update error handling
+> - **[ ] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
+>   - **Spec:** Update unit tests to mock and await the new async scan method | **Deps:** pytest.mark.asyncio, unittest.mock | **Hygiene:** Maintain >95% test coverage
+
+### [EXECUTION]
+- `RUN_SH_MODS`: None required at this moment. The current script handles `--backlog` and `--test` adequately for this state change.
+- `DEBT_LOG`: High potential for race conditions or event loop conflicts if PyQt6 is interacting with the main event loop while `asyncio` is used in the `MusicScanner`.
+- `RECON_STATUS`: `PERF-002A` is still a `[TODO]`. The code does not yet exist as described. The atomized tasks accurately reflect the path forward to implement this epic.
