@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from PyQt6.QtCore import QCoreApplication
+import asyncio
 
 from src.core.scanner import MusicScanner
 
@@ -19,14 +20,14 @@ class TestScannerEdgeCases(unittest.TestCase):
         mock_walk.side_effect = PermissionError("Access denied")
 
         # Should catch exception and print error (or log), returning empty list
-        results = self.scanner.scan_directories(["/root/protected"])
+        results = asyncio.run(self.scanner.scan_directories(["/root/protected"]))
         self.assertEqual(results, [])
 
     @patch("os.walk")
     def test_scan_os_error(self, mock_walk):
         """Test scanning a directory that raises OSError"""
         mock_walk.side_effect = OSError("Disk error")
-        results = self.scanner.scan_directories(["/broken/disk"])
+        results = asyncio.run(self.scanner.scan_directories(["/broken/disk"]))
         self.assertEqual(results, [])
 
     @patch("mutagen.File")

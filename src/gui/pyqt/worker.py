@@ -3,6 +3,7 @@ Worker Thread for Auralis PyQt6 Main Window
 """
 
 import traceback
+import asyncio
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -106,7 +107,7 @@ class WorkerThread(QThread):
             "file_extensions": self.options.get("file_extensions"),
             "exclude_patterns": self.options.get("exclude_patterns"),
         }
-        self.scanned_files = self.scanner.scan_directories(self.source_dirs, scan_options)
+        self.scanned_files = asyncio.run(self.scanner.scan_directories(self.source_dirs, scan_options))
 
         # Disconnect signals
         self.scanner.progress_updated.disconnect(self._on_scan_progress)
