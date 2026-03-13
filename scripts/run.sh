@@ -19,31 +19,57 @@ log_resolve() {
     fi
 }
 
+audit() {
+    echo "[SKILLS] Running AUDIT..."
+    # Grep EPIC/DEBT across backlog
+    grep -E "EPIC|DEBT" docs/planning/backlog.md
+}
+
+verify() {
+    echo "[SKILLS] Running LINT/TEST (verify)..."
+    python -m flake8 src/ tests/ || echo "[LINT] flake8 failed"
+    python -m mypy src/ tests/ || echo "[LINT] mypy failed"
+    python -m pytest --cov=src tests/ || echo "[TEST] pytest failed"
+}
+
+expand() {
+    echo "[SKILLS] Running PDLC_EXPAND on $1..."
+    # Recursive drill-down stub
+    echo "[PDLC] Expanding step $1 -> [REQUIREMENTS, DESIGN, IMPLEMENTATION, TESTING, DEPLOYMENT]"
+}
+
 case "$1" in
     --start)
         echo "[RUN.SH] MODE: LAUNCH"
         # Optional: Add docker start if defined in future
         python auralis.py
         ;;
-    --test)
+    --test|verify)
         echo "[RUN.SH] MODE: VERIFY"
-        if [ -f "scripts/skills.sh" ]; then
-            bash scripts/skills.sh verify
-        else
-            python -m flake8 src/ tests/ || echo "[LINT] flake8 failed"
-            python -m mypy src/ tests/ || echo "[LINT] mypy failed"
-            python -m pytest --cov=src tests/ || echo "[TEST] pytest failed"
-        fi
+        verify
         ;;
-    --backlog)
+    --backlog|audit)
         echo "[RUN.SH] MODE: AUDIT"
-        if [ -f "scripts/skills.sh" ]; then
-            bash scripts/skills.sh audit
-        else
-            grep -E "TASK|DEBT" docs/planning/backlog.md
-        fi
+        audit
         ;;
-    --sync|--skills)
+    expand)
+        expand "$2"
+        ;;
+    --sync)
+        echo "[RUN.SH] MODE: SYNC - IDEMPOTENT file-tree alignment"
+        mkdir -p docs/planning docs/architecture docs/engineering docs/release docs/rules
+        for file in docs/planning/backlog.md docs/planning/roadmap.md docs/architecture/system-design.md docs/engineering/conventions.md; do
+            if [ ! -f "$file" ]; then
+                title="$(basename "$file" .md | tr '-' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')"
+                echo "# $title" > "$file"
+                echo "" >> "$file"
+                echo "> Auto-populated uniform schema." >> "$file"
+                echo "[RUN.SH] Created missing file: $file"
+            fi
+        done
+        echo "[RUN.SH] Sync complete."
+        ;;
+    --skills)
         echo "[RUN.SH] MODE: EVOLVE"
         echo "[SKILLS] Syncing agentic patterns from https://skills.sh/..."
         mkdir -p scripts
@@ -60,13 +86,13 @@ case "$1" in
     --blocker)
         # Utility to explicitly log blockers
         if [ -z "$2" ]; then
-            echo "Usage: ./run.sh --blocker 'Blocker message'"
+            echo "Usage: scripts/run.sh --blocker 'Blocker message'"
             exit 1
         fi
         log_resolve "$2"
         ;;
     *)
-        echo "Usage: ./run.sh [--start | --test | --backlog | --sync | --blocker 'msg']"
+        echo "Usage: scripts/run.sh [--start | --test | --backlog | --sync | --blocker 'msg' | verify | audit | expand 'msg']"
         exit 1
         ;;
 esac

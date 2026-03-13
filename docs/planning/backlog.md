@@ -15,16 +15,16 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-002A: Rewrite `MusicScanner` with `asyncio.gather`** | [TODO] | [src/modules/perf]
+- **TASK PERF-002A: Rewrite `MusicScanner` with `asyncio.gather`** | [DONE] | [src/modules/perf]
 - **SPEC:** Rewrite `MusicScanner.scan_directories` using `asyncio.gather` for recursive directory traversal.
 
 > **🎯 EPIC:** PERF-002A | **Target:** src/core/scanner.py | **DoD:** 0 err, >95% cov
 
-> - **[ ] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
+> - **[x] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
 
 >   - **Spec:** Convert scan_directories to async, use asyncio.gather for parallel dir traversal | **Deps:** asyncio, os | **Hygiene:** Update error handling
 
-> - **[ ] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
+> - **[x] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
 
 >   - **Spec:** Update unit tests to mock and await the new async scan method | **Deps:** pytest.mark.asyncio, unittest.mock | **Hygiene:** Maintain >95% test coverage
 
@@ -355,5 +355,15 @@
 
 
 
-- **RESOLVE-003**: Implement integration hooks for run.sh to properly execute --skills endpoint logic from skills.sh.
+- **RESOLVE-003**: Implement integration hooks for scripts/run.sh to properly execute --skills endpoint logic from skills.sh.
 - **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
+
+- **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK NEU-010: Implement `SingerIdentificationService` using wavlm-base-plus-sv** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **SPEC:** Use a Speaker/Singer Identification model (e.g., `microsoft/wavlm-base-plus-sv`) to extract voice embedding of current song. Save it into `EmbeddingDatabase` for DB constraints.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK NEU-011: Implement Live vs. Studio Classification logic** | [TODO] | [src/modules/neu]
+- **SPEC:** Train or use a classifier based on `MERT` features to distinguish "Studio Recording" vs "Live Performance" vs "Cover/Acoustic". Expose API and save the classification to tags.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]

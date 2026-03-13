@@ -5,6 +5,7 @@ Auralis - Music Scanner Module
 import hashlib
 import os
 import time
+import asyncio
 from typing import Any, Dict, Generator, List, Optional, Set, Tuple
 
 import mutagen
@@ -61,7 +62,7 @@ class MusicScanner(QObject):
         self.exclude_patterns = self.DEFAULT_EXCLUDE_PATTERNS.copy()
         self.max_scan_depth = 10  # Default max directory depth
 
-    def scan_directories(
+    async def scan_directories(
         self, directories: List[str], options: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
         """
@@ -92,12 +93,14 @@ class MusicScanner(QObject):
         if total_files == 0:
             return []
 
-        # Second pass: process files
-        for directory in directories:
-            for file_info in self._process_directory(directory, processed_files, total_files):
-                self.files.append(file_info)
-                processed_files += 1
-                self.progress_updated.emit(processed_files, total_files)
+        tasks = [
+            self._process_directory_async(directory, processed_files, total_files)
+            for directory in directories
+        ]
+        results = await asyncio.gather(*tasks)
+        for directory_files in results:
+            self.files.extend(directory_files)
+            processed_files += len(directory_files)
 
         self.scan_completed.emit(self.files)
         return self.files
@@ -146,6 +149,22 @@ class MusicScanner(QObject):
         depth = len(rel_path.split(os.sep)) if rel_path != "." else 0
         if depth >= self.max_scan_depth:
             dirs[:] = []  # Stop descending
+
+    async def _process_directory_async(
+        self, directory: str, processed_files: int, total_files: int
+    ) -> List[Dict[str, Any]]:
+        """Async wrapper around process directory to allow gathering."""
+        # Using run_in_executor could be better, but for simplicity we wrap the sync generator
+        # to just list() or asyncio.to_thread
+        loop = asyncio.get_event_loop()
+
+        def run_sync() -> List[Dict[str, Any]]:
+            files: List[Dict[str, Any]] = []
+            for file_info in self._process_directory(directory, processed_files, total_files):
+                files.append(file_info)
+            return files
+
+        return await loop.run_in_executor(None, run_sync)
 
     def _count_music_files(self, directory: str) -> int:
         """
