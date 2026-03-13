@@ -8,5 +8,5 @@
 
 ## Unified Workflow
 
-- Executed via `run.sh` script using IDEMPOTENT principles.
+- Executed via `scripts/run.sh` script using IDEMPOTENT principles.
 - Handles LAUNCH, VERIFY, AUDIT, EVOLVE modes.

@@ -355,7 +355,7 @@
 
 
 
-- **RESOLVE-003**: Implement integration hooks for run.sh to properly execute --skills endpoint logic from skills.sh.
+- **RESOLVE-003**: Implement integration hooks for scripts/run.sh to properly execute --skills endpoint logic from skills.sh.
 - **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
 
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]

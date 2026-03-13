@@ -16,15 +16,15 @@ cd auralis
 pip install -r requirements.txt
 
 # Start Auralis CLI / GUI environment
-./run.sh --start
+bash scripts/run.sh --start
 ```
 
 ### Automation & Sync
-Execute tests, audits, and dynamic updates idempotently via `run.sh`:
-- `./run.sh --test` (Lint/Coverage/Unit)
-- `./run.sh --backlog` (Audit SDLC+PDLC tasks)
-- `./run.sh --sync` (Idempotent file-tree alignment)
-- `./run.sh --skills` (Self-update using skills.sh)
+Execute tests, audits, and dynamic updates idempotently via `scripts/run.sh`:
+- `bash scripts/run.sh --test` (Lint/Coverage/Unit)
+- `bash scripts/run.sh --backlog` (Audit SDLC+PDLC tasks)
+- `bash scripts/run.sh --sync` (Idempotent file-tree alignment)
+- `bash scripts/run.sh --skills` (Self-update using skills.sh)
 
 ---
 
