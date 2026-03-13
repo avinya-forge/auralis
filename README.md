@@ -23,24 +23,25 @@ pip install -r requirements.txt
 Execute tests, audits, and dynamic updates idempotently via `run.sh`:
 - `./run.sh --test` (Lint/Coverage/Unit)
 - `./run.sh --backlog` (Audit SDLC+PDLC tasks)
+- `./run.sh --sync` (Idempotent file-tree alignment)
 - `./run.sh --skills` (Self-update using skills.sh)
 
 ---
 
 ## ⚡ The Engine: Pulse Table
 
-| Milestone | Version | Phase | Status | Debt% | Density |
-|---|---|---|---|---|---|
-| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% | 60 Tasks |
+| Milestone | Version | Phase | Status | Debt% |
+|---|---|---|---|---|
+| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% |
 
 ---
 
 ## 🗺️ The Map: Visual SSOT Index
 
-**Plan**: [Backlog](./docs/planning/backlog.md) | [Map](./docs/planning/map.md) | [Doubts](./docs/planning/doubts.md) | [Conflict Map](./docs/planning/conflict-map.md)
-**Architecture**: [Arch](./docs/architecture/arch.md) | [Vision](./docs/architecture/vision.md) | [Decisions](./docs/architecture/decisions.md) | [Network Security](./docs/architecture/network-security.md) | [Offline Caching](./docs/architecture/offline-caching-strategy.md) | [Plugin Sandbox](./docs/architecture/plugin-sandbox.md) | [Plugin Resolver](./docs/architecture/plugin-dependency-resolver.md) | [Swagger](./docs/architecture/swagger.yaml)
+**Plan**: [Backlog](./docs/planning/backlog.md) | [Roadmap](./docs/planning/roadmap.md) | [Map](./docs/planning/map.md) | [Doubts](./docs/planning/doubts.md) | [Conflict Map](./docs/planning/conflict-map.md)
+**Architecture**: [Arch](./docs/architecture/arch.md) | [System Design](./docs/architecture/system-design.md) | [Vision](./docs/architecture/vision.md) | [Decisions](./docs/architecture/decisions.md) | [Network Security](./docs/architecture/network-security.md) | [Offline Caching](./docs/architecture/offline-caching-strategy.md) | [Plugin Sandbox](./docs/architecture/plugin-sandbox.md) | [Plugin Resolver](./docs/architecture/plugin-dependency-resolver.md) | [Swagger](./docs/architecture/swagger.yaml)
 **Rules**: [Standards](./docs/rules/standards.md) | [Habits](./docs/rules/habits.md) | [Hygiene](./docs/rules/hygiene.md) | [Process Flow](./docs/rules/process-flow.md)
-**Engineering**: [Index](./docs/engineering/index.md)
+**Engineering**: [Index](./docs/engineering/index.md) | [Conventions](./docs/engineering/conventions.md)
 **Release**: [Release Notes](./docs/release/release-notes.md) | [Metrics](./docs/release/metrics.md) | [Project Health](./docs/release/project-health.md) | [System Health](./docs/release/system-health.md)
 
 ---

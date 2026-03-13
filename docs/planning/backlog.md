@@ -357,3 +357,13 @@
 
 - **RESOLVE-003**: Implement integration hooks for run.sh to properly execute --skills endpoint logic from skills.sh.
 - **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
+
+- **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK NEU-010: Implement `SingerIdentificationService` using wavlm-base-plus-sv** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **SPEC:** Use a Speaker/Singer Identification model (e.g., `microsoft/wavlm-base-plus-sv`) to extract voice embedding of current song. Save it into `EmbeddingDatabase` for DB constraints.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **TASK NEU-011: Implement Live vs. Studio Classification logic** | [TODO] | [src/modules/neu]
+- **SPEC:** Train or use a classifier based on `MERT` features to distinguish "Studio Recording" vs "Live Performance" vs "Cover/Acoustic". Expose API and save the classification to tags.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
