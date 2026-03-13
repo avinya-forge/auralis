@@ -154,11 +154,13 @@ class MusicScanner(QObject):
         # Using run_in_executor could be better, but for simplicity we wrap the sync generator
         # to just list() or asyncio.to_thread
         loop = asyncio.get_event_loop()
-        def run_sync():
-            files = []
+
+        def run_sync() -> List[Dict[str, Any]]:
+            files: List[Dict[str, Any]] = []
             for file_info in self._process_directory(directory, processed_files, total_files):
                 files.append(file_info)
             return files
+
         return await loop.run_in_executor(None, run_sync)
 
     def _count_music_files(self, directory: str) -> int:
