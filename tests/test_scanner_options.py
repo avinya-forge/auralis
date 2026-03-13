@@ -69,6 +69,7 @@ class TestScannerOptions:
             # Set max depth 0 (only root)
             scanner.max_scan_depth = 0
             import asyncio
+
             results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
             assert len(results) == 0
 
@@ -97,6 +98,7 @@ class TestScannerOptions:
             # Set max depth 0 (only root)
             scanner.max_scan_depth = 0
             import asyncio
+
             results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
 
             # Should find root_song.mp3 but NOT nested_song.mp3

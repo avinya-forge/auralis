@@ -93,7 +93,10 @@ class MusicScanner(QObject):
         if total_files == 0:
             return []
 
-        tasks = [self._process_directory_async(directory, processed_files, total_files) for directory in directories]
+        tasks = [
+            self._process_directory_async(directory, processed_files, total_files)
+            for directory in directories
+        ]
         results = await asyncio.gather(*tasks)
         for directory_files in results:
             self.files.extend(directory_files)
