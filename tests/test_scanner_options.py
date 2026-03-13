@@ -1,4 +1,3 @@
-import asyncio
 import os
 from unittest.mock import patch
 
@@ -69,12 +68,12 @@ class TestScannerOptions:
 
             # Set max depth 0 (only root)
             scanner.max_scan_depth = 0
-            results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
+            results = scanner.scan_directories([str(tmp_path)])
             assert len(results) == 0
 
             # Set max depth 1
             scanner.max_scan_depth = 1
-            results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
+            results = scanner.scan_directories([str(tmp_path)])
             assert len(results) == 1
 
     def test_scan_depth_limit_coverage(self, scanner, tmp_path):
@@ -96,7 +95,7 @@ class TestScannerOptions:
 
             # Set max depth 0 (only root)
             scanner.max_scan_depth = 0
-            results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
+            results = scanner.scan_directories([str(tmp_path)])
 
             # Should find root_song.mp3 but NOT nested_song.mp3
             assert len(results) == 1

@@ -2,10 +2,8 @@
 Auralis - Music Scanner Module
 """
 
-import asyncio
 import hashlib
 import os
-import threading
 import time
 from typing import Any, Dict, Generator, List, Optional, Set, Tuple
 
@@ -63,11 +61,11 @@ class MusicScanner(QObject):
         self.exclude_patterns = self.DEFAULT_EXCLUDE_PATTERNS.copy()
         self.max_scan_depth = 10  # Default max directory depth
 
-    async def scan_directories(
+    def scan_directories(
         self, directories: List[str], options: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
         """
-        Scan a list of directories for music files asynchronously.
+        Scan a list of directories for music files.
 
         Args:
             directories (list): List of directory paths to scan.
@@ -80,53 +78,28 @@ class MusicScanner(QObject):
             list: List of dictionaries containing file info.
         """
         self.files = []
+        total_files = 0
+        processed_files = 0
 
         # Update scanner options if provided
         self._update_options(options)
 
-        # First pass: count total files concurrently
-        count_tasks = [asyncio.to_thread(self._count_music_files, directory) for directory in directories]
-        counts = await asyncio.gather(*count_tasks)
-        total_files = sum(counts)
+        # First pass: count total files (with optimization)
+        for directory in directories:
+            total_files += self._count_music_files(directory)
 
         # If no files found, return empty list
         if total_files == 0:
             return []
 
-        processed_files = 0
-        progress_lock = threading.Lock()
-
-        # Second pass: process files concurrently across directories
-        async def process_dir_async(directory: str) -> List[Dict[str, Any]]:
-            # We must use to_thread for blocking operations if we want true async,
-            # but yielding from threads is tricky. Let's process the whole directory
-            # in a thread and emit progress sequentially, or collect and then emit.
-            # To keep it thread-safe with PyQt signals, we can emit them directly
-            # from the background thread safely in PyQt6.
-
-            # wrapper to consume the generator
-            def run_process() -> List[Dict[str, Any]]:
-                nonlocal processed_files
-                local_files = []
-                # pass 0 to _process_directory as we don't rely on its progress emission logic
-                for file_info in self._process_directory(directory, 0, total_files):
-                    local_files.append(file_info)
-                    with progress_lock:
-                        processed_files += 1
-                        current_processed = processed_files
-                    self.progress_updated.emit(current_processed, total_files)
-                return local_files
-
-            return await asyncio.to_thread(run_process)
-
-        process_tasks = [process_dir_async(directory) for directory in directories]
-        results = await asyncio.gather(*process_tasks)
-
-        for result in results:
-            self.files.extend(result)
+        # Second pass: process files
+        for directory in directories:
+            for file_info in self._process_directory(directory, processed_files, total_files):
+                self.files.append(file_info)
+                processed_files += 1
+                self.progress_updated.emit(processed_files, total_files)
 
         self.scan_completed.emit(self.files)
-
         return self.files
 
     def _parse_string_list(self, value: Any) -> List[str]:
