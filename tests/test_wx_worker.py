@@ -60,7 +60,10 @@ class TestWxWorkerThread(unittest.TestCase):
         self.mock_scanner = MagicMock()
         self.mock_scanner.progress_updated = MagicMock()
         self.mock_scanner.file_scanned = MagicMock()
-        self.mock_scanner.scan_directories.return_value = [{"path": "test.mp3"}]
+
+        async def mock_scan(*args, **kwargs):
+            return [{"path": "test.mp3"}]
+        self.mock_scanner.scan_directories.side_effect = mock_scan
 
         self.mock_organizer = MagicMock()
         self.mock_organizer.progress_updated = MagicMock()

@@ -15,16 +15,16 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-002A: Rewrite `MusicScanner` with `asyncio.gather`** | [TODO] | [src/modules/perf]
+- **TASK PERF-002A: Rewrite `MusicScanner` with `asyncio.gather`** | [DONE] | [src/modules/perf]
 - **SPEC:** Rewrite `MusicScanner.scan_directories` using `asyncio.gather` for recursive directory traversal.
 
 > **🎯 EPIC:** PERF-002A | **Target:** src/core/scanner.py | **DoD:** 0 err, >95% cov
 
-> - **[ ] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
+> - **[x] TASK:** perf-002a-1-refactor-scan-method | **Loc:** src/core/scanner.py
 
 >   - **Spec:** Convert scan_directories to async, use asyncio.gather for parallel dir traversal | **Deps:** asyncio, os | **Hygiene:** Update error handling
 
-> - **[ ] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
+> - **[x] TASK:** perf-002a-2-update-tests | **Loc:** tests/test_scanner.py
 
 >   - **Spec:** Update unit tests to mock and await the new async scan method | **Deps:** pytest.mark.asyncio, unittest.mock | **Hygiene:** Maintain >95% test coverage
 

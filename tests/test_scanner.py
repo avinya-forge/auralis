@@ -57,11 +57,13 @@ class TestMusicScanner:
         assert artist is None
         assert title is None
 
-    def test_scan_directories_empty(self, scanner, tmp_path):
-        results = scanner.scan_directories([str(tmp_path)])
+    @pytest.mark.asyncio
+    async def test_scan_directories_empty(self, scanner, tmp_path):
+        results = await scanner.scan_directories([str(tmp_path)])
         assert results == []
 
-    def test_scan_directories_with_files(self, scanner, tmp_path):
+    @pytest.mark.asyncio
+    async def test_scan_directories_with_files(self, scanner, tmp_path):
         # Create a dummy music file
         music_file = tmp_path / "test_song.mp3"
         music_file.write_text("dummy content")
@@ -81,7 +83,7 @@ class TestMusicScanner:
 
             # Also mock _get_modification_time to avoid OS calls
             with patch.object(scanner, "_get_modification_time", return_value="2023-01-01"):
-                results = scanner.scan_directories([str(tmp_path)])
+                results = await scanner.scan_directories([str(tmp_path)])
 
             assert len(results) == 1
             assert results[0]["filename"] == "test_song.mp3"

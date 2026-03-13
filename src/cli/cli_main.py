@@ -1,3 +1,4 @@
+import asyncio
 """
 Auralis - CLI Main Module
 """
@@ -274,7 +275,7 @@ def run_scan(args: argparse.Namespace) -> None:
 
     # Run scan
     try:
-        files = scanner.scan_directories(args.directories, options)
+        files = asyncio.run(scanner.scan_directories(args.directories, options))
         handler.close()
         print(f"Found {len(files)} music files.")
 
@@ -516,7 +517,7 @@ def _load_files(source: str) -> List[Dict[str, Any]]:
         scanner.progress_updated.connect(handler.on_progress_updated)
         scanner.file_scanned.connect(handler.on_file_scanned)
 
-        files = scanner.scan_directories([source])
+        files = asyncio.run(scanner.scan_directories([source]))
         handler.close()
         return files
     else:

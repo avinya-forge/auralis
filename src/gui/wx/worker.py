@@ -1,3 +1,4 @@
+import asyncio
 """
 Worker Thread for Auralis wxPython Main Window
 """
@@ -122,7 +123,7 @@ class WorkerThread(threading.Thread):
 
         # Note: scan_directories is blocking. We can't easily interrupt it
         # unless we modify MusicScanner to check a stop flag.
-        self.scanned_files = self.scanner.scan_directories(self.source_dirs, scan_options)
+        self.scanned_files = asyncio.run(self.scanner.scan_directories(self.source_dirs, scan_options))
 
         # Disconnect signals
         self.scanner.progress_updated.disconnect(self._on_scan_progress)
