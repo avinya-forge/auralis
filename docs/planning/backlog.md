@@ -369,21 +369,21 @@
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC PLG-001: Implement DependencyResolver via Kahn's Algorithm** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
+- **EPIC PLG-001: Implement DependencyResolver via Kahn's Algorithm** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
 - **SPEC:** Implement `DependencyResolver` module. Use Kahn's algorithm topological sort on `metadata.json` dependency dictionaries to compute execution order. Add circular dependency detection preventing initialization.
 
 > **🎯 EPIC:** PLG-001 | **Target:** src/modules/plg | **DoD:** 0 err, >95% cov
 
-> - **[ ] TASK:** plg-001-1-parse-metadata | **Loc:** src/modules/plg/dependency_resolver.py
+> - **[x] TASK:** plg-001-1-parse-metadata | **Loc:** src/modules/plg/dependency_resolver.py
 >   - **Spec:** Read and parse metadata.json into a dependency graph dict | **Deps:** json, os | **Hygiene:** Handle missing files | **LOC Estimate:** 30
 
-> - **[ ] TASK:** plg-001-2-implement-kahns | **Loc:** src/modules/plg/dependency_resolver.py
+> - **[x] TASK:** plg-001-2-implement-kahns | **Loc:** src/modules/plg/dependency_resolver.py
 >   - **Spec:** Implement Kahn's algorithm for topological sort on the graph | **Deps:** collections.deque | **Hygiene:** O(V+E) time complexity | **LOC Estimate:** 40
 
-> - **[ ] TASK:** plg-001-3-circular-detection | **Loc:** src/modules/plg/dependency_resolver.py
+> - **[x] TASK:** plg-001-3-circular-detection | **Loc:** src/modules/plg/dependency_resolver.py
 >   - **Spec:** Detect circular deps when graph has remaining edges | **Deps:** None | **Hygiene:** [HIGH-RISK] Prevents infinite loops | **LOC Estimate:** 15
 
-> - **[ ] TASK:** plg-001-4-write-tests | **Loc:** tests/test_dependency_resolver.py
+> - **[x] TASK:** plg-001-4-write-tests | **Loc:** tests/test_dependency_resolver.py
 >   - **Spec:** Unit tests for linear, independent, and circular dependency graphs | **Deps:** pytest | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 - **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
