@@ -87,7 +87,9 @@ class DependencyResolver:
 
         return resolved_order
 
-    def _build_graph(self, graph: Dict[str, List[str]], in_degree: Dict[str, int], adj_list: Dict[str, List[str]]) -> None:
+    def _build_graph(
+        self, graph: Dict[str, List[str]], in_degree: Dict[str, int], adj_list: Dict[str, List[str]]
+    ) -> None:
         """
         Helper to build in-degree and adjacency list from the dependency graph.
         """

@@ -48,11 +48,7 @@ def test_parse_metadata_invalid_json(tmp_path):
 
 def test_resolve_independent_plugins(tmp_path, monkeypatch):
     resolver = DependencyResolver(str(tmp_path))
-    monkeypatch.setattr(resolver, "parse_metadata", lambda: {
-        "A": [],
-        "B": [],
-        "C": []
-    })
+    monkeypatch.setattr(resolver, "parse_metadata", lambda: {"A": [], "B": [], "C": []})
 
     order = resolver.resolve()
     assert set(order) == {"A", "B", "C"}
@@ -63,11 +59,7 @@ def test_resolve_linear_dependencies(tmp_path, monkeypatch):
     resolver = DependencyResolver(str(tmp_path))
     # A -> B -> C (A depends on B, B depends on C)
     # Order should be C, B, A
-    monkeypatch.setattr(resolver, "parse_metadata", lambda: {
-        "A": ["B"],
-        "B": ["C"],
-        "C": []
-    })
+    monkeypatch.setattr(resolver, "parse_metadata", lambda: {"A": ["B"], "B": ["C"], "C": []})
 
     order = resolver.resolve()
     assert order == ["C", "B", "A"]
@@ -80,12 +72,9 @@ def test_resolve_complex_dag(tmp_path, monkeypatch):
     # C -> D
     # D -> []
     # D must be first. Then B and C (any order). Then A.
-    monkeypatch.setattr(resolver, "parse_metadata", lambda: {
-        "A": ["B", "C"],
-        "B": ["D"],
-        "C": ["D"],
-        "D": []
-    })
+    monkeypatch.setattr(
+        resolver, "parse_metadata", lambda: {"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}
+    )
 
     order = resolver.resolve()
     assert order[0] == "D"
@@ -97,10 +86,7 @@ def test_resolve_circular_dependency(tmp_path, monkeypatch):
     resolver = DependencyResolver(str(tmp_path))
     # A -> B
     # B -> A
-    monkeypatch.setattr(resolver, "parse_metadata", lambda: {
-        "A": ["B"],
-        "B": ["A"]
-    })
+    monkeypatch.setattr(resolver, "parse_metadata", lambda: {"A": ["B"], "B": ["A"]})
 
     with pytest.raises(ValueError, match="Circular dependency detected preventing initialization."):
         resolver.resolve()
@@ -109,9 +95,7 @@ def test_resolve_circular_dependency(tmp_path, monkeypatch):
 def test_resolve_missing_dependency_in_metadata(tmp_path, monkeypatch):
     resolver = DependencyResolver(str(tmp_path))
     # A depends on B, but B has no metadata
-    monkeypatch.setattr(resolver, "parse_metadata", lambda: {
-        "A": ["B"]
-    })
+    monkeypatch.setattr(resolver, "parse_metadata", lambda: {"A": ["B"]})
 
     order = resolver.resolve()
     # B should be resolved first, then A
