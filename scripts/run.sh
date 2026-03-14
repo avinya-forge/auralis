@@ -23,6 +23,11 @@ audit() {
     echo "[SKILLS] Running AUDIT..."
     # Grep EPIC/DEBT across backlog
     grep -E "EPIC|DEBT" docs/planning/backlog.md
+
+    # Recursive expansion (for all matching tasks, run expand)
+    grep -E "EPIC|DEBT" docs/planning/backlog.md | while read -r line; do
+        pdlc_expand "$line"
+    done
 }
 
 verify() {
@@ -32,7 +37,7 @@ verify() {
     python -m pytest --cov=src tests/ || echo "[TEST] pytest failed"
 }
 
-expand() {
+pdlc_expand() {
     echo "[SKILLS] Running PDLC_EXPAND on $1..."
     # Recursive drill-down stub
     echo "[PDLC] Expanding step $1 -> [REQUIREMENTS, DESIGN, IMPLEMENTATION, TESTING, DEPLOYMENT]"
@@ -53,7 +58,7 @@ case "$1" in
         audit
         ;;
     expand)
-        expand "$2"
+        pdlc_expand "$2"
         ;;
     --sync)
         echo "[RUN.SH] MODE: SYNC - IDEMPOTENT file-tree alignment"

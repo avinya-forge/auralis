@@ -79,9 +79,9 @@ graph TD
 **The Autonomous, High-Fidelity Music Neural Network.**
 
 ## Pulse Table
-| Milestone | Version | Phase | Status | Debt% | Density |
-|---|---|---|---|---|---|
-| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% | 60 Tasks |
+| Milestone | Version | Phase | Status | Debt% |
+|---|---|---|---|---|
+| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% |
 
 ## IO_SSOT Index
 - **Plan**:
