@@ -188,7 +188,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK MOB-001: Create mobilesyncservice for local network discovery** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
+- **EPIC MOB-001: Create mobilesyncservice for local network discovery** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Integrate `zeroconf` to broadcast Auralis service via mDNS `_auralis._tcp.local.`. Enable mobile app discovery of desktop IP address and API port without manual entry.
 
 
@@ -366,4 +366,24 @@
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **TASK NEU-011: Implement Live vs. Studio Classification logic** | [TODO] | [src/modules/neu]
 - **SPEC:** Train or use a classifier based on `MERT` features to distinguish "Studio Recording" vs "Live Performance" vs "Cover/Acoustic". Expose API and save the classification to tags.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **EPIC PLG-001: Implement DependencyResolver via Kahn's Algorithm** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
+- **SPEC:** Implement `DependencyResolver` module. Use Kahn's algorithm topological sort on `metadata.json` dependency dictionaries to compute execution order. Add circular dependency detection preventing initialization.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **EPIC MOB-001: Implement OfflineCache SQLite Strategy** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
+- **SPEC:** Build `OfflineCache` class with embedded SQLite database `mobile_tracks`. Enforce LRU eviction policy automatically freeing storage based on user max cache size limits by deleting oldest `.opus` records.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **EPIC PLG-002: Implement PluginSandbox using MetaPathFinder** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
+- **SPEC:** Build `PluginSandboxFinder` subclassing `importlib.abc.MetaPathFinder`. Prevent `os`, `subprocess`, and `sys` library imports from sandboxed modules inside `src/modules/plg/` by raising `ImportError`.
+  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **EPIC NET-001: Implement P2PNetworkSecurity with libp2p and Noise** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/net]
+- **SPEC:** Implement `P2PNetworkSecurity` module using `libp2p`. Generate `ed25519` keypair on initial boot. Setup `NoiseTransport` for secure handshakes to encrypt `.flac` file chunks over mesh network.
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]

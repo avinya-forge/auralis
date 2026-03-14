@@ -18,6 +18,7 @@ try:
     import numpy as np
     import torch
     from transformers import AutoModel, AutoProcessor, ClapModel, Wav2Vec2FeatureExtractor
+
     TRANSFORMERS_AVAILABLE = True
 except ImportError as e:
     TRANSFORMERS_AVAILABLE = False
@@ -59,8 +60,12 @@ class MusicAI:
 
         print("Loading MERT model (m-a-p/MERT-v1-95M)...")
         try:
-            self.mert_processor = Wav2Vec2FeatureExtractor.from_pretrained("m-a-p/MERT-v1-95M", trust_remote_code=True)
-            self.mert_model = AutoModel.from_pretrained("m-a-p/MERT-v1-95M", trust_remote_code=True).to(self.device)
+            self.mert_processor = Wav2Vec2FeatureExtractor.from_pretrained(
+                "m-a-p/MERT-v1-95M", trust_remote_code=True
+            )
+            self.mert_model = AutoModel.from_pretrained(
+                "m-a-p/MERT-v1-95M", trust_remote_code=True
+            ).to(self.device)
             print("MERT model loaded successfully.")
         except Exception as e:
             print(f"Failed to load MERT: {e}")
@@ -80,7 +85,11 @@ class MusicAI:
 
             # Process inputs
             inputs = self.clap_processor(
-                text=candidate_labels, audios=audio, return_tensors="pt", padding=True, sampling_rate=48000
+                text=candidate_labels,
+                audios=audio,
+                return_tensors="pt",
+                padding=True,
+                sampling_rate=48000,
             )
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
@@ -144,7 +153,7 @@ def demo_raga_identification(ai, audio_path):
         "Indian Classical Raga Todi",
         "Indian Classical Raga Darbari",
         "Bollywood Song",
-        "Western Pop Music"
+        "Western Pop Music",
     ]
     results = ai.classify_zero_shot(audio_path, ragas)
     for label, score in results.items():
@@ -158,7 +167,9 @@ def demo_cover_song_identification(ai, original_path, cover_path):
 
     if emb_orig is not None and emb_cover is not None:
         # Cosine Similarity
-        similarity = np.dot(emb_orig, emb_cover) / (np.linalg.norm(emb_orig) * np.linalg.norm(emb_cover))
+        similarity = np.dot(emb_orig, emb_cover) / (
+            np.linalg.norm(emb_orig) * np.linalg.norm(emb_cover)
+        )
         print(f"Semantic Similarity Score: {similarity:.4f}")
         if similarity > 0.85:
             print("Result: Likely a Cover (High Similarity)")
