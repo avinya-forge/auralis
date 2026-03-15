@@ -392,8 +392,16 @@
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC PLG-002: Implement PluginSandbox using MetaPathFinder** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
+- **EPIC PLG-002: Implement PluginSandbox using MetaPathFinder** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
 - **SPEC:** Build `PluginSandboxFinder` subclassing `importlib.abc.MetaPathFinder`. Prevent `os`, `subprocess`, and `sys` library imports from sandboxed modules inside `src/modules/plg/` by raising `ImportError`.
+> **🎯 EPIC:** PLG-002 | **Target:** src/modules/plg | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** plg-002-1-implement-sandbox | **Loc:** src/modules/plg/plugin_sandbox.py
+>   - **Spec:** Create `PluginSandboxFinder` subclassing `importlib.abc.MetaPathFinder` to intercept banned modules | **Deps:** importlib.abc, inspect, sys | **Hygiene:** Exception handling for ImportError | **LOC Estimate:** 50
+
+> - **[x] TASK:** plg-002-2-implement-tests | **Loc:** tests/test_plugin_sandbox.py
+>   - **Spec:** Write unit tests using pytest for import interceptions | **Deps:** pytest, unittest.mock | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
+
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
 - **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
