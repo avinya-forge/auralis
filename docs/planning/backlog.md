@@ -49,8 +49,19 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-003: Implement `metadatacache` using `sqlite3` (persistent)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/perf]
+- **TASK PERF-003: Implement `metadatacache` using `sqlite3` (persistent)** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/perf]
 - **SPEC:** Replace memory-dict in `MetadataService` with `MetadataCache` using SQLite. Schema: `hash (PRIMARY KEY)`, `json_data`, `last_updated`. Implement a 7-day TTL expiration logic.
+
+> **🎯 EPIC:** PERF-003 | **Target:** src/modules/perf/metadata_cache.py | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** perf-003-1-implement-metadata-cache | **Loc:** src/modules/perf/metadata_cache.py
+>   - **Spec:** Implement `MetadataCache` using SQLite with a 7-day TTL expiration logic | **Deps:** sqlite3, time, json | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
+
+> - **[x] TASK:** perf-003-2-integrate-metadata-service | **Loc:** src/services/metadata_service.py
+>   - **Spec:** Swap `CacheService` with `MetadataCache` in `MetadataService` | **Deps:** None | **Hygiene:** Exception handling for database failures | **LOC Estimate:** 10
+
+> - **[x] TASK:** perf-003-3-write-tests | **Loc:** tests/test_metadata_cache.py
+>   - **Spec:** Unit tests for initialization, get, set, and 7-day TTL `clean_expired()` logic | **Deps:** pytest, unittest.mock | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
