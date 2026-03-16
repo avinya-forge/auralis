@@ -276,7 +276,7 @@ class TestMetadataService:
         ), patch("src.services.metadata_service.BioService"), patch(
             "src.services.metadata_service.AudioAnalyzer"
         ), patch(
-            "src.services.metadata_service.CacheService"
+            "src.services.metadata_service.MetadataCache"
         ):
             service = MetadataService()
             # Manually add mock sources

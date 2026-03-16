@@ -21,10 +21,10 @@ import mutagen.id3
 import mutagen.mp3
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src.modules.perf.metadata_cache import MetadataCache
 from src.services.album_art_service import AlbumArtFetcher
 from src.services.audio_analysis_service import AudioAnalyzer
 from src.services.bio_service import BioService
-from src.services.cache_service import CacheService
 
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics
@@ -705,7 +705,7 @@ class MetadataService(QObject):
         self.audio_analyzer = AudioAnalyzer()
 
         # Initialize cache service
-        self.cache_service = CacheService()
+        self.metadata_cache = MetadataCache()
 
         # Load saved statistics if available
         self._load_stats()
@@ -869,7 +869,7 @@ class MetadataService(QObject):
             file_hash = file_info.get("hash")
             cached_metadata = None
             if file_hash and not options.get("force_update", False):
-                cached_metadata = self.cache_service.get_metadata(file_hash)
+                cached_metadata = self.metadata_cache.get(file_hash)
 
             if cached_metadata:
                 file_info["metadata"].update(cached_metadata)
@@ -934,7 +934,7 @@ class MetadataService(QObject):
             if updated_file_info and "hash" in updated_file_info:
                 file_hash = updated_file_info["hash"]
                 if file_hash and "metadata" in updated_file_info:
-                    self.cache_service.save_metadata(file_hash, updated_file_info["metadata"])
+                    self.metadata_cache.set(file_hash, updated_file_info["metadata"])
 
             return updated_file_info
 
