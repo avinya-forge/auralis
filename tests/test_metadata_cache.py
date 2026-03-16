@@ -97,6 +97,7 @@ class TestMetadataCache:
 
         # Try to retrieve them directly from DB without triggering lazy delete
         import sqlite3
+
         with sqlite3.connect(metadata_cache.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT hash FROM metadata")
