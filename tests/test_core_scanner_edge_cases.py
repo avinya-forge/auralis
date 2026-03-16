@@ -31,20 +31,19 @@ class TestScannerEdgeCases(unittest.TestCase):
         self.assertEqual(results, [])
 
     @patch("mutagen.File")
-    @patch("os.path.getsize")
-    @patch("os.path.getmtime")
+    @patch("os.stat")
     @patch("hashlib.md5")
-    def test_corrupt_file(self, mock_md5, mock_mtime, mock_size, mock_mutagen):
+    def test_corrupt_file(self, mock_md5, mock_stat, mock_mutagen):
         """Test processing a corrupt audio file"""
-        mock_size.return_value = 1024
-        mock_mtime.return_value = 1234567890
+        mock_stat.return_value.st_size = 1024
+        mock_stat.return_value.st_mtime = 1234567890
         mock_md5.return_value.hexdigest.return_value = "hash"
 
         # Mutagen fails
         mock_mutagen.side_effect = Exception("Corrupt header")
 
         # Should still return basic file info
-        file_info = self.scanner._extract_file_info("/path/to/corrupt.mp3")
+        file_info = asyncio.run(self.scanner._extract_file_info("/path/to/corrupt.mp3"))
 
         self.assertIsNotNone(file_info)
         self.assertEqual(file_info["filename"], "corrupt.mp3")
@@ -81,9 +80,9 @@ class TestScannerEdgeCases(unittest.TestCase):
         hash_val = self.scanner._calculate_file_hash("/locked/file.mp3")
         self.assertIsNone(hash_val)
 
-    @patch("os.path.getsize")
-    def test_extract_file_info_error(self, mock_size):
+    @patch("os.stat")
+    def test_extract_file_info_error(self, mock_stat):
         """Test _extract_file_info when a critical error occurs"""
-        mock_size.side_effect = Exception("Critical FS Error")
-        file_info = self.scanner._extract_file_info("/path/to/file.mp3")
+        mock_stat.side_effect = Exception("Critical FS Error")
+        file_info = asyncio.run(self.scanner._extract_file_info("/path/to/file.mp3"))
         self.assertIsNone(file_info)

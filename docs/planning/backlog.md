@@ -32,9 +32,20 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PERF-002B: Implement `aiofiles` for os stat and mutagen reads** | [TODO] | [src/modules/perf]
-- **SPEC:** Implement `aiofiles` for asynchronous OS stat calls and mutagen tag reads.
+- **TASK PERF-002B: Refactor `os.stat` and `mutagen` reads to be asynchronous** | [DONE] | [src/core/scanner.py]
+- **SPEC:** Use `asyncio.to_thread` for asynchronous OS stat calls and mutagen tag reads, and process files concurrently using `asyncio.gather` bounded by a semaphore to prevent file limit errors.
 
+
+> **🎯 EPIC:** PERF-002B | **Target:** src/core/scanner.py | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** perf-002b-1-refactor-os-stat | **Loc:** src/core/scanner.py
+>   - **Spec:** Refactor `_get_modification_time` and `_extract_file_info` to use `asyncio.to_thread` for non-blocking file stats | **Deps:** asyncio, os | **Hygiene:** Update error handling
+
+> - **[x] TASK:** perf-002b-2-refactor-mutagen-reads | **Loc:** src/core/scanner.py
+>   - **Spec:** Refactor `_extract_metadata` to use `asyncio.to_thread` for mutagen tag reads | **Deps:** asyncio, mutagen | **Hygiene:** Update error handling
+
+> - **[x] TASK:** perf-002b-3-update-tests | **Loc:** tests/test_scanner.py
+>   - **Spec:** Update unit tests to mock and await the new async methods and mock `os.stat` | **Deps:** pytest.mark.asyncio, unittest.mock.patch | **Hygiene:** Maintain >95% test coverage
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 2: FEATURE ENHANCEMENT (RESIDUAL DEBT)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]

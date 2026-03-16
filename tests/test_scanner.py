@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 import pytest
 
@@ -73,7 +73,7 @@ class TestMusicScanner:
         # Mock _extract_file_info to avoid mutagen dependency during test
         # We need to mock it on the instance or class. Since scanner is an instance,
         # and _extract_file_info is an instance method.
-        with patch.object(scanner, "_extract_file_info") as mock_extract:
+        with patch.object(scanner, "_extract_file_info", new_callable=AsyncMock) as mock_extract:
             mock_extract.return_value = {
                 "path": str(music_file),
                 "filename": "test_song.mp3",
@@ -84,7 +84,8 @@ class TestMusicScanner:
             }
 
             # Also mock _get_modification_time to avoid OS calls
-            with patch.object(scanner, "_get_modification_time", return_value="2023-01-01"):
+            with patch.object(scanner, "_get_modification_time", new_callable=AsyncMock) as mock_mtime:
+                mock_mtime.return_value = "2023-01-01"
                 results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
 
             assert len(results) == 1

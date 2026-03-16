@@ -153,18 +153,45 @@ class MusicScanner(QObject):
     async def _process_directory_async(
         self, directory: str, processed_files: int, total_files: int
     ) -> List[Dict[str, Any]]:
-        """Async wrapper around process directory to allow gathering."""
-        # Using run_in_executor could be better, but for simplicity we wrap the sync generator
-        # to just list() or asyncio.to_thread
-        loop = asyncio.get_event_loop()
+        """Process all music files in a directory tree asynchronously."""
+        files_result: List[Dict[str, Any]] = []
+        try:
+            # os.walk is synchronous, but we can iterate it in a thread or just use it if it's fast.
+            # To be non-blocking, we'll run it in a thread pool and collect paths first,
+            # or just process it asynchronously. Let's collect paths in a thread pool.
+            loop = asyncio.get_event_loop()
 
-        def run_sync() -> List[Dict[str, Any]]:
-            files: List[Dict[str, Any]] = []
-            for file_info in self._process_directory(directory, processed_files, total_files):
-                files.append(file_info)
-            return files
+            def collect_paths() -> List[str]:
+                paths = []
+                for root, dirs, files in os.walk(directory):
+                    self._filter_dirs(root, dirs, directory)
+                    for file in files:
+                        if self._is_music_file(file):
+                            paths.append(os.path.join(root, file))
+                return paths
 
-        return await loop.run_in_executor(None, run_sync)
+            file_paths = await loop.run_in_executor(None, collect_paths)
+
+            # Limit concurrency to avoid too many open files or overwhelming the system
+            sem = asyncio.Semaphore(50)
+
+            async def bounded_process(path: str) -> Optional[Dict[str, Any]]:
+                async with sem:
+                    return await self._process_single_file(path)
+
+            tasks = [bounded_process(path) for path in file_paths]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for res in results:
+                if isinstance(res, dict):
+                    files_result.append(res)
+                elif isinstance(res, Exception):
+                    print(f"Error processing a file: {str(res)}")
+
+        except Exception as e:
+            print(f"Error processing directory {directory}: {str(e)}")
+
+        return files_result
 
     def _count_music_files(self, directory: str) -> int:
         """
@@ -186,12 +213,12 @@ class MusicScanner(QObject):
 
         return count
 
-    def _process_single_file(self, file_path: str) -> Optional[Dict[str, Any]]:
-        """Process a single music file."""
+    async def _process_single_file(self, file_path: str) -> Optional[Dict[str, Any]]:
+        """Process a single music file asynchronously."""
         self.file_scanned.emit(file_path)
-        file_info = self._extract_file_info(file_path)
+        file_info = await self._extract_file_info(file_path)
         if file_info:
-            file_info["modified_date"] = self._get_modification_time(file_path)
+            file_info["modified_date"] = await self._get_modification_time(file_path)
             file_info["processing_history"] = [
                 {
                     "stage": "Scan",
@@ -202,34 +229,6 @@ class MusicScanner(QObject):
             self.file_found.emit(file_info)
             return file_info
         return None
-
-    def _process_directory(
-        self, directory: str, processed_files: int, total_files: int
-    ) -> Generator[Dict[str, Any], None, None]:
-        """
-        Process all music files in a directory tree.
-
-        Args:
-            directory (str): Directory to scan.
-            processed_files (int): Number of files processed so far.
-            total_files (int): Total number of files to process.
-
-        Yields:
-            dict: File information for each music file.
-        """
-        try:
-            for root, dirs, files in os.walk(directory):
-                self._filter_dirs(root, dirs, directory)
-
-                for file in files:
-                    if self._is_music_file(file):
-                        file_path = os.path.join(root, file)
-                        file_info = self._process_single_file(file_path)
-                        if file_info:
-                            yield file_info
-
-        except Exception as e:
-            print(f"Error processing directory {directory}: {str(e)}")
 
     def _should_exclude_dir(self, dirname: str) -> bool:
         """
@@ -265,7 +264,7 @@ class MusicScanner(QObject):
         _, ext = os.path.splitext(filename.lower())
         return ext in self.supported_extensions
 
-    def _get_modification_time(self, file_path: str) -> str:
+    async def _get_modification_time(self, file_path: str) -> str:
         """
         Get the modification time of a file in human-readable format.
 
@@ -276,12 +275,13 @@ class MusicScanner(QObject):
             str: Formatted modification time string.
         """
         try:
-            mtime = os.path.getmtime(file_path)
+            stat_info = await asyncio.to_thread(os.stat, file_path)
+            mtime = stat_info.st_mtime
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mtime))
         except Exception:
             return "Unknown"
 
-    def _extract_file_info(self, file_path: str) -> Optional[Dict[str, Any]]:
+    async def _extract_file_info(self, file_path: str) -> Optional[Dict[str, Any]]:
         """
         Extract basic information from a music file.
 
@@ -292,16 +292,20 @@ class MusicScanner(QObject):
             dict: Dictionary containing file information, or None on error.
         """
         try:
+            stat_info = await asyncio.to_thread(os.stat, file_path)
+            # calculate hash non-blocking
+            file_hash = await asyncio.to_thread(self._calculate_file_hash, file_path)
+
             file_info: Dict[str, Any] = {
                 "path": file_path,
                 "filename": os.path.basename(file_path),
                 "extension": os.path.splitext(file_path)[1].lower(),
-                "size": os.path.getsize(file_path),
-                "hash": self._calculate_file_hash(file_path),
+                "size": stat_info.st_size,
+                "hash": file_hash,
                 "metadata": {},
             }
 
-            self._extract_metadata(file_path, file_info)
+            await self._extract_metadata(file_path, file_info)
             return file_info
 
         except Exception as e:
@@ -326,7 +330,7 @@ class MusicScanner(QObject):
                 "title": title if title else "Unknown Title",
             }
 
-    def _extract_metadata(self, file_path: str, file_info: Dict[str, Any]) -> None:
+    async def _extract_metadata(self, file_path: str, file_info: Dict[str, Any]) -> None:
         """
         Helper to extract metadata and update file_info.
 
@@ -335,7 +339,7 @@ class MusicScanner(QObject):
             file_info (Dict[str, Any]): Dictionary to update with metadata.
         """
         try:
-            audio = mutagen.File(file_path)
+            audio = await asyncio.to_thread(mutagen.File, file_path)
             if audio:
                 metadata: Dict[str, Any] = {}
                 self._parse_audio_tags(audio, metadata)
