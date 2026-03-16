@@ -167,9 +167,7 @@ class MusicScanner(QObject):
         files_result: List[Dict[str, Any]] = []
         try:
             loop = asyncio.get_event_loop()
-            file_paths = await loop.run_in_executor(
-                None, self._collect_music_file_paths, directory
-            )
+            file_paths = await loop.run_in_executor(None, self._collect_music_file_paths, directory)
 
             # Limit concurrency to avoid too many open files or overwhelming the system
             sem = asyncio.Semaphore(50)

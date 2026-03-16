@@ -84,7 +84,9 @@ class TestMusicScanner:
             }
 
             # Also mock _get_modification_time to avoid OS calls
-            with patch.object(scanner, "_get_modification_time", new_callable=AsyncMock) as mock_mtime:
+            with patch.object(
+                scanner, "_get_modification_time", new_callable=AsyncMock
+            ) as mock_mtime:
                 mock_mtime.return_value = "2023-01-01"
                 results = asyncio.run(scanner.scan_directories([str(tmp_path)]))
 
