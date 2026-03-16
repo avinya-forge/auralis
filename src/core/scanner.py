@@ -6,7 +6,7 @@ import hashlib
 import os
 import time
 import asyncio
-from typing import Any, Dict, Generator, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import mutagen
 import mutagen.flac
@@ -150,27 +150,26 @@ class MusicScanner(QObject):
         if depth >= self.max_scan_depth:
             dirs[:] = []  # Stop descending
 
+    def _collect_music_file_paths(self, directory: str) -> List[str]:
+        """Synchronously collect all music file paths in a directory tree."""
+        paths = []
+        for root, dirs, files in os.walk(directory):
+            self._filter_dirs(root, dirs, directory)
+            for file in files:
+                if self._is_music_file(file):
+                    paths.append(os.path.join(root, file))
+        return paths
+
     async def _process_directory_async(
         self, directory: str, processed_files: int, total_files: int
     ) -> List[Dict[str, Any]]:
         """Process all music files in a directory tree asynchronously."""
         files_result: List[Dict[str, Any]] = []
         try:
-            # os.walk is synchronous, but we can iterate it in a thread or just use it if it's fast.
-            # To be non-blocking, we'll run it in a thread pool and collect paths first,
-            # or just process it asynchronously. Let's collect paths in a thread pool.
             loop = asyncio.get_event_loop()
-
-            def collect_paths() -> List[str]:
-                paths = []
-                for root, dirs, files in os.walk(directory):
-                    self._filter_dirs(root, dirs, directory)
-                    for file in files:
-                        if self._is_music_file(file):
-                            paths.append(os.path.join(root, file))
-                return paths
-
-            file_paths = await loop.run_in_executor(None, collect_paths)
+            file_paths = await loop.run_in_executor(
+                None, self._collect_music_file_paths, directory
+            )
 
             # Limit concurrency to avoid too many open files or overwhelming the system
             sem = asyncio.Semaphore(50)
