@@ -2,8 +2,8 @@
 Worker Thread for Auralis PyQt6 Main Window
 """
 
-import traceback
 import asyncio
+import traceback
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import QThread, pyqtSignal

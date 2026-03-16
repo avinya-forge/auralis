@@ -3,11 +3,11 @@ Auralis - CLI Main Module
 """
 
 import argparse
+import asyncio
 import json
 import logging
 import os
 import sys
-import asyncio
 from typing import Any, Dict, List
 
 from src.utils.dependency_checker import DependencyChecker

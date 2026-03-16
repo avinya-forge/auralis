@@ -2,9 +2,9 @@
 Worker Thread for Auralis wxPython Main Window
 """
 
+import asyncio
 import threading
 import traceback
-import asyncio
 from typing import Any, Dict, List, Optional
 
 import wx

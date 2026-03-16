@@ -1,7 +1,7 @@
 import json
 import os
 from collections import deque
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 
 class DependencyResolver:

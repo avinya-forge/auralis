@@ -1,5 +1,7 @@
 import json
+
 import pytest
+
 from src.modules.plg.dependency_resolver import DependencyResolver
 
 
