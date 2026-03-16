@@ -1,8 +1,8 @@
+import asyncio
 import unittest
 from unittest.mock import patch
 
 from PyQt6.QtCore import QCoreApplication
-import asyncio
 
 from src.core.scanner import MusicScanner
 

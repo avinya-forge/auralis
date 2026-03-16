@@ -2,10 +2,10 @@
 Auralis - Music Scanner Module
 """
 
+import asyncio
 import hashlib
 import os
 import time
-import asyncio
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import mutagen
