@@ -21,10 +21,10 @@ import mutagen.id3
 import mutagen.mp3
 from PyQt6.QtCore import QObject, pyqtSignal
 
+from src.modules.perf.metadata_cache import MetadataCache
 from src.services.album_art_service import AlbumArtFetcher
 from src.services.audio_analysis_service import AudioAnalyzer
 from src.services.bio_service import BioService
-from src.modules.perf.metadata_cache import MetadataCache
 
 # Import lyrics service
 from src.services.lyrics_service import embed_lyrics, fetch_lyrics

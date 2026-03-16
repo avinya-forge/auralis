@@ -1,6 +1,7 @@
-from unittest.mock import patch
-import pytest
 import sqlite3
+from unittest.mock import patch
+
+import pytest
 
 from src.modules.perf.metadata_cache import MetadataCache
 
