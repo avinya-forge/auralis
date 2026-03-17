@@ -19,6 +19,7 @@ class TestPluginState(unittest.TestCase):
     def tearDown(self):
         # Clean up temporary directory
         import shutil
+
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     def test_initialization(self):

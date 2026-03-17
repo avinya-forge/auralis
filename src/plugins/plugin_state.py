@@ -26,14 +26,12 @@ class PluginState:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS plugin_state (
                         plugin_id TEXT PRIMARY KEY,
                         is_active INTEGER NOT NULL
                     )
-                    """
-                )
+                    """)
                 conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to initialize PluginState database: {e}")
@@ -53,8 +51,7 @@ class PluginState:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT is_active FROM plugin_state WHERE plugin_id = ?",
-                    (plugin_id,)
+                    "SELECT is_active FROM plugin_state WHERE plugin_id = ?", (plugin_id,)
                 )
                 row = cursor.fetchone()
 
@@ -84,7 +81,7 @@ class PluginState:
                     VALUES (?, ?)
                     ON CONFLICT(plugin_id) DO UPDATE SET is_active = excluded.is_active
                     """,
-                    (plugin_id, 1 if is_active else 0)
+                    (plugin_id, 1 if is_active else 0),
                 )
                 conn.commit()
         except sqlite3.Error as e:
