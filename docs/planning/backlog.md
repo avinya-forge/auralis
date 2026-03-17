@@ -144,8 +144,18 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK PLG-008: Add "enable/disable" plugin toggle logic** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
+- **EPIC PLG-008: Add "enable/disable" plugin toggle logic** | [DONE] | [HIGH-RISK] | [DEBT] | [src/plugins]
 - **SPEC:** Inject a SQLite table `plugin_state` tracking `plugin_id`, `is_active`. Update `PluginLoader` to query this table on app startup before calling `init()` on discovered `.py` modules.
+> **🎯 EPIC:** PLG-008 | **Target:** src/plugins | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** plg-008-1-implement-plugin-state | **Loc:** src/plugins/plugin_state.py
+>   - **Spec:** Create `PluginState` class with SQLite table `plugin_state` | **Deps:** sqlite3 | **Hygiene:** Exception handling | **LOC Estimate:** 50
+
+> - **[x] TASK:** plg-008-2-update-plugin-loader | **Loc:** src/plugins/plugin_loader.py
+>   - **Spec:** Query `PluginState` to filter plugins in `PluginLoader` | **Deps:** src.plugins.plugin_state | **Hygiene:** Early return disabled plugins | **LOC Estimate:** 20
+
+> - **[x] TASK:** plg-008-3-write-tests | **Loc:** tests/test_plugin_state.py
+>   - **Spec:** Write unit tests for plugin state persistence | **Deps:** pytest | **Hygiene:** 100% test coverage | **LOC Estimate:** 50
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
