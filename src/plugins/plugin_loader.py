@@ -12,6 +12,7 @@ import sys
 from typing import Any, Dict, List, Optional
 
 from src.plugins.plugin_interface import PluginInterface
+from src.plugins.plugin_state import PluginState
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +22,18 @@ class PluginLoader:
     Manages loading and initialization of external plugins via importlib.
     """
 
-    def __init__(self, plugin_dir: str = "plugins") -> None:
+    def __init__(self, plugin_dir: str = "plugins", db_path: str = "plugin_state.db") -> None:
         """
         Initialize the PluginLoader.
 
         Args:
             plugin_dir (str): Relative or absolute path to the plugins directory.
+            db_path (str): Path to the PluginState SQLite database.
         """
         self.plugin_dir = plugin_dir
         self.plugins: Dict[str, PluginInterface] = {}
         self.context: Dict[str, Any] = {}
+        self.plugin_state = PluginState(db_path=db_path)
 
     def set_context(self, context: Dict[str, Any]) -> None:
         """Set the application context to be passed to plugins on initialization."""
@@ -81,6 +84,10 @@ class PluginLoader:
         if plugin_name in self.plugins:
             logger.info(f"Plugin '{plugin_name}' is already loaded.")
             return self.plugins[plugin_name]
+
+        if not self.plugin_state.is_plugin_active(plugin_name):
+            logger.info(f"Plugin '{plugin_name}' is disabled in state tracker. Skipping.")
+            return None
 
         # Add the plugin directory to sys.path temporarily to resolve imports
         plugin_path_abs = os.path.abspath(self.plugin_dir)

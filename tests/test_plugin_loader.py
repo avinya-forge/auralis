@@ -14,7 +14,8 @@ class TestPluginLoader(unittest.TestCase):
     def setUp(self):
         # Create a temporary directory for plugins
         self.test_dir = tempfile.mkdtemp()
-        self.plugin_loader = PluginLoader(plugin_dir=self.test_dir)
+        self.db_path = os.path.join(self.test_dir, "test_plugin_state.db")
+        self.plugin_loader = PluginLoader(plugin_dir=self.test_dir, db_path=self.db_path)
 
         # Context to pass to plugins
         self.context = {"app": "AuralisTest"}
@@ -23,6 +24,11 @@ class TestPluginLoader(unittest.TestCase):
     def tearDown(self):
         # Clean up temporary directory
         self.plugin_loader.unload_all()
+        if os.path.exists(self.db_path):
+            try:
+                os.remove(self.db_path)
+            except OSError:
+                pass
         shutil.rmtree(self.test_dir)
 
     def _create_mock_plugin(self, name: str, code: str) -> None:
@@ -169,6 +175,37 @@ class TPlugin(PluginInterface):
 
         # Unload missing plugin
         self.assertFalse(self.plugin_loader.unload_plugin("missing"))
+
+    def test_load_plugin_disabled(self):
+        """Test that disabled plugins are not loaded."""
+        valid_plugin_code = """
+from src.plugins.plugin_interface import PluginInterface
+
+class MockPlugin(PluginInterface):
+    @property
+    def name(self): return "Mock Plugin"
+    @property
+    def version(self): return "1.0.0"
+    @property
+    def description(self): return "A mock plugin for testing."
+
+    def initialize(self, context):
+        self.initialized = True
+        return True
+
+    def shutdown(self):
+        self.initialized = False
+"""
+        self._create_mock_plugin("disabled_plugin", valid_plugin_code)
+
+        # Disable the plugin in the state tracker
+        self.plugin_loader.plugin_state.set_plugin_active("disabled_plugin", False)
+
+        # Attempt to load plugin
+        plugin = self.plugin_loader.load_plugin("disabled_plugin")
+
+        self.assertIsNone(plugin)
+        self.assertNotIn("disabled_plugin", self.plugin_loader.plugins)
 
     def test_load_all_and_unload_all(self):
         """Test load_all and unload_all methods."""
