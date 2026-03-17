@@ -409,9 +409,19 @@
 >   - **Spec:** Unit tests for linear, independent, and circular dependency graphs | **Deps:** pytest | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 - **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC MOB-001: Implement OfflineCache SQLite Strategy** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
+- **EPIC MOB-001: Implement OfflineCache SQLite Strategy** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Build `OfflineCache` class with embedded SQLite database `mobile_tracks`. Enforce LRU eviction policy automatically freeing storage based on user max cache size limits by deleting oldest `.opus` records.
-  - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+> **🎯 EPIC:** MOB-001 | **Target:** src/modules/mob | **DoD:** 0 err, >95% cov
+
+> - **[ ] TASK:** mob-001-1-implement-offline-cache | **Loc:** src/modules/mob/offline_cache.py
+>   - **Spec:** Create `OfflineCache` with SQLite table `mobile_tracks` | **Deps:** sqlite3, os | **Hygiene:** Exception handling | **LOC Estimate:** 50
+
+> - **[ ] TASK:** mob-001-2-implement-lru | **Loc:** src/modules/mob/offline_cache.py
+>   - **Spec:** Implement LRU eviction when limit is reached | **Deps:** sqlite3, os | **Hygiene:** O(1) eviction logic via DB order by | **LOC Estimate:** 30
+
+> - **[ ] TASK:** mob-001-3-write-tests | **Loc:** tests/test_mob_offline_cache.py
+>   - **Spec:** Unit tests for insertion, LRU eviction, and total size tracking | **Deps:** pytest, tempfile | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
+
 
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 - **EPIC PLG-002: Implement PluginSandbox using MetaPathFinder** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/plg]
