@@ -1,9 +1,9 @@
 import os
-import sqlite3
 import tempfile
 import time
 import pytest
 from src.modules.mob.offline_cache import OfflineCache
+
 
 @pytest.fixture
 def temp_cache():
@@ -14,10 +14,12 @@ def temp_cache():
         yield cache, temp_dir
         cache.close()
 
+
 def test_cache_initialization(temp_cache):
     cache, temp_dir = temp_cache
     assert os.path.exists(cache.db_path)
     assert cache.get_total_size() == 0
+
 
 def test_cache_track_inserts_and_gets(temp_cache):
     cache, temp_dir = temp_cache
@@ -36,6 +38,7 @@ def test_cache_track_inserts_and_gets(temp_cache):
     assert track[3] == file_path
     assert track[4] == 30
 
+
 def test_lru_eviction(temp_cache):
     cache, temp_dir = temp_cache
 
@@ -47,7 +50,7 @@ def test_lru_eviction(temp_cache):
             f.write(b"a" * 30)
         cache.cache_track(f"t{i}", f"Title {i}", f"Artist {i}", file_path, 30)
         tracks.append(file_path)
-        time.sleep(0.01) # ensure different timestamps
+        time.sleep(0.01)  # ensure different timestamps
 
     assert cache.get_total_size() == 90
     assert os.path.exists(tracks[0])
@@ -64,7 +67,7 @@ def test_lru_eviction(temp_cache):
     cache.cache_track("t3", "Title 3", "Artist 3", file_path, 40)
 
     assert cache.get_total_size() == 100
-    assert not os.path.exists(tracks[1]) # t1 should be deleted
+    assert not os.path.exists(tracks[1])  # t1 should be deleted
     assert cache.get_track("t1") is None
 
     # Check what happens if eviction is larger than 1 item
@@ -82,9 +85,10 @@ def test_lru_eviction(temp_cache):
     cache.cache_track("t4", "Title 4", "Artist 4", file_path4, 70)
 
     assert cache.get_total_size() == 70
-    assert not os.path.exists(tracks[2]) # t2
-    assert not os.path.exists(tracks[0]) # t0
-    assert not os.path.exists(file_path) # t3
+    assert not os.path.exists(tracks[2])  # t2
+    assert not os.path.exists(tracks[0])  # t0
+    assert not os.path.exists(file_path)  # t3
+
 
 def test_lru_graceful_missing_file(temp_cache):
     cache, temp_dir = temp_cache
@@ -102,6 +106,7 @@ def test_lru_graceful_missing_file(temp_cache):
     assert cache.get_total_size() == 50
     assert cache.get_track("tm") is None
 
+
 def test_clear_cache(temp_cache):
     cache, temp_dir = temp_cache
     file_path = os.path.join(temp_dir, "track1.opus")
@@ -117,6 +122,7 @@ def test_clear_cache(temp_cache):
     assert not os.path.exists(file_path)
     assert cache.get_total_size() == 0
 
+
 def test_cache_track_update(temp_cache):
     cache, temp_dir = temp_cache
     file_path = os.path.join(temp_dir, "track_update.opus")
@@ -129,7 +135,7 @@ def test_cache_track_update(temp_cache):
 
     # Update same track id with new data
     cache.cache_track("t1", "Title 1 Updated", "Artist 1", file_path, 30)
-    assert cache.get_total_size() == 30 # Size should not double count
+    assert cache.get_total_size() == 30  # Size should not double count
     track = cache.get_track("t1")
     assert track[1] == "Title 1 Updated"
 
