@@ -1,8 +1,8 @@
 import sqlite3
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
+
 
 class PluginState:
     """
@@ -65,7 +65,7 @@ class PluginState:
                 return bool(row[0])
         except sqlite3.Error as e:
             logger.error(f"Error querying plugin state for '{plugin_id}': {e}")
-            return True # Fail open to avoid breaking functionality
+            return True  # Fail open to avoid breaking functionality
 
     def set_plugin_active(self, plugin_id: str, is_active: bool) -> None:
         """

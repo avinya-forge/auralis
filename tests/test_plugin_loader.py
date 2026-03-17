@@ -207,7 +207,6 @@ class MockPlugin(PluginInterface):
         self.assertIsNone(plugin)
         self.assertNotIn("disabled_plugin", self.plugin_loader.plugins)
 
-
     def test_load_all_and_unload_all(self):
         """Test load_all and unload_all methods."""
         code1 = """

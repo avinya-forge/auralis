@@ -48,5 +48,6 @@ class TestPluginState(unittest.TestCase):
         self.plugin_state.set_plugin_active("test_plugin_2", False)
         self.assertFalse(self.plugin_state.is_plugin_active("test_plugin_2"))
 
+
 if __name__ == "__main__":
     unittest.main()
