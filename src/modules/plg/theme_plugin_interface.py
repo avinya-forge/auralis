@@ -5,7 +5,8 @@ Defines the `ThemePluginInterface` specializing the base `PluginInterface`.
 """
 
 from abc import abstractmethod
-from typing import Dict, Any
+from typing import Any, Dict
+
 from src.plugins.plugin_interface import PluginInterface
 
 
