@@ -68,12 +68,15 @@ def test_theme_plugin_interface_instantiation() -> None:
 
 def test_theme_plugin_interface_incomplete_instantiation() -> None:
     """Test that an incomplete ThemePluginInterface raises TypeError."""
-    with pytest.raises(TypeError, match="Can't instantiate abstract class MockIncompleteThemePlugin"):
+    with pytest.raises(
+        TypeError, match="Can't instantiate abstract class MockIncompleteThemePlugin"
+    ):
         MockIncompleteThemePlugin()  # type: ignore
 
 
 def test_abstract_methods() -> None:
     """Test that abstract methods raise NotImplementedError if called on base via super (for coverage)."""
+
     # This just ensures we hit the `pass` inside the abstract methods for coverage
     class BaseCaller(ThemePluginInterface):
         @property
