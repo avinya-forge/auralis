@@ -423,13 +423,13 @@
 - **SPEC:** Build `OfflineCache` class with embedded SQLite database `mobile_tracks`. Enforce LRU eviction policy automatically freeing storage based on user max cache size limits by deleting oldest `.opus` records.
 > **🎯 EPIC:** MOB-001 | **Target:** src/modules/mob | **DoD:** 0 err, >95% cov
 
-> - **[ ] TASK:** mob-001-1-implement-offline-cache | **Loc:** src/modules/mob/offline_cache.py
+> - **[x] TASK:** mob-001-1-implement-offline-cache | **Loc:** src/modules/mob/offline_cache.py
 >   - **Spec:** Create `OfflineCache` with SQLite table `mobile_tracks` | **Deps:** sqlite3, os | **Hygiene:** Exception handling | **LOC Estimate:** 50
 
-> - **[ ] TASK:** mob-001-2-implement-lru | **Loc:** src/modules/mob/offline_cache.py
+> - **[x] TASK:** mob-001-2-implement-lru | **Loc:** src/modules/mob/offline_cache.py
 >   - **Spec:** Implement LRU eviction when limit is reached | **Deps:** sqlite3, os | **Hygiene:** O(1) eviction logic via DB order by | **LOC Estimate:** 30
 
-> - **[ ] TASK:** mob-001-3-write-tests | **Loc:** tests/test_mob_offline_cache.py
+> - **[x] TASK:** mob-001-3-write-tests | **Loc:** tests/test_mob_offline_cache.py
 >   - **Spec:** Unit tests for insertion, LRU eviction, and total size tracking | **Deps:** pytest, tempfile | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 
@@ -447,6 +447,7 @@
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
 - **MILESTONE M1** | **PHASE 6: MOBILE EXTENSIONS** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC NET-001: Implement P2PNetworkSecurity with libp2p and Noise** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/net]
+- **EPIC NET-001: Implement P2PNetworkSecurity with libp2p and Noise** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/net]
 - **SPEC:** Implement `P2PNetworkSecurity` module using `libp2p`. Generate `ed25519` keypair on initial boot. Setup `NoiseTransport` for secure handshakes to encrypt `.flac` file chunks over mesh network.
+
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
