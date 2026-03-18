@@ -429,7 +429,7 @@
 > - **[x] TASK:** mob-001-2-implement-lru | **Loc:** src/modules/mob/offline_cache.py
 >   - **Spec:** Implement LRU eviction when limit is reached | **Deps:** sqlite3, os | **Hygiene:** O(1) eviction logic via DB order by | **LOC Estimate:** 30
 
-> - **[x] TASK:** mob-001-3-write-tests | **Loc:** tests/test_mob_offline_cache.py
+> - **[x] TASK:** mob-001-3-write-tests | **Loc:** tests/test_mob/test_mob_offline_cache.py
 >   - **Spec:** Unit tests for insertion, LRU eviction, and total size tracking | **Deps:** pytest, tempfile | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 
