@@ -10,7 +10,8 @@ import importlib.abc
 import inspect
 import os
 import sys
-from typing import Any, Callable, Optional
+import types
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 
 class PluginSandboxFinder(importlib.abc.MetaPathFinder):
@@ -85,16 +86,27 @@ def _is_sandboxed_caller() -> bool:
 
 
 # Keep a reference to the original __import__ function
-_original_import: Optional[Callable[..., Any]] = None
+_original_import: Optional[
+    Callable[
+        [
+            str,
+            Optional[Mapping[str, object]],
+            Optional[Mapping[str, object]],
+            Optional[Sequence[str]],
+            int,
+        ],
+        types.ModuleType,
+    ]
+] = None
 
 
 def _sandboxed_import(
     name: str,
-    globals: Optional[dict[str, Any]] = None,
-    locals: Optional[dict[str, Any]] = None,
-    fromlist: tuple[str, ...] = (),
+    globals: Optional[Mapping[str, object]] = None,
+    locals: Optional[Mapping[str, object]] = None,
+    fromlist: Optional[Sequence[str]] = (),
     level: int = 0,
-) -> Any:
+) -> types.ModuleType:
     """
     A wrapper around builtins.__import__ to intercept cached module imports.
     """
