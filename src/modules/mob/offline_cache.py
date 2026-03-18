@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 from typing import Optional, Tuple
 
 
@@ -12,7 +12,8 @@ class OfflineCache:
 
     def _init_db(self) -> None:
         cursor = self.conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS mobile_tracks (
                 id TEXT PRIMARY KEY,
                 title TEXT,
@@ -21,7 +22,8 @@ class OfflineCache:
                 file_size INTEGER,
                 last_accessed TIMESTAMP
             )
-        """)
+        """
+        )
         self.conn.commit()
 
     def get_total_size(self) -> int:

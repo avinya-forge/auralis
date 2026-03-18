@@ -1,7 +1,10 @@
 import os
 import tempfile
 import time
+from unittest.mock import patch
+
 import pytest
+
 from src.modules.mob.offline_cache import OfflineCache
 
 
@@ -144,3 +147,54 @@ def test_cache_track_update(temp_cache):
         f.write(b"a" * 50)
     cache.cache_track("t1", "Title 1 Larger", "Artist 1", file_path, 50)
     assert cache.get_total_size() == 50
+
+
+def test_lru_oserror(temp_cache):
+    cache, temp_dir = temp_cache
+    file_path = os.path.join(temp_dir, "track_oserror.opus")
+    with open(file_path, "wb") as f:
+        f.write(b"a" * 80)
+
+    cache.cache_track("t1", "Title", "Artist", file_path, 80)
+
+    # Adding a new file that triggers eviction, but os.remove raises OSError
+    file_path2 = os.path.join(temp_dir, "track2.opus")
+    with open(file_path2, "wb") as f:
+        f.write(b"a" * 50)
+
+    with patch("os.remove", side_effect=OSError("Permission denied")):
+        cache.cache_track("t2", "Title 2", "Artist 2", file_path2, 50)
+
+    # DB should still be updated (t1 evicted from DB)
+    assert cache.get_track("t1") is None
+    assert cache.get_total_size() == 50
+
+
+def test_clear_cache_oserror(temp_cache):
+    cache, temp_dir = temp_cache
+    file_path = os.path.join(temp_dir, "track_oserror.opus")
+    with open(file_path, "wb") as f:
+        f.write(b"a" * 80)
+
+    cache.cache_track("t1", "Title", "Artist", file_path, 80)
+
+    with patch("os.remove", side_effect=OSError("Permission denied")):
+        cache.clear_cache()
+
+    # DB should still be cleared
+    assert cache.get_total_size() == 0
+
+
+def test_lru_break_condition(temp_cache):
+    cache, temp_dir = temp_cache
+    # Request an incoming size larger than max_size_bytes while DB is empty
+    file_path = os.path.join(temp_dir, "track_huge.opus")
+    with open(file_path, "wb") as f:
+        f.write(b"a" * 150)
+
+    cache.cache_track("huge", "Huge", "Artist", file_path, 150)
+    # This should break out of the while loop because cursor.fetchone() returns None
+    # since the DB was empty, but size (0) + 150 > 100.
+
+    # Then it inserts the huge track anyway.
+    assert cache.get_total_size() == 150

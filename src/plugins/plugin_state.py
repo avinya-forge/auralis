@@ -1,5 +1,5 @@
-import sqlite3
 import logging
+import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -26,12 +26,14 @@ class PluginState:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS plugin_state (
                         plugin_id TEXT PRIMARY KEY,
                         is_active INTEGER NOT NULL
                     )
-                    """)
+                    """
+                )
                 conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to initialize PluginState database: {e}")
