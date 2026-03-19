@@ -268,6 +268,10 @@ Last Action: Archive DONE tasks
     *   Added `tests/test_scanner_tags.py` and `tests/test_scanner_options.py` covering new scanner features (86% coverage).
 
 ## Iteration: Architect-Jules-01/Ecosystem-Expansion-Design
+
+## Iteration: Architect-Jules-02/Embedding-Database
+*   **Epic NEU-005: Cognitive Intelligence (Neural Audio)**
+    *   Completed NEU-005: Implemented `EmbeddingDatabase` SQLite adapter for storing track vectors and computing cosine similarity.
 *   **Epic 4: Ecosystem Expansion**
     *   Completed PLG-005: Implemented `PluginSandbox` restrictions architecture.
     *   Completed PLG-006: Created documentation for Plugin API.

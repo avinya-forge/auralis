@@ -78,8 +78,14 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **EPIC NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Build a lightweight SQLite adapter `EmbeddingDatabase` in `src/modules/neu`. The schema must include `track_id (VARCHAR)`, `vector_blob (BLOB)`, and `model_version (VARCHAR)`. Implement `upsert_embedding` and `search_similar`.
+
+> **🎯 EPIC:** NEU-005 | **Target:** src/modules/neu | **DoD:** 0 err, >95% cov
+>
+> - **[x] TASK:** neu-005-1-implement-embedding-database | **Loc:** src/modules/neu/embedding_database.py
+>   - **Spec:** Create SQLite adapter `EmbeddingDatabase` and test | **Deps:** sqlite3, numpy | **Hygiene:** Exception handling | **LOC Estimate:** 50
+
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
