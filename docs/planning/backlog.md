@@ -66,20 +66,31 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-003: Implement `musictagger` (genre/mood/instrument) using clap** | [TODO] | [src/modules/neu]
+- **TASK NEU-003: Implement `musictagger` (genre/mood/instrument) using clap** | [BLOCKED] | [src/modules/neu]
 - **SPEC:** Integrate `laion/clap-htsat-unfused` via Hugging Face Transformers. Create a `MusicTagger` class in `src/modules/neu` that loads the model into CPU/GPU cache and exposes a `tag_audio(file_path)` method returning a dictionary of `genre`, `mood`, and `instrument` scores.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-004: Implement `coversongdetector` using mert embeddings (cosine sim)** | [TODO] | [src/modules/neu]
+- **TASK NEU-004: Implement `coversongdetector` using mert embeddings (cosine sim)** | [BLOCKED] | [src/modules/neu]
 - **SPEC:** Utilize `m-a-p/MERT-v1-95M` to extract track embeddings. Implement `CoverSongDetector` in `src/modules/neu` to calculate cosine similarity between track vectors. Add a `find_covers(target_embedding)` method.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **EPIC NEU-005: Create `embeddingdatabase` (sqlite/json) to store track vectors** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Build a lightweight SQLite adapter `EmbeddingDatabase` in `src/modules/neu`. The schema must include `track_id (VARCHAR)`, `vector_blob (BLOB)`, and `model_version (VARCHAR)`. Implement `upsert_embedding` and `search_similar`.
+
+> **🎯 EPIC:** NEU-005 | **Target:** src/modules/neu | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** neu-005-1-implement-db-schema | **Loc:** src/modules/neu/embedding_database.py
+>   - **Spec:** Create `EmbeddingDatabase` with SQLite table `embeddings` (track_id, vector_blob, model_version) | **Deps:** sqlite3 | **Hygiene:** Exception handling | **LOC Estimate:** 40
+
+> - **[x] TASK:** neu-005-2-implement-methods | **Loc:** src/modules/neu/embedding_database.py
+>   - **Spec:** Implement `upsert_embedding` and `search_similar` calculating cosine sim using numpy | **Deps:** numpy, sqlite3 | **Hygiene:** Handle empty DB | **LOC Estimate:** 50
+
+> - **[x] TASK:** neu-005-3-write-tests | **Loc:** tests/test_embedding_database.py
+>   - **Spec:** Unit tests for insertion and cosine similarity search accuracy | **Deps:** pytest, numpy | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
@@ -132,7 +143,7 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK AUX-008: Implement "similar tracks" visual graph/list based on embeddings** | [TODO] | [src/modules/aux]
+- **TASK AUX-008: Implement "similar tracks" visual graph/list based on embeddings** | [BLOCKED] | [src/modules/aux]
 - **SPEC:** Build a graph visualizer using `pyqtgraph`. Plot tracks as nodes based on PCA-reduced MERT embeddings. Implement hover tooltips to show track names and draw edges for similarity > 0.8.
 
 
@@ -166,67 +177,67 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-002: Implement lightweight flask/fastapi server** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-002: Implement lightweight flask/fastapi server** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Bootstrap `FastAPI` instance in `src/modules/api`. Initialize it within a `uvicorn.run` daemon thread. Create dependency injection hooks connecting FastAPI endpoints to `MusicScanner` singleton.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-003: Implement `get /status` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-003: Implement `get /status` endpoint** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/status')` endpoint returning JSON with `uptime`, `version`, `total_tracks`, and `active_workers`. Ensure 200 OK response under 10ms.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-004: Implement `post /scan` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-004: Implement `post /scan` endpoint** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.post('/scan')` accepting `dir_path`. Trigger `MusicScanner` via signal queue and return a `job_id` 202 Accepted. Ensure the endpoint does not block during scan.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-005: Implement `post /organize` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-005: Implement `post /organize` endpoint** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.post('/organize')` accepting target payload and metadata. Dispatch to `OrganizationService` asynchronously. Respond with dry-run delta JSON.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-006: Implement `get /library` endpoint (pagination)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-006: Implement `get /library` endpoint (pagination)** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/library')` using pagination params (`limit`, `offset`). Query SQLite database for tracks, sort by `added_date`, and return array of serialized track objects.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-007: Implement `get /track/{id}` endpoint** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-007: Implement `get /track/{id}` endpoint** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Implement `@app.get('/track/{id}')` pulling full track details including lyrics, cover art blob (Base64), and audio embeddings from `EmbeddingDatabase`.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-008: Add api authentication (basic/token)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-008: Add api authentication (basic/token)** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Add middleware `AuthMiddleware` to FastAPI. Require an `X-API-Key` header matching a hashed token in SQLite `api_keys` table. Return 401 Unauthorized if invalid.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-009: Create `apiserverthread` for gui integration** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-009: Create `apiserverthread` for gui integration** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Create `QThread` subclass `APIServerThread`. Connect a stop signal to gracefully shutdown `uvicorn`. Connect server logs to emit to `MainWindow` console debug panel.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK API-010: Add "enable remote api" toggle in settings** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/api]
+- **TASK API-010: Add "enable remote api" toggle in settings** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/api]
 - **SPEC:** Add QCheckBox 'Enable Remote API' to UI Settings. Toggle triggers start/stop of `APIServerThread`. Allow user to configure custom TCP port (default 8000).
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **EPIC MOB-001: Create mobilesyncservice for local network discovery** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
+- **EPIC MOB-001: Create mobilesyncservice for local network discovery** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Integrate `zeroconf` to broadcast Auralis service via mDNS `_auralis._tcp.local.`. Enable mobile app discovery of desktop IP address and API port without manual entry.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK MOB-002: Implement websocket api for real-time track updates** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
+- **TASK MOB-002: Implement websocket api for real-time track updates** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/mob]
 - **SPEC:** Use `websockets` library to spin up WS endpoint at `/ws`. Emit real-time JSON payloads for `play`, `pause`, `seek`, and `track_changed` events.
 
 
@@ -244,37 +255,37 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK P2P-001: Implement libp2p node initialization logic** | [TODO] | [src/modules/p2p]
+- **TASK P2P-001: Implement libp2p node initialization logic** | [BLOCKED] | [src/modules/p2p]
 - **SPEC:** Initialize `libp2p` node using python-libp2p. Establish a gossipsub router and peer identity matrix. Broadcast local node availability on designated swarm topic.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK P2P-002: Create distributed hash table (dht) for track indexing** | [TODO] | [src/modules/p2p]
+- **TASK P2P-002: Create distributed hash table (dht) for track indexing** | [BLOCKED] | [src/modules/p2p]
 - **SPEC:** Implement `Kademlia` DHT routing. Hash track titles and insert into DHT providing the multiaddress of the host node possessing the high-res file.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK P2P-003: Implement chunked file transfer protocol over mesh** | [TODO] | [src/modules/p2p]
+- **TASK P2P-003: Implement chunked file transfer protocol over mesh** | [BLOCKED] | [src/modules/p2p]
 - **SPEC:** Write file transfer handler breaking FLAC files into 256KB chunks. Stream chunks over libp2p `net.stream` validating SHA256 checksums per chunk.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK P2P-004: Add "discover network libraries" ui widget** | [TODO] | [src/modules/p2p]
+- **TASK P2P-004: Add "discover network libraries" ui widget** | [BLOCKED] | [src/modules/p2p]
 - **SPEC:** Add a new QTreeWidget tab 'Mesh Network'. Query DHT for active peers, populate their shared track counts, and allow users to browse remote folders asynchronously.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-001: Integrate local whisper model for stt** | [TODO] | [src/modules/llm]
+- **TASK LLM-001: Integrate local whisper model for stt** | [BLOCKED] | [src/modules/llm]
 - **SPEC:** Embed `openai/whisper-tiny` via `ctranslate2` for high-speed local inference. Capture PyAudio microphone stream, chunk into 30s segments, and return transcribed text.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-002A: Implement zero-shot classification on transcribed text** | [TODO] | [src/modules/llm]
+- **TASK LLM-002A: Implement zero-shot classification on transcribed text** | [BLOCKED] | [src/modules/llm]
 - **SPEC:** Use `transformers` to run zero-shot classification on transcribed text for natural language intent.
 
 
@@ -286,13 +297,13 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-003: Add voice capture button to main toolbar** | [TODO] | [src/modules/llm]
+- **TASK LLM-003: Add voice capture button to main toolbar** | [BLOCKED] | [src/modules/llm]
 - **SPEC:** Render a red pulsing 'Record' QPushButton in the main toolbar. Bind to `pyaudio` stream start/stop and pipe audio buffer to `whisper` model upon release.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK LLM-004: Implement conversational feedback using local tts** | [TODO] | [src/modules/llm]
+- **TASK LLM-004: Implement conversational feedback using local tts** | [BLOCKED] | [src/modules/llm]
 - **SPEC:** Integrate `pyttsx3` or `Coqui TTS` for local voice generation. Synthesize audio confirmations like 'Playing 90s Grunge' and output via `sounddevice`.
 
 
@@ -304,19 +315,19 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK SPA-001: Integrate openal or equivalent for 3d positioning** | [TODO] | [src/modules/spa]
+- **TASK SPA-001: Integrate openal or equivalent for 3d positioning** | [BLOCKED] | [src/modules/spa]
 - **SPEC:** Bridge Python to `pyopenal` library. Initialize ALC device and context. Map stereo audio buffers to 3D Cartesian coordinates `(x, y, z)` around the listener.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK SPA-002: Map "mood" metadata to spatial reverb presets** | [TODO] | [src/modules/spa]
+- **TASK SPA-002: Map "mood" metadata to spatial reverb presets** | [BLOCKED] | [src/modules/spa]
 - **SPEC:** Create `ReverbMatrix` mapping tags like 'Concert Hall' or 'Ambient' to OpenAL EAX effect presets (decay time, density, diffusion). Apply on track load.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK SPA-003: Add spatial audio toggle in playback ui** | [TODO] | [src/modules/spa]
+- **TASK SPA-003: Add spatial audio toggle in playback ui** | [BLOCKED] | [src/modules/spa]
 - **SPEC:** Add a QSlider for '3D Depth' and a QCheckBox for 'Enable Spatial' in playback UI. Bind value changes to update OpenAL listener position and source relative coordinates.
 
 
@@ -328,49 +339,49 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK SPA-005: Write unit tests for spatial dsp chain** | [TODO] | [src/modules/spa]
+- **TASK SPA-005: Write unit tests for spatial dsp chain** | [BLOCKED] | [src/modules/spa]
 - **SPEC:** Write `pytest` suite mocking OpenAL context. Assert that modifying positions triggers the correct AL library C-bindings without crashing the main audio thread.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-001: Create local user authentication schema (sqlite)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
+- **TASK ID-001: Create local user authentication schema (sqlite)** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Expand base SQLite schema with `users` table (`id`, `username`, `password_hash`, `salt`). Implement `bcrypt` password hashing logic for local auth.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-002: Implement profile switching ui** | [TODO] | [src/modules/id]
+- **TASK ID-002: Implement profile switching ui** | [BLOCKED] | [src/modules/id]
 - **SPEC:** Implement `LoginDialog` QDialog popping up on app start if multiple profiles exist. Require password validation against `users` table before loading main window.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-003: Segment playlist and history tables by user id** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
+- **TASK ID-003: Segment playlist and history tables by user id** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Add `user_id` foreign key to `playlists` and `play_history` tables. Update `PlaylistService` CRUD ops to filter strictly by the currently authenticated user session.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-004: Add personal listening stats aggregation** | [TODO] | [src/modules/id]
+- **TASK ID-004: Add personal listening stats aggregation** | [BLOCKED] | [src/modules/id]
 - **SPEC:** Build `StatsAggregator` module querying `play_history` by `user_id` to calculate top genres, total listen time, and most played artists per profile.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 4: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK ID-005: Implement profile export/import (json)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/id]
+- **TASK ID-005: Implement profile export/import (json)** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/id]
 - **SPEC:** Implement `export_profile` creating a zipped JSON payload of user settings and history. Implement `import_profile` parsing JSON back into SQLite tables avoiding PK collisions.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-002: Implement `awsprovider` for s3 backing** | [TODO] | [src/modules/cld]
+- **TASK CLD-002: Implement `awsprovider` for s3 backing** | [BLOCKED] | [src/modules/cld]
 - **SPEC:** Integrate `boto3`. Implement `AWSProvider` subclassing `CloudProviderInterface`. Handle multipart uploads for large FLAC files using `S3Transfer` manager.
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-003: Implement `googledriveprovider` for drive backing** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
+- **TASK CLD-003: Implement `googledriveprovider` for drive backing** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
 - **SPEC:** Integrate `google-api-python-client`. Implement `GoogleDriveProvider` handling OAuth2 flow. Implement chunked resumable media uploads to Google Drive.
 
 
@@ -391,12 +402,12 @@
 - **RESOLVE-004**: Audit DB/Auth/API task expansions to ensure SDLC/PDLC mapping strictly implements zero-loss structure.
 
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-010: Implement `SingerIdentificationService` using wavlm-base-plus-sv** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **TASK NEU-010: Implement `SingerIdentificationService` using wavlm-base-plus-sv** | [BLOCKED] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Use a Speaker/Singer Identification model (e.g., `microsoft/wavlm-base-plus-sv`) to extract voice embedding of current song. Save it into `EmbeddingDatabase` for DB constraints.
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-011: Implement Live vs. Studio Classification logic** | [TODO] | [src/modules/neu]
+- **TASK NEU-011: Implement Live vs. Studio Classification logic** | [BLOCKED] | [src/modules/neu]
 - **SPEC:** Train or use a classifier based on `MERT` features to distinguish "Studio Recording" vs "Live Performance" vs "Cover/Acoustic". Expose API and save the classification to tags.
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 
