@@ -1,7 +1,8 @@
-import sqlite3
-import numpy as np
 import logging
-from typing import List, Tuple, Optional
+import sqlite3
+from typing import List, Optional, Tuple
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -26,15 +27,13 @@ class EmbeddingDatabase:
         """Creates the embeddings table if it does not exist."""
         try:
             cursor = self.conn.cursor()
-            cursor.execute(
-                """
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS embeddings (
                     track_id VARCHAR PRIMARY KEY,
                     vector_blob BLOB NOT NULL,
                     model_version VARCHAR NOT NULL
                 )
-                """
-            )
+                """)
             self.conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Failed to create embeddings table: {e}")
@@ -90,7 +89,10 @@ class EmbeddingDatabase:
             cursor = self.conn.cursor()
 
             if model_version:
-                cursor.execute("SELECT track_id, vector_blob FROM embeddings WHERE model_version = ?", (model_version,))
+                cursor.execute(
+                    "SELECT track_id, vector_blob FROM embeddings WHERE model_version = ?",
+                    (model_version,),
+                )
             else:
                 cursor.execute("SELECT track_id, vector_blob FROM embeddings")
 

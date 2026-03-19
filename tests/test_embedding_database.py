@@ -27,7 +27,9 @@ def test_upsert_and_retrieve_embedding(memory_db):
     memory_db.upsert_embedding(track_id, vector, model_version)
 
     cursor = memory_db.conn.cursor()
-    cursor.execute("SELECT vector_blob, model_version FROM embeddings WHERE track_id = ?", (track_id,))
+    cursor.execute(
+        "SELECT vector_blob, model_version FROM embeddings WHERE track_id = ?", (track_id,)
+    )
     row = cursor.fetchone()
 
     assert row is not None
@@ -47,7 +49,9 @@ def test_upsert_updates_existing(memory_db):
     memory_db.upsert_embedding(track_id, vector2, "v2")
 
     cursor = memory_db.conn.cursor()
-    cursor.execute("SELECT vector_blob, model_version FROM embeddings WHERE track_id = ?", (track_id,))
+    cursor.execute(
+        "SELECT vector_blob, model_version FROM embeddings WHERE track_id = ?", (track_id,)
+    )
     row = cursor.fetchone()
 
     assert row is not None
