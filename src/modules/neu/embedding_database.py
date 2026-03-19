@@ -111,7 +111,7 @@ class EmbeddingDatabase:
 
                 vector_norm = np.linalg.norm(vector)
                 if vector_norm == 0:
-                    continue # Ignore zero vectors in db
+                    continue  # Ignore zero vectors in db
 
                 # Compute cosine similarity
                 dot_product = np.dot(target_vector, vector)
