@@ -1,15 +1,17 @@
+import logging
 import multiprocessing
 import queue
 import time
-from typing import Any, Dict, List, Optional
-import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
+
 
 class AIBatchProcessor:
     """
     Handles batched AI tasks via multiprocessing.Queue to prevent UI freezes.
     """
+
     def __init__(self, num_workers: int = 1):
         self._task_queue = multiprocessing.Queue()
         self._result_queue = multiprocessing.Queue()
@@ -23,14 +25,18 @@ class AIBatchProcessor:
         for _ in range(self._num_workers):
             p = multiprocessing.Process(
                 target=self._worker_loop,
-                args=(self._task_queue, self._result_queue, self._stop_event)
+                args=(self._task_queue, self._result_queue, self._stop_event),
             )
             p.daemon = True
             p.start()
             self._workers.append(p)
 
     @staticmethod
-    def _worker_loop(task_queue: multiprocessing.Queue, result_queue: multiprocessing.Queue, stop_event: multiprocessing.Event):
+    def _worker_loop(
+        task_queue: multiprocessing.Queue,
+        result_queue: multiprocessing.Queue,
+        stop_event: multiprocessing.Event,
+    ):
         """Dedicated background worker to process tracks."""
         while not stop_event.is_set():
             try:
@@ -70,12 +76,7 @@ class AIBatchProcessor:
         while not self._result_queue.empty():
             try:
                 task_id, path, result, error = self._result_queue.get_nowait()
-                results.append({
-                    "task_id": task_id,
-                    "path": path,
-                    "result": result,
-                    "error": error
-                })
+                results.append({"task_id": task_id, "path": path, "result": result, "error": error})
             except queue.Empty:
                 break
         return results

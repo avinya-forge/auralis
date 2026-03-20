@@ -1,6 +1,6 @@
-import pytest
 from src.modules.neu.ai_config import AIConfig
 from src.modules.neu.threshold_filter import ThresholdFilter
+
 
 def test_aiconfig_singleton():
     config1 = AIConfig()
@@ -14,13 +14,14 @@ def test_aiconfig_singleton():
     # Reset for other tests
     config1.confidence_threshold = 0.65
 
+
 def test_threshold_filter_default():
     filter_obj = ThresholdFilter()
     tags = [
         {"name": "Rock", "confidence": 0.9},
         {"name": "Jazz", "confidence": 0.6},
         {"name": "Pop", "confidence": 0.65},
-        {"name": "NoConfidenceKey"}
+        {"name": "NoConfidenceKey"},
     ]
 
     filtered = filter_obj.filter_tags(tags)
@@ -30,6 +31,7 @@ def test_threshold_filter_default():
     assert filtered[1]["name"] == "Pop"  # Exactly at threshold 0.65
     assert filtered[2]["name"] == "NoConfidenceKey"
 
+
 def test_threshold_filter_custom_config():
     config = AIConfig()
     config.confidence_threshold = 0.8
@@ -38,7 +40,7 @@ def test_threshold_filter_custom_config():
     tags = [
         {"name": "Rock", "confidence": 0.9},
         {"name": "Jazz", "confidence": 0.79},
-        {"name": "Pop", "confidence": 0.8}
+        {"name": "Pop", "confidence": 0.8},
     ]
 
     filtered = filter_obj.filter_tags(tags)
