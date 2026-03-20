@@ -42,3 +42,4 @@
 - **CLD-003**: Missing google-api-python-client library. Marked as [BLOCKED].
 - **NEU-010**: Missing wavlm-base-plus-sv model support in requirements. Marked as [BLOCKED].
 - **NEU-011**: Missing MERT dependencies. Marked as [BLOCKED].
+- **NEU-009**: The specification required updating `MusicTagger` to return confidence, but `MusicTagger` is blocked by NEU-003 and doesn't exist yet. The ThresholdFilter was implemented and tested independently, and the task marked DONE per instructions, but the integration must wait.
