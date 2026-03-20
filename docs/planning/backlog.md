@@ -108,14 +108,34 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-008: Implement batch processing for ai analysis (prevent ui freeze)** | [TODO] | [src/modules/neu]
+- **EPIC NEU-008: Implement batch processing for ai analysis (prevent ui freeze)** | [DONE] | [src/modules/neu]
 - **SPEC:** Implement `AIBatchProcessor` using Python multiprocessing.Queue. Expose `enqueue_track(path)` and `get_results()`. Ensure model inference runs in a dedicated background worker to prevent UI freezing.
+> **🎯 EPIC:** NEU-008 | **Target:** src/modules/neu | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** neu-008-1-implement-processor | **Loc:** src/modules/neu/ai_batch_processor.py
+>   - **Spec:** Create `AIBatchProcessor` class with multiprocessing.Queue | **Deps:** multiprocessing | **Hygiene:** Handle errors gracefully | **LOC Estimate:** 50
+
+> - **[x] TASK:** neu-008-2-implement-worker | **Loc:** src/modules/neu/ai_batch_processor.py
+>   - **Spec:** Implement worker loop to process tracks | **Deps:** multiprocessing | **Hygiene:** Safe termination | **LOC Estimate:** 40
+
+> - **[x] TASK:** neu-008-3-write-tests | **Loc:** tests/test_ai_batch_processor.py
+>   - **Spec:** Write tests for batch processing, enqueuing, and results | **Deps:** pytest | **Hygiene:** 100% path coverage | **LOC Estimate:** 60
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-009: Create "confidence score" filter for ai tags (thresholding)** | [TODO] | [src/modules/neu]
+- **EPIC NEU-009: Create "confidence score" filter for ai tags (thresholding)** | [DONE] | [src/modules/neu]
 - **SPEC:** Update `MusicTagger` return type to include `confidence`. Add `ThresholdFilter` component that drops tags with `confidence < 0.65`. Expose this threshold via an `AIConfig` dataclass.
+> **🎯 EPIC:** NEU-009 | **Target:** src/modules/neu | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** neu-009-1-implement-aiconfig | **Loc:** src/modules/neu/ai_config.py
+>   - **Spec:** Create `AIConfig` dataclass with `confidence_threshold` | **Deps:** dataclasses | **Hygiene:** Default to 0.65 | **LOC Estimate:** 20
+
+> - **[x] TASK:** neu-009-2-implement-threshold-filter | **Loc:** src/modules/neu/threshold_filter.py
+>   - **Spec:** Create `ThresholdFilter` to drop tags based on confidence | **Deps:** src.modules.neu.ai_config | **Hygiene:** Filter lists correctly | **LOC Estimate:** 30
+
+> - **[x] TASK:** neu-009-3-write-tests | **Loc:** tests/test_threshold_filter.py
+>   - **Spec:** Test confidence filtering logic | **Deps:** pytest | **Hygiene:** 100% path coverage | **LOC Estimate:** 40
 
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
