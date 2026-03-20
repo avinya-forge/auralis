@@ -95,9 +95,16 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK NEU-006: Implement `originalversionfinder` logic (release date + similarity)** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
+- **TASK NEU-006: Implement `originalversionfinder` logic (release date + similarity)** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/neu]
 - **SPEC:** Create `OriginalVersionFinder` in `src/modules/neu`. Logic: query `EmbeddingDatabase` for vectors with >0.9 similarity, then query `MusicBrainz` API for release dates. Return the oldest track as the original.
 
+> **🎯 EPIC:** NEU-006 | **Target:** src/modules/neu/original_version_finder.py | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** neu-006-1-implement-logic | **Loc:** src/modules/neu/original_version_finder.py
+>   - **Spec:** Implement `OriginalVersionFinder` and `find_original` method | **Deps:** numpy, musicbrainzngs | **Hygiene:** Exception handling | **LOC Estimate:** 50
+
+> - **[x] TASK:** neu-006-2-write-tests | **Loc:** tests/test_original_version_finder.py
+>   - **Spec:** Unit tests mocking database and musicbrainzngs API | **Deps:** pytest, unittest.mock | **Hygiene:** 100% path coverage | **LOC Estimate:** 80
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]

@@ -1,7 +1,9 @@
-from unittest.mock import patch
 import sqlite3
-import pytest
+from unittest.mock import patch
+
 import numpy as np
+import pytest
+
 from src.modules.neu.embedding_database import EmbeddingDatabase
 
 
