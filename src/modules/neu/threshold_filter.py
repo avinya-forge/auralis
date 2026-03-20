@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from src.modules.neu.ai_config import AIConfig
 
@@ -8,7 +8,7 @@ class ThresholdFilter:
     Filters AI tags based on confidence scores defined in AIConfig.
     """
 
-    def __init__(self, config: AIConfig = None):
+    def __init__(self, config: Optional[AIConfig] = None):
         self.config = config if config is not None else AIConfig()
 
     def filter_tags(self, tags: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

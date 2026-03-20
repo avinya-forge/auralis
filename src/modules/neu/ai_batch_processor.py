@@ -2,7 +2,7 @@ import logging
 import multiprocessing
 import queue
 import time
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class AIBatchProcessor:
             except Exception as e:
                 logger.error(f"Unexpected worker error: {e}")
 
-    def enqueue_track(self, path: str, inference_callable: callable) -> str:
+    def enqueue_track(self, path: str, inference_callable: Callable) -> str:
         """
         Enqueues a track for processing.
         Returns a task_id for tracking.

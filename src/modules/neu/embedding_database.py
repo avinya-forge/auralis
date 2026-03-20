@@ -21,13 +21,15 @@ class EmbeddingDatabase:
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS embeddings (
                         track_id VARCHAR PRIMARY KEY,
                         vector_blob BLOB,
                         model_version VARCHAR
                     )
-                    """)
+                    """
+                )
                 conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Error initializing database: {e}")
