@@ -1,8 +1,9 @@
 import logging
-from typing import Optional
-import numpy as np
-import musicbrainzngs
 from datetime import datetime
+from typing import Optional
+
+import musicbrainzngs
+import numpy as np
 
 from src.modules.neu.embedding_database import EmbeddingDatabase
 

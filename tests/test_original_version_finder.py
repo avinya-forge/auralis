@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import numpy as np
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
-from src.modules.neu.original_version_finder import OriginalVersionFinder
+import numpy as np
+import pytest
+
 from src.modules.neu.embedding_database import EmbeddingDatabase
+from src.modules.neu.original_version_finder import OriginalVersionFinder
 
 
 @pytest.fixture
@@ -87,9 +88,7 @@ def test_get_oldest_release_date_success(mock_search, finder):
 @patch("musicbrainzngs.search_recordings")
 def test_get_oldest_release_date_invalid_date(mock_search, finder):
     """Test with invalid date formats from MusicBrainz."""
-    mock_search.return_value = {
-        "recording-list": [{"release-list": [{"date": "invalid-date"}]}]
-    }
+    mock_search.return_value = {"recording-list": [{"release-list": [{"date": "invalid-date"}]}]}
 
     result = finder._get_oldest_release_date("track_1")
     assert result is None
