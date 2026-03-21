@@ -1,6 +1,9 @@
 import os
 import sqlite3
+import time
+
 import pytest
+
 from src.modules.cld.sync_state_tracker import SyncStateTracker
 
 
@@ -13,7 +16,7 @@ def temp_db(tmp_path):
 
 def test_init_db(temp_db):
     """Test that the database schema is correctly initialized."""
-    tracker = SyncStateTracker(temp_db)
+    _ = SyncStateTracker(temp_db)
 
     assert os.path.exists(temp_db)
 
@@ -55,8 +58,6 @@ def test_record_upload(temp_db):
         assert row[0] == "remote_abc"
         assert row[1] is not None  # Timestamp is set
 
-
-import time
 
 def test_record_upload_update(temp_db):
     """Test updating an existing upload correctly overrides remote_id and timestamp."""

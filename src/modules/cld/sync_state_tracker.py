@@ -1,6 +1,5 @@
 import sqlite3
 import contextlib
-import os
 
 
 class SyncStateTracker:
