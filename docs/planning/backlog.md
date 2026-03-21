@@ -420,8 +420,19 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 5: ECOSYSTEM EXPANSION** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK CLD-005: Create sqlite-based `syncstatetracker`** | [TODO] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
+- **EPIC CLD-005: Create sqlite-based `syncstatetracker`** | [DONE] | [HIGH-RISK] | [DEBT] | [src/modules/cld]
 - **SPEC:** Create `sync_state` SQLite table. Track `file_hash`, `remote_id`, `last_sync_timestamp`. Prevent duplicate uploads by querying this state before pushing blobs.
+
+> **🎯 EPIC:** CLD-005 | **Target:** src/modules/cld | **DoD:** 0 err, >95% cov
+>
+> - **[x] TASK:** cld-005-1-implement-db-schema | **Loc:** src/modules/cld/sync_state_tracker.py
+>   - **Spec:** Create `SyncStateTracker` with SQLite table `sync_state` (`file_hash`, `remote_id`, `last_sync_timestamp`) | **Deps:** sqlite3 | **Hygiene:** Exception handling | **LOC Estimate:** 40
+>
+> - **[x] TASK:** cld-005-2-implement-methods | **Loc:** src/modules/cld/sync_state_tracker.py
+>   - **Spec:** Implement `is_uploaded(file_hash)` and `record_upload(file_hash, remote_id)` | **Deps:** sqlite3 | **Hygiene:** Handle empty DB | **LOC Estimate:** 50
+>
+> - **[x] TASK:** cld-005-3-write-tests | **Loc:** tests/test_sync_state_tracker.py
+>   - **Spec:** Unit tests for initialization, tracking, and duplicate prevention | **Deps:** pytest | **Hygiene:** 100% path coverage | **LOC Estimate:** 50
 
 
 
