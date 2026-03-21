@@ -1,5 +1,5 @@
-import sqlite3
 import contextlib
+import sqlite3
 
 
 class SyncStateTracker:
@@ -17,15 +17,13 @@ class SyncStateTracker:
         try:
             with contextlib.closing(sqlite3.connect(self.db_path)) as conn, conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS sync_state (
                         file_hash TEXT PRIMARY KEY,
                         remote_id TEXT,
                         last_sync_timestamp TEXT
                     )
-                    """
-                )
+                    """)
                 conn.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Failed to initialize SyncStateTracker database: {e}")
@@ -43,9 +41,7 @@ class SyncStateTracker:
         try:
             with contextlib.closing(sqlite3.connect(self.db_path)) as conn, conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT 1 FROM sync_state WHERE file_hash = ?", (file_hash,)
-                )
+                cursor.execute("SELECT 1 FROM sync_state WHERE file_hash = ?", (file_hash,))
                 return cursor.fetchone() is not None
         except sqlite3.Error:
             # Handle empty or corrupted DB safely by returning False

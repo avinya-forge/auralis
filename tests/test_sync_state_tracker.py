@@ -52,7 +52,10 @@ def test_record_upload(temp_db):
     # Verify the values in the DB
     with sqlite3.connect(temp_db) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT remote_id, last_sync_timestamp FROM sync_state WHERE file_hash = ?", ("hash_123",))
+        cursor.execute(
+            "SELECT remote_id, last_sync_timestamp FROM sync_state WHERE file_hash = ?",
+            ("hash_123",),
+        )
         row = cursor.fetchone()
         assert row is not None
         assert row[0] == "remote_abc"
@@ -66,7 +69,9 @@ def test_record_upload_update(temp_db):
 
     with sqlite3.connect(temp_db) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT last_sync_timestamp FROM sync_state WHERE file_hash = ?", ("hash_123",))
+        cursor.execute(
+            "SELECT last_sync_timestamp FROM sync_state WHERE file_hash = ?", ("hash_123",)
+        )
         initial_timestamp = cursor.fetchone()[0]
 
     # Update the record
@@ -77,7 +82,10 @@ def test_record_upload_update(temp_db):
 
     with sqlite3.connect(temp_db) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT remote_id, last_sync_timestamp FROM sync_state WHERE file_hash = ?", ("hash_123",))
+        cursor.execute(
+            "SELECT remote_id, last_sync_timestamp FROM sync_state WHERE file_hash = ?",
+            ("hash_123",),
+        )
         row = cursor.fetchone()
         assert row is not None
         assert row[0] == "remote_xyz"
