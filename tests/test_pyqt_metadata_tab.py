@@ -96,3 +96,22 @@ class TestPyQtMetadataTab(unittest.TestCase):
                 self.assertFalse(options["analyze_audio"])
                 self.assertIn("use_ai_analysis", options)
                 self.assertTrue(options["use_ai_analysis"])
+
+    def test_metadata_tab_load_track(self):
+        """Test MetadataTab load_track method delegates to RagaAnalyzerWidget"""
+        with patch.dict(sys.modules):
+            if "src.gui.pyqt.tabs.metadata_tab" in sys.modules:
+                del sys.modules["src.gui.pyqt.tabs.metadata_tab"]
+
+            with (
+                patch("PyQt6.QtWidgets.QWidget", type("QWidget", (object,), {})),
+                patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})),
+            ):
+                module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
+                load_track_func = module.MetadataTab.__dict__["load_track"]
+
+                mock_tab = MagicMock()
+                mock_tab.raga_analyzer = MagicMock()
+
+                load_track_func(mock_tab, "test.mp3")
+                mock_tab.raga_analyzer.set_file.assert_called_with("test.mp3")

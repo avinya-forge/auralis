@@ -140,9 +140,19 @@
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
-- **TASK AUX-002: Implement "analyze raga" button and result display** | [TODO] | [src/modules/aux]
+- **EPIC AUX-002: Implement "analyze raga" button and result display** | [DONE] | [src/modules/aux]
 - **SPEC:** Extend `MetadataTab` UI in `src/modules/aux`. Add a `QPushButton('Analyze Raga')`. Connect it to `AIService.analyze_raga`. Create a `QLabel` to display the top 3 results with progress bar overlays.
 
+> **🎯 EPIC:** AUX-002 | **Target:** src/modules/aux | **DoD:** 0 err, >95% cov
+
+> - **[x] TASK:** aux-002-1-implement-raga-analyzer-widget | **Loc:** src/modules/aux/raga_analyzer.py
+>   - **Spec:** Create `RagaAnalyzerWidget` and `RagaAnalysisWorker` for background raga analysis | **Deps:** PyQt6, src.services.ai_service | **Hygiene:** Exception handling for AI service | **LOC Estimate:** 100
+
+> - **[x] TASK:** aux-002-2-integrate-metadata-tab | **Loc:** src/gui/pyqt/tabs/metadata_tab.py
+>   - **Spec:** Import and embed `RagaAnalyzerWidget` into `MetadataTab` | **Deps:** src.modules.aux.raga_analyzer | **Hygiene:** Proper layout insertion | **LOC Estimate:** 15
+
+> - **[x] TASK:** aux-002-3-write-tests | **Loc:** tests/test_aux_raga_analyzer.py
+>   - **Spec:** Unit tests mocking `AIService` and PyQt elements | **Deps:** pytest, unittest.mock | **Hygiene:** >95% path coverage | **LOC Estimate:** 80
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
 - **MILESTONE M1** | **PHASE 3: COGNITIVE INTELLIGENCE (NEURAL AUDIO)** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
