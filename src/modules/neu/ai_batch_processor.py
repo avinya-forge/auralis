@@ -13,10 +13,10 @@ class AIBatchProcessor:
     """
 
     def __init__(self, num_workers: int = 1):
-        self._task_queue = multiprocessing.Queue()
-        self._result_queue = multiprocessing.Queue()
-        self._stop_event = multiprocessing.Event()
-        self._workers = []
+        self._task_queue: multiprocessing.Queue = multiprocessing.Queue()
+        self._result_queue: multiprocessing.Queue = multiprocessing.Queue()
+        self._stop_event: Any = multiprocessing.Event()
+        self._workers: List[multiprocessing.Process] = []
         self._num_workers = num_workers
         self._start_workers()
 
@@ -35,7 +35,7 @@ class AIBatchProcessor:
     def _worker_loop(
         task_queue: multiprocessing.Queue,
         result_queue: multiprocessing.Queue,
-        stop_event: multiprocessing.Event,
+        stop_event: Any,
     ):
         """Dedicated background worker to process tracks."""
         while not stop_event.is_set():
