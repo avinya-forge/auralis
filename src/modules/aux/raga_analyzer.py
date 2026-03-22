@@ -4,7 +4,7 @@ Raga Analyzer Component for Metadata Tab
 
 from typing import Any, Dict, List, Optional
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import QLabel, QMessageBox, QProgressBar, QPushButton, QVBoxLayout, QWidget
 
 from src.services.ai_service import AIService

@@ -4,7 +4,7 @@ import pytest
 
 # In conftest.py, PyQt6 is heavily mocked, meaning `raga_analyzer.analyze_btn`
 # is actually a MagicMock, not a real QPushButton. So we test the mock calls.
-from src.modules.aux.raga_analyzer import RagaAnalysisWorker, RagaAnalyzerWidget
+from src.modules.aux.raga_analyzer import RagaAnalyzerWidget
 
 
 @pytest.fixture
