@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from src.modules.aux.raga_analyzer import RagaAnalyzerWidget
 from src.utils.config import get_config
 from src.utils.image_loader import ImageLoader
 
@@ -145,6 +146,11 @@ class MetadataTab(QWidget):
         preview_layout.addWidget(self.bpm_label)
         preview_layout.addWidget(self.key_label)
         preview_layout.addWidget(self.mood_label)
+
+        # Raga Analyzer
+        self.raga_analyzer = RagaAnalyzerWidget()
+        preview_layout.addWidget(self.raga_analyzer)
+
         preview_layout.addStretch()
 
         right_layout.addWidget(preview_group)
@@ -193,3 +199,7 @@ class MetadataTab(QWidget):
         self.bpm_label.setText(f"BPM: {int(bpm) if bpm else '-'}")
         self.key_label.setText(f"Key: {key if key else '-'}")
         self.mood_label.setText(f"Mood: {mood if mood else '-'}")
+
+    def load_track(self, file_path: str) -> None:
+        """Called when a track is selected or loaded into the metadata tab for display"""
+        self.raga_analyzer.set_file(file_path)
