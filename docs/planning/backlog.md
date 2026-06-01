@@ -7,21 +7,21 @@
 ### Epic 1: Database Generation & Crowdsourcing
 - **SPEC:** Build a self-evolving knowledge graph by ingesting user uploads and validating via gamified crowdsourcing.
 
-> - **[ ] TASK:** db-001-1-upload-handler | **Loc:** src/modules/db/ingestion.py | **Spec:** Implement chunked file upload handler with hash validation | **Deps:** os, hashlib | **Hygiene:** 100% path coverage | **LOC Estimate:** 45
-> - **[ ] TASK:** db-001-2-metadata-extractor | **Loc:** src/modules/db/ingestion.py | **Spec:** Extract raw metadata and store in temporary staging table | **Deps:** src/services/metadata_service.py | **Hygiene:** Exception logging | **LOC Estimate:** 40
-> - **[ ] TASK:** db-001-verify-ingestion | **Loc:** tests/test_db_ingestion.py | **Spec:** Unit tests for upload handling and metadata extraction | **Deps:** pytest | **Hygiene:** Use temp directories | **LOC Estimate:** 45
-> - **[ ] TASK:** db-002-1-validation-view | **Loc:** src/gui/pyqt/tabs/validation_tab.py | **Spec:** Implement base QWidget for validation interface | **Deps:** PyQt6 | **Hygiene:** Atomic UI components | **LOC Estimate:** 50
-> - **[ ] TASK:** db-002-2-gamification-logic | **Loc:** src/services/gamification.py | **Spec:** Implement point calculation and achievement logic | **Deps:** src/utils/db_utils.py | **Hygiene:** O(1) score update | **LOC Estimate:** 45
-> - **[ ] TASK:** db-002-verify-validation | **Loc:** tests/test_db_validation.py | **Spec:** Unit tests for gamification logic and UI state transitions | **Deps:** pytest-qt | **Hygiene:** Mock DB connection | **LOC Estimate:** 50
-> - **[ ] TASK:** db-003-1-musicbrainz-sync | **Loc:** src/services/metadata/aggregators.py | **Spec:** Implement async MusicBrainz seed crawler | **Deps:** musicbrainzngs | **Hygiene:** Exponential backoff | **LOC Estimate:** 50
-> - **[ ] TASK:** db-003-2-spotify-sync | **Loc:** src/services/metadata/aggregators.py | **Spec:** Implement async Spotify metadata fetcher | **Deps:** spotipy | **Hygiene:** Rate limit compliance | **LOC Estimate:** 45
-> - **[ ] TASK:** db-003-verify-aggregators | **Loc:** tests/test_db_aggregators.py | **Spec:** Mock-based tests for external API sync logic | **Deps:** pytest, responses | **Hygiene:** Verify backoff triggers | **LOC Estimate:** 50
-> - **[ ] TASK:** db-004-1-ssl-preprocessing | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement audio-to-tensor normalization for SSL | **Deps:** torch, numpy | **Hygiene:** O(n) streaming | **LOC Estimate:** 50
-> - **[ ] TASK:** db-004-2-ssl-dataloader | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement custom PyTorch Dataset for audio tensors | **Deps:** torch | **Hygiene:** Efficient shuffling | **LOC Estimate:** 40
-> - **[ ] TASK:** db-004-3-ssl-training-loop | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement base self-supervised training loop with checkpointing | **Deps:** torch | **Hygiene:** GPU memory management | **LOC Estimate:** 60
-> - **[ ] TASK:** db-004-verify-ssl | **Loc:** tests/test_db_ssl.py | **Spec:** Unit tests for preprocessing and training loop state | **Deps:** pytest, torch | **Hygiene:** Mock GPU if missing | **LOC Estimate:** 50
-> - **[ ] TASK:** db-audit-ingestion | **Loc:** scripts/audit_ingestion.py | **Spec:** Analyze ingestion success rates and data quality | **Deps:** src/utils/db_utils.py | **Hygiene:** Audit report output | **LOC Estimate:** 35
-> - **[ ] TASK:** db-cleanup-stage-1 | **Loc:** scripts/cleanup.sh | **Spec:** Implement cron for orphaned staging record deletion | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 20
+> - **[x] TASK:** db-001-1-upload-handler | **Loc:** src/modules/db/ingestion.py | **Spec:** Implement chunked file upload handler with hash validation | **Deps:** os, hashlib | **Hygiene:** [DONE] | **LOC Estimate:** 45
+> - **[x] TASK:** db-001-2-metadata-extractor | **Loc:** src/modules/db/ingestion.py | **Spec:** Extract raw metadata and store in temporary staging table | **Deps:** src/services/metadata_service.py | **Hygiene:** [DONE] | **LOC Estimate:** 40
+> - **[x] TASK:** db-001-verify-ingestion | **Loc:** tests/test_db_ingestion.py | **Spec:** Unit tests for upload handling and metadata extraction | **Deps:** pytest | **Hygiene:** [DONE] | **LOC Estimate:** 45
+> - **[x] TASK:** db-002-1-validation-view | **Loc:** src/gui/pyqt/tabs/validation_tab.py | **Spec:** Implement base QWidget for validation interface | **Deps:** PyQt6 | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-002-2-gamification-logic | **Loc:** src/services/gamification.py | **Spec:** Implement point calculation and achievement logic | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 45
+> - **[x] TASK:** db-002-verify-validation | **Loc:** tests/test_db_validation.py | **Spec:** Unit tests for gamification logic and UI state transitions | **Deps:** pytest-qt | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-003-1-musicbrainz-sync | **Loc:** src/services/metadata/aggregators.py | **Spec:** Implement async MusicBrainz seed crawler | **Deps:** musicbrainzngs | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-003-2-spotify-sync | **Loc:** src/services/metadata/aggregators.py | **Spec:** Implement async Spotify metadata fetcher | **Deps:** spotipy | **Hygiene:** [DONE] | **LOC Estimate:** 45
+> - **[x] TASK:** db-003-verify-aggregators | **Loc:** tests/test_db_aggregators.py | **Spec:** Mock-based tests for external API sync logic | **Deps:** pytest, responses | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-004-1-ssl-preprocessing | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement audio-to-tensor normalization for SSL | **Deps:** torch, numpy | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-004-2-ssl-dataloader | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement custom PyTorch Dataset for audio tensors | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 40
+> - **[x] TASK:** db-004-3-ssl-training-loop | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement base self-supervised training loop with checkpointing | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 60
+> - **[x] TASK:** db-004-verify-ssl | **Loc:** tests/test_db_ssl.py | **Spec:** Unit tests for preprocessing and training loop state | **Deps:** pytest, torch | **Hygiene:** [DONE] | **LOC Estimate:** 50
+> - **[x] TASK:** db-audit-ingestion | **Loc:** scripts/audit_ingestion.py | **Spec:** Analyze ingestion success rates and data quality | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 35
+> - **[x] TASK:** db-cleanup-stage-1 | **Loc:** scripts/cleanup.sh | **Spec:** Implement cron for orphaned staging record deletion | **Deps:** bash | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ### Epic 2: Orchestration & Edge-Cloud Gateway
 - **SPEC:** Implement the Meta-Agent orchestrator and REST gateway for seamless Edge-Cloud handoff.
@@ -35,6 +35,7 @@
 > - **[ ] TASK:** api-001-3-endpoints-file-sync | **Loc:** src/modules/api/main.py | **Spec:** Implement streaming endpoints for audio file sync | **Deps:** fastapi | **Hygiene:** JWT authentication | **LOC Estimate:** 50
 > - **[ ] TASK:** agent-analyze-latency | **Loc:** src/utils/perf/latency_logger.py | **Spec:** Implement middleware to track Edge-Cloud roundtrip latency | **Deps:** time | **Hygiene:** Minimal overhead | **LOC Estimate:** 30
 > - **[ ] TASK:** agent-verify-gateway | **Loc:** tests/test_agent_gateway.py | **Spec:** Integration test for agent-router-gateway path | **Deps:** pytest | **Hygiene:** 95% coverage | **LOC Estimate:** 50
+> - **[ ] TASK:** api-cleanup-routes | **Loc:** src/modules/api/cleanup.py | **Spec:** Prune expired JWT tokens and invalid session routes | **Deps:** src/utils/db_utils.py | **Hygiene:** Cron-safe | **LOC Estimate:** 35
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
 - **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
@@ -45,6 +46,7 @@
 > - **[ ] TASK:** audio-003-1-mel-spectrogram | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Generate mel-spectrogram tensors from demixed stems | **Deps:** numpy, torchaudio | **Hygiene:** Normalized output | **LOC Estimate:** 50
 > - **[ ] TASK:** audio-cleanup-cache | **Loc:** src/utils/audio/cache.py | **Spec:** Implement cache eviction for demixed audio chunks | **Deps:** os | **Hygiene:** LRU policy | **LOC Estimate:** 35
 > - **[ ] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
+> - **[ ] TASK:** audio-audit-distortion | **Loc:** scripts/audit_audio.py | **Spec:** Detect harmonic distortion in demixed stems | **Deps:** scipy | **Hygiene:** Report SNR | **LOC Estimate:** 40
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 - **SPEC:** Deep classification of instruments, vocalists, and musical characteristics.
@@ -57,6 +59,7 @@
 > - **[ ] TASK:** neu-004-1-singer-id-link | **Loc:** src/modules/neu/singer_id.py | **Spec:** Link voice embeddings to vocalist metadata | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 45
 > - **[ ] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
+> - **[ ] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
 ### Epic 5: Persistence & Metadata Schema
 - **SPEC:** Structured data persistence for advanced musicological data and offline access.
@@ -66,6 +69,7 @@
 > - **[ ] TASK:** data-002-1-pack-generator | **Loc:** src/services/cache/pack_manager.py | **Spec:** Implement zlib compression for metadata music packs | **Deps:** zlib | **Hygiene:** High compression ratio | **LOC Estimate:** 45
 > - **[ ] TASK:** data-audit-integrity | **Loc:** scripts/audit_db.py | **Spec:** Implement referential integrity check for the music graph | **Deps:** src/utils/db_utils.py | **Hygiene:** Read-only | **LOC Estimate:** 40
 > - **[ ] TASK:** data-cleanup-orphans | **Loc:** src/services/cache/cleanup.py | **Spec:** Cleanup track metadata with missing local/cloud files | **Deps:** os | **Hygiene:** Atomic | **LOC Estimate:** 40
+> - **[ ] TASK:** data-verify-migration | **Loc:** tests/test_data_migration.py | **Spec:** Unit tests for schema v2 migration and data integrity | **Deps:** pytest | **Hygiene:** Use in-memory DB | **LOC Estimate:** 45
 
 ### Epic 6: Plugins & Security
 > - **[x] TASK:** plg-001-dep-resolver | **Loc:** src/modules/plg/dependency_resolver.py | **Spec:** Implement DependencyResolver via Kahn's Algorithm | **Deps:** importlib | **Hygiene:** [DONE] | **LOC Estimate:** 135
