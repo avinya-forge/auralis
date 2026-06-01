@@ -510,3 +510,27 @@
 - **SPEC:** Implement `P2PNetworkSecurity` module using `libp2p`. Generate `ed25519` keypair on initial boot. Setup `NoiseTransport` for secure handshakes to encrypt `.flac` file chunks over mesh network.
 
   - **GRANULAR:** [PDLC: Define Requirements] -> [SDLC: Implement Logic] -> [SDLC: Write Tests] -> [PDLC: Review & Release]
+
+- **MILESTONE M2** | **PHASE 7: ESONGS ALIGNMENT** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+- **EPIC ESN-001: Implement eSongs-spec Meta-Agent Orchestrator** | [TODO] | [HIGH-RISK] | [src/modules/agent]
+- **SPEC:** Build `MetaAgentOrchestrator` to route audio analysis tasks between local CLAP/MERT models and cloud LLMs based on confidence thresholds.
+
+> **🎯 EPIC:** ESN-001 | **Target:** src/modules/agent | **DoD:** 0 err, >95% cov
+>
+> - **[ ] TASK:** esn-001-1-implement-orchestrator | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Create `MetaAgentOrchestrator` with confidence-based routing logic | **Deps:** src/services/ai_service.py | **Hygiene:** Exception handling | **LOC Estimate:** 60
+
+- **EPIC ESN-002: Implement Instrument and Vocalist Classifiers** | [TODO] | [HIGH-RISK] | [src/services/ai]
+- **SPEC:** Expand `AIService` with specialized models for identifying Indian Classical instruments and vocalist characteristics.
+
+> **🎯 EPIC:** ESN-002 | **Target:** src/services/ai | **DoD:** 0 err, >95% cov
+>
+> - **[ ] TASK:** esn-002-1-instrument-classifier | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement instrument detection using Zero-Shot CLAP with custom labels | **Deps:** transformers | **Hygiene:** 95% coverage | **LOC Estimate:** 40
+>
+> - **[ ] TASK:** esn-002-2-vocalist-analyzer | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement voice signature extraction and matching | **Deps:** librosa, numpy | **Hygiene:** Robust error handling | **LOC Estimate:** 50
+
+- **EPIC ESN-003: Implement LLM Bridge for Deep Metadata** | [TODO] | [HIGH-RISK] | [src/services/llm_orchestrator.py]
+- **SPEC:** Create `LLMBridgeService` to integrate OpenAI/Anthropic APIs for rich musicological explanations and Gharana mapping.
+
+> **🎯 EPIC:** ESN-003 | **Target:** src/services | **DoD:** 0 err, >95% cov
+>
+> - **[ ] TASK:** esn-003-1-llm-integration | **Loc:** src/services/llm_orchestrator.py | **Spec:** Implement API clients for OpenAI/Anthropic with fallback logic | **Deps:** requests/httpx | **Hygiene:** API Key security | **LOC Estimate:** 70
