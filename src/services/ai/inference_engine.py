@@ -75,10 +75,7 @@ class NeuralInferenceEngine:
                 if label_prefix and label.startswith(label_prefix):
                     label = label.replace(label_prefix, "")
 
-                processed_results.append({
-                    "label": label,
-                    "score": float(item.get("score", 0.0))
-                })
+                processed_results.append({"label": label, "score": float(item.get("score", 0.0))})
 
             return processed_results
 

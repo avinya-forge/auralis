@@ -6,6 +6,7 @@ import logging
 from typing import List, Optional, Tuple
 
 import numpy as np
+
 from src.utils.db_utils import get_db_connection
 
 logger = logging.getLogger(__name__)
@@ -24,15 +25,13 @@ class EmbeddingDatabase:
         """Initialize the database schema."""
         try:
             with get_db_connection(self.db_path) as conn:
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS embeddings (
                         track_id VARCHAR PRIMARY KEY,
                         vector_blob BLOB,
                         model_version VARCHAR
                     )
-                    """
-                )
+                    """)
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
             raise
@@ -62,7 +61,9 @@ class EmbeddingDatabase:
         """Retrieve a track vector by its ID."""
         try:
             with get_db_connection(self.db_path) as conn:
-                cursor = conn.execute("SELECT vector_blob FROM embeddings WHERE track_id = ?", (track_id,))
+                cursor = conn.execute(
+                    "SELECT vector_blob FROM embeddings WHERE track_id = ?", (track_id,)
+                )
                 row = cursor.fetchone()
                 if row:
                     return np.frombuffer(row[0], dtype=np.float32)

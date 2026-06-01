@@ -4,6 +4,7 @@ Auralis - Mobile Offline Cache
 
 import os
 from typing import Optional, Tuple
+
 from src.utils.db_utils import get_db_connection
 
 
@@ -20,8 +21,7 @@ class OfflineCache:
     def _init_db(self) -> None:
         """Initialize the mobile tracks table."""
         with get_db_connection(self.db_path) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS mobile_tracks (
                     id TEXT PRIMARY KEY,
                     title TEXT,
@@ -30,8 +30,7 @@ class OfflineCache:
                     file_size INTEGER,
                     last_accessed TIMESTAMP
                 )
-            """
-            )
+            """)
 
     def get_total_size(self) -> int:
         """Calculate total cached file size."""

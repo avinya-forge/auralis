@@ -5,8 +5,8 @@ Auralis - Raga Classifier Module
 import logging
 from typing import Dict, Union
 
-from src.services.ai.raga_constants import COMMON_RAGAS
 from src.services.ai.inference_engine import NeuralInferenceEngine
+from src.services.ai.raga_constants import COMMON_RAGAS
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class RagaClassifier:
             task="zero-shot-audio-classification",
             candidate_labels=candidate_labels,
             label_prefix=self.LABEL_PREFIX,
-            top_k=1
+            top_k=1,
         )
 
         if results:

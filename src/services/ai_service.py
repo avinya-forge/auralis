@@ -84,11 +84,7 @@ class AIService:
         Returns:
             List[Dict[str, Any]]: List of classification results.
         """
-        return self.engine.run_classification(
-            file_path=file_path,
-            model_name=model_name,
-            task=task
-        )
+        return self.engine.run_classification(file_path=file_path, model_name=model_name, task=task)
 
     def clear_resources(self) -> None:
         """Free up GPU/RAM resources."""
