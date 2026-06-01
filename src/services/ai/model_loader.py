@@ -23,13 +23,6 @@ class ModelLoader:
     def load_model(cls, model_name: str, task: str) -> Any:
         """
         Load a model by name and task.
-
-        Args:
-            model_name (str): Hugging Face model ID.
-            task (str): Task type (e.g., "audio-classification").
-
-        Returns:
-            Any: The loaded model pipeline or object.
         """
         if model_name in cls._instances:
             return cls._instances[model_name]
@@ -44,22 +37,16 @@ class ModelLoader:
 
             logger.info(f"Loading model {model_name} on {ai_config.device}")
 
-            # Map device string to pipeline compatible format
-            # device=-1 for CPU, device=0 for CUDA:0, device="mps" for MPS
             device: Union[int, str] = -1
             if ai_config.device == "cuda":
-                device = 0  # Use first GPU
+                device = 0
             elif ai_config.device == "mps":
                 device = "mps"
 
-            # For CPU, device remains -1
-
-            # Ensure cache directory exists
             cache_dir = ai_config.model_cache_dir
             if not os.path.exists(cache_dir):
                 os.makedirs(cache_dir, exist_ok=True)
 
-            # Use pipeline for simplicity
             pipe = pipeline(
                 task=task,
                 model=model_name,
@@ -84,9 +71,6 @@ class ModelLoader:
     def unload_model(cls, model_name: str) -> None:
         """
         Unload a specific model from memory.
-
-        Args:
-            model_name (str): The name of the model to unload.
         """
         if model_name in cls._instances:
             logger.info(f"Unloading model {model_name}")
@@ -99,7 +83,10 @@ class ModelLoader:
 
         class MockPipeline:
             def __call__(self, *args: Any, **kwargs: Any) -> Any:
-                # Return generic structure matching common audio classification outputs
+                # Support zero-shot return format if candidate_labels are present
+                if "candidate_labels" in kwargs:
+                    labels = kwargs["candidate_labels"]
+                    return [{"label": label, "score": 1.0 / len(labels)} for label in labels]
                 return [{"label": "simulation", "score": 0.99}]
 
         return MockPipeline()

@@ -22,7 +22,7 @@ class TestAIService(unittest.TestCase):
 
         result = self.service.analyze_audio_classification("dummy.mp3")
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["label"], "simulation_genre")
+        self.assertEqual(result[0]["label"], "simulation")
 
     @patch("src.services.ai.config.AIConfig.simulation_mode", new_callable=PropertyMock)
     @patch("os.path.exists")

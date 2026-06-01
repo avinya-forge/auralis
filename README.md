@@ -41,7 +41,7 @@ Execute tests, audits, and dynamic updates idempotently via `scripts/run.sh`:
 **Plan**: [Backlog](./docs/planning/backlog.md) | [Roadmap](./docs/planning/roadmap.md) | [Map](./docs/planning/map.md) | [Doubts](./docs/planning/doubts.md) | [Conflict Map](./docs/planning/conflict-map.md)
 **Architecture**: [Arch](./docs/architecture/arch.md) | [System Design](./docs/architecture/system-design.md) | [Vision](./docs/architecture/vision.md) | [Decisions](./docs/architecture/decisions.md) | [Network Security](./docs/architecture/network-security.md) | [Offline Caching](./docs/architecture/offline-caching-strategy.md) | [Plugin Sandbox](./docs/architecture/plugin-sandbox.md) | [Plugin Resolver](./docs/architecture/plugin-dependency-resolver.md) | [Swagger](./docs/architecture/swagger.yaml)
 **Rules**: [Standards](./docs/rules/standards.md) | [Habits](./docs/rules/habits.md) | [Hygiene](./docs/rules/hygiene.md) | [Process Flow](./docs/rules/process-flow.md)
-**Engineering**: [Index](./docs/engineering/index.md) | [Conventions](./docs/engineering/conventions.md)
+**Engineering**: [Index](./docs/engineering/index.md) | [Conventions](./docs/engineering/conventions.md) | [eSongs Analysis](./docs/engineering/esongs_analysis_report.md)
 **Release**: [Release Notes](./docs/release/release-notes.md) | [Metrics](./docs/release/metrics.md) | [Project Health](./docs/release/project-health.md) | [System Health](./docs/release/system-health.md)
 
 ---

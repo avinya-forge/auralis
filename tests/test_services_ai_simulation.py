@@ -25,8 +25,8 @@ def test_simulation_mode_returns_mock_data(ai_service):
         result = ai_service.analyze_audio_classification("non_existent_file.mp3")
 
         assert len(result) == 1
-        assert result[0]["label"] == "simulation_genre"
-        assert result[0]["score"] == 1.0
+        assert result[0]["label"] == "simulation"
+        assert result[0]["score"] == 0.99
 
 
 def test_simulation_mode_no_model_load(ai_service):
@@ -34,7 +34,7 @@ def test_simulation_mode_no_model_load(ai_service):
     with patch.object(AIConfig, "simulation_mode", new_callable=PropertyMock) as mock_sim:
         mock_sim.return_value = True
 
-        with patch.object(ai_service.loader, "load_model") as mock_load:
+        with patch.object(ai_service.engine.loader, "load_model") as mock_load:
             ai_service.analyze_audio_classification("dummy.mp3")
             mock_load.assert_not_called()
 
@@ -45,7 +45,7 @@ def test_real_mode_calls_model_load(ai_service):
         mock_sim.return_value = False
 
         with patch("os.path.exists", return_value=True):
-            with patch.object(ai_service.loader, "load_model") as mock_load:
+            with patch.object(ai_service.engine.loader, "load_model") as mock_load:
                 mock_pipe = MagicMock()
                 mock_pipe.return_value = [{"label": "rock", "score": 0.9}]
                 mock_load.return_value = mock_pipe
