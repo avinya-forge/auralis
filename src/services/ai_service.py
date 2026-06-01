@@ -3,11 +3,10 @@ Auralis - AI Service Module
 """
 
 import logging
-import os
 from typing import Any, Dict, List
 
 from src.services.ai.config import ai_config
-from src.services.ai.model_loader import ModelLoader
+from src.services.ai.inference_engine import NeuralInferenceEngine
 from src.services.ai.raga_classifier import RagaClassifier
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ class AIService:
     def __init__(self) -> None:
         """Initialize the AI Service."""
         self.config = ai_config
-        self.loader = ModelLoader
+        self.engine = NeuralInferenceEngine()
         self.raga_classifier = RagaClassifier()
 
     def check_health(self) -> Dict[str, Any]:
@@ -85,29 +84,12 @@ class AIService:
         Returns:
             List[Dict[str, Any]]: List of classification results.
         """
-        if self.config.simulation_mode:
-            logger.warning("Simulation Mode: Returning mock classification data.")
-            return [{"label": "simulation_genre", "score": 1.0}]
-
-        if not os.path.exists(file_path):
-            logger.error(f"File not found: {file_path}")
-            return []
-
-        try:
-            pipe = self.loader.load_model(model_name, task)
-
-            # Pipeline usually accepts path or bytes
-            result = pipe(file_path)
-
-            # Result format: [{'label': 'rock', 'score': 0.99}, ...]
-            if isinstance(result, list):
-                return result  # type: ignore
-            return [result]  # type: ignore
-
-        except Exception as e:
-            logger.error(f"Analysis failed for {file_path}: {str(e)}")
-            return []
+        return self.engine.run_classification(
+            file_path=file_path,
+            model_name=model_name,
+            task=task
+        )
 
     def clear_resources(self) -> None:
         """Free up GPU/RAM resources."""
-        self.loader.clear_cache()
+        self.engine.clear_resources()
