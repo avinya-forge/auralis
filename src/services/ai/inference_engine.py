@@ -5,7 +5,7 @@ Generic utility for model execution and resource management.
 
 import logging
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from src.services.ai.config import ai_config
 from src.services.ai.model_loader import ModelLoader
