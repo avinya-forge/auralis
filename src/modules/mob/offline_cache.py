@@ -66,7 +66,10 @@ class OfflineCache:
                 "SELECT id, title, artist, local_path, file_size FROM mobile_tracks WHERE id = ?",
                 (track_id,),
             )
-            return cursor.fetchone()
+            result = cursor.fetchone()
+            if result is None:
+                return None
+            return (result[0], result[1], result[2], result[3], result[4])
 
     def _enforce_lru(self, incoming_size: int) -> None:
         """Evict oldest tracks until incoming size fits."""
