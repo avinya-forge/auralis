@@ -6,7 +6,7 @@
 
 log_resolve() {
     local blocker_msg="$1"
-    local backlog_file="docs/planning/backlog.md"
+    local backlog_file="docs/backlog.md"
 
     if ! grep -qF "$blocker_msg" "$backlog_file"; then
         # Add to the [RESOLVE] Blockers section if it exists, else append
@@ -23,7 +23,7 @@ audit() {
     echo "[SKILLS] Running AUDIT..."
     echo "[RECON] Syncing state against codebase..."
 
-    local backlog="docs/planning/backlog.md"
+    local backlog="docs/backlog.md"
     local temp_file=$(mktemp)
 
     while IFS= read -r line || [ -n "$line" ]; do
@@ -52,10 +52,10 @@ audit() {
     mv "$temp_file" "$backlog"
 
     # Grep EPIC/DEBT across backlog
-    grep -E "EPIC|DEBT" docs/planning/backlog.md
+    grep -E "EPIC|DEBT" docs/backlog.md
 
     # Recursive expansion (for all matching tasks, run expand)
-    grep -E "EPIC|DEBT" docs/planning/backlog.md | while read -r line; do
+    grep -E "EPIC|DEBT" docs/backlog.md | while read -r line; do
         pdlc_expand "$line"
     done
 }
@@ -70,7 +70,7 @@ verify() {
 pdlc_expand() {
     echo "[SKILLS] Running PDLC_EXPAND on $1..."
     # If the task contains an EPIC or DEBT reference without expanded tasks underneath, it flags it.
-    if ! grep -F -A 5 -- "$1" docs/planning/backlog.md | grep -q "🎯 EPIC"; then
+    if ! grep -F -A 5 -- "$1" docs/backlog.md | grep -q "🎯 EPIC"; then
         echo "[PDLC] Missing granular breakdown for: $1. Needs manual expansion via SDLC protocol."
     else
         echo "[PDLC] Found expanded tasks. Processing SDLC layers: [REQUIREMENTS, DESIGN, IMPLEMENTATION, TESTING, DEPLOYMENT]"
@@ -96,8 +96,8 @@ case "$1" in
         ;;
     --sync)
         echo "[RUN.SH] MODE: SYNC - IDEMPOTENT file-tree alignment"
-        mkdir -p docs/planning docs/architecture docs/engineering docs/release docs/rules
-        for file in docs/planning/backlog.md docs/planning/roadmap.md docs/architecture/system-design.md docs/engineering/conventions.md; do
+        mkdir -p docs/
+        for file in docs/backlog.md docs/roadmap.md docs/system-design.md docs/conventions.md; do
             if [ ! -f "$file" ]; then
                 title="$(basename "$file" .md | tr '-' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')"
                 echo "# $title" > "$file"

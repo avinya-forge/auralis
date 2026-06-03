@@ -7,7 +7,6 @@ from typing import Any, Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
-    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -39,16 +38,16 @@ class ValidationTab(QWidget):
         layout.addWidget(self.header)
 
         # Content Area (Scrollable)
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
         self.container = QWidget()
         self.container_layout = QVBoxLayout(self.container)
 
         self.empty_label = QLabel("No pending validations. Great job!")
         self.container_layout.addWidget(self.empty_label)
 
-        self.scroll.setWidget(self.container)
-        layout.addWidget(self.scroll)
+        self.scroll_area.setWidget(self.container)
+        layout.addWidget(self.scroll_area)
 
         # Action Buttons
         button_layout = QHBoxLayout()
@@ -67,7 +66,11 @@ class ValidationTab(QWidget):
         self.current_record = record
         # Cleanup container
         for i in reversed(range(self.container_layout.count())):
-            self.container_layout.itemAt(i).widget().setParent(None)
+            item = self.container_layout.itemAt(i)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    widget.setParent(None)
 
         # Build form
         tags = record.get("raw_tags", {})
