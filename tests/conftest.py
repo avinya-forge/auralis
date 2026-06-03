@@ -2,10 +2,22 @@ import sys
 import types
 from unittest.mock import MagicMock
 
+
+# --- Helper for recursive module mocking ---
+def mock_module(name):
+    if name in sys.modules:
+        return sys.modules[name]
+    m = types.ModuleType(name)
+    sys.modules[name] = m
+    return m
+
+
 # --- Mock PyQt6 ---
-if "PyQt6" not in sys.modules:  # noqa: C901
-    mock_pyqt6 = MagicMock()
-    mock_qtcore = MagicMock()
+if "PyQt6" not in sys.modules:
+    mock_pyqt6 = mock_module("PyQt6")
+    mock_qtcore = mock_module("PyQt6.QtCore")
+    mock_qtwidgets = mock_module("PyQt6.QtWidgets")
+    mock_qtgui = mock_module("PyQt6.QtGui")
 
     class MockQObject:
         def __init__(self, parent=None):
@@ -35,190 +47,79 @@ if "PyQt6" not in sys.modules:  # noqa: C901
         def exec(self):
             return 0
 
-    def mock_pyqtSlot(*args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
-
     mock_qtcore.QObject = MockQObject
     mock_qtcore.pyqtSignal = MockSignal
-    mock_qtcore.pyqtSlot = mock_pyqtSlot
+    mock_qtcore.pyqtSlot = lambda *a, **k: (lambda f: f)
     mock_qtcore.QCoreApplication = MockQCoreApplication
-
-    # Add other needed QtCore classes
     mock_qtcore.QThread = MagicMock
     mock_qtcore.QTimer = MagicMock
     mock_qtcore.Qt = MagicMock()
+    mock_qtcore.QRunnable = MagicMock
+    mock_qtcore.QThreadPool = MagicMock
 
-    class MockQRunnable:
-        def __init__(self):
-            pass
-
-        def run(self):
-            pass
-
-        def setAutoDelete(self, val):
-            pass
-
-    mock_qtcore.QRunnable = MockQRunnable
-
-    class MockQThreadPool:
-        @staticmethod
-        def globalInstance():
-            return MockQThreadPool()
-
-        def start(self, runnable):
-            runnable.run()
-
-    mock_qtcore.QThreadPool = MockQThreadPool
-
-    mock_pyqt6.QtCore = mock_qtcore
-
-    # Mock QtWidgets
-    mock_qtwidgets = MagicMock()
     mock_qtwidgets.QApplication = MockQCoreApplication
-
-    class MockQMainWindow(MagicMock):
-        def _get_child_mock(self, **kw):
-            return MagicMock(**kw)
-
-    mock_qtwidgets.QMainWindow = MockQMainWindow
+    mock_qtwidgets.QMainWindow = MagicMock
     mock_qtwidgets.QWidget = MagicMock
-    mock_pyqt6.QtWidgets = mock_qtwidgets
+    mock_qtwidgets.QVBoxLayout = MagicMock
+    mock_qtwidgets.QHBoxLayout = MagicMock
+    mock_qtwidgets.QLabel = MagicMock
+    mock_qtwidgets.QPushButton = MagicMock
+    mock_qtwidgets.QScrollArea = MagicMock
+    mock_qtwidgets.QLineEdit = MagicMock
 
-    # Mock QtGui
-    mock_qtgui = MagicMock()
-
-    class MockQAction(MagicMock):
-        def __init__(self, *args, **kwargs):
-            super().__init__()
-
-    mock_qtgui.QAction = MockQAction
+    mock_qtgui.QAction = MagicMock
     mock_qtgui.QIcon = MagicMock
-    mock_pyqt6.QtGui = mock_qtgui
-
-    sys.modules["PyQt6"] = mock_pyqt6
-    sys.modules["PyQt6.QtCore"] = mock_qtcore
-    sys.modules["PyQt6.QtWidgets"] = mock_qtwidgets
-    sys.modules["PyQt6.QtGui"] = mock_qtgui
-
-
-# --- Mock Mutagen ---
-# Always mock mutagen for unit tests to avoid I/O and dependency issues
-mock_mutagen = types.ModuleType("mutagen")
-mock_mutagen.__path__ = []
-
-# Submodules
-mock_flac = types.ModuleType("mutagen.flac")
-
-
-class FLAC(MagicMock):
-    pass  # Inherit from MagicMock so instances are mocks
-
-
-class Picture(MagicMock):
-    pass
-
-
-mock_flac.FLAC = FLAC
-mock_flac.Picture = Picture
-mock_mutagen.flac = mock_flac
-
-mock_mp3 = types.ModuleType("mutagen.mp3")
-
-
-class MP3(MagicMock):
-    pass
-
-
-mock_mp3.MP3 = MP3
-mock_mutagen.mp3 = mock_mp3
-
-
-mock_id3 = types.ModuleType("mutagen.id3")
-for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK", "ID3", "USLT"]:
-    setattr(mock_id3, name, MagicMock)  # Assign class not instance
-# Add ID3NoHeaderError
-
-
-class ID3NoHeaderError(Exception):
-    pass
-
-
-mock_id3.ID3NoHeaderError = ID3NoHeaderError
-mock_mutagen.id3 = mock_id3
-
-mock_easyid3 = types.ModuleType("mutagen.easyid3")
-
-
-class EasyID3(MagicMock):
-    pass
-
-
-mock_easyid3.EasyID3 = EasyID3
-mock_mutagen.easyid3 = mock_easyid3
-
-# Register in sys.modules
-sys.modules["mutagen"] = mock_mutagen
-sys.modules["mutagen.flac"] = mock_flac
-sys.modules["mutagen.mp3"] = mock_mp3
-sys.modules["mutagen.id3"] = mock_id3
-sys.modules["mutagen.easyid3"] = mock_easyid3
-
-# Also patch mutagen.File
-mock_mutagen.File = MagicMock()
-
-
-# --- Mock Psutil ---
-# Always mock psutil
-mock_psutil = MagicMock()
-# Ensure iterators work
-mock_psutil.process_iter.return_value = []
-mock_psutil.cpu_percent.return_value = 0.0
-mock_psutil.virtual_memory.return_value.percent = 0.0
-mock_psutil.virtual_memory.return_value.available = 1024 * 1024 * 1024
-mock_psutil.net_io_counters.return_value.bytes_sent = 0
-mock_psutil.net_io_counters.return_value.bytes_recv = 0
-
-sys.modules["psutil"] = mock_psutil
-
 
 # --- Mock Other Dependencies ---
-# Try to import numpy first to avoid mocking if installed
-try:
-    import numpy  # noqa: F401
-except ImportError:
-    pass
-
-if "numpy" not in sys.modules:
-    mock_numpy = MagicMock()
-
-    class ndarray:
-        pass
-
-    mock_numpy.ndarray = ndarray
-    sys.modules["numpy"] = mock_numpy
-
 for lib in [
+    "mutagen",
+    "mutagen.flac",
+    "mutagen.mp3",
+    "mutagen.id3",
+    "mutagen.easyid3",
+    "psutil",
+    "numpy",
     "librosa",
-    "soundfile",
-    "sklearn",
-    "pydub",
-    "dotenv",
-    "acoustid",
-    "discogs_client",
+    "librosa.feature",
+    "librosa.onset",
+    "librosa.beat",
+    "torch",
+    "torch.nn",
+    "torch.nn.functional",
+    "torchvision",
+    "torchvision.models",
+    "transformers",
+    "fastapi",
+    "fastapi.middleware",
+    "fastapi.middleware.cors",
+    "fastapi.responses",
+    "starlette",
+    "starlette.middleware",
+    "starlette.middleware.base",
+    "starlette.testclient",
+    "pydantic",
+    "uvicorn",
+    "demucs",
     "musicbrainzngs",
-    "spotipy",
-    "pylast",
-    "PIL",
-    "PIL.Image",
-    "PIL.ImageTk",
-    "requests",
-    "bs4",
-    "lxml",
-    "langdetect",
-    "speech_recognition",
 ]:
-    if lib not in sys.modules:
-        sys.modules[lib] = MagicMock()
+    mock_module(lib)
+    # Ensure attributes exist
+    parts = lib.split(".")
+    for i in range(1, len(parts)):
+        parent = ".".join(parts[:i])
+        child = parts[i]
+        if parent in sys.modules:
+            setattr(sys.modules[parent], child, sys.modules[lib])
+
+# Patch specific attributes needed
+sys.modules["fastapi"].FastAPI = MagicMock
+sys.modules["pydantic"].BaseModel = MagicMock
+sys.modules["starlette.middleware.base"].BaseHTTPMiddleware = MagicMock
+sys.modules["torch.nn"].Module = MagicMock
+sys.modules["torch.nn"].Sequential = MagicMock
+sys.modules["torch.nn"].Conv2d = MagicMock
+sys.modules["torch.nn"].ReLU = MagicMock
+sys.modules["torch.nn"].MaxPool2d = MagicMock
+sys.modules["torch.nn"].Linear = MagicMock
+sys.modules["torch"].device = MagicMock
+sys.modules["torch"].no_grad = MagicMock

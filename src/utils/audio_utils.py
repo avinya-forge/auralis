@@ -491,3 +491,32 @@ class AudioUtils:
             # Log error?
             # print(f"Error trimming silence for {file_path}: {e}")
             return False
+
+
+def get_audio_format(file_path: str) -> str:
+    """Detect audio format from extension."""
+    import os
+
+    ext = os.path.splitext(file_path)[1].lower()
+    return ext[1:] if ext else "unknown"
+
+
+def is_lossless(file_path: str) -> bool:
+    """Check if audio format is lossless."""
+    return get_audio_format(file_path) in ["flac", "wav", "alac"]
+
+
+def generate_silent_wav(output_path: str, duration_sec: int = 1) -> None:
+    """Generate a silent WAV file for testing."""
+    import struct
+    import wave
+
+    sample_rate = 44100
+    num_samples = duration_sec * sample_rate
+    with wave.open(output_path, "w") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(sample_rate)
+        for _ in range(num_samples):
+            data = struct.pack("<h", 0)
+            f.writeframesraw(data)

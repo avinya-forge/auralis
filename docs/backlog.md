@@ -30,19 +30,19 @@
 > - **[ ] TASK:** agent-001-2-task-dispatcher | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Build dispatcher for routing tasks to local vs cloud queues | **Deps:** multiprocessing | **Hygiene:** Thread safety | **LOC Estimate:** 50
 > - **[ ] TASK:** agent-002-1-llm-client | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement generic HTTP client for OpenAI/Anthropic | **Deps:** httpx | **Hygiene:** Error-resilient | **LOC Estimate:** 45
 > - **[ ] TASK:** agent-002-2-prompt-factory | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement dynamic template-based prompt generation | **Deps:** jinja2 | **Hygiene:** Input sanitization | **LOC Estimate:** 40
-> - **[ ] TASK:** api-001-1-fastapi-init | **Loc:** src/modules/api/main.py | **Spec:** Bootstrap FastAPI app with middleware | **Deps:** fastapi | **Hygiene:** PEP8 compliant | **LOC Estimate:** 40
-> - **[ ] TASK:** api-001-2-endpoints-metadata | **Loc:** src/modules/api/main.py | **Spec:** Implement GET/POST endpoints for metadata CRUD | **Deps:** fastapi | **Hygiene:** Schema validation | **LOC Estimate:** 45
-> - **[ ] TASK:** api-001-3-endpoints-file-sync | **Loc:** src/modules/api/main.py | **Spec:** Implement streaming endpoints for audio file sync | **Deps:** fastapi | **Hygiene:** JWT authentication | **LOC Estimate:** 50
-> - **[ ] TASK:** agent-analyze-latency | **Loc:** src/utils/perf/latency_logger.py | **Spec:** Implement middleware to track Edge-Cloud roundtrip latency | **Deps:** time | **Hygiene:** Minimal overhead | **LOC Estimate:** 30
+> - **[x] TASK:** api-001-1-fastapi-init | **Loc:** src/modules/api/main.py | **Spec:** Bootstrap FastAPI app with middleware | **Deps:** fastapi | **Hygiene:** PEP8 compliant | **LOC Estimate:** 40
+> - **[x] TASK:** api-001-2-endpoints-metadata | **Loc:** src/modules/api/main.py | **Spec:** Implement GET/POST endpoints for metadata CRUD | **Deps:** fastapi | **Hygiene:** Schema validation | **LOC Estimate:** 45
+> - **[x] TASK:** api-001-3-endpoints-file-sync | **Loc:** src/modules/api/main.py | **Spec:** Implement streaming endpoints for audio file sync | **Deps:** fastapi | **Hygiene:** JWT authentication | **LOC Estimate:** 50
+> - **[x] TASK:** agent-analyze-latency | **Loc:** src/utils/perf/latency_logger.py | **Spec:** Implement middleware to track Edge-Cloud roundtrip latency | **Deps:** time | **Hygiene:** Minimal overhead | **LOC Estimate:** 30
 > - **[ ] TASK:** agent-verify-gateway | **Loc:** tests/test_agent_gateway.py | **Spec:** Integration test for agent-router-gateway path | **Deps:** pytest | **Hygiene:** 95% coverage | **LOC Estimate:** 50
 > - **[ ] TASK:** api-cleanup-routes | **Loc:** src/modules/api/cleanup.py | **Spec:** Prune expired JWT tokens and invalid session routes | **Deps:** src/utils/db_utils.py | **Hygiene:** Cron-safe | **LOC Estimate:** 35
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
 - **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
 
-> - **[ ] TASK:** audio-001-1-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement process-isolated Demucs wrapper | **Deps:** subprocess | **Hygiene:** Handle OOM errors | **LOC Estimate:** 50
-> - **[ ] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
-> - **[ ] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
+> - **[x] TASK:** audio-001-1-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement process-isolated Demucs wrapper | **Deps:** subprocess | **Hygiene:** Handle OOM errors | **LOC Estimate:** 50
+> - **[x] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
+> - **[x] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
 > - **[ ] TASK:** audio-003-1-mel-spectrogram | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Generate mel-spectrogram tensors from demixed stems | **Deps:** numpy, torchaudio | **Hygiene:** Normalized output | **LOC Estimate:** 50
 > - **[ ] TASK:** audio-cleanup-cache | **Loc:** src/utils/audio/cache.py | **Spec:** Implement cache eviction for demixed audio chunks | **Deps:** os | **Hygiene:** LRU policy | **LOC Estimate:** 35
 > - **[ ] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
@@ -51,7 +51,7 @@
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 - **SPEC:** Deep classification of instruments, vocalists, and musical characteristics.
 
-> - **[ ] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
+> - **[x] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
 > - **[ ] TASK:** neu-002-1-vocal-stem-interface | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement interface to extract vocal stems from demixer stems | **Deps:** numpy | **Hygiene:** Error handling | **LOC Estimate:** 40
 > - **[ ] TASK:** neu-002-2-vocal-dvector | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement d-vector embedding generation via SpeechBrain | **Deps:** speechbrain | **Hygiene:** 100% privacy | **LOC Estimate:** 55
@@ -90,6 +90,21 @@
 
 ### Epic 9: System Maintenance
 > - **[ ] TASK:** resolve-003-skills-sync | **Loc:** scripts/run.sh | **Spec:** Implement integration hooks for run.sh skills | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 40
-> - **[ ] TASK:** resolve-004-audit-expansions | **Loc:** docs/planning/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
+> - **[ ] TASK:** resolve-004-audit-expansions | **Loc:** docs/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
 > - **[ ] TASK:** resolve-005-dependency-audit | **Loc:** scripts/audit_deps.sh | **Spec:** Audit requirements.txt for pinned versions and vulnerabilities | **Deps:** safety | **Hygiene:** CI trigger | **LOC Estimate:** 30
 > - **[ ] TASK:** resolve-006-complexity-refactor | **Loc:** scripts/check_complexity.sh | **Spec:** Audit src/ for Cyclomatic Complexity > 10 | **Deps:** radon | **Hygiene:** Prevent tech debt | **LOC Estimate:** 25
+
+### Quality Gates
+> - **[ ] TASK:** quality-001-deps | **Loc:** scripts/run.sh | **Spec:** Resolve CI deps | **Deps:** None | **LOC:** 20
+
+### [HUNTER] Security & Bug Backlog
+> - **[ ] TASK:** hunter-001-sql-injection | **Loc:** src/modules/mob/offline_cache.py | **Spec:** Review and parameterize all SQL queries to prevent injection | **Deps:** None | **Hygiene:** 0 dynamic strings in SQL | **LOC Estimate:** 30
+> - **[ ] TASK:** hunter-002-path-traversal | **Loc:** src/modules/api/main.py | **Spec:** Sanitize file_id in /sync/ endpoint to prevent path traversal | **Deps:** None | **Hygiene:** Strict path validation | **LOC Estimate:** 25
+
+### [ARCHITECT] Structural Backlog
+> - **[ ] TASK:** arch-001-plugin-abc | **Loc:** src/plugins/plugin_interface.py | **Spec:** Refactor plugin interface to use Abstract Base Classes (ABC) | **Deps:** None | **Hygiene:** Enforced implementation | **LOC Estimate:** 50
+> - **[ ] TASK:** arch-002-service-registry | **Loc:** src/core/registry.py | **Spec:** Implement a central ServiceRegistry for singleton management | **Deps:** None | **Hygiene:** Dependency injection pattern | **LOC Estimate:** 80
+
+### [TECH_DEBT] Environment & Test Stabilization
+> - **[ ] TASK:** quality-003-env-mocking | **Loc:** tests/conftest.py | **Spec:** Implement robust recursive mocking for heavy dependencies (torch, fastapi) to allow 0-dependency test collection | **Deps:** None | **Hygiene:** 0 collection errors | **LOC Estimate:** 40
+> - **[ ] TASK:** quality-004-total-coverage | **Loc:** tests/ | **Spec:** Increase total project coverage to >95% by adding missing unit/integration tests | **Deps:** quality-003 | **Hygiene:** Coverage > 95% | **LOC Estimate:** 200
