@@ -16,7 +16,7 @@ class MusicBrainzAggregator:
     Interfaces with MusicBrainz for high-fidelity metadata.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/patternseekers/auralis")
 
     def search_recording(self, artist: str, title: str) -> List[Dict[str, Any]]:
@@ -64,7 +64,9 @@ class SpotifyAggregator:
     Marked as [BLOCKED] in backlog due to missing 'spotipy' dependency.
     """
 
-    def __init__(self, client_id: Optional[str] = None, client_secret: Optional[str] = None):
+    def __init__(
+        self, client_id: Optional[str] = None, client_secret: Optional[str] = None
+    ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.enabled = client_id is not None and client_secret is not None

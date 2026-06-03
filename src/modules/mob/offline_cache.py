@@ -21,8 +21,7 @@ class OfflineCache:
     def _init_db(self) -> None:
         """Initialize the mobile tracks table."""
         with get_db_connection(self.db_path) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS mobile_tracks (
                     id TEXT PRIMARY KEY,
                     title TEXT,
@@ -31,8 +30,7 @@ class OfflineCache:
                     file_size INTEGER,
                     last_accessed TIMESTAMP
                 )
-            """
-            )
+            """)
 
     def get_total_size(self) -> int:
         """Calculate total cached file size."""
@@ -66,7 +64,10 @@ class OfflineCache:
                 "SELECT id, title, artist, local_path, file_size FROM mobile_tracks WHERE id = ?",
                 (track_id,),
             )
-            return cursor.fetchone()
+            row = cursor.fetchone()
+            if row is not None:
+                return (str(row[0]), str(row[1]), str(row[2]), str(row[3]), int(row[4]))
+            return None
 
     def _enforce_lru(self, incoming_size: int) -> None:
         """Evict oldest tracks until incoming size fits."""
