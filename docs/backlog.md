@@ -26,16 +26,16 @@
 ### Epic 2: Orchestration & Edge-Cloud Gateway
 - **SPEC:** Implement the Meta-Agent orchestrator and REST gateway for seamless Edge-Cloud handoff.
 
-> - **[ ] TASK:** agent-001-1-router-logic | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Implement confidence threshold comparison logic | **Deps:** None | **Hygiene:** Atomic comparison | **LOC Estimate:** 35
-> - **[ ] TASK:** agent-001-2-task-dispatcher | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Build dispatcher for routing tasks to local vs cloud queues | **Deps:** multiprocessing | **Hygiene:** Thread safety | **LOC Estimate:** 50
-> - **[ ] TASK:** agent-002-1-llm-client | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement generic HTTP client for OpenAI/Anthropic | **Deps:** httpx | **Hygiene:** Error-resilient | **LOC Estimate:** 45
-> - **[ ] TASK:** agent-002-2-prompt-factory | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement dynamic template-based prompt generation | **Deps:** jinja2 | **Hygiene:** Input sanitization | **LOC Estimate:** 40
-> - **[ ] TASK:** api-001-1-fastapi-init | **Loc:** src/modules/api/main.py | **Spec:** Bootstrap FastAPI app with middleware | **Deps:** fastapi | **Hygiene:** PEP8 compliant | **LOC Estimate:** 40
-> - **[ ] TASK:** api-001-2-endpoints-metadata | **Loc:** src/modules/api/main.py | **Spec:** Implement GET/POST endpoints for metadata CRUD | **Deps:** fastapi | **Hygiene:** Schema validation | **LOC Estimate:** 45
-> - **[ ] TASK:** api-001-3-endpoints-file-sync | **Loc:** src/modules/api/main.py | **Spec:** Implement streaming endpoints for audio file sync | **Deps:** fastapi | **Hygiene:** JWT authentication | **LOC Estimate:** 50
-> - **[ ] TASK:** agent-analyze-latency | **Loc:** src/utils/perf/latency_logger.py | **Spec:** Implement middleware to track Edge-Cloud roundtrip latency | **Deps:** time | **Hygiene:** Minimal overhead | **LOC Estimate:** 30
-> - **[ ] TASK:** agent-verify-gateway | **Loc:** tests/test_agent_gateway.py | **Spec:** Integration test for agent-router-gateway path | **Deps:** pytest | **Hygiene:** 95% coverage | **LOC Estimate:** 50
-> - **[ ] TASK:** api-cleanup-routes | **Loc:** src/modules/api/cleanup.py | **Spec:** Prune expired JWT tokens and invalid session routes | **Deps:** src/utils/db_utils.py | **Hygiene:** Cron-safe | **LOC Estimate:** 35
+> - **[x] TASK:** agent-001-1-router-logic | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Implement confidence threshold comparison logic | **Deps:** None | **Hygiene:** Atomic comparison | **LOC Estimate:** 35
+> - **[x] TASK:** agent-001-2-task-dispatcher | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Build dispatcher for routing tasks to local vs cloud queues | **Deps:** multiprocessing | **Hygiene:** Thread safety | **LOC Estimate:** 50
+> - **[x] TASK:** agent-002-1-llm-client | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement generic HTTP client for OpenAI/Anthropic | **Deps:** httpx | **Hygiene:** Error-resilient | **LOC Estimate:** 45
+> - **[x] TASK:** agent-002-2-prompt-factory | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement dynamic template-based prompt generation | **Deps:** jinja2 | **Hygiene:** Input sanitization | **LOC Estimate:** 40
+> - **[x] TASK:** api-001-1-fastapi-init | **Loc:** src/modules/api/main.py | **Spec:** Bootstrap FastAPI app with middleware | **Deps:** fastapi | **Hygiene:** PEP8 compliant | **LOC Estimate:** 40
+> - **[x] TASK:** api-001-2-endpoints-metadata | **Loc:** src/modules/api/main.py | **Spec:** Implement GET/POST endpoints for metadata CRUD | **Deps:** fastapi | **Hygiene:** Schema validation | **LOC Estimate:** 45
+> - **[x] TASK:** api-001-3-endpoints-file-sync | **Loc:** src/modules/api/main.py | **Spec:** Implement streaming endpoints for audio file sync | **Deps:** fastapi | **Hygiene:** JWT authentication | **LOC Estimate:** 50
+> - **[x] TASK:** agent-analyze-latency | **Loc:** src/utils/perf/latency_logger.py | **Spec:** Implement middleware to track Edge-Cloud roundtrip latency | **Deps:** time | **Hygiene:** Minimal overhead | **LOC Estimate:** 30
+> - **[x] TASK:** agent-verify-gateway | **Loc:** tests/test_agent_gateway.py | **Spec:** Integration test for agent-router-gateway path | **Deps:** pytest | **Hygiene:** 95% coverage | **LOC Estimate:** 50
+> - **[x] TASK:** api-cleanup-routes | **Loc:** src/modules/api/cleanup.py | **Spec:** Prune expired JWT tokens and invalid session routes | **Deps:** src/utils/db_utils.py | **Hygiene:** Cron-safe | **LOC Estimate:** 35
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
 - **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
