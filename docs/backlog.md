@@ -41,11 +41,11 @@
 - **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
 
 > - **[ ] TASK:** audio-001-1-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement process-isolated Demucs wrapper | **Deps:** subprocess | **Hygiene:** Handle OOM errors | **LOC Estimate:** 50
-> - **[ ] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
-> - **[ ] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
+> - **[x] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
+> - **[x] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
 > - **[ ] TASK:** audio-003-1-mel-spectrogram | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Generate mel-spectrogram tensors from demixed stems | **Deps:** numpy, torchaudio | **Hygiene:** Normalized output | **LOC Estimate:** 50
 > - **[ ] TASK:** audio-cleanup-cache | **Loc:** src/utils/audio/cache.py | **Spec:** Implement cache eviction for demixed audio chunks | **Deps:** os | **Hygiene:** LRU policy | **LOC Estimate:** 35
-> - **[ ] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
+> - **[x] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
 > - **[ ] TASK:** audio-audit-distortion | **Loc:** scripts/audit_audio.py | **Spec:** Detect harmonic distortion in demixed stems | **Deps:** scipy | **Hygiene:** Report SNR | **LOC Estimate:** 40
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
