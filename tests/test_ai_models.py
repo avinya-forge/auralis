@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pytest
 
 from src.services.ai.instrument_classifier import InstrumentInferenceWrapper, InstrumentResNet
 from src.services.ai.vocalist_analyzer import VocalistAnalyzer
@@ -10,7 +9,6 @@ from src.utils.ai.drift_detector import DriftDetector
 
 def test_instrument_resnet_forward():
     # Only test if torch is available (our fallback creates a mock module if missing)
-    import sys
 
     # If the system has torch available, we test the network forward pass.
     # Because of our fallback in the module, if torch isn't real, it inherits from `object`.

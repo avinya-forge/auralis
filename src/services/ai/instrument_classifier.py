@@ -2,6 +2,8 @@ import logging
 import os
 from typing import Any, Dict, List, Optional
 
+from src.services.ai.inference_engine import NeuralInferenceEngine
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -12,8 +14,6 @@ except ImportError:
     torch = None
     nn = None
     F = None
-
-from src.services.ai.inference_engine import NeuralInferenceEngine
 
 
 class InstrumentResNet(nn.Module if nn else object):  # type: ignore
