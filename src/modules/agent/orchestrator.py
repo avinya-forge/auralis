@@ -1,6 +1,6 @@
 import logging
 import multiprocessing
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,9 @@ class TaskRouter:
     def __init__(self, default_threshold: float = 0.8):
         self.default_threshold = default_threshold
 
-    def is_confident(self, confidence_score: float, threshold: float | None = None) -> bool:
+    def is_confident(
+        self, confidence_score: Optional[float], threshold: Optional[float] = None
+    ) -> bool:
         """
         Compare confidence score against threshold.
         Returns True if score >= threshold, False otherwise.

@@ -1,7 +1,6 @@
 import subprocess
 from unittest.mock import MagicMock, patch
 
-
 from src.services.audio.demixer import DemucsWrapper
 
 

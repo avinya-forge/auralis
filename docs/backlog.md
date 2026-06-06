@@ -41,23 +41,23 @@
 - **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
 
 > - **[ ] TASK:** audio-001-1-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement process-isolated Demucs wrapper | **Deps:** subprocess | **Hygiene:** Handle OOM errors | **LOC Estimate:** 50
-> - **[ ] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
-> - **[ ] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
-> - **[ ] TASK:** audio-003-1-mel-spectrogram | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Generate mel-spectrogram tensors from demixed stems | **Deps:** numpy, torchaudio | **Hygiene:** Normalized output | **LOC Estimate:** 50
-> - **[ ] TASK:** audio-cleanup-cache | **Loc:** src/utils/audio/cache.py | **Spec:** Implement cache eviction for demixed audio chunks | **Deps:** os | **Hygiene:** LRU policy | **LOC Estimate:** 35
-> - **[ ] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
-> - **[ ] TASK:** audio-audit-distortion | **Loc:** scripts/audit_audio.py | **Spec:** Detect harmonic distortion in demixed stems | **Deps:** scipy | **Hygiene:** Report SNR | **LOC Estimate:** 40
+> - **[x] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
+> - **[x] TASK:** audio-002-2-rhythm-extraction | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement BPM and onset strength detection | **Deps:** librosa | **Hygiene:** Precision verified | **LOC Estimate:** 40
+> - **[x] TASK:** audio-003-1-mel-spectrogram | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Generate mel-spectrogram tensors from demixed stems | **Deps:** numpy, torchaudio | **Hygiene:** Normalized output | **LOC Estimate:** 50
+> - **[x] TASK:** audio-cleanup-cache | **Loc:** src/utils/audio/cache.py | **Spec:** Implement cache eviction for demixed audio chunks | **Deps:** os | **Hygiene:** LRU policy | **LOC Estimate:** 35
+> - **[x] TASK:** audio-verify-dsp | **Loc:** tests/test_audio_dsp.py | **Spec:** Unit tests for Chroma and Rhythm extraction accuracy | **Deps:** pytest, numpy | **Hygiene:** Use synthetic signals | **LOC Estimate:** 50
+> - **[x] TASK:** audio-audit-distortion | **Loc:** scripts/audit_audio.py | **Spec:** Detect harmonic distortion in demixed stems | **Deps:** scipy | **Hygiene:** Report SNR | **LOC Estimate:** 40
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 - **SPEC:** Deep classification of instruments, vocalists, and musical characteristics.
 
-> - **[ ] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
-> - **[ ] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
-> - **[ ] TASK:** neu-002-1-vocal-stem-interface | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement interface to extract vocal stems from demixer stems | **Deps:** numpy | **Hygiene:** Error handling | **LOC Estimate:** 40
-> - **[ ] TASK:** neu-002-2-vocal-dvector | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement d-vector embedding generation via SpeechBrain | **Deps:** speechbrain | **Hygiene:** 100% privacy | **LOC Estimate:** 55
-> - **[ ] TASK:** neu-003-1-clap-raga-prompts | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Design and test 50+ Raga-specific zero-shot prompts | **Deps:** transformers | **Hygiene:** Deterministic | **LOC Estimate:** 40
+> - **[x] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
+> - **[x] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
+> - **[x] TASK:** neu-002-1-vocal-stem-interface | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement interface to extract vocal stems from demixer stems | **Deps:** numpy | **Hygiene:** Error handling | **LOC Estimate:** 40
+> - **[x] TASK:** neu-002-2-vocal-dvector | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement d-vector embedding generation via SpeechBrain | **Deps:** speechbrain | **Hygiene:** 100% privacy | **LOC Estimate:** 55
+> - **[x] TASK:** neu-003-1-clap-raga-prompts | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Design and test 50+ Raga-specific zero-shot prompts | **Deps:** transformers | **Hygiene:** Deterministic | **LOC Estimate:** 40
 > - **[ ] TASK:** neu-004-1-singer-id-link | **Loc:** src/modules/neu/singer_id.py | **Spec:** Link voice embeddings to vocalist metadata | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 45
-> - **[ ] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
+> - **[x] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
