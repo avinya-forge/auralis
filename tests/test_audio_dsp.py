@@ -5,13 +5,16 @@ from src.services.audio.dsp_engine import DSPEngine
 from src.utils.audio.spectrogram import generate_mel_spectrogram
 from src.utils.audio.cache import AudioCacheManager
 
+
 @pytest.fixture
 def engine():
     return DSPEngine(sr=22050)
 
+
 def test_extract_chroma(engine):
-    with patch("src.services.audio.dsp_engine.librosa") as mock_librosa, \
-         patch("src.services.audio.dsp_engine.np") as mock_np:
+    with patch("src.services.audio.dsp_engine.librosa") as mock_librosa, patch(
+        "src.services.audio.dsp_engine.np"
+    ) as mock_np:
 
         mock_array = [1, 2, 3]
         mock_librosa.feature.chroma_cqt.return_value = mock_array
@@ -26,6 +29,7 @@ def test_extract_chroma(engine):
 
         assert chroma == mock_array
 
+
 def test_extract_rhythm(engine):
     with patch("src.services.audio.dsp_engine.librosa") as mock_librosa:
         mock_librosa.onset.onset_strength.return_value = "onset"
@@ -39,10 +43,11 @@ def test_extract_rhythm(engine):
         assert rhythm["onset_strength"] == "onset"
         assert rhythm["beats"] == "beats"
 
+
 def test_generate_mel_spectrogram():
-    with patch("src.utils.audio.spectrogram.torch") as mock_torch, \
-         patch("src.utils.audio.spectrogram.T") as mock_T, \
-         patch("src.utils.audio.spectrogram.np") as mock_np:
+    with patch("src.utils.audio.spectrogram.torch") as mock_torch, patch(
+        "src.utils.audio.spectrogram.T"
+    ) as mock_T, patch("src.utils.audio.spectrogram.np") as mock_np:
 
         mock_tensor = MagicMock()
         mock_tensor.dim.return_value = 1
@@ -74,6 +79,7 @@ def test_generate_mel_spectrogram():
 
         assert mel == mock_final_array
 
+
 def test_audio_cache_manager(tmp_path):
     manager = AudioCacheManager(str(tmp_path), max_size_bytes=100)
 
@@ -83,9 +89,10 @@ def test_audio_cache_manager(tmp_path):
     file2 = tmp_path / "file2.wav"
     file2.write_bytes(b"0" * 50)
 
-    with patch.object(manager, '_get_files_with_stats', return_value=[
-        (file1, 100, 60), # older
-        (file2, 200, 50)  # newer
-    ]):
+    with patch.object(
+        manager,
+        "_get_files_with_stats",
+        return_value=[(file1, 100, 60), (file2, 200, 50)],  # older  # newer
+    ):
         freed = manager.cleanup()
         assert freed == 60
