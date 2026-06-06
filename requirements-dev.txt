@@ -9,3 +9,6 @@ types-requests
 types-setuptools
 types-tqdm
 types-Pillow
+fastapi
+httpx
+jinja2

@@ -1,9 +1,10 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from src.services.audio.dsp_engine import DSPEngine
-from src.utils.audio.spectrogram import generate_mel_spectrogram
 from src.utils.audio.cache import AudioCacheManager
+from src.utils.audio.spectrogram import generate_mel_spectrogram
 
 
 @pytest.fixture
