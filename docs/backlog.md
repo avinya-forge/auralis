@@ -51,13 +51,13 @@
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 - **SPEC:** Deep classification of instruments, vocalists, and musical characteristics.
 
-> - **[ ] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
-> - **[ ] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
-> - **[ ] TASK:** neu-002-1-vocal-stem-interface | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement interface to extract vocal stems from demixer stems | **Deps:** numpy | **Hygiene:** Error handling | **LOC Estimate:** 40
-> - **[ ] TASK:** neu-002-2-vocal-dvector | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement d-vector embedding generation via SpeechBrain | **Deps:** speechbrain | **Hygiene:** 100% privacy | **LOC Estimate:** 55
-> - **[ ] TASK:** neu-003-1-clap-raga-prompts | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Design and test 50+ Raga-specific zero-shot prompts | **Deps:** transformers | **Hygiene:** Deterministic | **LOC Estimate:** 40
+> - **[x] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
+> - **[x] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
+> - **[x] TASK:** neu-002-1-vocal-stem-interface | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement interface to extract vocal stems from demixer stems | **Deps:** numpy | **Hygiene:** Error handling | **LOC Estimate:** 40
+> - **[x] TASK:** neu-002-2-vocal-dvector | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement d-vector embedding generation via SpeechBrain | **Deps:** speechbrain | **Hygiene:** 100% privacy | **LOC Estimate:** 55
+> - **[x] TASK:** neu-003-1-clap-raga-prompts | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Design and test 50+ Raga-specific zero-shot prompts | **Deps:** transformers | **Hygiene:** Deterministic | **LOC Estimate:** 40
 > - **[ ] TASK:** neu-004-1-singer-id-link | **Loc:** src/modules/neu/singer_id.py | **Spec:** Link voice embeddings to vocalist metadata | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 45
-> - **[ ] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
+> - **[x] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
