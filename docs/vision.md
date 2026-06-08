@@ -70,3 +70,5 @@
 - **Polyphonic Understanding**: Perfect identification of concurrent instruments.
 - **Universal Knowledge**: A global, crowdsourced graph of Ragas, Gharanas, and Artists.
 - **Fluid Ecosystem**: Seamless handoff between mobile Edge devices and Neural Cloud nodes.
+- resolve-005-dependency-audit: Audit requirements.txt for pinned versions and vulnerabilities
+- resolve-006-complexity-refactor: Audit src/ for Cyclomatic Complexity > 10

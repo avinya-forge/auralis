@@ -7,13 +7,13 @@ logger = logging.getLogger(__name__)
 try:
     import numpy as np
 except ImportError:
-    np = None
+    np = None  # type: ignore
 
 try:
     import speechbrain  # type: ignore
     from speechbrain.inference.speaker import EncoderClassifier  # type: ignore
 except ImportError:
-    speechbrain = None
+    speechbrain = None  # type: ignore
 
 
 class VocalistAnalyzer:
