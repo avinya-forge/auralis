@@ -91,5 +91,5 @@
 ### Epic 9: System Maintenance
 > - **[ ] TASK:** resolve-003-skills-sync | **Loc:** scripts/run.sh | **Spec:** Implement integration hooks for run.sh skills | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 40
 > - **[ ] TASK:** resolve-004-audit-expansions | **Loc:** docs/planning/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
-> - **[ ] TASK:** resolve-005-dependency-audit | **Loc:** scripts/audit_deps.sh | **Spec:** Audit requirements.txt for pinned versions and vulnerabilities | **Deps:** safety | **Hygiene:** CI trigger | **LOC Estimate:** 30
-> - **[ ] TASK:** resolve-006-complexity-refactor | **Loc:** scripts/check_complexity.sh | **Spec:** Audit src/ for Cyclomatic Complexity > 10 | **Deps:** radon | **Hygiene:** Prevent tech debt | **LOC Estimate:** 25
+> - **[x] TASK:** resolve-005-dependency-audit | **Loc:** scripts/audit_deps.sh | **Spec:** Audit requirements.txt for pinned versions and vulnerabilities | **Deps:** safety | **Hygiene:** CI trigger | **LOC Estimate:** 30
+> - **[x] TASK:** resolve-006-complexity-refactor | **Loc:** scripts/check_complexity.sh | **Spec:** Audit src/ for Cyclomatic Complexity > 10 | **Deps:** radon | **Hygiene:** Prevent tech debt | **LOC Estimate:** 25
