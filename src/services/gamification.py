@@ -26,16 +26,14 @@ class GamificationService:
     def _init_db(self) -> None:
         """Initialize the user stats table."""
         with get_db_connection(self.db_path) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS user_stats (
                     user_id TEXT PRIMARY KEY,
                     points INTEGER DEFAULT 0,
                     validations_count INTEGER DEFAULT 0,
                     level INTEGER DEFAULT 1
                 )
-            """
-            )
+            """)
 
     def add_validation_points(self, user_id: str) -> Dict[str, int]:
         """

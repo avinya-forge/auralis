@@ -4,7 +4,6 @@
 - **Hybrid Edge-Cloud Polyphonic Music Identification & Knowledge Graph.**
 - The Autonomous, High-Fidelity Music Neural Network.
 - Bridges the gap between local high-fidelity archives and the metadata-rich world of crowdsourced intelligence.
-
 ## Core Pillars
 1.  **Audio Demixing (Zero-Overlap)**: Mandatory source separation (via Demucs or similar) prior to analysis. Solves the polyphonic overlap flaw by isolating instruments and vocals.
 2.  **DSP + CV Hybrid (Harmonic Precision)**:
@@ -22,20 +21,17 @@
 5.  **Dynamic Caches (Global/Local Sync)**:
     - Region or genre-specific "Music Packs" for offline metadata access.
     - Compressed metadata persistence for high-performance retrieval.
-
 ## Pipeline Laws (The "Iron Triangle")
 - **Test Fortress:** All code (Core, GUI, CLI, Utils, API) must be covered by tests. Target coverage: 95%.
 - **Lint Zero:** Strict `flake8` and `mypy` (disallow_untyped_defs = True) adherence.
 - **Edge-First DSP:** All local processing must prioritize O(1) or O(n log n) efficiency.
 - **Cloud-Second Neural:** Heavy models must be gated by the Meta-Agent Orchestrator.
-
 ## Definition of Done (DoD)
 - [ ] **Tested:** Unit/Integration tests added covering demixing and hybrid paths.
 - [ ] **Linted:** Passes all strict static analysis checks.
 - [ ] **Optimized:** Verified performance budget for Edge execution.
 - [ ] **Secured:** API endpoints authenticated and input sanitized.
 - [ ] **Sync'd:** Knowledge Graph nodes updated and documentation reflects live state.
-
 ## Current Backlog Tasks Mapped
 - db-001-1-upload-handler
 - db-001-2-metadata-extractor
@@ -64,9 +60,30 @@
 - api-cleanup-routes
 - plg-001-dep-resolver
 - plg-002-sandbox
-
 ## Ideal State
 - **Zero-Touch Organization**: Instant sorting via demixed-audio fingerprints.
 - **Polyphonic Understanding**: Perfect identification of concurrent instruments.
 - **Universal Knowledge**: A global, crowdsourced graph of Ragas, Gharanas, and Artists.
 - **Fluid Ecosystem**: Seamless handoff between mobile Edge devices and Neural Cloud nodes.
+- audio-001-1-demucs-wrapper
+- neu-verify-inference
+- neu-cleanup-models
+- net-001-p2p-security
+- plg-verify-isolation
+- cld-002-aws-s3
+- cld-003-gdrive
+- cld-004-cloud-ui
+- cld-verify-connectivity
+- resolve-003-skills-sync
+- resolve-004-audit-expansions
+- resolve-005-dependency-audit
+- resolve-006-complexity-refactor
+- data-001-1-schema-migration
+- data-001-2-orm-update
+- data-002-1-pack-generator
+- data-audit-integrity
+- data-cleanup-orphans
+- data-verify-migration
+- id-004-stats-aggregator
+- id-005-profile-sync
+- id-cleanup-history

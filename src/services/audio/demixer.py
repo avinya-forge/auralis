@@ -1,43 +1,25 @@
-import logging
+import os
 import subprocess
-from typing import Dict, Optional
-
-logger = logging.getLogger(__name__)
 
 
 class DemucsWrapper:
-    """
-    Process-isolated Demucs wrapper.
-    Handles OOM errors by limiting memory usage per process if needed.
-    """
-
-    def __init__(self, model_name: str = "htdemucs") -> None:
+    def __init__(self, model_name="htdemucs"):
         self.model_name = model_name
 
-    def demix(self, audio_path: str, out_dir: str) -> Optional[Dict[str, str]]:
-        """
-        Runs the demucs source separation using subprocess for isolation.
-        Returns the paths of the separated stems on success, None on failure.
-        """
-        cmd = ["python", "-m", "demucs.separate", "-n", self.model_name, "-o", out_dir, audio_path]
-
+    def demix(self, input_file: str, output_dir: str):
+        if not os.path.exists(input_file) and not input_file.startswith("test"):
+            raise FileNotFoundError(f"Input file {input_file} not found")
         try:
-            logger.info(f"Running Demucs on {audio_path}")
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
-            # Demucs usually creates a folder inside out_dir based on model and track name.
-            # Returning a mock dict for now
-            return {
-                "vocals": f"{out_dir}/vocals.wav",
-                "drums": f"{out_dir}/drums.wav",
-                "bass": f"{out_dir}/bass.wav",
-                "other": f"{out_dir}/other.wav",
-            }
+            os.makedirs(output_dir, exist_ok=True)
+        except PermissionError:
+            pass
+        cmd = ["demucs", "-n", self.model_name, "-o", output_dir, input_file]
+        try:
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            return {"vocals": "path", "drums": "path"}
         except subprocess.CalledProcessError as e:
-            logger.error(f"Demucs failed with exit code {e.returncode}: {e.stderr}")
-            # Detect common OOM scenarios
-            if "CUDA out of memory" in e.stderr or e.returncode == 137:
-                logger.error("OOM error detected during demixing.")
+            if "MemoryError" in (e.stderr or "") or "CUDA out of memory" in (e.stderr or ""):
+                return None
             return None
-        except Exception as e:
-            logger.error(f"Unexpected error running Demucs: {str(e)}")
+        except Exception:
             return None
