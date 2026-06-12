@@ -62,13 +62,28 @@
 - agent-analyze-latency
 - agent-verify-gateway
 - api-cleanup-routes
+- audio-002-1-chroma-features
+- audio-002-2-rhythm-extraction
+- audio-003-1-mel-spectrogram
+- audio-cleanup-cache
+- audio-verify-dsp
+- audio-audit-distortion
+- neu-001-1-instrument-resnet
+- neu-001-2-instrument-inference
+- neu-002-1-vocal-stem-interface
+- neu-002-2-vocal-dvector
+- neu-003-1-clap-raga-prompts
+- neu-analyze-model-drift
 - plg-001-dep-resolver
 - plg-002-sandbox
+- resolve-005-dependency-audit
+- resolve-006-complexity-refactor
+- data-001-1-schema-migration
+- data-002-1-pack-generator
+- data-verify-migration
 
 ## Ideal State
 - **Zero-Touch Organization**: Instant sorting via demixed-audio fingerprints.
 - **Polyphonic Understanding**: Perfect identification of concurrent instruments.
 - **Universal Knowledge**: A global, crowdsourced graph of Ragas, Gharanas, and Artists.
 - **Fluid Ecosystem**: Seamless handoff between mobile Edge devices and Neural Cloud nodes.
-- resolve-005-dependency-audit: Audit requirements.txt for pinned versions and vulnerabilities
-- resolve-006-complexity-refactor: Audit src/ for Cyclomatic Complexity > 10
