@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Any
 
 from src.services.cache.pack_manager import PackManager
 

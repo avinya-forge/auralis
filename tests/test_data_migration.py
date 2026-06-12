@@ -1,8 +1,4 @@
-import sqlite3
 from pathlib import Path
-from typing import Any
-
-import pytest
 
 from src.utils.db_utils import get_db_connection
 
