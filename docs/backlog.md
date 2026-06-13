@@ -59,7 +59,7 @@
 > - **[ ] TASK:** neu-004-1-singer-id-link | **Loc:** src/modules/neu/singer_id.py | **Spec:** Link voice embeddings to vocalist metadata | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 45
 > - **[x] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
 > - **[ ] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
-> - **[ ] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
+> - **[x] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
 ### Epic 5: Persistence & Metadata Schema
 - **SPEC:** Execute schema_expansion_v2.sql. Add Gharana, Instrument, Vocalist schemas. Implement "Music Pack" cache generation logic. Fix missing metadata structure and offline access.
@@ -75,7 +75,7 @@
 > - **[x] TASK:** plg-001-dep-resolver | **Loc:** src/modules/plg/dependency_resolver.py | **Spec:** Implement DependencyResolver via Kahn's Algorithm | **Deps:** importlib | **Hygiene:** [DONE] | **LOC Estimate:** 135
 > - **[x] TASK:** plg-002-sandbox | **Loc:** src/modules/plg/plugin_sandbox.py | **Spec:** Implement PluginSandbox using MetaPathFinder | **Deps:** importlib.abc | **Hygiene:** [DONE] | **LOC Estimate:** 100
 > - **[ ] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [BLOCKED] | **LOC Estimate:** 150
-> - **[ ] TASK:** plg-verify-isolation | **Loc:** tests/test_plg_isolation.py | **Spec:** Verify plugin sandbox prevents unauthorized OS access | **Deps:** pytest | **Hygiene:** Negative testing | **LOC Estimate:** 40
+> - **[x] TASK:** plg-verify-isolation | **Loc:** tests/test_plg_isolation.py | **Spec:** Verify plugin sandbox prevents unauthorized OS access | **Deps:** pytest | **Hygiene:** Negative testing | **LOC Estimate:** 40
 
 ### Epic 7: User Identity & Stats
 > - **[ ] TASK:** id-004-stats-aggregator | **Loc:** src/modules/id/stats.py | **Spec:** Personal listening stats aggregation | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 60
@@ -89,7 +89,7 @@
 > - **[ ] TASK:** cld-verify-connectivity | **Loc:** src/modules/cld/test_connection.py | **Spec:** Implement ping/validation for cloud providers | **Deps:** requests | **Hygiene:** Secure | **LOC Estimate:** 40
 
 ### Epic 9: System Maintenance
-> - **[ ] TASK:** resolve-003-skills-sync | **Loc:** scripts/run.sh | **Spec:** Implement integration hooks for run.sh skills | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 40
+> - **[x] TASK:** resolve-003-skills-sync | **Loc:** scripts/run.sh | **Spec:** Implement integration hooks for run.sh skills | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 40
 > - **[ ] TASK:** resolve-004-audit-expansions | **Loc:** docs/planning/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
 > - **[x] TASK:** resolve-005-dependency-audit | **Loc:** scripts/audit_deps.sh | **Spec:** Audit requirements.txt for pinned versions and vulnerabilities | **Deps:** safety | **Hygiene:** CI trigger | **LOC Estimate:** 30
 > - **[x] TASK:** resolve-006-complexity-refactor | **Loc:** scripts/check_complexity.sh | **Spec:** Audit src/ for Cyclomatic Complexity > 10 | **Deps:** radon | **Hygiene:** Prevent tech debt | **LOC Estimate:** 25

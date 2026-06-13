@@ -110,11 +110,14 @@ case "$1" in
         ;;
     --skills)
         echo "[RUN.SH] MODE: EVOLVE"
-        echo "[SKILLS] Syncing agentic patterns from https://skills.sh/..."
-        # Note: In a real implementation we would fetch the raw patterns from a valid JSON/TXT endpoint.
-        # Since skills.sh does not serve raw shell scripts directly at the root, we log the pattern evolution.
-        echo "[SKILLS] Simulated parsing of pattern patterns from skills.sh."
-        echo "[SKILLS] Sync complete. Patterns integrated."
+        echo "[SKILLS] Syncing agentic patterns from local skills.sh..."
+        if [ -f "scripts/skills.sh" ]; then
+            echo "[SKILLS] Found skills.sh. Sourcing..."
+            source scripts/skills.sh
+            echo "[SKILLS] Sync complete. Patterns integrated."
+        else
+            echo "[SKILLS] Simulated parsing of pattern patterns from skills.sh (file not found)."
+        fi
         ;;
     --blocker)
         # Utility to explicitly log blockers
