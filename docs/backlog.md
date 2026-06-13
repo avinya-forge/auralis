@@ -4,8 +4,8 @@
 
 - **MILESTONE M2** | **PHASE 7: HYBRID INTELLIGENCE** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
 
-### Epic 1: Database Generation & Crowdsourcing
-- **SPEC:** Build a self-evolving knowledge graph by ingesting user uploads and validating via gamified crowdsourcing.
+### Epic 1: Database Generation & Crowdsourcing [NEW]
+- **SPEC:** Build ingestion pipeline. Accept user raw audio uploads. Implement user validation UI. Gamify metadata tagging. Build API aggregators (MusicBrainz, Spotify). Seed initial knowledge graph. Implement self-supervised learning pipeline. Train base models on unlabelled uploads. Fix missing database flaws.
 
 > - **[x] TASK:** db-001-1-upload-handler | **Loc:** src/modules/db/ingestion.py | **Spec:** Implement chunked file upload handler with hash validation | **Deps:** os, hashlib | **Hygiene:** [DONE] | **LOC Estimate:** 45
 > - **[x] TASK:** db-001-2-metadata-extractor | **Loc:** src/modules/db/ingestion.py | **Spec:** Extract raw metadata and store in temporary staging table | **Deps:** src/services/metadata_service.py | **Hygiene:** [DONE] | **LOC Estimate:** 40
@@ -24,7 +24,7 @@
 > - **[x] TASK:** db-cleanup-stage-1 | **Loc:** scripts/cleanup.sh | **Spec:** Implement cron for orphaned staging record deletion | **Deps:** bash | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ### Epic 2: Orchestration & Edge-Cloud Gateway
-- **SPEC:** Implement the Meta-Agent orchestrator and REST gateway for seamless Edge-Cloud handoff.
+- **SPEC:** Build src/modules/agent: Meta-Agent Task Router. Build src/services/llm_orchestrator.py: Premium LLM bridging. Deploy src/modules/api: FastAPI REST gateway. Handle Edge-Cloud data handoff. Prevent mobile battery drain.
 
 > - **[x] TASK:** agent-001-1-router-logic | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Implement confidence threshold comparison logic | **Deps:** None | **Hygiene:** Atomic comparison | **LOC Estimate:** 35
 > - **[x] TASK:** agent-001-2-task-dispatcher | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Build dispatcher for routing tasks to local vs cloud queues | **Deps:** multiprocessing | **Hygiene:** Thread safety | **LOC Estimate:** 50
@@ -38,7 +38,7 @@
 > - **[x] TASK:** api-cleanup-routes | **Loc:** src/modules/api/cleanup.py | **Spec:** Prune expired JWT tokens and invalid session routes | **Deps:** src/utils/db_utils.py | **Hygiene:** Cron-safe | **LOC Estimate:** 35
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
-- **SPEC:** Isolation and structural analysis via Source Separation and DSP modules.
+- **SPEC:** Integrate Source Separation (Demucs). Run pre-spectrogram. Implement DSP module (Chroma, BPM, Key). Implement Spectrogram Generator module. Fix polyphonic overlap and harmonic distortion.
 
 > - **[ ] TASK:** audio-001-1-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement process-isolated Demucs wrapper | **Deps:** subprocess | **Hygiene:** Handle OOM errors | **LOC Estimate:** 50
 > - **[x] TASK:** audio-002-1-chroma-features | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Extract CQT-based chroma features | **Deps:** librosa | **Hygiene:** Numerical stability | **LOC Estimate:** 45
@@ -49,7 +49,7 @@
 > - **[x] TASK:** audio-audit-distortion | **Loc:** scripts/audit_audio.py | **Spec:** Detect harmonic distortion in demixed stems | **Deps:** scipy | **Hygiene:** Report SNR | **LOC Estimate:** 40
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
-- **SPEC:** Deep classification of instruments, vocalists, and musical characteristics.
+- **SPEC:** Build src/services/ai/instrument_classifier.py: CNN spectrogram matching. Build src/services/ai/vocalist_analyzer.py: Voice signature extraction. Enhance CLAP zero-shot Raga identification. Fix polyphonic identification.
 
 > - **[x] TASK:** neu-001-1-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Define ResNet architecture for spectrogram classification | **Deps:** torch | **Hygiene:** Layer-wise typing | **LOC Estimate:** 50
 > - **[x] TASK:** neu-001-2-instrument-inference | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement inference wrapper and label mapping | **Deps:** src/services/ai/inference_engine.py | **Hygiene:** < 100ms inference | **LOC Estimate:** 45
@@ -62,7 +62,7 @@
 > - **[ ] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
 ### Epic 5: Persistence & Metadata Schema
-- **SPEC:** Structured data persistence for advanced musicological data and offline access.
+- **SPEC:** Execute schema_expansion_v2.sql. Add Gharana, Instrument, Vocalist schemas. Implement "Music Pack" cache generation logic. Fix missing metadata structure and offline access.
 
 > - **[ ] TASK:** data-001-1-schema-migration | **Loc:** resources/db/schema_expansion_v2.sql | **Spec:** Implement idempotent SQL migration for v2 tables | **Deps:** src/utils/db_utils.py | **Hygiene:** Backup before run | **LOC Estimate:** 30
 > - **[ ] TASK:** data-001-2-orm-update | **Loc:** src/models/music_graph.py | **Spec:** Update ORM/Logic to handle Gharana/Instrument relations | **Deps:** sqlalchemy | **Hygiene:** Typed models | **LOC Estimate:** 50
