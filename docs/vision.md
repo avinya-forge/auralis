@@ -6,26 +6,15 @@
 - Bridges the gap between local high-fidelity archives and the metadata-rich world of crowdsourced intelligence.
 
 ## Core Pillars
-1.  **Audio Demixing (Zero-Overlap)**: Mandatory source separation (via Demucs or similar) prior to analysis. Solves the polyphonic overlap flaw by isolating instruments and vocals.
-2.  **DSP + CV Hybrid (Harmonic Precision)**:
-    - **Computer Vision (CV)**: Analyzes spectrograms for instrument/vocal classification.
-    - **Digital Signal Processing (DSP)**: Uses Chroma features, BPM, and Key detection for structural analysis.
-    - Result: Fixes harmonic distortion and improves identification accuracy.
-3.  **Edge-Cloud Split (Power Efficiency)**:
-    - **Edge (Local)**: Executes lightweight DSP, fingerprinting, and spectrogram generation.
-    - **Cloud**: Offloads heavy neural classification and LLM orchestration.
-    - Result: Prevents mobile battery drain and optimizes resource usage.
-4.  **Crowdsource Database (Self-Evolving Knowledge)**:
-    - Ingestion pipeline for user raw audio uploads and validation.
-    - Gamified metadata tagging and verification.
-    - Self-supervised learning (SSL) trained on unlabelled data to fix missing database coverage.
-5.  **Dynamic Caches (Global/Local Sync)**:
-    - Region or genre-specific "Music Packs" for offline metadata access.
-    - Compressed metadata persistence for high-performance retrieval.
+1.  **Audio Demixing**: Force Source Separation (Demucs) before analysis. Fix polyphonic overlap by isolating instruments and vocals.
+2.  **DSP + CV Hybrid**: Use Computer Vision (CV) on spectrograms for instrument/vocal classification. Use Digital Signal Processing (DSP) (Chroma features, BPM, Key) for chords/key structural analysis. Fixes harmonic distortion.
+3.  **Edge-Cloud Split**: Execute lightweight DSP, fingerprinting, and spectrogram generation on device (Edge). Offload heavy neural classification and LLM orchestration to cloud. Prevents mobile battery drain and optimizes resource usage.
+4.  **Crowdsource Database**: Build ingestion pipeline. Accept user raw audio uploads and validation. Gamify user metadata validation/tagging. AI trains on unlabelled data (self-supervised learning) to fix missing database coverage.
+5.  **Dynamic Caches**: Implement region or genre-specific "Music Packs". Cache compressed metadata persistence locally for high-performance retrieval.
 
 ## Pipeline Laws (The "Iron Triangle")
 - **Test Fortress:** All code (Core, GUI, CLI, Utils, API) must be covered by tests. Target coverage: 95%.
-- **Lint Zero:** Strict `flake8` and `mypy` (disallow_untyped_defs = True) adherence.
+- **Lint Zero:** Strict `flake8` and `mypy` adherence.
 - **Edge-First DSP:** All local processing must prioritize O(1) or O(n log n) efficiency.
 - **Cloud-Second Neural:** Heavy models must be gated by the Meta-Agent Orchestrator.
 
@@ -70,5 +59,3 @@
 - **Polyphonic Understanding**: Perfect identification of concurrent instruments.
 - **Universal Knowledge**: A global, crowdsourced graph of Ragas, Gharanas, and Artists.
 - **Fluid Ecosystem**: Seamless handoff between mobile Edge devices and Neural Cloud nodes.
-- resolve-005-dependency-audit: Audit requirements.txt for pinned versions and vulnerabilities
-- resolve-006-complexity-refactor: Audit src/ for Cyclomatic Complexity > 10
