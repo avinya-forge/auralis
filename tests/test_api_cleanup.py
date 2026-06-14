@@ -8,15 +8,13 @@ def test_prune_expired_tokens(tmp_path):
     db_path = str(tmp_path / "test_sessions.db")
 
     conn = sqlite3.connect(db_path)
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TABLE sessions (
             id TEXT PRIMARY KEY,
             token TEXT,
             expires_at TEXT
         )
-    """
-    )
+    """)
 
     now = datetime.datetime.now()
     past = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%f")
