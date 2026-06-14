@@ -18,7 +18,8 @@ def mock_db_with_orphans(tmp_path: Path) -> Generator[str, None, None]:
     valid_file2.write_text("dummy audio data")
 
     with get_db_connection(db_path) as conn:
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS mobile_tracks (
                 id TEXT PRIMARY KEY,
                 title TEXT,
@@ -27,7 +28,8 @@ def mock_db_with_orphans(tmp_path: Path) -> Generator[str, None, None]:
                 file_size INTEGER,
                 last_accessed TIMESTAMP
             )
-            """)
+            """
+        )
 
         # Insert 2 valid tracks and 2 orphans
         tracks = [

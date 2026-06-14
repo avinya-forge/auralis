@@ -13,14 +13,16 @@ def db_with_violations(tmp_path: Path) -> Generator[str, None, None]:
     with get_db_connection(db_path) as conn:
         conn.execute("PRAGMA foreign_keys = OFF;")
         # Create schema
-        conn.executescript("""
+        conn.executescript(
+            """
             CREATE TABLE parent (id INTEGER PRIMARY KEY);
             CREATE TABLE child (
                 id INTEGER PRIMARY KEY,
                 parent_id INTEGER,
                 FOREIGN KEY (parent_id) REFERENCES parent(id)
             );
-            """)
+            """
+        )
         # Insert violating row
         conn.execute("INSERT INTO child (id, parent_id) VALUES (1, 999);")
     yield db_path
@@ -30,7 +32,8 @@ def db_with_violations(tmp_path: Path) -> Generator[str, None, None]:
 def db_without_violations(tmp_path: Path) -> Generator[str, None, None]:
     db_path = str(tmp_path / "clean.db")
     with get_db_connection(db_path) as conn:
-        conn.executescript("""
+        conn.executescript(
+            """
             CREATE TABLE parent (id INTEGER PRIMARY KEY);
             CREATE TABLE child (
                 id INTEGER PRIMARY KEY,
@@ -39,7 +42,8 @@ def db_without_violations(tmp_path: Path) -> Generator[str, None, None]:
             );
             INSERT INTO parent (id) VALUES (1);
             INSERT INTO child (id, parent_id) VALUES (1, 1);
-            """)
+            """
+        )
     yield db_path
 
 
