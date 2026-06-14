@@ -53,6 +53,9 @@
 - api-cleanup-routes
 - plg-001-dep-resolver
 - plg-002-sandbox
+- neu-cleanup-models
+- plg-verify-isolation
+- resolve-003-skills-sync
 
 ## Ideal State
 - **Zero-Touch Organization**: Instant sorting via demixed-audio fingerprints.
