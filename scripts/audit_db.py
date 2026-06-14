@@ -26,7 +26,9 @@ def audit_integrity(db_path: str) -> List[tuple]:
                 logger.error(f"Integrity violations found in {db_path}:")
                 for violation in violations:
                     # table, rowid, parent, fkid
-                    logger.error(f"  Table: {violation[0]}, RowID: {violation[1]}, Parent: {violation[2]}, FKID: {violation[3]}")
+                    logger.error(
+                        f"  Table: {violation[0]}, RowID: {violation[1]}, Parent: {violation[2]}, FKID: {violation[3]}"
+                    )
             else:
                 logger.info(f"Database {db_path} passed integrity check.")
     except Exception as e:
@@ -34,6 +36,7 @@ def audit_integrity(db_path: str) -> List[tuple]:
         raise
 
     return violations
+
 
 def main():
     parser = argparse.ArgumentParser(description="Audit database referential integrity")
@@ -47,6 +50,7 @@ def main():
         sys.exit(0)
     except Exception:
         sys.exit(2)
+
 
 if __name__ == "__main__":
     main()
