@@ -64,11 +64,11 @@
 ### Epic 5: Persistence & Metadata Schema
 - **SPEC:** Execute schema_expansion_v2.sql. Add Gharana, Instrument, Vocalist schemas. Implement "Music Pack" cache generation logic. Fix missing metadata structure and offline access.
 
-> - **[ ] TASK:** data-001-1-schema-migration | **Loc:** resources/db/schema_expansion_v2.sql | **Spec:** Implement idempotent SQL migration for v2 tables | **Deps:** src/utils/db_utils.py | **Hygiene:** Backup before run | **LOC Estimate:** 30
-> - **[ ] TASK:** data-001-2-orm-update | **Loc:** src/models/music_graph.py | **Spec:** Update ORM/Logic to handle Gharana/Instrument relations | **Deps:** sqlalchemy | **Hygiene:** Typed models | **LOC Estimate:** 50
+> - **[x] TASK:** data-001-1-schema-migration | **Loc:** resources/db/schema_expansion_v2.sql | **Spec:** Implement idempotent SQL migration for v2 tables | **Deps:** src/utils/db_utils.py | **Hygiene:** Backup before run | **LOC Estimate:** 30
+> - **[BLOCKED] TASK:** data-001-2-orm-update | **Loc:** src/models/music_graph.py | **Spec:** Update ORM/Logic to handle Gharana/Instrument relations | **Deps:** sqlalchemy | **Hygiene:** Typed models | **LOC Estimate:** 50
 > - **[ ] TASK:** data-002-1-pack-generator | **Loc:** src/services/cache/pack_manager.py | **Spec:** Implement zlib compression for metadata music packs | **Deps:** zlib | **Hygiene:** High compression ratio | **LOC Estimate:** 45
-> - **[ ] TASK:** data-audit-integrity | **Loc:** scripts/audit_db.py | **Spec:** Implement referential integrity check for the music graph | **Deps:** src/utils/db_utils.py | **Hygiene:** Read-only | **LOC Estimate:** 40
-> - **[ ] TASK:** data-cleanup-orphans | **Loc:** src/services/cache/cleanup.py | **Spec:** Cleanup track metadata with missing local/cloud files | **Deps:** os | **Hygiene:** Atomic | **LOC Estimate:** 40
+> - **[x] TASK:** data-audit-integrity | **Loc:** scripts/audit_db.py | **Spec:** Implement referential integrity check for the music graph | **Deps:** src/utils/db_utils.py | **Hygiene:** Read-only | **LOC Estimate:** 40
+> - **[x] TASK:** data-cleanup-orphans | **Loc:** src/services/cache/cleanup.py | **Spec:** Cleanup track metadata with missing local/cloud files | **Deps:** os | **Hygiene:** Atomic | **LOC Estimate:** 40
 > - **[ ] TASK:** data-verify-migration | **Loc:** tests/test_data_migration.py | **Spec:** Unit tests for schema v2 migration and data integrity | **Deps:** pytest | **Hygiene:** Use in-memory DB | **LOC Estimate:** 45
 
 ### Epic 6: Plugins & Security
