@@ -32,7 +32,7 @@ Execute tests, audits, and dynamic updates idempotently via `scripts/run.sh`:
 
 | Milestone | Version | Phase | Status | Debt% |
 |---|---|---|---|---|
-| M1 | 0.9.2 | Phase 4: Ecosystem Expansion | Active | 0% |
+| M1 | 0.9.3 | Phase 4: Ecosystem Expansion | Active | 0% |
 
 ---
 

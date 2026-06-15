@@ -58,7 +58,7 @@
 > - **[x] TASK:** neu-003-1-clap-raga-prompts | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Design and test 50+ Raga-specific zero-shot prompts | **Deps:** transformers | **Hygiene:** Deterministic | **LOC Estimate:** 40
 > - **[ ] TASK:** neu-004-1-singer-id-link | **Loc:** src/modules/neu/singer_id.py | **Spec:** Link voice embeddings to vocalist metadata | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 45
 > - **[x] TASK:** neu-analyze-model-drift | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement basic KL-divergence tracker for prediction distributions | **Deps:** numpy | **Hygiene:** Periodic trigger | **LOC Estimate:** 50
-> - **[ ] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
+> - **[x] TASK:** neu-verify-inference | **Loc:** tests/test_neu_inference.py | **Spec:** Performance benchmark for all neural classifiers | **Deps:** pytest-benchmark | **Hygiene:** Zero-debt audit | **LOC Estimate:** 50
 > - **[x] TASK:** neu-cleanup-models | **Loc:** scripts/cleanup_models.sh | **Spec:** Prune unused model checkpoints from cloud storage | **Deps:** bash | **Hygiene:** Keep top 3 versions | **LOC Estimate:** 30
 
 ### Epic 5: Persistence & Metadata Schema
@@ -80,16 +80,21 @@
 ### Epic 7: User Identity & Stats
 > - **[ ] TASK:** id-004-stats-aggregator | **Loc:** src/modules/id/stats.py | **Spec:** Personal listening stats aggregation | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 60
 > - **[ ] TASK:** id-005-profile-sync | **Loc:** src/modules/id/sync.py | **Spec:** Implement profile export/import (json) | **Deps:** json | **Hygiene:** [BLOCKED] | **LOC Estimate:** 80
-> - **[ ] TASK:** id-cleanup-history | **Loc:** src/modules/id/cleanup.py | **Spec:** Prune play history older than 1 year | **Deps:** src/utils/db_utils.py | **Hygiene:** Configurable limit | **LOC Estimate:** 30
+> - **[x] TASK:** id-cleanup-history | **Loc:** src/modules/id/cleanup.py | **Spec:** Prune play history older than 1 year | **Deps:** src/utils/db_utils.py | **Hygiene:** Configurable limit | **LOC Estimate:** 30
 
 ### Epic 8: Cloud Backing
 > - **[ ] TASK:** cld-002-aws-s3 | **Loc:** src/modules/cld/aws.py | **Spec:** Implement awsprovider for s3 backing | **Deps:** boto3 | **Hygiene:** [BLOCKED] | **LOC Estimate:** 90
 > - **[ ] TASK:** cld-003-gdrive | **Loc:** src/modules/cld/gdrive.py | **Spec:** Implement googledriveprovider for drive backing | **Deps:** google-api | **Hygiene:** [BLOCKED] | **LOC Estimate:** 110
-> - **[ ] TASK:** cld-004-cloud-ui | **Loc:** src/modules/cld/ui.py | **Spec:** Add cloud settings tab to configure provider | **Deps:** PyQt6 | **Hygiene:** [TODO] | **LOC Estimate:** 50
-> - **[ ] TASK:** cld-verify-connectivity | **Loc:** src/modules/cld/test_connection.py | **Spec:** Implement ping/validation for cloud providers | **Deps:** requests | **Hygiene:** Secure | **LOC Estimate:** 40
+> - **[x] TASK:** cld-004-cloud-ui | **Loc:** src/modules/cld/ui.py | **Spec:** Add cloud settings tab to configure provider | **Deps:** PyQt6 | **Hygiene:** [TODO] | **LOC Estimate:** 50
+> - **[x] TASK:** cld-verify-connectivity | **Loc:** src/modules/cld/test_connection.py | **Spec:** Implement ping/validation for cloud providers | **Deps:** requests | **Hygiene:** Secure | **LOC Estimate:** 40
 
 ### Epic 9: System Maintenance
 > - **[x] TASK:** resolve-003-skills-sync | **Loc:** scripts/run.sh | **Spec:** Implement integration hooks for run.sh skills | **Deps:** bash | **Hygiene:** Idempotent | **LOC Estimate:** 40
-> - **[ ] TASK:** resolve-004-audit-expansions | **Loc:** docs/planning/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
+> - **[x] TASK:** resolve-004-audit-expansions | **Loc:** docs/planning/backlog.md | **Spec:** Audit DB/Auth/API task expansions | **Deps:** None | **Hygiene:** IO_SSOT compliance | **LOC Estimate:** 20
 > - **[x] TASK:** resolve-005-dependency-audit | **Loc:** scripts/audit_deps.sh | **Spec:** Audit requirements.txt for pinned versions and vulnerabilities | **Deps:** safety | **Hygiene:** CI trigger | **LOC Estimate:** 30
 > - **[x] TASK:** resolve-006-complexity-refactor | **Loc:** scripts/check_complexity.sh | **Spec:** Audit src/ for Cyclomatic Complexity > 10 | **Deps:** radon | **Hygiene:** Prevent tech debt | **LOC Estimate:** 25
+
+### Audit: DB/Auth/API Expansions
+- **DB:** Validated schema expansions successfully integrate new multi-modal entities (Instruments, Gharanas) without data loss, meeting the Flat SSOT policy.
+- **Auth:** Verified that external API endpoints correctly inherit generic Auth dependencies where applicable, maintaining isolation.
+- **API:** Inspected streaming endpoints to ensure strict adherence to documented Swagger paths.

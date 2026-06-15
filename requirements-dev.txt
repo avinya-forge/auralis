@@ -12,3 +12,4 @@ types-Pillow
 fastapi
 httpx
 jinja2
+pytest-benchmark==5.2.3
