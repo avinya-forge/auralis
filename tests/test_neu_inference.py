@@ -1,6 +1,5 @@
 from unittest.mock import PropertyMock, patch
 
-
 from src.services.ai.inference_engine import NeuralInferenceEngine
 
 
