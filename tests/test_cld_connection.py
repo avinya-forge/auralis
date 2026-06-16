@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-
 from src.modules.cld.test_connection import validate_cloud_endpoint
 
 

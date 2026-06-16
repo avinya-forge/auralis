@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-
 from src.modules.id.cleanup import init_play_history_schema, prune_play_history
 
 
