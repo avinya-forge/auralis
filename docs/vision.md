@@ -71,3 +71,6 @@
 - **id-cleanup-history**: Pruned play history older than 1 year.
 - **neu-verify-inference**: Performance benchmark for neural classifiers.
 - **resolve-004-audit-expansions**: Audited DB/Auth/API task expansions.
+
+### Auralis & Merlin Bird Inspiration
+The Auralis architecture conceptually mirrors the "Merlin Bird App" methodology applied to music: it uses audio identification (Demucs + Spectrograms + Neural Nets) to identify instruments/vocals, supports offline "Music Packs" (zlib-compressed metadata), and relies on crowdsourced citizen science for its knowledge graph.
