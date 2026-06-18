@@ -1,3 +1,11 @@
+
+## Hybrid Edge-Cloud Polyphonic Music Identification & Knowledge Graph
+Integrate solutions:
+1.  **Audio Demixing**: Force Source Separation (Demucs) before analysis. Fix polyphonic overlap.
+2.  **DSP + CV Hybrid**: Use CV spectrograms for instruments/vocals. Use DSP (Chroma features) for chords/key. Fix harmonic distortion.
+3.  **Edge-Cloud Split**: Execute lightweight DSP/fingerprinting on device. Offload heavy neural classification to cloud. Prevent mobile battery drain.
+4.  **Crowdsource Database**: Build ingestion pipeline. Accept user recordings. Gamify user validation/tagging. AI trains on unlabelled data (self-supervised learning). Fix missing database.
+5.  **Dynamic Caches**: Implement region/genre "Music Packs". Cache compressed metadata locally.
 # Auralis Vision: Hybrid Edge-Cloud Neural Network
 
 ## North Star
