@@ -1,3 +1,11 @@
+
+## Hybrid Edge-Cloud Polyphonic Music Identification & Knowledge Graph
+Integrate solutions:
+1.  **Audio Demixing**: Force Source Separation (Demucs) before analysis. Fix polyphonic overlap.
+2.  **DSP + CV Hybrid**: Use CV spectrograms for instruments/vocals. Use DSP (Chroma features) for chords/key. Fix harmonic distortion.
+3.  **Edge-Cloud Split**: Execute lightweight DSP/fingerprinting on device. Offload heavy neural classification to cloud. Prevent mobile battery drain.
+4.  **Crowdsource Database**: Build ingestion pipeline. Accept user recordings. Gamify user validation/tagging. AI trains on unlabelled data (self-supervised learning). Fix missing database.
+5.  **Dynamic Caches**: Implement region/genre "Music Packs". Cache compressed metadata locally.
 # Auralis Vision: Hybrid Edge-Cloud Neural Network
 
 ## North Star
@@ -64,3 +72,13 @@
 - **Fluid Ecosystem**: Seamless handoff between mobile Edge devices and Neural Cloud nodes.
 
 - Implemented data audit integrity, schema migration logic, and data cleanup orphans
+
+## Iteration 19 Completed Tasks
+- **cld-004-cloud-ui**: Added cloud settings tab to configure provider.
+- **cld-verify-connectivity**: Implemented ping/validation for cloud providers.
+- **id-cleanup-history**: Pruned play history older than 1 year.
+- **neu-verify-inference**: Performance benchmark for neural classifiers.
+- **resolve-004-audit-expansions**: Audited DB/Auth/API task expansions.
+
+### Auralis & Merlin Bird Inspiration
+The Auralis architecture conceptually mirrors the "Merlin Bird App" methodology applied to music: it uses audio identification (Demucs + Spectrograms + Neural Nets) to identify instruments/vocals, supports offline "Music Packs" (zlib-compressed metadata), and relies on crowdsourced citizen science for its knowledge graph.
