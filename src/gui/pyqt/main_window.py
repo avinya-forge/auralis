@@ -32,6 +32,8 @@ from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
 from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
+from src.modules.cld.ui import CloudSettingsWidget
+from src.modules.id.cleanup import prune_play_history
 from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
 from src.utils.config import create_env_example, get_config
 from src.utils.system_utils import SystemMonitor
@@ -101,6 +103,10 @@ class MainWindow(QMainWindow):
         """Handle window close event"""
         # Stop system monitoring
         self.system_monitor.stop_monitoring()
+
+        # Prune play history
+        db_path = str(get_config("DB_PATH", "auralis.db"))
+        prune_play_history(db_path, days_old=365)
 
         # Stop UI timer
         if self.ui_timer:
@@ -180,6 +186,10 @@ class MainWindow(QMainWindow):
         # Stage 4: Playlist Editor
         self.playlist_editor_tab = PlaylistEditorTab()
         self.stage_tabs.addTab(self.playlist_editor_tab, "Playlist Editor")
+
+        # Cloud Settings
+        self.cloud_settings_tab = CloudSettingsWidget()
+        self.stage_tabs.addTab(self.cloud_settings_tab, "Cloud Settings")
 
         controls_layout.addWidget(self.stage_tabs)
 

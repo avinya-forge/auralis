@@ -45,6 +45,6 @@
 - **API:** Inspected streaming endpoints to ensure strict adherence to documented Swagger paths.
 
 ### [RESOLVE] Blockers
-- **RESOLVE-NEW**: [BUG] `CloudSettingsWidget` is not integrated into `main_window.py` or any UI entry point. Cloud UI cannot be accessed.
-- **RESOLVE-NEW**: [BUG] `validate_cloud_endpoint` in `cld-verify-connectivity` is never called. Needs integration into Cloud UI save/test flow.
-- **RESOLVE-NEW**: [BUG] `prune_play_history` in `id-cleanup-history` is never scheduled or executed. Needs integration into an application lifecycle hook (e.g., startup/shutdown or a cron task).
+- **RESOLVE-NEW**: [RESOLVED] `CloudSettingsWidget` integrated into `main_window.py`.
+- **RESOLVE-NEW**: [RESOLVED] `validate_cloud_endpoint` integrated into Cloud UI test flow.
+- **RESOLVE-NEW**: [RESOLVED] `prune_play_history` scheduled in `main_window.py` on closeEvent.

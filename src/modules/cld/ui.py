@@ -9,10 +9,13 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
+
+from src.modules.cld.test_connection import validate_cloud_endpoint
 
 
 class CloudSettingsWidget(QWidget):
@@ -46,6 +49,16 @@ class CloudSettingsWidget(QWidget):
         self.secret_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         form_layout.addRow(QLabel("Secret Key:"), self.secret_key_input)
 
+        # Endpoint URL
+        self.endpoint_input = QLineEdit()
+        self.endpoint_input.setPlaceholderText("Enter Endpoint URL")
+        form_layout.addRow(QLabel("Endpoint URL:"), self.endpoint_input)
+
+        # Test Connection Button
+        self.test_button = QPushButton("Test Connection")
+        self.test_button.clicked.connect(self._on_test_connection)
+        form_layout.addRow(self.test_button)
+
         # Save Button
         self.save_button = QPushButton("Save Configuration")
         self.save_button.clicked.connect(self._on_save)
@@ -59,3 +72,16 @@ class CloudSettingsWidget(QWidget):
         _ = self.provider_combo.currentText()
         # In a full implementation, we'd persist these credentials securely.
         pass
+
+    def _on_test_connection(self) -> None:
+        """Handle test connection action."""
+        url = self.endpoint_input.text().strip()
+        if not url:
+            QMessageBox.warning(self, "Warning", "Please enter an endpoint URL to test.")
+            return
+
+        success = validate_cloud_endpoint(url)
+        if success:
+            QMessageBox.information(self, "Success", "Successfully connected to cloud endpoint!")
+        else:
+            QMessageBox.critical(self, "Error", "Failed to connect to cloud endpoint.")
