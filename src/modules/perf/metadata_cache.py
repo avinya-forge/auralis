@@ -58,13 +58,15 @@ class MetadataCache:
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS metadata (
                         hash TEXT PRIMARY KEY,
                         json_data TEXT,
                         last_updated REAL
                     )
-                    """)
+                    """
+                )
                 conn.commit()
         except sqlite3.Error as e:
             logger.error(f"Error initializing metadata cache database: {e}")
