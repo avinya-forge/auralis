@@ -32,8 +32,10 @@ from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
 from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
+from src.modules.cld.ui import CloudSettingsWidget
+from src.modules.id.cleanup import prune_play_history
 from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
-from src.utils.config import create_env_example, get_config
+from src.utils.config import DATA_DIR, create_env_example, get_config
 from src.utils.system_utils import SystemMonitor
 
 
@@ -105,6 +107,14 @@ class MainWindow(QMainWindow):
         # Stop UI timer
         if self.ui_timer:
             self.ui_timer.stop()
+
+        # Prune play history on shutdown
+        try:
+            db_path = os.path.join(DATA_DIR, "play_history.db")
+            prune_play_history(db_path)
+        except Exception as e:
+            # Silently fail if DB cleanup fails on exit so we don't block closing
+            print(f"Failed to prune play history: {e}")
 
         if event:
             event.accept()
@@ -180,6 +190,10 @@ class MainWindow(QMainWindow):
         # Stage 4: Playlist Editor
         self.playlist_editor_tab = PlaylistEditorTab()
         self.stage_tabs.addTab(self.playlist_editor_tab, "Playlist Editor")
+
+        # Stage 5: Cloud Settings
+        self.cloud_settings_tab = CloudSettingsWidget()
+        self.stage_tabs.addTab(self.cloud_settings_tab, "Cloud Settings")
 
         controls_layout.addWidget(self.stage_tabs)
 
