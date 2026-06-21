@@ -70,7 +70,7 @@ class CloudSettingsWidget(QWidget):
         endpoints = {
             "AWS S3": "https://s3.amazonaws.com",
             "Google Drive": "https://www.googleapis.com/drive/v3/about",
-            "Azure Blob": "https://azure.microsoft.com"
+            "Azure Blob": "https://azure.microsoft.com",
         }
 
         url = endpoints.get(provider, "https://example.com")
@@ -79,9 +79,15 @@ class CloudSettingsWidget(QWidget):
         success = validate_cloud_endpoint(url)
 
         if success:
-            QMessageBox.information(self, "Connection Test", f"Successfully connected to {provider}.")
+            QMessageBox.information(
+                self, "Connection Test", f"Successfully connected to {provider}."
+            )
         else:
-            QMessageBox.critical(self, "Connection Test", f"Failed to connect to {provider}. Please check your connection or credentials.")
+            QMessageBox.critical(
+                self,
+                "Connection Test",
+                f"Failed to connect to {provider}. Please check your connection or credentials.",
+            )
 
     def _on_save(self) -> None:
         """Handle save action."""
