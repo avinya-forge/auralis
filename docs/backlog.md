@@ -39,10 +39,31 @@
 > - **[ ] TASK:** cld-002-aws-s3 | **Loc:** src/modules/cld/aws.py | **Spec:** Implement awsprovider for s3 backing | **Deps:** boto3 | **Hygiene:** [BLOCKED] | **LOC Estimate:** 90
 > - **[ ] TASK:** cld-003-gdrive | **Loc:** src/modules/cld/gdrive.py | **Spec:** Implement googledriveprovider for drive backing | **Deps:** google-api | **Hygiene:** [BLOCKED] | **LOC Estimate:** 110
 > ### Epic 9: System Maintenance
+
+- **[ ] TASK:** sys-001-fix-stats-missing-impl | **Loc:** src/modules/id/stats.py | **Spec:** Provide missing implementation for stats aggregator | **Deps:** src/utils/db_utils.py | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-002-fix-sync-missing-impl | **Loc:** src/modules/id/sync.py | **Spec:** Provide missing implementation for profile sync | **Deps:** json | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-003-fix-aws-missing-impl | **Loc:** src/modules/cld/aws.py | **Spec:** Provide missing implementation for AWS provider | **Deps:** boto3 | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-004-fix-gdrive-missing-impl | **Loc:** src/modules/cld/gdrive.py | **Spec:** Provide missing implementation for Google Drive provider | **Deps:** google-api | **Hygiene:** [BUG] | **LOC Estimate:** 50
+
 > > > ### Audit: DB/Auth/API Expansions
 - **DB:** Validated schema expansions successfully integrate new multi-modal entities (Instruments, Gharanas) without data loss, meeting the Flat SSOT policy.
 - **Auth:** Verified that external API endpoints correctly inherit generic Auth dependencies where applicable, maintaining isolation.
 - **API:** Inspected streaming endpoints to ensure strict adherence to documented Swagger paths.
+
+
+### [HUNTER] Identified Discrepancies
+- **[ ] TASK:** sys-005-fix-net-p2p-security-missing | **Loc:** src/modules/net/p2p_security.py | **Spec:** Provide missing implementation for P2P security | **Deps:** libp2p | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-006-fix-db-ssl-missing | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Provide complete missing implementation for self-supervised learning pipeline | **Deps:** torch | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-007-fix-agent-missing-impl | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Complete missing implementation for Meta-Agent Task Router | **Deps:** llm | **Hygiene:** [BUG] | **LOC Estimate:** 50
+
+
+### [HUNTER] Additional Identified Discrepancies
+- **[ ] TASK:** sys-008-fix-db-ingestion-missing | **Loc:** src/modules/db/ingestion.py | **Spec:** Complete missing implementation for ingestion pipeline to accept raw audio uploads | **Deps:** requests | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-009-fix-api-gateway-missing | **Loc:** src/modules/api/main.py | **Spec:** Complete missing implementation for FastAPI REST gateway | **Deps:** fastapi | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-010-fix-demucs-missing | **Loc:** src/services/audio/demixer.py | **Spec:** Complete missing implementation for Demucs source separation | **Deps:** demucs | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-011-fix-dsp-missing | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Complete missing implementation for Chroma, BPM, Key DSP | **Deps:** librosa | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-012-fix-instrument-cnn-missing | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Complete missing implementation for CNN spectrogram matching | **Deps:** torch | **Hygiene:** [BUG] | **LOC Estimate:** 50
+- **[ ] TASK:** sys-013-fix-vocalist-analyzer-missing | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Complete missing implementation for voice signature extraction | **Deps:** speechbrain | **Hygiene:** [BUG] | **LOC Estimate:** 50
 
 ### [RESOLVE] Blockers
 - **RESOLVE-NEW**: [RESOLVED] `CloudSettingsWidget` integrated into `main_window.py`.
