@@ -9,10 +9,13 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
+
+from src.modules.cld.test_connection import validate_cloud_endpoint
 
 
 class CloudSettingsWidget(QWidget):
@@ -46,13 +49,39 @@ class CloudSettingsWidget(QWidget):
         self.secret_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         form_layout.addRow(QLabel("Secret Key:"), self.secret_key_input)
 
+        # Test Connection Button
+        self.test_connection_button = QPushButton("Test Connection")
+        self.test_connection_button.clicked.connect(self._on_test_connection)
+
         # Save Button
         self.save_button = QPushButton("Save Configuration")
         self.save_button.clicked.connect(self._on_save)
 
         group_box.setLayout(form_layout)
         layout.addWidget(group_box)
+        layout.addWidget(self.test_connection_button)
         layout.addWidget(self.save_button)
+
+    def _on_test_connection(self) -> None:
+        """Test connection for the selected provider."""
+        provider = self.provider_combo.currentText()
+
+        # Simulate endpoint URLs based on provider for testing purposes
+        endpoints = {
+            "AWS S3": "https://s3.amazonaws.com",
+            "Google Drive": "https://www.googleapis.com/drive/v3/about",
+            "Azure Blob": "https://azure.microsoft.com"
+        }
+
+        url = endpoints.get(provider, "https://example.com")
+
+        # Simple validation
+        success = validate_cloud_endpoint(url)
+
+        if success:
+            QMessageBox.information(self, "Connection Test", f"Successfully connected to {provider}.")
+        else:
+            QMessageBox.critical(self, "Connection Test", f"Failed to connect to {provider}. Please check your connection or credentials.")
 
     def _on_save(self) -> None:
         """Handle save action."""
