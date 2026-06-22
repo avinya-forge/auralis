@@ -35,7 +35,7 @@ from src.gui.theme_manager import ThemeManager
 from src.modules.cld.ui import CloudSettingsWidget
 from src.modules.id.cleanup import prune_play_history
 from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
-from src.utils.config import create_env_example, get_config
+from src.utils.config import DATA_DIR, create_env_example, get_config
 from src.utils.system_utils import SystemMonitor
 
 
@@ -112,6 +112,10 @@ class MainWindow(QMainWindow):
         if self.ui_timer:
             self.ui_timer.stop()
 
+        # Prune play history
+        db_path = os.path.join(DATA_DIR, "play_history.db")
+        prune_play_history(db_path, days_old=365)
+
         if event:
             event.accept()
 
@@ -187,9 +191,8 @@ class MainWindow(QMainWindow):
         self.playlist_editor_tab = PlaylistEditorTab()
         self.stage_tabs.addTab(self.playlist_editor_tab, "Playlist Editor")
 
-        # Cloud Settings
         self.cloud_settings_tab = CloudSettingsWidget()
-        self.stage_tabs.addTab(self.cloud_settings_tab, "Cloud Settings")
+        self.stage_tabs.addTab(self.cloud_settings_tab, "Cloud Sync")
 
         controls_layout.addWidget(self.stage_tabs)
 

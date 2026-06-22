@@ -66,6 +66,6 @@
 - **[ ] TASK:** sys-013-fix-vocalist-analyzer-missing | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Complete missing implementation for voice signature extraction | **Deps:** speechbrain | **Hygiene:** [BUG] | **LOC Estimate:** 50
 
 ### [RESOLVE] Blockers
-- **RESOLVE-NEW**: [RESOLVED] `CloudSettingsWidget` integrated into `main_window.py`.
-- **RESOLVE-NEW**: [RESOLVED] `validate_cloud_endpoint` integrated into Cloud UI test flow.
-- **RESOLVE-NEW**: [RESOLVED] `prune_play_history` scheduled in `main_window.py` on closeEvent.
+- **[x] RESOLVE-NEW**: [BUG] `CloudSettingsWidget` is not integrated into `main_window.py` or any UI entry point. Cloud UI cannot be accessed.
+- **[x] RESOLVE-NEW**: [BUG] `validate_cloud_endpoint` in `cld-verify-connectivity` is never called. Needs integration into Cloud UI save/test flow.
+- **[x] RESOLVE-NEW**: [BUG] `prune_play_history` in `id-cleanup-history` is never scheduled or executed. Needs integration into an application lifecycle hook (e.g., startup/shutdown or a cron task).
