@@ -28,7 +28,7 @@ class NeuralInferenceEngine:
         task: str,
         candidate_labels: Optional[List[str]] = None,
         label_prefix: str = "",
-        top_k: int = 1,
+        top_k: int = 10,
     ) -> List[Dict[str, Any]]:
         """
         Executes a classification task (standard or zero-shot).
