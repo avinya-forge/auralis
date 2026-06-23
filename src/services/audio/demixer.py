@@ -41,3 +41,26 @@ class DemucsWrapper:
         except Exception as e:
             logger.error(f"Unexpected error running Demucs: {str(e)}")
             return None
+
+    def is_demucs_available(self) -> bool:
+        try:
+            result = subprocess.run(["demucs", "--version"], capture_output=True, text=True)
+            return result.returncode == 0
+        except FileNotFoundError:
+            return False
+
+    def separate_sources(self, input_file: str) -> Optional[Dict[str, str]]:
+        """
+        Separate audio into sources (vocals, drums, bass, other) using Demucs.
+        Returns a dictionary mapping source names to file paths.
+        """
+        import os
+
+        if not os.path.exists(input_file):
+            logger.error(f"Input file not found: {input_file}")
+            return None
+
+        # Just reuse the demix functionality and default to a basic output directory
+        output_dir = "demixed_output"
+        os.makedirs(output_dir, exist_ok=True)
+        return self.demix(input_file, output_dir)

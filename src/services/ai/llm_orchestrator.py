@@ -59,3 +59,19 @@ class PromptFactory:
         """
         template = self.env.from_string(template_str)
         return template.render(**kwargs)
+
+
+class LLMOrchestrator:
+    """Orchestrator for managing LLM interactions."""
+
+    def __init__(self, api_key: str = "dummy", provider: str = "openai"):
+        self.api_key = api_key
+        self.provider = provider
+        self.client = LLMClient(
+            base_url="https://api.openai.com/v1/chat/completions", api_key=self.api_key
+        )
+        self.prompt_factory = PromptFactory()
+
+    def generate_response(self, prompt: str) -> str:
+        """Mock generate response."""
+        return "Mock response from LLM Orchestrator"

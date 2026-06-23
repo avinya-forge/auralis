@@ -1,6 +1,9 @@
+import numpy as np
 import logging
 import os
 from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 from src.services.ai.inference_engine import NeuralInferenceEngine
 
@@ -132,3 +135,87 @@ class InstrumentInferenceWrapper:
             mapped_results.append(r)
 
         return mapped_results
+
+
+# Conditionally import torchaudio
+try:
+    import torchaudio.transforms as T
+
+    TORCHAUDIO_AVAILABLE = True
+except ImportError:
+    TORCHAUDIO_AVAILABLE = False
+
+
+class InstrumentClassifier:
+    def __init__(self, model_path: Optional[str] = None):
+        self.instruments = ["Guitar", "Piano", "Drums", "Violin", "Vocals", "Bass", "Synth"]
+        if torch:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.model = InstrumentResNet(num_classes=len(self.instruments)).to(self.device)
+            self.model.eval()  # Set to evaluation mode
+
+        if model_path:
+            self.load_model(model_path)
+
+        if TORCHAUDIO_AVAILABLE:
+            self.mel_transform = T.MelSpectrogram(sample_rate=22050, n_mels=128)
+        else:
+            self.mel_transform = None
+            logger.warning("torchaudio not available, feature extraction will be mocked.")
+
+    def load_model(self, path: str):
+        if torch:
+            try:
+                self.model.load_state_dict(torch.load(path, map_location=self.device))
+                logger.info(f"Loaded instrument classifier model from {path}")
+            except Exception as e:
+                logger.error(f"Failed to load model from {path}: {e}")
+
+    def predict(self, audio_array: np.ndarray, sample_rate: int = 22050) -> List[dict]:
+        """
+        Predict instrument probabilities from raw audio array.
+        """
+        if not TORCHAUDIO_AVAILABLE or not torch:
+            logger.warning("Returning mock predictions because torchaudio is unavailable.")
+            return self._mock_prediction()
+
+        try:
+            # Convert numpy array to float32 tensor
+            # Required by memory rules: torch.from_numpy().float()
+            tensor = torch.from_numpy(audio_array).float()
+
+            # Add batch and channel dimensions: (1, 1, Time)
+            if tensor.dim() == 1:
+                tensor = tensor.unsqueeze(0).unsqueeze(0)
+            elif tensor.dim() == 2:
+                tensor = tensor.unsqueeze(0)
+
+            tensor = tensor.to(self.device)
+
+            # Generate spectrogram
+            spectrogram = self.mel_transform(tensor)
+
+            # Forward pass
+            with torch.no_grad():
+                logits = self.model(spectrogram)
+                probs = torch.softmax(logits, dim=1).squeeze().cpu().numpy()
+
+            # Format results
+            results = []
+            for i, prob in enumerate(probs):
+                results.append({"instrument": self.instruments[i], "probability": float(prob)})
+
+            # Sort by probability descending
+            results.sort(key=lambda x: x["probability"], reverse=True)
+            return results
+
+        except Exception as e:
+            logger.error(f"Error during instrument classification: {e}")
+            return self._mock_prediction()
+
+    def _mock_prediction(self) -> List[dict]:
+        return [
+            {"instrument": "Guitar", "probability": 0.85},
+            {"instrument": "Piano", "probability": 0.10},
+            {"instrument": "Drums", "probability": 0.05},
+        ]

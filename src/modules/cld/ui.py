@@ -94,16 +94,3 @@ class CloudSettingsWidget(QWidget):
         _ = self.provider_combo.currentText()
         # In a full implementation, we'd persist these credentials securely.
         pass
-
-    def _on_test_connection(self) -> None:
-        """Handle test connection action."""
-        url = self.endpoint_input.text().strip()
-        if not url:
-            QMessageBox.warning(self, "Warning", "Please enter an endpoint URL to test.")
-            return
-
-        success = validate_cloud_endpoint(url)
-        if success:
-            QMessageBox.information(self, "Success", "Successfully connected to cloud endpoint!")
-        else:
-            QMessageBox.critical(self, "Error", "Failed to connect to cloud endpoint.")
