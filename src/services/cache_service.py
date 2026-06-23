@@ -46,15 +46,13 @@ class CacheService:
         try:
             Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
             with get_db_connection(self.db_path) as conn:
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS metadata (
                         file_hash TEXT PRIMARY KEY,
                         data TEXT,
                         last_updated REAL
                     )
-                    """
-                )
+                    """)
         except Exception as e:
             logger.error(f"Error initializing cache database: {e}")
 

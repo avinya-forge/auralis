@@ -2,6 +2,8 @@ import logging
 import multiprocessing
 from typing import Any, Dict, Optional
 
+from src.services.ai.llm_orchestrator import LLMOrchestrator
+
 logger = logging.getLogger(__name__)
 
 
@@ -68,3 +70,53 @@ class TaskRouter:
             return False
 
         return confidence_score >= threshold
+
+
+class MetaAgentTaskRouter:
+    def __init__(self, llm_bridge: LLMOrchestrator):
+        self.llm_bridge = llm_bridge
+        self.registered_agents = {}
+
+    def register_agent(self, role: str, capabilities: list):
+        """Register an agent with specific capabilities."""
+        self.registered_agents[role] = capabilities
+        logger.info(f"Registered agent role: {role} with capabilities: {capabilities}")
+
+    def route_task(self, task_description: str) -> str:
+        """Route a task to the appropriate agent using the LLM bridge."""
+        if not self.registered_agents:
+            logger.warning("No agents registered for task routing.")
+            return "No agents available"
+
+        # Construct prompt for the LLM
+        prompt = f"Given the task: '{task_description}', which agent is best suited? Available agents: {list(self.registered_agents.keys())}"
+
+        try:
+            # Query LLM to decide
+            response = self.llm_bridge.generate_response(prompt)
+            # Simple parsing: find the first matching agent name in response
+            for agent in self.registered_agents:
+                if agent.lower() in response.lower():
+                    logger.info(f"Routed task to agent: {agent}")
+                    return agent
+
+            # Default to first if LLM response is ambiguous
+            default_agent = list(self.registered_agents.keys())[0]
+            logger.info(f"Ambiguous LLM response. Defaulting routing to: {default_agent}")
+            return default_agent
+        except Exception as e:
+            logger.error(f"Error during task routing via LLM: {e}")
+            return "Error routing task"
+
+    def execute_task(self, role: str, task_description: str) -> Dict[str, Any]:
+        """Execute a task via a specific agent."""
+        if role not in self.registered_agents:
+            raise ValueError(f"Unknown agent role: {role}")
+
+        logger.info(f"Executing task via agent {role}: {task_description}")
+        return {
+            "status": "success",
+            "agent": role,
+            "task": task_description,
+            "result": "Mock result",
+        }

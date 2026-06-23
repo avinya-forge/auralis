@@ -11,6 +11,13 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+try:
+    import torch
+    import torch.nn as nn
+except ImportError:
+    torch = None
+    nn = None
+
 
 class AudioNormalizer:
     """
@@ -100,3 +107,65 @@ class SSLTrainer:
         checkpoint_path = os.path.join(self.output_dir, f"checkpoint_e{epoch}.txt")
         with open(checkpoint_path, "w") as f:
             f.write(f"Epoch {epoch} checkpoint stub")
+
+
+class SSLPipeline:
+    def __init__(self, model: Any, learning_rate: float = 1e-4):
+        self.model = model
+        self.learning_rate = learning_rate
+        if torch and nn:
+            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
+            self.criterion = nn.MSELoss()
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.model.to(self.device)
+
+    def train_step(self, batch: Any, augmented_batch: Any) -> float:
+        if not torch:
+            return 0.0
+        self.model.train()
+        self.optimizer.zero_grad()
+
+        batch = batch.to(self.device)
+        augmented_batch = augmented_batch.to(self.device)
+
+        features_1 = self.model(batch)
+        features_2 = self.model(augmented_batch)
+
+        loss = self.criterion(features_1, features_2)
+        loss.backward()
+        self.optimizer.step()
+
+        return loss.item()
+
+    def train_epoch(self, dataloader, augment_fn) -> float:
+        total_loss = 0.0
+        if not torch:
+            return total_loss
+        for i, batch in enumerate(dataloader):
+            augmented_batch = augment_fn(batch)
+            loss = self.train_step(batch, augmented_batch)
+            total_loss += loss
+            if i % 10 == 0:
+                logger.debug(f"Batch {i}, Loss: {loss:.4f}")
+
+        avg_loss = total_loss / len(dataloader)
+        logger.info(f"Epoch finished. Avg Loss: {avg_loss:.4f}")
+        return avg_loss
+
+    def save_checkpoint(self, path: str):
+        if torch:
+            torch.save(
+                {
+                    "model_state_dict": self.model.state_dict(),
+                    "optimizer_state_dict": self.optimizer.state_dict(),
+                },
+                path,
+            )
+            logger.info(f"Saved SSL model checkpoint to {path}")
+
+    def load_checkpoint(self, path: str):
+        if torch:
+            checkpoint = torch.load(path)
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            logger.info(f"Loaded SSL model checkpoint from {path}")

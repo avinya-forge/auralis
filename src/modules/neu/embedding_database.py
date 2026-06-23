@@ -25,15 +25,13 @@ class EmbeddingDatabase:
         """Initialize the database schema."""
         try:
             with get_db_connection(self.db_path) as conn:
-                conn.execute(
-                    """
+                conn.execute("""
                     CREATE TABLE IF NOT EXISTS embeddings (
                         track_id VARCHAR PRIMARY KEY,
                         vector_blob BLOB,
                         model_version VARCHAR
                     )
-                    """
-                )
+                    """)
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
             raise
