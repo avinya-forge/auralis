@@ -12,6 +12,7 @@ try:
     from google.oauth2.credentials import Credentials
     from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
     import io
+
     GOOGLE_API_AVAILABLE = True
 except ImportError:
     GOOGLE_API_AVAILABLE = False
@@ -41,14 +42,14 @@ class GoogleDriveProvider(CloudProviderInterface):
 
         try:
             creds = Credentials(
-                token=credentials.get('token'),
-                refresh_token=credentials.get('refresh_token'),
-                token_uri=credentials.get('token_uri'),
-                client_id=credentials.get('client_id'),
-                client_secret=credentials.get('client_secret'),
-                scopes=['https://www.googleapis.com/auth/drive.file']
+                token=credentials.get("token"),
+                refresh_token=credentials.get("refresh_token"),
+                token_uri=credentials.get("token_uri"),
+                client_id=credentials.get("client_id"),
+                client_secret=credentials.get("client_secret"),
+                scopes=["https://www.googleapis.com/auth/drive.file"],
             )
-            self.service = build('drive', 'v3', credentials=creds)
+            self.service = build("drive", "v3", credentials=creds)
             # Verify by fetching about info
             self.service.about().get(fields="user").execute()
             return True
@@ -62,9 +63,9 @@ class GoogleDriveProvider(CloudProviderInterface):
         try:
             # Note: For real gdrive, remote_path might need to be resolved to folder IDs.
             # Here we just use the name for simplicity in this dummy stub.
-            file_metadata = {'name': remote_path}
+            file_metadata = {"name": remote_path}
             media = MediaFileUpload(local_path, resumable=True)
-            self.service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+            self.service.files().create(body=file_metadata, media_body=media, fields="id").execute()
             return True
         except Exception as e:
             logger.error(f"Google Drive upload failed: {e}")
@@ -76,7 +77,7 @@ class GoogleDriveProvider(CloudProviderInterface):
         try:
             # We assume remote_path is the file ID for simplicity.
             request = self.service.files().get_media(fileId=remote_path)
-            with io.FileIO(local_path, 'wb') as fh:
+            with io.FileIO(local_path, "wb") as fh:
                 downloader = MediaIoBaseDownload(fh, request)
                 done = False
                 while done is False:
@@ -91,19 +92,23 @@ class GoogleDriveProvider(CloudProviderInterface):
             return []
         try:
             # Simplistic listing, ignoring remote_prefix filtering for now
-            results = self.service.files().list(
-                pageSize=10, fields="nextPageToken, files(id, name, size, modifiedTime)"
-            ).execute()
-            items = results.get('files', [])
+            results = (
+                self.service.files()
+                .list(pageSize=10, fields="nextPageToken, files(id, name, size, modifiedTime)")
+                .execute()
+            )
+            items = results.get("files", [])
             files = []
             for item in items:
-                files.append({
-                    'path': item.get('id'), # Using ID as path
-                    'name': item.get('name'),
-                    'size': int(item.get('size', 0)),
-                    'last_modified': item.get('modifiedTime'),
-                    'hash': '' # Etag / hash not directly mapped
-                })
+                files.append(
+                    {
+                        "path": item.get("id"),  # Using ID as path
+                        "name": item.get("name"),
+                        "size": int(item.get("size", 0)),
+                        "last_modified": item.get("modifiedTime"),
+                        "hash": "",  # Etag / hash not directly mapped
+                    }
+                )
             return files
         except Exception as e:
             logger.error(f"Google Drive list files failed: {e}")
@@ -122,14 +127,11 @@ class GoogleDriveProvider(CloudProviderInterface):
 
     def get_quota(self) -> Dict[str, Any]:
         if not self.service:
-            return {'used': 0, 'total': 0}
+            return {"used": 0, "total": 0}
         try:
             about = self.service.about().get(fields="storageQuota").execute()
-            quota = about.get('storageQuota', {})
-            return {
-                'used': int(quota.get('usage', 0)),
-                'total': int(quota.get('limit', -1))
-            }
+            quota = about.get("storageQuota", {})
+            return {"used": int(quota.get("usage", 0)), "total": int(quota.get("limit", -1))}
         except Exception as e:
             logger.error(f"Google Drive get quota failed: {e}")
-            return {'used': 0, 'total': 0}
+            return {"used": 0, "total": 0}

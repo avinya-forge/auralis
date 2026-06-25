@@ -10,6 +10,7 @@ from src.services.cloud.provider_interface import CloudProviderInterface
 try:
     import boto3
     from botocore.exceptions import ClientError
+
     BOTO3_AVAILABLE = True
 except ImportError:
     BOTO3_AVAILABLE = False
@@ -37,12 +38,12 @@ class AWSProvider(CloudProviderInterface):
 
         try:
             self.s3_client = boto3.client(
-                's3',
-                aws_access_key_id=credentials.get('access_key'),
-                aws_secret_access_key=credentials.get('secret_key'),
-                region_name=credentials.get('region', 'us-east-1')
+                "s3",
+                aws_access_key_id=credentials.get("access_key"),
+                aws_secret_access_key=credentials.get("secret_key"),
+                region_name=credentials.get("region", "us-east-1"),
             )
-            self.bucket_name = credentials.get('bucket_name')
+            self.bucket_name = credentials.get("bucket_name")
             if not self.bucket_name:
                 return False
 
@@ -82,14 +83,16 @@ class AWSProvider(CloudProviderInterface):
         try:
             response = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=remote_prefix)
             files = []
-            if 'Contents' in response:
-                for obj in response['Contents']:
-                    files.append({
-                        'path': obj['Key'],
-                        'size': obj['Size'],
-                        'last_modified': obj['LastModified'].isoformat(),
-                        'hash': obj['ETag'].strip('"')
-                    })
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    files.append(
+                        {
+                            "path": obj["Key"],
+                            "size": obj["Size"],
+                            "last_modified": obj["LastModified"].isoformat(),
+                            "hash": obj["ETag"].strip('"'),
+                        }
+                    )
             return files
         except ClientError as e:
             logger.error(f"AWS list files failed: {e}")
@@ -108,5 +111,5 @@ class AWSProvider(CloudProviderInterface):
     def get_quota(self) -> Dict[str, Any]:
         """AWS S3 doesn't have a simple quota API like Drive, so return dummy values."""
         if not self.s3_client:
-            return {'used': 0, 'total': 0}
-        return {'used': -1, 'total': -1}
+            return {"used": 0, "total": 0}
+        return {"used": -1, "total": -1}

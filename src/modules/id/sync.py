@@ -5,7 +5,7 @@ Auralis - Profile Sync Module
 import json
 import logging
 import os
-from typing import Any, Dict, List
+
 
 from src.utils.db_utils import get_db_connection
 from src.modules.id.stats import init_play_history_schema
@@ -35,7 +35,7 @@ class ProfileSync:
             history = [{"track_id": row[0], "played_at": row[1]} for row in rows]
             profile_data = {"play_history": history}
 
-            with open(output_json_path, 'w', encoding='utf-8') as f:
+            with open(output_json_path, "w", encoding="utf-8") as f:
                 json.dump(profile_data, f, indent=4)
 
             logger.info(f"Successfully exported profile to {output_json_path}")
@@ -53,7 +53,7 @@ class ProfileSync:
             return False
 
         try:
-            with open(input_json_path, 'r', encoding='utf-8') as f:
+            with open(input_json_path, "r", encoding="utf-8") as f:
                 profile_data = json.load(f)
 
             history = profile_data.get("play_history", [])
@@ -65,7 +65,7 @@ class ProfileSync:
                 for item in history:
                     cursor.execute(
                         "INSERT INTO play_history (track_id, played_at) VALUES (?, ?)",
-                        (item.get("track_id"), item.get("played_at"))
+                        (item.get("track_id"), item.get("played_at")),
                     )
 
             logger.info(f"Successfully imported profile from {input_json_path}")
