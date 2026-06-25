@@ -89,7 +89,10 @@ class MetaAgentTaskRouter:
             return "No agents available"
 
         # Construct prompt for the LLM
-        prompt = f"Given the task: '{task_description}', which agent is best suited? Available agents: {list(self.registered_agents.keys())}"
+        prompt = (
+            f"Given the task: '{task_description}', "
+            f"which agent is best suited? Available agents: {list(self.registered_agents.keys())}"
+        )
 
         try:
             # Query LLM to decide
