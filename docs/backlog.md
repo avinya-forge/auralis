@@ -40,10 +40,10 @@
 > - **[ ] TASK:** cld-003-gdrive | **Loc:** src/modules/cld/gdrive.py | **Spec:** Implement googledriveprovider for drive backing | **Deps:** google-api | **Hygiene:** [BLOCKED] | **LOC Estimate:** 110
 > ### Epic 9: System Maintenance
 
--fix-stats-missing-impl | **Loc:** src/modules/id/stats.py | **Spec:** Provide missing implementation for stats aggregator | **Deps:** src/utils/db_utils.py | **Hygiene:** [BUG] | **LOC Estimate:** 50
--fix-sync-missing-impl | **Loc:** src/modules/id/sync.py | **Spec:** Provide missing implementation for profile sync | **Deps:** json | **Hygiene:** [BUG] | **LOC Estimate:** 50
--fix-aws-missing-impl | **Loc:** src/modules/cld/aws.py | **Spec:** Provide missing implementation for AWS provider | **Deps:** boto3 | **Hygiene:** [BUG] | **LOC Estimate:** 50
--fix-gdrive-missing-impl | **Loc:** src/modules/cld/gdrive.py | **Spec:** Provide missing implementation for Google Drive provider | **Deps:** google-api | **Hygiene:** [BUG] | **LOC Estimate:** 50
+-fix-stats-missing-impl | **Loc:** src/modules/id/stats.py | **Spec:** Provide missing implementation for stats aggregator | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 50
+-fix-sync-missing-impl | **Loc:** src/modules/id/sync.py | **Spec:** Provide missing implementation for profile sync | **Deps:** json | **Hygiene:** [DONE] | **LOC Estimate:** 50
+-fix-aws-missing-impl | **Loc:** src/modules/cld/aws.py | **Spec:** Provide missing implementation for AWS provider | **Deps:** boto3 | **Hygiene:** [DONE] | **LOC Estimate:** 50
+-fix-gdrive-missing-impl | **Loc:** src/modules/cld/gdrive.py | **Spec:** Provide missing implementation for Google Drive provider | **Deps:** google-api | **Hygiene:** [DONE] | **LOC Estimate:** 50
 
 > > > ### Audit: DB/Auth/API Expansions
 - **DB:** Validated schema expansions successfully integrate new multi-modal entities (Instruments, Gharanas) without data loss, meeting the Flat SSOT policy.
