@@ -6,9 +6,8 @@ import json
 import logging
 import os
 
-
-from src.utils.db_utils import get_db_connection
 from src.modules.id.stats import init_play_history_schema
+from src.utils.db_utils import get_db_connection
 
 logger = logging.getLogger(__name__)
 

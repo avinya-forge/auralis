@@ -168,7 +168,9 @@ class InstrumentClassifier:
             except Exception as e:
                 logger.error(f"Failed to load model from {path}: {e}")
 
-    def predict(self, audio_array: np.ndarray, sample_rate: int = 22050) -> List[Dict[str, Union[str, float]]]:
+    def predict(
+        self, audio_array: np.ndarray, sample_rate: int = 22050
+    ) -> List[Dict[str, Union[str, float]]]:
         """
         Predict instrument probabilities from raw audio array.
         """
@@ -203,7 +205,7 @@ class InstrumentClassifier:
                 results.append({"instrument": self.instruments[i], "probability": float(prob)})
 
             # Sort by probability descending
-            results.sort(key=lambda x: float(x['probability']), reverse=True)
+            results.sort(key=lambda x: float(x["probability"]), reverse=True)
             return results
 
         except Exception as e:

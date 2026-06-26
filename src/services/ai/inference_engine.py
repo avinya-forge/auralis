@@ -45,7 +45,11 @@ class NeuralInferenceEngine:
                 return []
 
             # Determine results
-            raw_result = pipe(file_path, candidate_labels=candidate_labels) if candidate_labels else pipe(file_path)
+            raw_result = (
+                pipe(file_path, candidate_labels=candidate_labels)
+                if candidate_labels
+                else pipe(file_path)
+            )
             return self._process_results(raw_result, label_prefix, top_k)
 
         except Exception as e:

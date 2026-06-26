@@ -1,6 +1,7 @@
 import gc
 import logging
-from typing import Any, Optional
+import os
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -16,36 +17,86 @@ class ModelLoader:
     Ensures heavy models are only kept in memory when active.
     """
 
-    def __init__(self) -> None:
-        self._cache: dict[str, Any] = {}
+    _instances: Dict[str, Any] = {}
 
-    def get_model(self, model_name: str, task: str = "audio-classification") -> Optional[Any]:
+    def __init__(self) -> None:
+        pass
+
+    @classmethod
+    def load_model(cls, model_name: str, task: str = "audio-classification") -> Optional[Any]:
+        """
+        Retrieves a model from cache or loads it via transformers pipeline.
+        Legacy name for backward compatibility with tests.
+        """
+        return cls.get_model(model_name, task)
+
+    @classmethod
+    def get_model(cls, model_name: str, task: str = "audio-classification") -> Optional[Any]:
         """
         Retrieves a model from cache or loads it via transformers pipeline.
         """
+        from src.services.ai.config import ai_config
+
+        if ai_config.simulation_mode:
+            logger.info(f"Simulation Mode: Returning mock pipeline for {model_name}")
+            return lambda x, **kwargs: [{"label": "simulation", "score": 0.99}]
+
         if pipeline is None:
             logger.warning("transformers library not installed. Cannot load models.")
             return None
 
         cache_key = f"{task}:{model_name}"
-        if cache_key in self._cache:
-            return self._cache[cache_key]
+        if cache_key in cls._instances:
+            return cls._instances[cache_key]
 
         try:
             logger.info(f"Loading AI model: {model_name} for task: {task}")
-            # Use CPU by default for stability in shared environments,
-            # unless CUDA is explicitly requested or available.
-            model = pipeline(task, model=model_name)  # type: ignore
-            self._cache[cache_key] = model
-            return model
+
+            # Determine device
+            device = -1  # CPU
+            if ai_config.device == "cuda":
+                import torch
+
+                if torch.cuda.is_available():
+                    device = 0
+            elif ai_config.device == "mps":
+                import torch
+
+                if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                    device = 0  # Transformers uses 0 for the first accelerator device
+
+            # Load pipeline
+            pipe = pipeline(
+                task=task,
+                model=model_name,
+                device=device,
+                torch_dtype=(
+                    torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None
+                ),
+                model_kwargs=(
+                    {"cache_dir": ai_config.model_cache_dir} if ai_config.model_cache_dir else {}
+                ),
+            )
+            cls._instances[cache_key] = pipe
+            return pipe
         except Exception as e:
             logger.error(f"Failed to load model {model_name}: {e}")
             return None
 
-    def clear_cache(self) -> None:
+    @classmethod
+    def unload_model(cls, model_name: str, task: str = "audio-classification") -> None:
+        """Removes a specific model from memory."""
+        cache_key = f"{task}:{model_name}"
+        if cache_key in cls._instances:
+            del cls._instances[cache_key]
+            cls._clear_gpu_cache()
+            logger.info(f"Unloaded model: {model_name}")
+
+    @classmethod
+    def clear_cache(cls) -> None:
         """Flushes the model cache to free up memory."""
-        self._cache.clear()
-        self._clear_gpu_cache()
+        cls._instances.clear()
+        cls._clear_gpu_cache()
         logger.info("AI model cache cleared.")
 
     @staticmethod
@@ -58,7 +109,6 @@ class ModelLoader:
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
-            # Safely check for MPS (Apple Silicon) to avoid mypy attribute errors
             backends = getattr(torch, "backends", None)
             if backends:
                 mps = getattr(backends, "mps", None)
