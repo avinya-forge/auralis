@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
@@ -13,9 +13,9 @@ try:
     import torch.nn as nn
     import torch.nn.functional as F
 except ImportError:
-    torch = None
-    nn = None
-    F = None
+    torch = None  # type: ignore
+    nn = None  # type: ignore
+    F = None  # type: ignore
 
 
 class InstrumentResNet(nn.Module if nn else object):  # type: ignore
@@ -139,10 +139,8 @@ class InstrumentInferenceWrapper:
 # Conditionally import torchaudio
 try:
     import torchaudio.transforms as T
-
-    TORCHAUDIO_AVAILABLE = True
 except ImportError:
-    TORCHAUDIO_AVAILABLE = False
+    T = None  # type: ignore
 
 
 class InstrumentClassifier:
@@ -156,13 +154,13 @@ class InstrumentClassifier:
         if model_path:
             self.load_model(model_path)
 
-        if TORCHAUDIO_AVAILABLE:
+        if T is not None:
             self.mel_transform = T.MelSpectrogram(sample_rate=22050, n_mels=128)
         else:
             self.mel_transform = None
             logger.warning("torchaudio not available, feature extraction will be mocked.")
 
-    def load_model(self, path: str):
+    def load_model(self, path: str) -> None:
         if torch:
             try:
                 self.model.load_state_dict(torch.load(path, map_location=self.device))
@@ -170,11 +168,11 @@ class InstrumentClassifier:
             except Exception as e:
                 logger.error(f"Failed to load model from {path}: {e}")
 
-    def predict(self, audio_array: np.ndarray, sample_rate: int = 22050) -> List[dict]:
+    def predict(self, audio_array: np.ndarray, sample_rate: int = 22050) -> List[Dict[str, Union[str, float]]]:
         """
         Predict instrument probabilities from raw audio array.
         """
-        if not TORCHAUDIO_AVAILABLE or not torch:
+        if T is None or torch is None:
             logger.warning("Returning mock predictions because torchaudio is unavailable.")
             return self._mock_prediction()
 
@@ -200,7 +198,7 @@ class InstrumentClassifier:
                 probs = torch.softmax(logits, dim=1).squeeze().cpu().numpy()
 
             # Format results
-            results = []
+            results: List[Dict[str, Union[str, float]]] = []
             for i, prob in enumerate(probs):
                 results.append({"instrument": self.instruments[i], "probability": float(prob)})
 
@@ -212,7 +210,7 @@ class InstrumentClassifier:
             logger.error(f"Error during instrument classification: {e}")
             return self._mock_prediction()
 
-    def _mock_prediction(self) -> List[dict]:
+    def _mock_prediction(self) -> List[Dict[str, Union[str, float]]]:
         return [
             {"instrument": "Guitar", "probability": 0.85},
             {"instrument": "Piano", "probability": 0.10},
