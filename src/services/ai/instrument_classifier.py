@@ -46,7 +46,7 @@ class InstrumentResNet(nn.Module if nn else object):  # type: ignore
     def _make_layer(self, in_planes: int, planes: int, blocks: int, stride: int = 1) -> Any:
         if nn is None:
             return None
-        layers = []
+        layers: List[nn.Module] = []
         layers.append(
             nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         )
@@ -205,7 +205,7 @@ class InstrumentClassifier:
                 results.append({"instrument": self.instruments[i], "probability": float(prob)})
 
             # Sort by probability descending
-            results.sort(key=lambda x: x["probability"], reverse=True)
+            results.sort(key=lambda x: float(x['probability']), reverse=True)
             return results
 
         except Exception as e:

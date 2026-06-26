@@ -30,9 +30,9 @@ Execute tests, audits, and dynamic updates idempotently via `scripts/run.sh`:
 
 ## ⚡ The Engine: Pulse Table
 
-| Milestone | Version | Phase | Status | Debt% |
+| Milestone | Version | Phase | Status | Debt% | |
 |---|---|---|---|---|
-| M1 | 0.9.3 | Phase 4: Ecosystem Expansion | Active | 0% |
+| M1 | 2.1.0 | Phase 7: Hybrid Intelligence | Active | 5% | |
 
 ---
 
@@ -79,9 +79,9 @@ graph TD
 **The Autonomous, High-Fidelity Music Neural Network.**
 
 ## Pulse Table
-| Milestone | Version | Phase | Status | Debt% |
+| Milestone | Version | Phase | Status | Debt% | |
 |---|---|---|---|---|
-| M1 | 0.9.0 | Phase 4: Ecosystem Expansion | Active | 0% |
+| M1 | 2.1.0 | Phase 7: Hybrid Intelligence | Active | 5% | |
 
 ## IO_SSOT Index
 - **Plan**:

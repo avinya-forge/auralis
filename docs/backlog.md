@@ -1,71 +1,65 @@
-# Auralis Backlog
+# Auralis Backlog (v2.1.0)
 
 ## 🎯 Current Sprint: Phase 7 Hybrid Intelligence
+**North Star:** The Autonomous, High-Fidelity Music Neural Network.
 
-- **MILESTONE M2** | **PHASE 7: HYBRID INTELLIGENCE** | **GATEKEEPER** [0-Hygiene-Error | 95% Test | Build-Pass]
+---
 
-
-### Epic 1: Database Generation & Crowdsourcing [NEW]
-* Build ingestion pipeline. Accept user raw audio uploads.
-* Implement user validation UI. Gamify metadata tagging.
-* Build API aggregators (MusicBrainz, Spotify). Seed initial knowledge graph.
-* Implement self-supervised learning pipeline. Train base models on unlabelled uploads.
+### Epic 1: Database Generation & Crowdsourcing
+> - **[x] TASK:** db-001-ingestion-handler | **Loc:** src/modules/db/ingestion.py | **Spec:** Implement ChunkedUploadHandler and StagingMetadataExtractor | **Deps:** hashlib, os | **Hygiene:** [DONE] | **LOC Estimate:** 100
+> - **[ ] TASK:** db-002-validation-ui | **Loc:** src/gui/pyqt/tabs/validation_tab.py | **Spec:** Implement UI for crowdsourced metadata validation and gamification | **Deps:** PyQt6 | **Hygiene:** [TODO] | **LOC Estimate:** 150
+> - **[ ] TASK:** db-003-aggregator-seed | **Loc:** src/services/metadata/aggregators.py | **Spec:** Build batch seed logic for MusicBrainz/Spotify knowledge graph | **Deps:** src/services/metadata/service.py | **Hygiene:** [TODO] | **LOC Estimate:** 120
+> - **[x] TASK:** db-004-ssl-pipeline | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement SSL training loop and audio dataset stubs | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 130
+> - **[ ] TASK:** db-005-ssl-refinement | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Implement actual contrastive loss and data augmentation logic | **Deps:** torch, numpy | **Hygiene:** [TODO] | **LOC Estimate:** 100
 
 ### Epic 2: Orchestration & Edge-Cloud Gateway
-* Build `src/modules/agent`: Meta-Agent Task Router.
-* Build `src/services/llm_orchestrator.py`: Premium LLM bridging.
-* Deploy `src/modules/api`: FastAPI REST gateway. Handle Edge-Cloud data handoff.
+> - **[x] TASK:** agent-001-meta-router | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Implement Meta-Agent Task Router with LLM fallback | **Deps:** src/services/ai/llm_orchestrator.py | **Hygiene:** [DONE] | **LOC Estimate:** 100
+> - **[x] TASK:** agent-002-llm-orchestrator | **Loc:** src/services/ai/llm_orchestrator.py | **Spec:** Implement LLMClient and PromptFactory for GPT-4/Claude | **Deps:** httpx, jinja2 | **Hygiene:** [DONE] | **LOC Estimate:** 120
+> - **[x] TASK:** api-001-rest-gateway | **Loc:** src/modules/api/main.py | **Spec:** Implement FastAPI REST gateway for Edge-Cloud sync | **Deps:** fastapi | **Hygiene:** [DONE] | **LOC Estimate:** 150
+> - **[ ] TASK:** api-002-jwt-auth | **Loc:** src/modules/api/main.py | **Spec:** Implement robust JWT validation and user session management | **Deps:** python-jose | **Hygiene:** [TODO] | **LOC Estimate:** 80
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
-* Integrate Source Separation (Demucs). Run pre-spectrogram.
-* Implement DSP module (Chroma, BPM, Key).
-* Implement Spectrogram Generator module.
+> - **[x] TASK:** audio-001-demucs-wrapper | **Loc:** src/services/audio/demixer.py | **Spec:** Implement Demucs source separation wrapper | **Deps:** demucs | **Hygiene:** [DONE] | **LOC Estimate:** 80
+> - **[x] TASK:** audio-002-dsp-engine | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Implement Chroma, BPM, and Key extraction logic | **Deps:** librosa | **Hygiene:** [DONE] | **LOC Estimate:** 100
+> - **[x] TASK:** audio-003-spec-gen | **Loc:** src/utils/audio/spectrogram.py | **Spec:** Implement normalized mel-spectrogram generator | **Deps:** torch, torchaudio | **Hygiene:** [DONE] | **LOC Estimate:** 70
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
-* Build `src/services/ai/instrument_classifier.py`: CNN spectrogram matching.
-* Build `src/services/ai/vocalist_analyzer.py`: Voice signature extraction.
-* Enhance CLAP zero-shot Raga identification.
+> - **[x] TASK:** neu-001-instrument-resnet | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Implement ResNet for spectrogram-based instrument classification | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 140
+> - **[ ] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [TODO] | **LOC Estimate:** 90
+> - **[x] TASK:** neu-003-vocalist-analyzer | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Implement SpeechBrain-based voice signature extraction | **Deps:** speechbrain | **Hygiene:** [DONE] | **LOC Estimate:** 130
+> - **[ ] TASK:** neu-004-specialized-instruments | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Train/Fine-tune models for Sitar, Sarod, and Tabla | **Deps:** torch | **Hygiene:** [TODO] | **LOC Estimate:** 150
 
 ### Epic 5: Persistence & Metadata Schema
-* Execute `schema_expansion_v2.sql`. Add Gharana, Instrument, Vocalist schemas.
-* Implement "Music Pack" cache generation logic.
+> - **[ ] TASK:** data-001-schema-v2 | **Loc:** schema_expansion_v2.sql | **Spec:** Create schema for Gharanas, Instruments, and Vocalist signatures | **Deps:** sqlite3 | **Hygiene:** [TODO] | **LOC Estimate:** 60
+> - **[x] TASK:** data-002-pack-manager | **Loc:** src/services/cache/pack_manager.py | **Spec:** Implement "Music Pack" zlib compression and management | **Deps:** zlib | **Hygiene:** [DONE] | **LOC Estimate:** 90
+> - **[ ] TASK:** data-003-metadata-linkage | **Loc:** src/modules/neu/embedding_database.py | **Spec:** Link neural embeddings to the multi-modal knowledge graph | **Deps:** src/utils/db_utils.py | **Hygiene:** [TODO] | **LOC Estimate:** 110
 
 ### Epic 6: Plugins & Security
-> - **[ ] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [BLOCKED] | **LOC Estimate:** 150
+> - **[ ] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
+> - **[x] TASK:** plg-001-sandbox | **Loc:** src/modules/plg/plugin_sandbox.py | **Spec:** Implement secure execution environment for plugins | **Deps:** RestrictedPython | **Hygiene:** [DONE] | **LOC Estimate:** 120
+
 ### Epic 7: User Identity & Stats
-> - **[ ] TASK:** id-004-stats-aggregator | **Loc:** src/modules/id/stats.py | **Spec:** Personal listening stats aggregation | **Deps:** src/utils/db_utils.py | **Hygiene:** [BLOCKED] | **LOC Estimate:** 60
-> - **[ ] TASK:** id-005-profile-sync | **Loc:** src/modules/id/sync.py | **Spec:** Implement profile export/import (json) | **Deps:** json | **Hygiene:** [BLOCKED] | **LOC Estimate:** 80
+> - **[x] TASK:** id-001-stats-aggregator | **Loc:** src/modules/id/stats.py | **Spec:** Implement personal listening stats aggregation | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 60
+> - **[x] TASK:** id-002-profile-sync | **Loc:** src/modules/id/sync.py | **Spec:** Implement profile export/import (json) | **Deps:** json | **Hygiene:** [DONE] | **LOC Estimate:** 80
+> - **[x] TASK:** id-003-history-pruning | **Loc:** src/modules/id/cleanup.py | **Spec:** Implement retention-based play history pruning | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 50
+
 ### Epic 8: Cloud Backing
-> - **[ ] TASK:** cld-002-aws-s3 | **Loc:** src/modules/cld/aws.py | **Spec:** Implement awsprovider for s3 backing | **Deps:** boto3 | **Hygiene:** [BLOCKED] | **LOC Estimate:** 90
-> - **[ ] TASK:** cld-003-gdrive | **Loc:** src/modules/cld/gdrive.py | **Spec:** Implement googledriveprovider for drive backing | **Deps:** google-api | **Hygiene:** [BLOCKED] | **LOC Estimate:** 110
-> ### Epic 9: System Maintenance
+> - **[x] TASK:** cld-001-provider-interface | **Loc:** src/services/cloud/provider_interface.py | **Spec:** Define abstract base class for cloud storage providers | **Deps:** abc | **Hygiene:** [DONE] | **LOC Estimate:** 40
+> - **[x] TASK:** cld-002-aws-s3 | **Loc:** src/modules/cld/aws.py | **Spec:** Implement AWSProvider for S3 backing | **Deps:** boto3 | **Hygiene:** [DONE] | **LOC Estimate:** 100
+> - **[x] TASK:** cld-003-gdrive | **Loc:** src/modules/cld/gdrive.py | **Spec:** Implement GoogleDriveProvider for Drive backing | **Deps:** google-api-python-client | **Hygiene:** [DONE] | **LOC Estimate:** 120
 
--fix-stats-missing-impl | **Loc:** src/modules/id/stats.py | **Spec:** Provide missing implementation for stats aggregator | **Deps:** src/utils/db_utils.py | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-sync-missing-impl | **Loc:** src/modules/id/sync.py | **Spec:** Provide missing implementation for profile sync | **Deps:** json | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-aws-missing-impl | **Loc:** src/modules/cld/aws.py | **Spec:** Provide missing implementation for AWS provider | **Deps:** boto3 | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-gdrive-missing-impl | **Loc:** src/modules/cld/gdrive.py | **Spec:** Provide missing implementation for Google Drive provider | **Deps:** google-api | **Hygiene:** [DONE] | **LOC Estimate:** 50
+### Epic 9: System Maintenance
+> - **[ ] TASK:** sys-001-audit-pattern | **Loc:** docs/audit_report.md | **Spec:** Perform deep pattern analysis of neural drift and cache efficiency | **Deps:** None | **Hygiene:** [TODO] | **LOC Estimate:** 50
+> - **[ ] TASK:** sys-002-cleanup-orphans | **Loc:** src/modules/db/cleanup.py | **Spec:** Implement database cleanup for orphaned metadata entries | **Deps:** src/utils/db_utils.py | **Hygiene:** [TODO] | **LOC Estimate:** 70
 
-> > > ### Audit: DB/Auth/API Expansions
-- **DB:** Validated schema expansions successfully integrate new multi-modal entities (Instruments, Gharanas) without data loss, meeting the Flat SSOT policy.
-- **Auth:** Verified that external API endpoints correctly inherit generic Auth dependencies where applicable, maintaining isolation.
-- **API:** Inspected streaming endpoints to ensure strict adherence to documented Swagger paths.
+---
 
+## 🛠️ Maintenance & Hygiene Tasks
+- **[ ] AUDIT:** Pattern analysis across all neural modules.
+- **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
+- **[ ] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
 
-### [HUNTER] Identified Discrepancies
--fix-net-p2p-security-missing | **Loc:** src/modules/net/p2p_security.py | **Spec:** Provide missing implementation for P2P security | **Deps:** libp2p | **Hygiene:** [BUG] | **LOC Estimate:** 50
--fix-db-ssl-missing | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Provide complete missing implementation for self-supervised learning pipeline | **Deps:** torch | **Hygiene:** [BUG] | **LOC Estimate:** 50
--fix-agent-missing-impl | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Complete missing implementation for Meta-Agent Task Router | **Deps:** llm | **Hygiene:** [BUG] | **LOC Estimate:** 50
-
-
-### [HUNTER] Additional Identified Discrepancies
--fix-db-ingestion-missing | **Loc:** src/modules/db/ingestion.py | **Spec:** Complete missing implementation for ingestion pipeline to accept raw audio uploads | **Deps:** requests | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-api-gateway-missing | **Loc:** src/modules/api/main.py | **Spec:** Complete missing implementation for FastAPI REST gateway | **Deps:** fastapi | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-demucs-missing | **Loc:** src/services/audio/demixer.py | **Spec:** Complete missing implementation for Demucs source separation | **Deps:** demucs | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-dsp-missing | **Loc:** src/services/audio/dsp_engine.py | **Spec:** Complete missing implementation for Chroma, BPM, Key DSP | **Deps:** librosa | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-instrument-cnn-missing | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Complete missing implementation for CNN spectrogram matching | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 50
--fix-vocalist-analyzer-missing | **Loc:** src/services/ai/vocalist_analyzer.py | **Spec:** Complete missing implementation for voice signature extraction | **Deps:** speechbrain | **Hygiene:** [DONE] | **LOC Estimate:** 50
-
-### [RESOLVE] Blockers
-- **[x] RESOLVE-NEW**: [BUG] `CloudSettingsWidget` is not integrated into `main_window.py` or any UI entry point. Cloud UI cannot be accessed.
-- **[x] RESOLVE-NEW**: [BUG] `validate_cloud_endpoint` in `cld-verify-connectivity` is never called. Needs integration into Cloud UI save/test flow.
-- **[x] RESOLVE-NEW**: [BUG] `prune_play_history` in `id-cleanup-history` is never scheduled or executed. Needs integration into an application lifecycle hook (e.g., startup/shutdown or a cron task).
+## 🐛 Identified Discrepancies (Hunters)
+- **[BUG]**: `src/modules/net/p2p_security.py` is missing implementation.
+- **[BUG]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
+- **[BUG]**: `prune_play_history` is not scheduled in any lifecycle hook.
