@@ -103,10 +103,10 @@ class TestModelLoader(unittest.TestCase):
     def test_unload_model(self, mock_gc):
         # Setup mock cache
         mock_pipe = MagicMock()
-        ModelLoader._instances["test-model"] = mock_pipe
+        ModelLoader._instances["audio-classification:test-model"] = mock_pipe
 
         with patch.dict(sys.modules, {"torch": MagicMock()}):
             ModelLoader.unload_model("test-model")
 
-        self.assertNotIn("test-model", ModelLoader._instances)
+        self.assertNotIn("audio-classification:test-model", ModelLoader._instances)
         mock_gc.collect.assert_called()

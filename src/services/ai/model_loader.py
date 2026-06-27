@@ -1,14 +1,8 @@
 import gc
 import logging
-import os
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
-
-try:
-    from transformers import pipeline
-except ImportError:
-    pipeline = None  # type: ignore
 
 
 class ModelLoader:
@@ -41,47 +35,67 @@ class ModelLoader:
             logger.info(f"Simulation Mode: Returning mock pipeline for {model_name}")
             return lambda x, **kwargs: [{"label": "simulation", "score": 0.99}]
 
-        if pipeline is None:
-            logger.warning("transformers library not installed. Cannot load models.")
-            return None
-
         cache_key = f"{task}:{model_name}"
         if cache_key in cls._instances:
             return cls._instances[cache_key]
 
+        return cls._load_and_cache(model_name, task, cache_key)
+
+    @classmethod
+    def _load_and_cache(cls, model_name: str, task: str, cache_key: str) -> Optional[Any]:
+        """Internal helper to load model and store in cache."""
+        from src.services.ai.config import ai_config
+
+        try:
+            from transformers import pipeline
+        except ImportError:
+            logger.warning("transformers library not installed. Cannot load models.")
+            return None
+
         try:
             logger.info(f"Loading AI model: {model_name} for task: {task}")
+            device = cls._get_device()
 
-            # Determine device
-            device = -1  # CPU
-            if ai_config.device == "cuda":
+            # Determine dtype
+            torch_dtype = None
+            try:
                 import torch
-
-                if torch.cuda.is_available():
-                    device = 0
-            elif ai_config.device == "mps":
-                import torch
-
-                if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-                    device = 0  # Transformers uses 0 for the first accelerator device
+                if ai_config.use_fp16 and ai_config.device != "cpu":
+                    torch_dtype = torch.float16
+            except ImportError:
+                pass
 
             # Load pipeline
+            # Use type: ignore for pipeline call to satisfy mypy overloads
             pipe = pipeline(
                 task=task,
                 model=model_name,
                 device=device,
-                torch_dtype=(
-                    torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None
-                ),
+                torch_dtype=torch_dtype,
                 model_kwargs=(
                     {"cache_dir": ai_config.model_cache_dir} if ai_config.model_cache_dir else {}
                 ),
-            )
+            )  # type: ignore
             cls._instances[cache_key] = pipe
             return pipe
         except Exception as e:
             logger.error(f"Failed to load model {model_name}: {e}")
             return None
+
+    @staticmethod
+    def _get_device() -> int:
+        """Determines the best available device for inference."""
+        from src.services.ai.config import ai_config
+        device = -1  # Default to CPU
+        try:
+            import torch
+            if ai_config.device == "cuda" and torch.cuda.is_available():
+                device = 0
+            elif ai_config.device == "mps" and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                device = 0
+        except (ImportError, AttributeError):
+            pass
+        return device
 
     @classmethod
     def unload_model(cls, model_name: str, task: str = "audio-classification") -> None:

@@ -40,7 +40,7 @@ class NeuralInferenceEngine:
             return []
 
         try:
-            pipe = self.loader.get_model(model_name, task)
+            pipe = self.loader.load_model(model_name, task)
             if pipe is None:
                 return []
 
