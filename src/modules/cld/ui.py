@@ -3,6 +3,8 @@ Auralis - Cloud UI Module
 Implements the Cloud Settings Tab for provider configuration.
 """
 
+from typing import Any, Dict
+
 from PyQt6.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -94,3 +96,11 @@ class CloudSettingsWidget(QWidget):
         _ = self.provider_combo.currentText()
         # In a full implementation, we'd persist these credentials securely.
         pass
+
+    def get_options(self) -> Dict[str, Any]:
+        """Collect configured options from the widget."""
+        return {
+            "cloud_provider": self.provider_combo.currentText(),
+            "cloud_client_id": self.client_id_input.text(),
+            "cloud_secret_key": self.secret_key_input.text(),
+        }
