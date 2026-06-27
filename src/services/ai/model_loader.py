@@ -1,101 +1,117 @@
-"""
-Auralis - Model Loader Module
-"""
-
 import gc
 import logging
-import os
-from typing import Any, Dict, Union
-
-from src.services.ai.config import ai_config
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class ModelLoader:
     """
-    Handles lazy loading and lifecycle of AI models.
+    Handles lazy loading and caching of Hugging Face models.
+    Ensures heavy models are only kept in memory when active.
     """
 
     _instances: Dict[str, Any] = {}
 
-    @classmethod
-    def load_model(cls, model_name: str, task: str) -> Any:
-        """
-        Load a model by name and task.
-        """
-        if model_name in cls._instances:
-            return cls._instances[model_name]
+    def __init__(self) -> None:
+        pass
 
-        if ai_config.simulation_mode or not ai_config.enabled:
-            logger.info(f"Simulating load of model {model_name}")
-            return cls._create_mock_model(model_name)
+    @classmethod
+    def load_model(cls, model_name: str, task: str = "audio-classification") -> Optional[Any]:
+        """
+        Retrieves a model from cache or loads it via transformers pipeline.
+        Legacy name for backward compatibility with tests.
+        """
+        return cls.get_model(model_name, task)
+
+    @classmethod
+    def get_model(cls, model_name: str, task: str = "audio-classification") -> Optional[Any]:
+        """
+        Retrieves a model from cache or loads it via transformers pipeline.
+        """
+        from src.services.ai.config import ai_config
+
+        if ai_config.simulation_mode:
+            logger.info(f"Simulation Mode: Returning mock pipeline for {model_name}")
+            return lambda x, **kwargs: [{"label": "simulation", "score": 0.99}]
+
+        cache_key = f"{task}:{model_name}"
+        if cache_key in cls._instances:
+            return cls._instances[cache_key]
+
+        return cls._load_and_cache(model_name, task, cache_key)
+
+    @classmethod
+    def _load_and_cache(cls, model_name: str, task: str, cache_key: str) -> Optional[Any]:
+        """Internal helper to load model and store in cache."""
+        from src.services.ai.config import ai_config
 
         try:
-            import torch
             from transformers import pipeline
+        except ImportError:
+            logger.warning("transformers library not installed. Cannot load models.")
+            return None
 
-            logger.info(f"Loading model {model_name} on {ai_config.device}")
+        try:
+            logger.info(f"Loading AI model: {model_name} for task: {task}")
+            device = cls._get_device()
 
-            device: Union[int, str] = -1
-            if ai_config.device == "cuda":
-                device = 0
-            elif ai_config.device == "mps":
-                device = "mps"
+            # Determine dtype
+            torch_dtype = None
+            try:
+                import torch
+                if ai_config.use_fp16 and ai_config.device != "cpu":
+                    torch_dtype = torch.float16
+            except ImportError:
+                pass
 
-            cache_dir = ai_config.model_cache_dir
-            if not os.path.exists(cache_dir):
-                os.makedirs(cache_dir, exist_ok=True)
-
+            # Load pipeline
+            # Use type: ignore for pipeline call to satisfy mypy overloads
             pipe = pipeline(
                 task=task,
                 model=model_name,
                 device=device,
-                torch_dtype=(
-                    torch.float16 if ai_config.use_fp16 and ai_config.device != "cpu" else None
+                torch_dtype=torch_dtype,
+                model_kwargs=(
+                    {"cache_dir": ai_config.model_cache_dir} if ai_config.model_cache_dir else {}
                 ),
-                model_kwargs={"cache_dir": cache_dir},
-            )
-
-            cls._instances[model_name] = pipe
+            )  # type: ignore
+            cls._instances[cache_key] = pipe
             return pipe
-
-        except ImportError:
-            logger.error("Transformers or Torch not installed.")
-            return cls._create_mock_model(model_name)
         except Exception as e:
-            logger.error(f"Failed to load model {model_name}: {str(e)}")
-            return cls._create_mock_model(model_name)
-
-    @classmethod
-    def unload_model(cls, model_name: str) -> None:
-        """
-        Unload a specific model from memory.
-        """
-        if model_name in cls._instances:
-            logger.info(f"Unloading model {model_name}")
-            del cls._instances[model_name]
-            cls._clear_gpu_cache()
+            logger.error(f"Failed to load model {model_name}: {e}")
+            return None
 
     @staticmethod
-    def _create_mock_model(model_name: str) -> Any:
-        """Create a mock model for simulation or error fallback."""
+    def _get_device() -> int:
+        """Determines the best available device for inference."""
+        from src.services.ai.config import ai_config
+        device = -1  # Default to CPU
+        try:
+            import torch
+            if ai_config.device == "cuda" and torch.cuda.is_available():
+                device = 0
+            elif ai_config.device == "mps" and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                device = 0
+        except (ImportError, AttributeError):
+            pass
+        return device
 
-        class MockPipeline:
-            def __call__(self, *args: Any, **kwargs: Any) -> Any:
-                # Support zero-shot return format if candidate_labels are present
-                if "candidate_labels" in kwargs:
-                    labels = kwargs["candidate_labels"]
-                    return [{"label": label, "score": 1.0 / len(labels)} for label in labels]
-                return [{"label": "simulation", "score": 0.99}]
-
-        return MockPipeline()
+    @classmethod
+    def unload_model(cls, model_name: str, task: str = "audio-classification") -> None:
+        """Removes a specific model from memory."""
+        cache_key = f"{task}:{model_name}"
+        if cache_key in cls._instances:
+            del cls._instances[cache_key]
+            cls._clear_gpu_cache()
+            logger.info(f"Unloaded model: {model_name}")
 
     @classmethod
     def clear_cache(cls) -> None:
-        """Clear all loaded models from memory."""
+        """Flushes the model cache to free up memory."""
         cls._instances.clear()
         cls._clear_gpu_cache()
+        logger.info("AI model cache cleared.")
 
     @staticmethod
     def _clear_gpu_cache() -> None:
@@ -106,7 +122,13 @@ class ModelLoader:
 
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-            if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-                torch.backends.mps.empty_cache()
-        except ImportError:
+
+            backends = getattr(torch, "backends", None)
+            if backends:
+                mps = getattr(backends, "mps", None)
+                if mps and getattr(mps, "is_available", lambda: False)():
+                    empty_cache_fn = getattr(mps, "empty_cache", None)
+                    if empty_cache_fn:
+                        empty_cache_fn()
+        except (ImportError, AttributeError):
             pass

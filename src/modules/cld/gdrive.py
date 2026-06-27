@@ -8,10 +8,11 @@ from typing import Any, Dict, List
 from src.services.cloud.provider_interface import CloudProviderInterface
 
 try:
-    from googleapiclient.discovery import build
-    from google.oauth2.credentials import Credentials
-    from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
     import io
+
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
     GOOGLE_API_AVAILABLE = True
 except ImportError:

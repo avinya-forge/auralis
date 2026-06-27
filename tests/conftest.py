@@ -201,8 +201,6 @@ if "numpy" not in sys.modules:
     sys.modules["numpy"] = mock_numpy
 
 for lib in [
-    "librosa",
-    "soundfile",
     "sklearn",
     "pydub",
     "dotenv",
