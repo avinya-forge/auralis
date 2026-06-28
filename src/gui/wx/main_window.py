@@ -17,7 +17,8 @@ from src.gui.wx.tabs.metadata_tab import MetadataTab
 from src.gui.wx.tabs.organize_tab import OrganizeTab
 from src.gui.wx.tabs.scan_tab import ScanTab
 from src.gui.wx.worker import WorkerThread
-from src.utils.config import get_config
+from src.modules.id.cleanup import prune_play_history
+from src.utils.config import DATA_DIR, get_config
 from src.utils.system_utils import SystemMonitor
 
 
@@ -335,6 +336,10 @@ class MainWindow(wx.Frame):
         if hasattr(self, "task_bar_icon") and self.task_bar_icon:
             self.task_bar_icon.RemoveIcon()
             self.task_bar_icon.Destroy()
+
+        # Prune play history
+        db_path = os.path.join(DATA_DIR, "play_history.db")
+        prune_play_history(db_path, days_old=365)
 
         event.Skip()
 

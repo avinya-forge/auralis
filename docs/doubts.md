@@ -7,6 +7,7 @@
 
 
 ## Newly Blocked Tasks
+- **net-001-p2p-security**: Missing libp2p dependency. Marked as [BLOCKED].
 - **NEU-003**: Missing transformers library. Marked as [BLOCKED].
 - **NEU-004**: Missing transformers library. Marked as [BLOCKED].
 - **AUX-008**: Missing pyqtgraph library. Marked as [BLOCKED].

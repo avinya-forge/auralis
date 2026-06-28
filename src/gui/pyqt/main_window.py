@@ -335,6 +335,7 @@ class MainWindow(QMainWindow):
         options.update(self.scan_tab.get_options())
         options.update(self.organize_tab.get_options())
         options.update(self.metadata_tab.get_options())
+        options.update(self.cloud_settings_tab.get_options())
         return options
 
     def prepare_worker_thread(

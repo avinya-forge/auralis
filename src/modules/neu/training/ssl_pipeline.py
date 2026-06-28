@@ -135,7 +135,7 @@ class SSLPipeline:
         loss.backward()
         self.optimizer.step()
 
-        return loss.item()
+        return float(loss.item())
 
     def train_epoch(self, dataloader, augment_fn) -> float:
         total_loss = 0.0
@@ -150,7 +150,7 @@ class SSLPipeline:
 
         avg_loss = total_loss / len(dataloader)
         logger.info(f"Epoch finished. Avg Loss: {avg_loss:.4f}")
-        return avg_loss
+        return float(avg_loss)
 
     def save_checkpoint(self, path: str):
         if torch:

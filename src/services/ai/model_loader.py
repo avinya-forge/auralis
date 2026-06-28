@@ -60,6 +60,7 @@ class ModelLoader:
             torch_dtype = None
             try:
                 import torch
+
                 if ai_config.use_fp16 and ai_config.device != "cpu":
                     torch_dtype = torch.float16
             except ImportError:
@@ -86,12 +87,18 @@ class ModelLoader:
     def _get_device() -> int:
         """Determines the best available device for inference."""
         from src.services.ai.config import ai_config
+
         device = -1  # Default to CPU
         try:
             import torch
+
             if ai_config.device == "cuda" and torch.cuda.is_available():
                 device = 0
-            elif ai_config.device == "mps" and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            elif (
+                ai_config.device == "mps"
+                and hasattr(torch.backends, "mps")
+                and torch.backends.mps.is_available()
+            ):
                 device = 0
         except (ImportError, AttributeError):
             pass

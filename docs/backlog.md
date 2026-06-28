@@ -37,7 +37,7 @@
 > - **[ ] TASK:** data-003-metadata-linkage | **Loc:** src/modules/neu/embedding_database.py | **Spec:** Link neural embeddings to the multi-modal knowledge graph | **Deps:** src/utils/db_utils.py | **Hygiene:** [TODO] | **LOC Estimate:** 110
 
 ### Epic 6: Plugins & Security
-> - **[ ] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
+> - **[BLOCKED] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
 > - **[x] TASK:** plg-001-sandbox | **Loc:** src/modules/plg/plugin_sandbox.py | **Spec:** Implement secure execution environment for plugins | **Deps:** RestrictedPython | **Hygiene:** [DONE] | **LOC Estimate:** 120
 
 ### Epic 7: User Identity & Stats
@@ -64,6 +64,6 @@
 - **[ ] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
 
 ## 🐛 Identified Discrepancies (Hunters)
-- **[BUG]**: `src/modules/net/p2p_security.py` is missing implementation.
-- **[BUG]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
-- **[BUG]**: `prune_play_history` is not scheduled in any lifecycle hook.
+- **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
+- **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
+- **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
