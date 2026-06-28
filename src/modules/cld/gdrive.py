@@ -2,14 +2,13 @@
 Auralis - Google Drive Cloud Provider
 """
 
+import io
 import logging
 from typing import Any, Dict, List
 
 from src.services.cloud.provider_interface import CloudProviderInterface
 
 try:
-    import io
-
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
@@ -21,7 +20,6 @@ except ImportError:
     Credentials = None
     MediaFileUpload = None
     MediaIoBaseDownload = None
-    io = None
 
 logger = logging.getLogger(__name__)
 

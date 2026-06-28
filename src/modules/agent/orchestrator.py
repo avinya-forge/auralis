@@ -75,7 +75,7 @@ class TaskRouter:
 class MetaAgentTaskRouter:
     def __init__(self, llm_bridge: LLMOrchestrator):
         self.llm_bridge = llm_bridge
-        self.registered_agents = {}
+        self.registered_agents: Dict[str, list] = {}
 
     def register_agent(self, role: str, capabilities: list):
         """Register an agent with specific capabilities."""
@@ -101,12 +101,12 @@ class MetaAgentTaskRouter:
             for agent in self.registered_agents:
                 if agent.lower() in response.lower():
                     logger.info(f"Routed task to agent: {agent}")
-                    return agent
+                    return str(agent)
 
             # Default to first if LLM response is ambiguous
             default_agent = list(self.registered_agents.keys())[0]
             logger.info(f"Ambiguous LLM response. Defaulting routing to: {default_agent}")
-            return default_agent
+            return str(default_agent)
         except Exception as e:
             logger.error(f"Error during task routing via LLM: {e}")
             return "Error routing task"
