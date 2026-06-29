@@ -3,10 +3,10 @@ Auralis - Metadata Validation Tab
 Gamified interface for user metadata verification.
 """
 
+import os
 from typing import Any, Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
-import os
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -15,7 +15,6 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QMessageBox
 )
 
 from src.services.gamification import GamificationService
@@ -28,7 +27,7 @@ class ValidationTab(QWidget):
     """
 
     metadata_verified = pyqtSignal(str, dict)  # file_id, validated_metadata
-    metadata_skipped = pyqtSignal(str) # file_id
+    metadata_skipped = pyqtSignal(str)  # file_id
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -132,8 +131,8 @@ class ValidationTab(QWidget):
                         tags[key] = edit_widget.text()
 
             # Award points and update UI
-            old_stats = self.gamification_service.get_user_stats(self.user_id)
-            new_stats = self.gamification_service.add_validation_points(self.user_id)
+            self.gamification_service.get_user_stats(self.user_id)
+            self.gamification_service.add_validation_points(self.user_id)
             self.update_stats_display()
 
             self.metadata_verified.emit(file_id, tags)

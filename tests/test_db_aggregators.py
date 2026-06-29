@@ -53,7 +53,7 @@ class TestDBAggregators(unittest.TestCase):
         results = agg.search_track("a", "t")
         self.assertEqual(results[0]["source"], "spotify")
 
-    @patch.object(MusicBrainzAggregator, 'search_recording')
+    @patch.object(MusicBrainzAggregator, "search_recording")
     def test_musicbrainz_batch_seed(self, mock_search):
         mock_search.return_value = [{"mbid": "1", "title": "T1"}]
         agg = MusicBrainzAggregator()
@@ -68,6 +68,7 @@ class TestDBAggregators(unittest.TestCase):
         results = agg.batch_seed(queries)
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0]["results"][0]["artist"], "A1")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -90,7 +90,14 @@ class SpotifyAggregator:
         if not self.enabled:
             return []
 
-        return [{"source": "spotify", "artist": artist, "title": title, "note": "Integration blocked by missing dependencies"}]
+        return [
+            {
+                "source": "spotify",
+                "artist": artist,
+                "title": title,
+                "note": "Integration blocked by missing dependencies",
+            }
+        ]
 
     def batch_seed(self, queries: List[Dict[str, str]]) -> List[Dict[str, Any]]:
         results = []
