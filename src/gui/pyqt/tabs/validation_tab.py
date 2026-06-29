@@ -104,11 +104,6 @@ class ValidationTab(QWidget):
         self.skip_btn.setEnabled(True)
         self.verify_btn.setEnabled(True)
 
-    def _on_skip(self) -> None:
-        if self.current_record:
-            file_id = self.current_record.get("file_id", "")
-            self.metadata_skipped.emit(file_id)
-        self.current_record = None
 
     def update_stats_display(self) -> None:
         stats = self.gamification_service.get_user_stats(self.user_id)
@@ -131,8 +126,7 @@ class ValidationTab(QWidget):
                         tags[key] = edit_widget.text()
 
             # Award points and update UI
-            self.gamification_service.get_user_stats(self.user_id)
-            self.gamification_service.add_validation_points(self.user_id)
+            _ = self.gamification_service.add_validation_points(self.user_id)
             self.update_stats_display()
 
             self.metadata_verified.emit(file_id, tags)
