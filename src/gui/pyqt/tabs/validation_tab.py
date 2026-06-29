@@ -6,6 +6,7 @@ Gamified interface for user metadata verification.
 from typing import Any, Dict, Optional
 
 from PyQt6.QtCore import pyqtSignal
+import os
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -14,7 +15,11 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
     QWidget,
+    QMessageBox
 )
+
+from src.services.gamification import GamificationService
+from src.utils.config import DATA_DIR
 
 
 class ValidationTab(QWidget):
@@ -23,10 +28,14 @@ class ValidationTab(QWidget):
     """
 
     metadata_verified = pyqtSignal(str, dict)  # file_id, validated_metadata
+    metadata_skipped = pyqtSignal(str) # file_id
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.current_record: Optional[Dict[str, Any]] = None
+        db_path = os.path.join(DATA_DIR, "gamification.db")
+        self.gamification_service = GamificationService(db_path)
+        self.user_id = "local_user"  # Fixed user for now
         self.init_ui()
 
     def init_ui(self) -> None:
@@ -36,6 +45,12 @@ class ValidationTab(QWidget):
         self.header = QLabel("Metadata Validation Queue")
         self.header.setStyleSheet("font-size: 18px; font-weight: bold;")
         layout.addWidget(self.header)
+
+        # Stats Display
+        self.stats_label = QLabel()
+        self.stats_label.setStyleSheet("font-size: 14px; color: #2980b9;")
+        self.update_stats_display()
+        layout.addWidget(self.stats_label)
 
         # Content Area (Scrollable)
         self.scroll_area = QScrollArea()
@@ -56,6 +71,12 @@ class ValidationTab(QWidget):
         self.verify_btn = QPushButton("Verify & Earn Points")
         self.verify_btn.setEnabled(False)
         self.verify_btn.setStyleSheet("background-color: #2ecc71; color: white;")
+
+        # Handle skip button click
+        self.skip_btn.clicked.connect(self._on_skip)
+
+        # Handle verify button click
+        self.verify_btn.clicked.connect(self._on_verify)
 
         button_layout.addWidget(self.skip_btn)
         button_layout.addWidget(self.verify_btn)
@@ -83,3 +104,36 @@ class ValidationTab(QWidget):
 
         self.skip_btn.setEnabled(True)
         self.verify_btn.setEnabled(True)
+
+    def _on_skip(self) -> None:
+        if self.current_record:
+            file_id = self.current_record.get("file_id", "")
+            self.metadata_skipped.emit(file_id)
+        self.current_record = None
+
+    def update_stats_display(self) -> None:
+        stats = self.gamification_service.get_user_stats(self.user_id)
+        self.stats_label.setText(
+            f"Level: {stats['level']} | Points: {stats['points']} | Validations: {stats['validations']}"
+        )
+
+    def _on_verify(self) -> None:
+        if self.current_record:
+            file_id = self.current_record.get("file_id", "")
+            tags = {}
+            for i in range(self.container_layout.count()):
+                item = self.container_layout.itemAt(i)
+                if item is not None and item.layout() is not None:
+                    row = item.layout()
+                    label_widget = row.itemAt(0).widget()
+                    edit_widget = row.itemAt(1).widget()
+                    if label_widget is not None and edit_widget is not None:
+                        key = label_widget.text().replace(":", "").lower()
+                        tags[key] = edit_widget.text()
+
+            # Award points and update UI
+            old_stats = self.gamification_service.get_user_stats(self.user_id)
+            new_stats = self.gamification_service.add_validation_points(self.user_id)
+            self.update_stats_display()
+
+            self.metadata_verified.emit(file_id, tags)
