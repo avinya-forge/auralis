@@ -14,9 +14,11 @@ logger = logging.getLogger(__name__)
 try:
     import torch
     import torch.nn as nn
+    import torch.nn.functional as F
 except ImportError:
     torch = None
     nn = None
+    F = None
 
 
 class AudioNormalizer:
@@ -55,6 +57,15 @@ class AudioNormalizer:
             return np.pad(y, (0, pad_width), mode="constant")
 
         return y
+
+    @staticmethod
+    def augment_waveform(y: np.ndarray, noise_level: float = 0.01) -> np.ndarray:
+        """
+        Applies data augmentation by adding random Gaussian noise.
+        """
+        noise = np.random.normal(0, noise_level, y.shape)
+        augmented = y + noise
+        return augmented.astype(np.float32)
 
 
 class AudioDataset:
@@ -108,6 +119,33 @@ class SSLTrainer:
         with open(checkpoint_path, "w") as f:
             f.write(f"Epoch {epoch} checkpoint stub")
 
+
+class ContrastiveLoss(nn.Module if nn else object):  # type: ignore
+    """
+    Computes contrastive loss given two sets of embeddings.
+    """
+    def __init__(self, temperature: float = 0.5):
+        super().__init__()
+        self.temperature = temperature
+
+    def forward(self, z1: Any, z2: Any) -> Any:
+        if not torch or not F:
+            return 0.0
+
+        # Normalize the embeddings
+        z1 = F.normalize(z1, dim=1)
+        z2 = F.normalize(z2, dim=1)
+
+        batch_size = z1.size(0)
+        # Calculate cosine similarity
+        sim = torch.mm(z1, z2.t()) / self.temperature
+
+        # Labels for positive pairs (diagonal)
+        labels = torch.arange(batch_size).to(z1.device)
+
+        # Loss
+        loss = F.cross_entropy(sim, labels)
+        return loss
 
 class SSLPipeline:
     def __init__(self, model: Any, learning_rate: float = 1e-4):

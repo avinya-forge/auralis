@@ -81,16 +81,35 @@ class ValidationTab(QWidget):
         button_layout.addWidget(self.verify_btn)
         layout.addLayout(button_layout)
 
-    def load_record(self, record: Dict[str, Any]) -> None:
-        """Loads a metadata record into the validation view."""
-        self.current_record = record
-        # Cleanup container
+        self.verify_btn.clicked.connect(self.verify_record)
+        self.skip_btn.clicked.connect(self.skip_record)
+
+    def verify_record(self) -> None:
+        if self.current_record:
+            self.current_record["validated"] = True
+            self.current_record["points_earned"] = 10
+            self.metadata_verified.emit(
+                self.current_record.get("file_id", ""), self.current_record
+            )
+        self._clear_layout()
+
+    def skip_record(self) -> None:
+        self._clear_layout()
+
+    def _clear_layout(self) -> None:
         for i in reversed(range(self.container_layout.count())):
             item = self.container_layout.itemAt(i)
             if item is not None:
                 widget = item.widget()
                 if widget is not None:
                     widget.setParent(None)
+        self.skip_btn.setEnabled(False)
+        self.verify_btn.setEnabled(False)
+
+    def load_record(self, record: Dict[str, Any]) -> None:
+        """Loads a metadata record into the validation view."""
+        self.current_record = record
+        self._clear_layout()
 
         # Build form
         tags = record.get("raw_tags", {})
