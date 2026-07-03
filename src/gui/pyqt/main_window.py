@@ -30,6 +30,7 @@ from src.core.scanner import MusicScanner
 from src.gui.pyqt.tabs.metadata_tab import MetadataTab
 from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
+from src.gui.pyqt.tabs.validation_tab import ValidationTab
 from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
 from src.modules.cld.ui import CloudSettingsWidget
@@ -190,6 +191,10 @@ class MainWindow(QMainWindow):
         # Stage 4: Playlist Editor
         self.playlist_editor_tab = PlaylistEditorTab()
         self.stage_tabs.addTab(self.playlist_editor_tab, "Playlist Editor")
+
+        # Validation Tab
+        self.validation_tab = ValidationTab()
+        self.stage_tabs.addTab(self.validation_tab, "Validation")
 
         self.cloud_settings_tab = CloudSettingsWidget()
         self.stage_tabs.addTab(self.cloud_settings_tab, "Cloud Sync")

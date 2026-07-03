@@ -57,6 +57,20 @@ class MusicBrainzAggregator:
             logger.error(f"MusicBrainz lookup failed: {e}")
             return {}
 
+    def batch_seed(self, queries: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """
+        Batch seed logic to search for multiple tracks.
+        Expects queries in the format: [{"artist": "Artist1", "title": "Title1"}, ...]
+        """
+        results = []
+        for query in queries:
+            artist = query.get("artist", "")
+            title = query.get("title", "")
+            if artist and title:
+                search_results = self.search_recording(artist, title)
+                results.append({"query": query, "results": search_results})
+        return results
+
 
 class SpotifyAggregator:
     """
@@ -75,5 +89,19 @@ class SpotifyAggregator:
         """
         if not self.enabled:
             return []
-        # Implementation depends on spotipy
-        return [{"source": "spotify", "note": "Integration blocked by missing dependencies"}]
+
+        return [
+            {
+                "source": "spotify",
+                "artist": artist,
+                "title": title,
+                "note": "Integration blocked by missing dependencies",
+            }
+        ]
+
+    def batch_seed(self, queries: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+        results = []
+        for query in queries:
+            res = self.search_track(query.get("artist", ""), query.get("title", ""))
+            results.append({"query": query, "results": res})
+        return results
