@@ -30,8 +30,8 @@ class TestPyQtMetadataTab(unittest.TestCase):
 
             with patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})):
                 module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
-                init_ui_func = module.AIPanel.__dict__["init_ui"]
-                get_options_func = module.AIPanel.__dict__["get_options"]
+                init_ui_func = module.AIPanel.init_ui
+                get_options_func = module.AIPanel.get_options
 
                 mock_self = MagicMock()
                 with (
@@ -76,7 +76,7 @@ class TestPyQtMetadataTab(unittest.TestCase):
                 patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})),
             ):
                 module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
-                get_options_func = module.MetadataTab.__dict__["get_options"]
+                get_options_func = module.MetadataTab.get_options
 
                 mock_tab = MagicMock()
 
@@ -108,7 +108,7 @@ class TestPyQtMetadataTab(unittest.TestCase):
                 patch("PyQt6.QtWidgets.QGroupBox", type("QGroupBox", (object,), {})),
             ):
                 module = importlib.import_module("src.gui.pyqt.tabs.metadata_tab")
-                load_track_func = module.MetadataTab.__dict__["load_track"]
+                load_track_func = module.MetadataTab.load_track
 
                 mock_tab = MagicMock()
                 mock_tab.raga_analyzer = MagicMock()
