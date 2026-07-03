@@ -144,3 +144,5 @@ error.log
 .DS_Store
 # MANDATORY: Zero-Git policy
 .memory/
+
+src/services/cache/
