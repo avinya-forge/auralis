@@ -124,6 +124,7 @@ class ContrastiveLoss(nn.Module if nn else object):  # type: ignore
     """
     Computes contrastive loss given two sets of embeddings.
     """
+
     def __init__(self, temperature: float = 0.5):
         super().__init__()
         self.temperature = temperature

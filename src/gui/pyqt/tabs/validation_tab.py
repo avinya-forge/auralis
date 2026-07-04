@@ -87,9 +87,7 @@ class ValidationTab(QWidget):
             self.current_record["points_earned"] = 10
             if tags is not None:
                 self.current_record.update(tags)
-            self.metadata_verified.emit(
-                self.current_record.get("file_id", ""), self.current_record
-            )
+            self.metadata_verified.emit(self.current_record.get("file_id", ""), self.current_record)
         self._clear_layout()
 
     def _on_skip(self) -> None:
