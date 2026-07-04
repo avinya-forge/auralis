@@ -81,19 +81,20 @@ class ValidationTab(QWidget):
         button_layout.addWidget(self.verify_btn)
         layout.addLayout(button_layout)
 
-        self.verify_btn.clicked.connect(self.verify_record)
-        self.skip_btn.clicked.connect(self.skip_record)
-
-    def verify_record(self) -> None:
+    def verify_record(self, tags: Optional[Dict[str, Any]] = None) -> None:
         if self.current_record:
             self.current_record["validated"] = True
             self.current_record["points_earned"] = 10
+            if tags is not None:
+                self.current_record.update(tags)
             self.metadata_verified.emit(
                 self.current_record.get("file_id", ""), self.current_record
             )
         self._clear_layout()
 
-    def skip_record(self) -> None:
+    def _on_skip(self) -> None:
+        if self.current_record:
+            self.metadata_skipped.emit(self.current_record.get("file_id", ""))
         self._clear_layout()
 
     def _clear_layout(self) -> None:
@@ -123,7 +124,6 @@ class ValidationTab(QWidget):
         self.skip_btn.setEnabled(True)
         self.verify_btn.setEnabled(True)
 
-
     def update_stats_display(self) -> None:
         stats = self.gamification_service.get_user_stats(self.user_id)
         self.stats_label.setText(
@@ -132,20 +132,23 @@ class ValidationTab(QWidget):
 
     def _on_verify(self) -> None:
         if self.current_record:
-            file_id = self.current_record.get("file_id", "")
             tags = {}
             for i in range(self.container_layout.count()):
                 item = self.container_layout.itemAt(i)
-                if item is not None and item.layout() is not None:
+                if item is not None:
                     row = item.layout()
-                    label_widget = row.itemAt(0).widget()
-                    edit_widget = row.itemAt(1).widget()
-                    if label_widget is not None and edit_widget is not None:
-                        key = label_widget.text().replace(":", "").lower()
-                        tags[key] = edit_widget.text()
+                    if row is not None:
+                        label_item = row.itemAt(0)
+                        edit_item = row.itemAt(1)
+                        if label_item is not None and edit_item is not None:
+                            label_widget = label_item.widget()
+                            edit_widget = edit_item.widget()
+                            if label_widget is not None and edit_widget is not None:
+                                key = label_widget.text().replace(":", "").lower()  # type: ignore
+                                tags[key] = edit_widget.text()  # type: ignore
 
             # Award points and update UI
             _ = self.gamification_service.add_validation_points(self.user_id)
             self.update_stats_display()
 
-            self.metadata_verified.emit(file_id, tags)
+            self.verify_record(tags)

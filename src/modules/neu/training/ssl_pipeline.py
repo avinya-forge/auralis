@@ -65,7 +65,7 @@ class AudioNormalizer:
         """
         noise = np.random.normal(0, noise_level, y.shape)
         augmented = y + noise
-        return augmented.astype(np.float32)
+        return np.asarray(augmented, dtype=np.float32)
 
 
 class AudioDataset:
@@ -146,6 +146,7 @@ class ContrastiveLoss(nn.Module if nn else object):  # type: ignore
         # Loss
         loss = F.cross_entropy(sim, labels)
         return loss
+
 
 class SSLPipeline:
     def __init__(self, model: Any, learning_rate: float = 1e-4):
