@@ -25,7 +25,7 @@ class TestValidationTab(unittest.TestCase):
 
     def test_skip_record(self):
         mock_self = MagicMock()
-        ValidationTab.skip_record(mock_self)
+        ValidationTab._on_skip(mock_self)
         mock_self._clear_layout.assert_called_once()
 
     def test_clear_layout(self):

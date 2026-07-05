@@ -33,7 +33,8 @@ class TestPyQtMetadataTab(unittest.TestCase):
                 init_ui_func = module.AIPanel.init_ui
                 get_options_func = module.AIPanel.get_options
 
-                mock_self = MagicMock()
+                mock_self = MagicMock(spec=module.AIPanel)
+                mock_self.ai_analyze_check = MagicMock()
                 with (
                     patch("src.gui.pyqt.tabs.metadata_tab.QVBoxLayout"),
                     patch("src.gui.pyqt.tabs.metadata_tab.QCheckBox") as mock_checkbox_cls,
