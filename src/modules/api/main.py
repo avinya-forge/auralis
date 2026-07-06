@@ -1,24 +1,59 @@
 import logging
+import os
 import time
 import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Auralis Edge-Cloud Gateway API")
 
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
+
 security = HTTPBearer()
+
+SECRET_KEY = os.getenv("AURALIS_JWT_SECRET", "default-unsafe-secret-for-testing")
+ALGORITHM = "HS256"
 
 
 def verify_jwt(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if credentials.credentials != "valid-jwt-token":
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return credentials.credentials
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/login")
+async def login(request: LoginRequest):
+    # In a real application, credentials would be validated against a database.
+    # We use environment variables for this edge gateway implementation.
+    admin_user = os.getenv("AURALIS_ADMIN_USER", "admin")
+    admin_pass = os.getenv("AURALIS_ADMIN_PASS", "password")
+
+    if request.username == admin_user and request.password == admin_pass:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        to_encode = {"sub": request.username, "exp": expire}
+        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        return {"access_token": encoded_jwt, "token_type": "bearer"}
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
 @app.middleware("http")
@@ -50,12 +85,14 @@ _mock_db: Dict[str, Any] = {}
 
 
 @app.get("/health")
-async def health_check():
+@limiter.limit("100/minute")
+async def health_check(request: Request):
     return {"status": "ok"}
 
 
 @app.post("/metadata", response_model=MetadataResponse)
-async def create_metadata(metadata: MetadataCreate):
+@limiter.limit("10/minute")
+async def create_metadata(request: Request, metadata: MetadataCreate):
     new_id = str(uuid.uuid4())
     record = metadata.model_dump()
     record["id"] = new_id
@@ -64,14 +101,16 @@ async def create_metadata(metadata: MetadataCreate):
 
 
 @app.get("/metadata/{item_id}", response_model=MetadataResponse)
-async def get_metadata(item_id: str):
+@limiter.limit("60/minute")
+async def get_metadata(request: Request, item_id: str):
     if item_id not in _mock_db:
         raise HTTPException(status_code=404, detail="Item not found")
     return _mock_db[item_id]
 
 
 @app.get("/sync/audio/{file_id}")
-async def stream_audio_file(file_id: str, token: str = Depends(verify_jwt)):
+@limiter.limit("20/minute")
+async def stream_audio_file(request: Request, file_id: str, token: str = Depends(verify_jwt)):
     """
     Stream audio file sync endpoint with JWT authentication.
     """
@@ -87,7 +126,8 @@ async def stream_audio_file(file_id: str, token: str = Depends(verify_jwt)):
 
 
 @app.post("/upload/audio")
-async def upload_audio(file: UploadFile = File(...)):
+@limiter.limit("5/minute")
+async def upload_audio(request: Request, file: UploadFile = File(...)):
     """Accept raw audio uploads from Edge clients."""
     try:
         file_content = await file.read()
@@ -108,7 +148,8 @@ async def upload_audio(file: UploadFile = File(...)):
 
 
 @app.post("/sync/state")
-def sync_client_state(state_data: dict):
+@limiter.limit("30/minute")
+def sync_client_state(request: Request, state_data: dict):
     """Sync state from Edge client to Cloud."""
     logger.info(f"Received state sync: {state_data}")
     return {"status": "success", "message": "State synchronized successfully"}

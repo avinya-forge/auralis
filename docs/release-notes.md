@@ -1,4 +1,4 @@
-# Release Notes v2.1.0 (Audit & Alignment)
+# Release Notes v2.1.1 (Audit & Alignment)
 
 ## Summary
 This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundation. We have verified the implementation of core audio processing, neural classification, and cloud integration modules, while identifying critical gaps in P2P security and meta-agent orchestration.
@@ -7,9 +7,9 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`.
 - **Cloud:** `cld-001-provider-interface`, `cld-002-aws-s3`, `cld-003-gdrive`.
 - **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`.
-- **AI:** `neu-001-instrument-resnet`, `neu-003-vocalist-analyzer`.
+- **AI:** `neu-001-instrument-resnet`, `neu-003-vocalist-analyzer`, `neu-005-drift-correction`.
 - **Database:** `db-001-ingestion-handler`, `db-004-ssl-pipeline`.
-- **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway` (Stub).
+- **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway`, `api-002-jwt-auth`, `api-003-rate-limiting`.
 - **Plugins:** `plg-001-sandbox`.
 
 ## Identified Gaps (Backlogged)
@@ -20,7 +20,6 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 
 ## Technical Debt / Cleanup
 - `Meta-Agent Task Router` requires robust LLM-prompting refinement.
-- `FastAPI REST Gateway` requires JWT authentication implementation.
 - `SSL Pipeline` requires actual contrastive loss and augmentation logic.
 
 ## Release Modules
@@ -46,3 +45,6 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: cld-003-gdrive
 - **Verified**: sys-002-cleanup-orphans
 - **Verified**: sys-003-automated-backups
+- **Verified**: api-002-jwt-auth
+- **Verified**: api-003-rate-limiting
+- **Verified**: neu-005-drift-correction

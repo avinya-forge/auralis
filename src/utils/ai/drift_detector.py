@@ -69,5 +69,13 @@ class DriftDetector:
             logger.warning(
                 f"Model drift detected! KL Divergence: {kl_div:.4f} > {self.kl_threshold}"
             )
+            self.trigger_retraining()
 
         return {"drift_detected": is_drifting, "kl_divergence": float(kl_div)}
+
+    def trigger_retraining(self) -> None:
+        """
+        Triggers an automated retraining pipeline for the model.
+        This simulates an API call or event dispatch.
+        """
+        logger.info("Triggering automated model retraining pipeline due to detected drift.")

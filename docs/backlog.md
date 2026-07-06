@@ -1,4 +1,4 @@
-# Auralis Backlog (v2.1.0)
+# Auralis Backlog (v2.1.1)
 
 ## 🎯 Current Sprint: Phase 7 Hybrid Intelligence
 **North Star:** The Autonomous, High-Fidelity Music Neural Network.
@@ -9,15 +9,15 @@
 > - **[ ] TASK:** db-003-aggregator-seed | **Loc:** src/services/metadata/aggregators.py | **Spec:** Build batch seed logic for MusicBrainz/Spotify knowledge graph | **Deps:** src/services/metadata/service.py | **Hygiene:** [TODO] | **LOC Estimate:** 120
 
 ### Epic 2: Orchestration & Edge-Cloud Gateway
-> - **[ ] TASK:** api-002-jwt-auth | **Loc:** src/modules/api/main.py | **Spec:** Implement robust JWT validation and user session management | **Deps:** python-jose | **Hygiene:** [TODO] | **LOC Estimate:** 80
-> - **[ ] TASK:** api-003-rate-limiting | **Loc:** src/modules/api/main.py | **Spec:** Implement rate limiting for cloud endpoints | **Deps:** slowapi | **Hygiene:** [TODO] | **LOC Estimate:** 60
+> - **[x] TASK:** api-002-jwt-auth | **Loc:** src/modules/api/main.py | **Spec:** Implement robust JWT validation and user session management | **Deps:** python-jose | **Hygiene:** [DONE] | **LOC Estimate:** 80
+> - **[x] TASK:** api-003-rate-limiting | **Loc:** src/modules/api/main.py | **Spec:** Implement rate limiting for cloud endpoints | **Deps:** slowapi | **Hygiene:** [DONE] | **LOC Estimate:** 60
 
 ### Epic 3: Audio Analysis Pipeline (Hybrid)
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 > - **[ ] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [TODO] | **LOC Estimate:** 90
 > - **[ ] TASK:** neu-004-specialized-instruments | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Train/Fine-tune models for Sitar, Sarod, and Tabla | **Deps:** torch | **Hygiene:** [TODO] | **LOC Estimate:** 150
-> - **[ ] TASK:** neu-005-drift-correction | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement automated drift detection and model retraining trigger | **Deps:** numpy | **Hygiene:** [TODO] | **LOC Estimate:** 110
+> - **[x] TASK:** neu-005-drift-correction | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement automated drift detection and model retraining trigger | **Deps:** numpy | **Hygiene:** [DONE] | **LOC Estimate:** 110
 
 ### Epic 5: Persistence & Metadata Schema
 > - **[ ] TASK:** data-001-schema-v2 | **Loc:** schema_expansion_v2.sql | **Spec:** Create schema for Gharanas, Instruments, and Vocalist signatures | **Deps:** sqlite3 | **Hygiene:** [TODO] | **LOC Estimate:** 60
