@@ -6,7 +6,7 @@
 ---
 
 ### Epic 1: Database Generation & Crowdsourcing
-> - **[ ] TASK:** db-003-aggregator-seed | **Loc:** src/services/metadata/aggregators.py | **Spec:** Build batch seed logic for MusicBrainz/Spotify knowledge graph | **Deps:** src/services/metadata/service.py | **Hygiene:** [TODO] | **LOC Estimate:** 120
+> - **[x] TASK:** db-003-aggregator-seed | **Loc:** src/services/metadata/aggregators.py | **Spec:** Build batch seed logic for MusicBrainz/Spotify knowledge graph | **Deps:** src/services/metadata/service.py | **Hygiene:** [DONE] | **LOC Estimate:** 120
 
 ### Epic 2: Orchestration & Edge-Cloud Gateway
 > - **[x] TASK:** api-002-jwt-auth | **Loc:** src/modules/api/main.py | **Spec:** Implement robust JWT validation and user session management | **Deps:** python-jose | **Hygiene:** [DONE] | **LOC Estimate:** 80
