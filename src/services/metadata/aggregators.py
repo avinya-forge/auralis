@@ -77,9 +77,10 @@ try:
     from spotipy.oauth2 import SpotifyClientCredentials
 
     SPOTIPY_AVAILABLE = True
+    SpotifyClientCredentials_class = SpotifyClientCredentials
 except ImportError:
     SPOTIPY_AVAILABLE = False
-    SpotifyClientCredentials = None
+    SpotifyClientCredentials_class = None
 
 
 class SpotifyAggregator:
@@ -94,7 +95,7 @@ class SpotifyAggregator:
 
         self.client = None
         if self.enabled:
-            auth_manager = SpotifyClientCredentials(
+            auth_manager = SpotifyClientCredentials_class(
                 client_id=self.client_id, client_secret=self.client_secret
             )
             self.client = spotipy.Spotify(auth_manager=auth_manager)

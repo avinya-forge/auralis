@@ -66,7 +66,9 @@ class TestDBAggregators(unittest.TestCase):
         }
 
         with patch("src.services.metadata.aggregators.SPOTIPY_AVAILABLE", True):
-            with patch("src.services.metadata.aggregators.SpotifyClientCredentials", mock_creds):
+            with patch(
+                "src.services.metadata.aggregators.SpotifyClientCredentials_class", mock_creds
+            ):
                 agg = SpotifyAggregator(client_id="id", client_secret="secret")
 
         # Inject the mock search method onto the created client
@@ -93,7 +95,9 @@ class TestDBAggregators(unittest.TestCase):
     def test_spotify_batch_seed(self, mock_creds, mock_search):
         mock_search.return_value = [{"source": "spotify", "title": "T1"}]
         with patch("src.services.metadata.aggregators.SPOTIPY_AVAILABLE", True):
-            with patch("src.services.metadata.aggregators.SpotifyClientCredentials", mock_creds):
+            with patch(
+                "src.services.metadata.aggregators.SpotifyClientCredentials_class", mock_creds
+            ):
                 agg = SpotifyAggregator(client_id="id", client_secret="secret")
 
         queries = [{"artist": "A1", "title": "T1"}, {"artist": "A2", "title": "T2"}]

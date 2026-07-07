@@ -9,12 +9,14 @@ logger = logging.getLogger(__name__)
 class DriftDetector:
     """
     Implements a basic KL-divergence tracker to detect model drift
-    in prediction distributions.
+    in prediction distributions, using a rolling history.
     """
 
-    def __init__(self, kl_threshold: float = 0.5):
+    def __init__(self, kl_threshold: float = 0.5, history_size: int = 5):
         self.kl_threshold = kl_threshold
+        self.history_size = history_size
         self.reference_distribution: Dict[str, float] = {}
+        self.kl_history: list = []
 
     def set_reference_distribution(self, distribution: Dict[str, float]) -> None:
         """Sets the baseline distribution of classes."""
@@ -61,17 +63,26 @@ class DriftDetector:
 
         # KL Divergence: sum(P(x) * log(P(x)/Q(x)))
         # Here we assume current (P) diverging from reference (Q)
-        kl_div = np.sum(curr_probs_arr * np.log(curr_probs_arr / ref_probs_arr))
+        kl_div = float(np.sum(curr_probs_arr * np.log(curr_probs_arr / ref_probs_arr)))
 
-        is_drifting = bool(kl_div > self.kl_threshold)
+        # Update rolling history
+        self.kl_history.append(kl_div)
+        if len(self.kl_history) > self.history_size:
+            self.kl_history.pop(0)
+
+        # Adaptive threshold logic
+        avg_kl = sum(self.kl_history) / len(self.kl_history) if self.kl_history else 0.0
+
+        # Consider it drifting if current and historical average both exceed threshold
+        is_drifting = bool(kl_div > self.kl_threshold and avg_kl > self.kl_threshold)
 
         if is_drifting:
             logger.warning(
-                f"Model drift detected! KL Divergence: {kl_div:.4f} > {self.kl_threshold}"
+                f"Model drift detected! Current KL: {kl_div:.4f}, Avg KL: {avg_kl:.4f} > {self.kl_threshold}"
             )
             self.trigger_retraining()
 
-        return {"drift_detected": is_drifting, "kl_divergence": float(kl_div)}
+        return {"drift_detected": is_drifting, "kl_divergence": kl_div, "historical_avg_kl": avg_kl}
 
     def trigger_retraining(self) -> None:
         """

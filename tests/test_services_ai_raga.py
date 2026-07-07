@@ -42,7 +42,7 @@ class TestRagaClassifier(unittest.TestCase):
 
         # Mock pipeline
         mock_pipe = MagicMock()
-        mock_pipe.return_value = [{"label": "Indian Classical Raga Bhairav", "score": 0.95}]
+        mock_pipe.return_value = [{"label": "This is an audio snippet of the Indian Classical Raga Bhairav", "score": 0.95}]
         mock_load_model.return_value = mock_pipe
 
         result = self.classifier.classify("real_song.mp3")

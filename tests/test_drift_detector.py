@@ -79,3 +79,18 @@ def test_trigger_retraining(caplog):
         detector.trigger_retraining()
 
     assert "Triggering automated model retraining pipeline" in caplog.text
+
+
+def test_analyze_drift_history():
+    detector = DriftDetector(kl_threshold=0.5, history_size=2)
+    detector.set_reference_distribution({"class_a": 0.9, "class_b": 0.1})
+
+    # First drift - shouldn't trigger because avg_kl won't be > 0.5 yet
+    detector.analyze_drift({"class_a": 0.1, "class_b": 0.9, "class_c": 0.1})
+
+    # It might trigger on first if the single divergence is high enough and makes avg_kl > 0.5
+    # Let's ensure a steady state first
+    detector.kl_history = [0.1, 0.1]
+
+    result2 = detector.analyze_drift({"class_a": 0.1, "class_b": 0.9, "class_c": 0.1})
+    assert result2["historical_avg_kl"] > 0
