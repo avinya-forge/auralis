@@ -25,18 +25,54 @@ class EmbeddingDatabase:
         """Initialize the database schema."""
         try:
             with get_db_connection(self.db_path) as conn:
-                conn.execute(
-                    """
+                conn.executescript("""
                     CREATE TABLE IF NOT EXISTS embeddings (
                         track_id VARCHAR PRIMARY KEY,
                         vector_blob BLOB,
                         model_version VARCHAR
-                    )
-                    """
-                )
+                    );
+                    CREATE TABLE IF NOT EXISTS knowledge_graph_links (
+                        track_id VARCHAR PRIMARY KEY,
+                        mbid VARCHAR,
+                        spotify_id VARCHAR,
+                        wikipedia_url VARCHAR,
+                        FOREIGN KEY(track_id) REFERENCES embeddings(track_id)
+                    );
+                    """)
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
             raise
+
+    def link_knowledge_graph(self, track_id: str, mbid: Optional[str] = None, spotify_id: Optional[str] = None, wikipedia_url: Optional[str] = None) -> None:
+        """Link a track embedding to external knowledge graph nodes."""
+        try:
+            with get_db_connection(self.db_path) as conn:
+                conn.execute(
+                    """
+                    INSERT INTO knowledge_graph_links (track_id, mbid, spotify_id, wikipedia_url)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(track_id) DO UPDATE SET
+                        mbid = excluded.mbid,
+                        spotify_id = excluded.spotify_id,
+                        wikipedia_url = excluded.wikipedia_url
+                    """,
+                    (track_id, mbid, spotify_id, wikipedia_url),
+                )
+        except Exception as e:
+            logger.error(f"Error linking knowledge graph: {e}")
+            raise
+
+    def get_knowledge_graph_links(self, track_id: str) -> Optional[tuple]:
+        """Retrieve knowledge graph links for a track."""
+        try:
+            with get_db_connection(self.db_path) as conn:
+                cursor = conn.execute(
+                    "SELECT mbid, spotify_id, wikipedia_url FROM knowledge_graph_links WHERE track_id = ?", (track_id,)
+                )
+                return cursor.fetchone()
+        except Exception as e:
+            logger.error(f"Error retrieving knowledge graph links: {e}")
+            return None
 
     def upsert_embedding(self, track_id: str, vector: np.ndarray, model_version: str) -> None:
         """Insert or update a track vector."""

@@ -92,6 +92,9 @@ class InstrumentInferenceWrapper:
         "saxophone",
         "trumpet",
         "synthesizer",
+        "sitar",
+        "sarod",
+        "tabla",
     ]
 
     def __init__(self, model_name: str = "auralis/instrument-resnet") -> None:
@@ -145,7 +148,7 @@ except ImportError:
 
 class InstrumentClassifier:
     def __init__(self, model_path: Optional[str] = None):
-        self.instruments = ["Guitar", "Piano", "Drums", "Violin", "Vocals", "Bass", "Synth"]
+        self.instruments = ["Guitar", "Piano", "Drums", "Violin", "Vocals", "Bass", "Synth", "Sitar", "Sarod", "Tabla"]
         if torch:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model = InstrumentResNet(num_classes=len(self.instruments)).to(self.device)

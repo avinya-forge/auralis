@@ -13,15 +13,13 @@ class TestDBCleanup(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
 
         with get_db_connection(self.db_path) as conn:
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS metadata (
                     file_hash TEXT PRIMARY KEY,
                     data TEXT,
                     last_updated REAL
                 )
-                """
-            )
+                """)
 
     def tearDown(self):
         os.close(self.db_fd)

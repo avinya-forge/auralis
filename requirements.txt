@@ -21,3 +21,7 @@ soundfile==0.13.1
 # Optional dependencies for GUI backend
 # wxPython>=4.2.0 (Install manually if needed, removed from CI to prevent build timeouts)
 tqdm==4.67.3
+python-jose==3.3.0
+slowapi==0.1.9
+spotipy==2.23.0
+pyotp==2.9.0

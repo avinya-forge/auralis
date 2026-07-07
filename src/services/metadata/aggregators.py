@@ -72,32 +72,62 @@ class MusicBrainzAggregator:
         return results
 
 
+try:
+    import spotipy
+    from spotipy.oauth2 import SpotifyClientCredentials
+
+    SPOTIPY_AVAILABLE = True
+    SpotifyClientCredentials_class = SpotifyClientCredentials
+except ImportError:
+    SPOTIPY_AVAILABLE = False
+    SpotifyClientCredentials_class = None
+
+
 class SpotifyAggregator:
     """
-    Placeholder for Spotify integration.
-    Marked as [BLOCKED] in backlog due to missing 'spotipy' dependency.
+    Spotify integration for seed generation and rich metadata.
     """
 
     def __init__(self, client_id: Optional[str] = None, client_secret: Optional[str] = None):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.enabled = client_id is not None and client_secret is not None
+        self.enabled = SPOTIPY_AVAILABLE and client_id is not None and client_secret is not None
+
+        self.client = None
+        if self.enabled:
+            auth_manager = SpotifyClientCredentials_class(
+                client_id=self.client_id, client_secret=self.client_secret
+            )
+            self.client = spotipy.Spotify(auth_manager=auth_manager)
 
     def search_track(self, artist: str, title: str) -> List[Dict[str, Any]]:
         """
-        Placeholder search.
+        Search Spotify for a track.
         """
-        if not self.enabled:
+        if not self.enabled or not self.client:
             return []
 
-        return [
-            {
-                "source": "spotify",
-                "artist": artist,
-                "title": title,
-                "note": "Integration blocked by missing dependencies",
-            }
-        ]
+        try:
+            query = f"artist:{artist} track:{title}"
+            results = self.client.search(q=query, type="track", limit=5)
+
+            tracks = []
+            for item in results.get("tracks", {}).get("items", []):
+                tracks.append(
+                    {
+                        "source": "spotify",
+                        "id": item.get("id"),
+                        "title": item.get("name"),
+                        "artist": ", ".join([a.get("name") for a in item.get("artists", [])]),
+                        "album": item.get("album", {}).get("name"),
+                        "popularity": item.get("popularity", 0),
+                        "url": item.get("external_urls", {}).get("spotify"),
+                    }
+                )
+            return tracks
+        except Exception as e:
+            logger.error(f"Spotify search failed: {e}")
+            return []
 
     def batch_seed(self, queries: List[Dict[str, str]]) -> List[Dict[str, Any]]:
         results = []

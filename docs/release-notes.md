@@ -1,26 +1,24 @@
-# Release Notes v2.1.0 (Audit & Alignment)
+# Release Notes v2.1.1 (Audit & Alignment)
 
 ## Summary
 This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundation. We have verified the implementation of core audio processing, neural classification, and cloud integration modules, while identifying critical gaps in P2P security and meta-agent orchestration.
 
 ## Features & Fixes Completed (Verified)
-- **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`.
+- **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`, `id-004-mfa-support`.
 - **Cloud:** `cld-001-provider-interface`, `cld-002-aws-s3`, `cld-003-gdrive`.
 - **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`.
-- **AI:** `neu-001-instrument-resnet`, `neu-003-vocalist-analyzer`.
-- **Database:** `db-001-ingestion-handler`, `db-004-ssl-pipeline`.
-- **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway` (Stub).
+- **AI:** `neu-001-instrument-resnet`, `neu-002-raga-clap-enhanced`, `neu-003-vocalist-analyzer`, `neu-005-drift-correction`.
+- **Database:** `db-001-ingestion-handler`, `db-003-aggregator-seed`, `db-004-ssl-pipeline`, `data-001-schema-v2`, `data-003-metadata-linkage`.
+- **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway`, `api-002-jwt-auth`, `api-003-rate-limiting`.
 - **Plugins:** `plg-001-sandbox`.
 
 ## Identified Gaps (Backlogged)
 - Missing P2P Network Security implementation (`net-001`).
 - Missing specialized Indian Classical instrument models (`neu-004`).
-- Missing Schema Expansion v2 for Gharanas/Instruments (`data-001`).
 - Missing Gamified Validation UI (`db-002`).
 
 ## Technical Debt / Cleanup
 - `Meta-Agent Task Router` requires robust LLM-prompting refinement.
-- `FastAPI REST Gateway` requires JWT authentication implementation.
 - `SSL Pipeline` requires actual contrastive loss and augmentation logic.
 
 ## Release Modules
@@ -28,6 +26,7 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: db-002-validation-ui
 - **Verified**: db-004-ssl-pipeline
 - **Verified**: db-005-ssl-refinement
+- **Verified**: db-003-aggregator-seed
 - **Verified**: agent-001-meta-router
 - **Verified**: agent-002-llm-orchestrator
 - **Verified**: api-001-rest-gateway
@@ -46,3 +45,11 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: cld-003-gdrive
 - **Verified**: sys-002-cleanup-orphans
 - **Verified**: sys-003-automated-backups
+- **Verified**: api-002-jwt-auth
+- **Verified**: api-003-rate-limiting
+- **Verified**: neu-005-drift-correction
+- **Verified**: neu-002-raga-clap-enhanced
+- **Verified**: data-001-schema-v2
+- **Verified**: data-003-metadata-linkage
+- **Verified**: id-004-mfa-support
+- **Verified**: sys-001-audit-pattern

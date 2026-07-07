@@ -17,7 +17,7 @@ class RagaClassifier:
     """
 
     MODEL_NAME = "laion/clap-htsat-unfused"
-    LABEL_PREFIX = "Indian Classical Raga "
+    LABEL_PREFIX = "This is an audio snippet of the Indian Classical Raga "
 
     def __init__(self) -> None:
         """Initialize the Raga Classifier."""
