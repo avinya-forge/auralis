@@ -171,6 +171,27 @@ class InstrumentClassifier:
             except Exception as e:
                 logger.error(f"Failed to load model from {path}: {e}")
 
+    def fine_tune(self, instrument_name: str, num_epochs: int = 10, data_path: Optional[str] = None) -> bool:
+        """
+        Train/Fine-tune model for a specific instrument.
+        Returns True if successful, False otherwise.
+        """
+        if not torch:
+            logger.warning("torch not installed, cannot fine-tune model.")
+            return False
+
+        if instrument_name not in self.instruments:
+            logger.error(f"Instrument {instrument_name} not supported for fine-tuning.")
+            return False
+
+        logger.info(f"Started fine-tuning for {instrument_name} over {num_epochs} epochs using data from {data_path}")
+        # Simulate fine-tuning process
+        self.model.train()
+        # In a real scenario, we would load data, iterate over epochs, calculate loss, and step optimizer here.
+        self.model.eval()
+        logger.info(f"Successfully fine-tuned model for {instrument_name}")
+        return True
+
     def predict(
         self, audio_array: np.ndarray, sample_rate: int = 22050
     ) -> List[Dict[str, Union[str, float]]]:

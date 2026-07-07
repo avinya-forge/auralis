@@ -323,6 +323,10 @@ class MainWindow(wx.Frame):
         Args:
             event (Any): The wxPython event object.
         """
+        # Prune play history
+        db_path = os.path.join(DATA_DIR, "play_history.db")
+        prune_play_history(db_path, days_old=365)
+
         if self.worker and self.worker.is_alive():
             self.worker.stop()
             # Give it a moment to stop
@@ -336,10 +340,6 @@ class MainWindow(wx.Frame):
         if hasattr(self, "task_bar_icon") and self.task_bar_icon:
             self.task_bar_icon.RemoveIcon()
             self.task_bar_icon.Destroy()
-
-        # Prune play history
-        db_path = os.path.join(DATA_DIR, "play_history.db")
-        prune_play_history(db_path, days_old=365)
 
         event.Skip()
 

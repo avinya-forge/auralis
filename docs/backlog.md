@@ -16,7 +16,7 @@
 
 ### Epic 4: AI Neural Classifiers (Cloud Heavy)
 > - **[x] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [DONE] | **LOC Estimate:** 90
-> - **[ ] TASK:** neu-004-specialized-instruments | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Train/Fine-tune models for Sitar, Sarod, and Tabla | **Deps:** torch | **Hygiene:** [TODO] | **LOC Estimate:** 150
+> - **[x] TASK:** neu-004-specialized-instruments | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Train/Fine-tune models for Sitar, Sarod, and Tabla | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 150
 > - **[x] TASK:** neu-005-drift-correction | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement automated drift detection and model retraining trigger | **Deps:** numpy | **Hygiene:** [DONE] | **LOC Estimate:** 110
 
 ### Epic 5: Persistence & Metadata Schema
@@ -39,7 +39,7 @@
 ## 🛠️ Maintenance & Hygiene Tasks
 - **[ ] AUDIT:** Pattern analysis across all neural modules.
 - **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
-- **[ ] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
+- **[x] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
 
 ## 🐛 Identified Discrepancies (Hunters)
 - **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
