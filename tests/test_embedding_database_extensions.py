@@ -1,8 +1,11 @@
-import unittest
-import numpy as np
-import tempfile
 import os
+import tempfile
+import unittest
+
+import numpy as np
+
 from src.modules.neu.embedding_database import EmbeddingDatabase
+
 
 class TestEmbeddingDatabaseExtensions(unittest.TestCase):
     def setUp(self):
@@ -15,7 +18,9 @@ class TestEmbeddingDatabaseExtensions(unittest.TestCase):
 
     def test_link_knowledge_graph(self):
         self.db.upsert_embedding("track_1", np.array([0.1, 0.2, 0.3]), "v1")
-        self.db.link_knowledge_graph("track_1", mbid="mbid-123", spotify_id="spotify-456", wikipedia_url="http://wiki/track")
+        self.db.link_knowledge_graph(
+            "track_1", mbid="mbid-123", spotify_id="spotify-456", wikipedia_url="http://wiki/track"
+        )
 
         links = self.db.get_knowledge_graph_links("track_1")
         self.assertIsNotNone(links)
@@ -36,5 +41,6 @@ class TestEmbeddingDatabaseExtensions(unittest.TestCase):
         links = self.db.get_knowledge_graph_links("missing_track")
         self.assertIsNone(links)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

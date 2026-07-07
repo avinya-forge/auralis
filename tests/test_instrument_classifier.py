@@ -1,7 +1,8 @@
 import sys
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pytest
 
 from src.services.ai.instrument_classifier import InstrumentClassifier, InstrumentInferenceWrapper
 
@@ -49,7 +50,9 @@ def test_predict_torch(mock_resnet):
     import torch
 
     mock_model_instance = MagicMock()
-    mock_model_instance.return_value = torch.tensor([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+    mock_model_instance.return_value = torch.tensor(
+        [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+    )
     mock_resnet.return_value = mock_model_instance
 
     classifier = InstrumentClassifier()
@@ -81,7 +84,7 @@ def test_inference_wrapper_classify(mock_engine_cls):
     # Setup mock results
     mock_engine.run_classification.return_value = [
         {"label": "Sitar", "score": 0.95},
-        {"label": "Tabla", "score": 0.05}
+        {"label": "Tabla", "score": 0.05},
     ]
 
     wrapper = InstrumentInferenceWrapper()

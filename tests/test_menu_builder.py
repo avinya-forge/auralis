@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import MagicMock
+
 from src.gui.pyqt.menu_builder import build_menu_bar
+
 
 def test_build_menu_bar_success():
     """Test successful menu bar creation."""
@@ -25,6 +26,7 @@ def test_build_menu_bar_success():
     mock_window.theme_manager.get_available_themes.assert_called_once()
     assert mock_theme_menu.addAction.call_count == 2
 
+
 def test_build_menu_bar_no_themes():
     """Test menu bar creation when no themes are available."""
     mock_window = MagicMock()
@@ -43,6 +45,7 @@ def test_build_menu_bar_no_themes():
 
     # Theme menu created, but no actions added
     assert mock_theme_menu.addAction.call_count == 0
+
 
 def test_build_menu_bar_no_menu_bar():
     """Test early return when no menu bar is available."""

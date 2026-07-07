@@ -7,7 +7,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QAction, QActionGroup, QCloseEvent, QFont, QIcon
+from PyQt6.QtGui import QCloseEvent, QFont, QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QGroupBox,
@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
 
 from src.core.organizer import MusicOrganizer
 from src.core.scanner import MusicScanner
+from src.gui.pyqt.menu_builder import build_menu_bar
 from src.gui.pyqt.tabs.metadata_tab import MetadataTab
 from src.gui.pyqt.tabs.organize_tab import OrganizeTab
 from src.gui.pyqt.tabs.scan_tab import ScanTab
@@ -35,7 +36,6 @@ from src.gui.pyqt.worker import WorkerThread
 from src.gui.theme_manager import ThemeManager
 from src.modules.cld.ui import CloudSettingsWidget
 from src.modules.id.cleanup import prune_play_history
-from src.gui.pyqt.menu_builder import build_menu_bar
 from src.modules.pl.playlist_editor_tab import PlaylistEditorTab
 from src.utils.config import DATA_DIR, create_env_example, get_config
 from src.utils.system_utils import SystemMonitor

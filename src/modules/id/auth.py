@@ -1,8 +1,10 @@
-import pyotp
 import logging
-from typing import Dict, Any, Tuple
+from typing import Dict
+
+import pyotp
 
 logger = logging.getLogger(__name__)
+
 
 class MultiFactorAuthManager:
     """

@@ -43,7 +43,13 @@ class EmbeddingDatabase:
             logger.error(f"Error initializing database: {e}")
             raise
 
-    def link_knowledge_graph(self, track_id: str, mbid: Optional[str] = None, spotify_id: Optional[str] = None, wikipedia_url: Optional[str] = None) -> None:
+    def link_knowledge_graph(
+        self,
+        track_id: str,
+        mbid: Optional[str] = None,
+        spotify_id: Optional[str] = None,
+        wikipedia_url: Optional[str] = None,
+    ) -> None:
         """Link a track embedding to external knowledge graph nodes."""
         try:
             with get_db_connection(self.db_path) as conn:
@@ -67,7 +73,8 @@ class EmbeddingDatabase:
         try:
             with get_db_connection(self.db_path) as conn:
                 cursor = conn.execute(
-                    "SELECT mbid, spotify_id, wikipedia_url FROM knowledge_graph_links WHERE track_id = ?", (track_id,)
+                    "SELECT mbid, spotify_id, wikipedia_url FROM knowledge_graph_links WHERE track_id = ?",
+                    (track_id,),
                 )
                 return cursor.fetchone()
         except Exception as e:

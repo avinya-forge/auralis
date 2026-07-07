@@ -1,5 +1,7 @@
 import unittest
+
 from src.modules.id.auth import MultiFactorAuthManager
+
 
 class TestMultiFactorAuthManager(unittest.TestCase):
     def setUp(self):
@@ -26,6 +28,7 @@ class TestMultiFactorAuthManager(unittest.TestCase):
     def test_verify_token_success(self):
         secret = self.auth_manager.generate_mfa_secret(self.user_id)
         import pyotp
+
         totp = pyotp.TOTP(secret)
         valid_token = totp.now()
 
@@ -38,5 +41,6 @@ class TestMultiFactorAuthManager(unittest.TestCase):
     def test_verify_token_no_secret(self):
         self.assertFalse(self.auth_manager.verify_token("unknown_user", "123456"))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

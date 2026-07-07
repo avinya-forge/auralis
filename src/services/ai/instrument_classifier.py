@@ -148,7 +148,18 @@ except ImportError:
 
 class InstrumentClassifier:
     def __init__(self, model_path: Optional[str] = None):
-        self.instruments = ["Guitar", "Piano", "Drums", "Violin", "Vocals", "Bass", "Synth", "Sitar", "Sarod", "Tabla"]
+        self.instruments = [
+            "Guitar",
+            "Piano",
+            "Drums",
+            "Violin",
+            "Vocals",
+            "Bass",
+            "Synth",
+            "Sitar",
+            "Sarod",
+            "Tabla",
+        ]
         if torch:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.model = InstrumentResNet(num_classes=len(self.instruments)).to(self.device)
@@ -171,7 +182,9 @@ class InstrumentClassifier:
             except Exception as e:
                 logger.error(f"Failed to load model from {path}: {e}")
 
-    def fine_tune(self, instrument_name: str, num_epochs: int = 10, data_path: Optional[str] = None) -> bool:
+    def fine_tune(
+        self, instrument_name: str, num_epochs: int = 10, data_path: Optional[str] = None
+    ) -> bool:
         """
         Train/Fine-tune model for a specific instrument.
         Returns True if successful, False otherwise.
@@ -184,7 +197,9 @@ class InstrumentClassifier:
             logger.error(f"Instrument {instrument_name} not supported for fine-tuning.")
             return False
 
-        logger.info(f"Started fine-tuning for {instrument_name} over {num_epochs} epochs using data from {data_path}")
+        logger.info(
+            f"Started fine-tuning for {instrument_name} over {num_epochs} epochs using data from {data_path}"
+        )
         # Simulate fine-tuning process
         self.model.train()
         # In a real scenario, we would load data, iterate over epochs, calculate loss, and step optimizer here.
