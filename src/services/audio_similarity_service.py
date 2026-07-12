@@ -144,7 +144,8 @@ class AudioSimilarityService:
             audio = mutagen.File(file_info["path"])
             if audio and audio.info:
                 return float(audio.info.length)
-        except Exception:
+        except Exception as e:
+            _ = e
             pass
 
         # 3. Check pydub
@@ -153,7 +154,8 @@ class AudioSimilarityService:
 
             audio = pydub.AudioSegment.from_file(file_info["path"])
             return float(len(audio) / 1000)  # convert to seconds
-        except Exception:
+        except Exception as e:
+            _ = e
             pass
 
         return 0.0

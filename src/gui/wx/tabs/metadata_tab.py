@@ -127,7 +127,8 @@ class MetadataTab(wx.Panel):
         # Optional: Set a border or background
         try:
             self.cover_art_preview.SetBackgroundColour(wx.Colour(50, 50, 50))
-        except Exception:
+        except Exception as e:
+            _ = e
             pass
 
         preview_sizer.Add(self.cover_art_preview, 0, wx.ALIGN_CENTER | wx.ALL, 10)

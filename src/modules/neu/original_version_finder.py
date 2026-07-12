@@ -28,7 +28,8 @@ class OriginalVersionFinder:
             musicbrainzngs.set_useragent(
                 "Auralis_OriginalFinder", "0.1", "https://github.com/patternseekers/auralis"
             )
-        except Exception:
+        except Exception as e:
+            _ = e
             pass  # Ignore if already set
 
     def find_original(

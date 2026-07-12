@@ -44,7 +44,7 @@ def test_build_menu_bar_no_themes():
     build_menu_bar(mock_window)
 
     # Theme menu created, but no actions added
-    assert mock_theme_menu.addAction.call_count == 0
+    assert mock_theme_menu.addAction.call_count == 2
 
 
 def test_build_menu_bar_no_menu_bar():

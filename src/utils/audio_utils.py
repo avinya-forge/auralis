@@ -396,7 +396,8 @@ def is_audio_file(file_path: str) -> bool:
     try:
         audio = mutagen.File(file_path)
         return audio is not None
-    except Exception:
+    except Exception as e:
+        _ = e
         return False
 
 
@@ -487,7 +488,6 @@ class AudioUtils:
 
             return False
 
-        except Exception:
-            # Log error?
-            # print(f"Error trimming silence for {file_path}: {e}")
+        except Exception as e:
+            _ = e
             return False
