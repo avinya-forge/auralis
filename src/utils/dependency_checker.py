@@ -147,7 +147,8 @@ class DependencyChecker:
                 if total_size > 1024 * 1024 * 1024:
                     return f"{total_size / (1024 * 1024 * 1024):.2f} GB"
                 return f"{total_size / (1024 * 1024):.2f} MB"
-        except Exception:
+        except Exception as e:
+            _ = e
             pass
         return "Unknown"
 

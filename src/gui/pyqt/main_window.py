@@ -7,7 +7,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QCloseEvent, QFont, QIcon
+from PyQt6.QtGui import QActionGroup, QCloseEvent, QFont, QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QGroupBox,
@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
         self.organizer = MusicOrganizer()
         self.system_monitor = SystemMonitor()
         self.theme_manager = ThemeManager()
+        self.theme_action_group: Optional[QActionGroup] = None
 
         # Initialize data structures
         self.scanned_files: List[Dict[str, Any]] = []  # List of scanned file info dictionaries
@@ -281,9 +282,10 @@ class MainWindow(QMainWindow):
             # We assume app is a QApplication instance or mock equivalent
             self.theme_manager.apply_theme(app, theme_name)  # type: ignore
             # Update checked state in menu if needed (handled by ActionGroup mostly, but explicit check ensures sync)
-            for action in self.theme_action_group.actions():
-                if action.text() == theme_name:
-                    action.setChecked(True)
+            if self.theme_action_group:
+                for action in self.theme_action_group.actions():
+                    if action.text() == theme_name:
+                        action.setChecked(True)
 
     def set_default_directories(self) -> None:
         """Set default directories from configuration"""

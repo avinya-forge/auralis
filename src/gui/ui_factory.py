@@ -84,7 +84,8 @@ class UIFactory:
                 app_id = "PatternSeekers.Auralis.1.0"
                 # mypy on non-windows might complain about windll
                 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)  # type: ignore
-            except Exception:
+            except Exception as e:
+                _ = e
                 pass
 
 

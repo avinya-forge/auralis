@@ -56,7 +56,8 @@ class ChunkedUploadHandler:
             if os.path.exists(final_path):
                 os.remove(final_path)
             return None
-        except Exception:
+        except Exception as e:
+            _ = e
             if os.path.exists(final_path):
                 os.remove(final_path)
             return None

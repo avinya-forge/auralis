@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 from PyQt6.QtGui import QAction, QActionGroup
 
 if TYPE_CHECKING:
-    from PyQt6.QtWidgets import QMainWindow
+    from src.gui.pyqt.main_window import MainWindow
 
 
-def build_menu_bar(main_window: "QMainWindow") -> None:
+def build_menu_bar(main_window: "MainWindow") -> None:
     """Set up the menu bar for the main window"""
     menu_bar = main_window.menuBar()
     if not menu_bar:
@@ -29,8 +29,7 @@ def build_menu_bar(main_window: "QMainWindow") -> None:
     available_themes = main_window.theme_manager.get_available_themes()
     # Ensure Dark and Light are there, otherwise fallback
     if not available_themes:
-        # Fallback if no themes loaded (shouldn't happen with resources)
-        pass
+        available_themes = ["Dark", "Light"]
 
     for theme_name in sorted(available_themes):
         action = QAction(theme_name, main_window)

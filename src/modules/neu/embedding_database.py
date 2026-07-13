@@ -3,7 +3,7 @@ Auralis - Embedding Database Module
 """
 
 import logging
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
@@ -68,7 +68,7 @@ class EmbeddingDatabase:
             logger.error(f"Error linking knowledge graph: {e}")
             raise
 
-    def get_knowledge_graph_links(self, track_id: str) -> Optional[tuple]:
+    def get_knowledge_graph_links(self, track_id: str) -> Optional[Tuple[Any, ...]]:
         """Retrieve knowledge graph links for a track."""
         try:
             with get_db_connection(self.db_path) as conn:
@@ -76,7 +76,8 @@ class EmbeddingDatabase:
                     "SELECT mbid, spotify_id, wikipedia_url FROM knowledge_graph_links WHERE track_id = ?",
                     (track_id,),
                 )
-                return cursor.fetchone()
+                row = cursor.fetchone()
+                return tuple(row) if row else None
         except Exception as e:
             logger.error(f"Error retrieving knowledge graph links: {e}")
             return None

@@ -20,7 +20,8 @@ def get_db_connection(db_path: str) -> Generator[sqlite3.Connection, None, None]
         conn.execute("PRAGMA journal_mode=WAL")
         yield conn
         conn.commit()
-    except Exception:
+    except Exception as e:
+        _ = e
         conn.rollback()
         raise
     finally:
