@@ -9,9 +9,10 @@
 - **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
+- **[x] TASK:** fix-001-bare-exceptions | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
 
 ## 🕵️ Bug Hunter Tasks
-- **[ ] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [TODO] | **LOC Estimate:** 20
+- **[x] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
 - **[ ] AUDIT:** Pattern analysis across all neural modules.

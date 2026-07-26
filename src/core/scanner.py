@@ -275,7 +275,8 @@ class MusicScanner(QObject):
             stat_info = await asyncio.to_thread(os.stat, file_path)
             mtime = stat_info.st_mtime
             return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mtime))
-        except Exception:
+        except Exception as e:
+            _ = e
             return "Unknown"
 
     async def _extract_file_info(self, file_path: str) -> Optional[Dict[str, Any]]:
@@ -342,7 +343,8 @@ class MusicScanner(QObject):
                 self._parse_audio_tags(audio, metadata)
                 file_info["metadata"] = metadata
                 self._fallback_to_filename(metadata, file_info["filename"])
-        except Exception:
+        except Exception as e:
+            _ = e
             self._fallback_to_filename_on_error(file_info)
 
     def _parse_audio_tags(self, audio: Any, metadata: Dict[str, Any]) -> None:

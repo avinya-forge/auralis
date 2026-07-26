@@ -218,7 +218,8 @@ class AudioMetadataHandler:
                 try:
                     if hasattr(self.audio, "add_tags"):
                         self.audio.add_tags()
-                except Exception:
+                except Exception as e:
+                    _ = e
                     pass
             self._add_mp3_cover(image_data)
         elif self.ext == ".flac":
