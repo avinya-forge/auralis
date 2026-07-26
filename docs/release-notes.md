@@ -13,7 +13,6 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Plugins:** `plg-001-sandbox`.
 
 ## Identified Gaps (Backlogged)
-- Missing P2P Network Security implementation (`net-001`).
 - Missing specialized Indian Classical instrument models (`neu-004`).
 - Missing Gamified Validation UI (`db-002`).
 
@@ -53,3 +52,5 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: data-003-metadata-linkage
 - **Verified**: id-004-mfa-support
 - **Verified**: sys-001-audit-pattern
+- **Verified**: hunt-001-scan-modules
+- **Verified**: net-001-p2p-security

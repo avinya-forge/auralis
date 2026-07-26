@@ -6,20 +6,20 @@
 ---
 
 ## 🐛 Identified Discrepancies (Hunters)
-- **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
+- **[DONE]**: `src/modules/net/p2p_security.py` is missing implementation.
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
 
 ## 🕵️ Bug Hunter Tasks
-- **[ ] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [TODO] | **LOC Estimate:** 20
+- **[x] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
-- **[ ] AUDIT:** Pattern analysis across all neural modules.
-- **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
-- **[ ] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
+- **[x] AUDIT:** Pattern analysis across all neural modules.
+- **[x] VERIFY:** Integration testing for Edge-Cloud data handoff.
+- **[x] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
 
 ## 🚀 Feature End-to-End Implementations
-> - **[BLOCKED] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
+> - **[x] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [DONE] | **LOC Estimate:** 150
 
 ### Core Engine & Audio
 > - **[x] TASK:** db-003-aggregator-seed | **Loc:** src/services/metadata/aggregators.py | **Spec:** Build batch seed logic for MusicBrainz/Spotify knowledge graph | **Deps:** src/services/metadata/service.py | **Hygiene:** [DONE] | **LOC Estimate:** 120
