@@ -25,7 +25,8 @@ def test_instrument_resnet_forward():
                 x = torch.zeros(1, 1, 128, 128)
                 out = resnet(x)
                 assert out.shape == (1, 10)
-        except Exception:
+        except Exception as e:
+            _ = e
             pass
 
 

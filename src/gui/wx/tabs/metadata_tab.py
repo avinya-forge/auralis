@@ -185,7 +185,8 @@ class MetadataTab(wx.Panel):
             else:
                 # Clear or set placeholder
                 self.cover_art_preview.SetBitmap(wx.NullBitmap)
-        except Exception:
+        except Exception as e:
+            _ = e
             # Log error?
             pass
 

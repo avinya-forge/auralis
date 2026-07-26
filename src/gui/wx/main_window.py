@@ -117,7 +117,8 @@ class MainWindow(wx.Frame):
         self.task_bar_icon: Optional[AuralisTaskBarIcon] = None
         try:
             self.task_bar_icon = AuralisTaskBarIcon(self)
-        except Exception:
+        except Exception as e:
+            _ = e
             # Fallback if TaskBarIcon fails or not supported
             pass
 

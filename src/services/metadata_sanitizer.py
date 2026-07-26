@@ -184,7 +184,8 @@ class MetadataSanitizer:
                 # Vorbis comments are lists of strings
                 try:
                     values = audio[key]
-                except Exception:
+                except Exception as e:
+                    _ = e
                     continue
 
                 if isinstance(values, list):
