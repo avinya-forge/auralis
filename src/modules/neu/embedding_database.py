@@ -25,8 +25,7 @@ class EmbeddingDatabase:
         """Initialize the database schema."""
         try:
             with get_db_connection(self.db_path) as conn:
-                conn.executescript(
-                    """
+                conn.executescript("""
                     CREATE TABLE IF NOT EXISTS embeddings (
                         track_id VARCHAR PRIMARY KEY,
                         vector_blob BLOB,
@@ -39,8 +38,7 @@ class EmbeddingDatabase:
                         wikipedia_url VARCHAR,
                         FOREIGN KEY(track_id) REFERENCES embeddings(track_id)
                     );
-                    """
-                )
+                    """)
         except Exception as e:
             logger.error(f"Error initializing database: {e}")
             raise

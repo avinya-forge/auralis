@@ -125,7 +125,9 @@ class TestDBAggregators(unittest.TestCase):
         mock_search.side_effect = Exception("Spotify error")
 
         with patch("src.services.metadata.aggregators.SPOTIPY_AVAILABLE", True):
-            with patch("src.services.metadata.aggregators.SpotifyClientCredentials_class", mock_creds):
+            with patch(
+                "src.services.metadata.aggregators.SpotifyClientCredentials_class", mock_creds
+            ):
                 agg = SpotifyAggregator(client_id="id", client_secret="secret")
 
         agg.client.search = mock_search
@@ -133,21 +135,22 @@ class TestDBAggregators(unittest.TestCase):
         self.assertEqual(results, [])
 
     def test_spotipy_import_error(self):
-        import sys
         import importlib
+        import sys
+
         import src.services.metadata.aggregators as aggs
 
-        orig_spotipy = sys.modules.get('spotipy')
-        sys.modules['spotipy'] = None
+        orig_spotipy = sys.modules.get("spotipy")
+        sys.modules["spotipy"] = None
 
         try:
             importlib.reload(aggs)
             self.assertFalse(aggs.SPOTIPY_AVAILABLE)
         finally:
             if orig_spotipy:
-                sys.modules['spotipy'] = orig_spotipy
+                sys.modules["spotipy"] = orig_spotipy
             else:
-                del sys.modules['spotipy']
+                del sys.modules["spotipy"]
             importlib.reload(aggs)
 
 

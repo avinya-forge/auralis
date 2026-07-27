@@ -1,3 +1,4 @@
+import queue
 import time
 
 from src.modules.neu.ai_batch_processor import AIBatchProcessor
@@ -70,7 +71,6 @@ def test_batch_processor_terminate():
 
 def test_batch_processor_worker_loop():
     from unittest.mock import MagicMock
-    import queue
 
     task_queue = MagicMock()
     result_queue = MagicMock()
@@ -93,11 +93,13 @@ def test_batch_processor_worker_loop():
     AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event)
 
     # Verify result queue received the success result
-    result_queue.put.assert_called_once_with(("task_1", "/path/to/loop_track.mp3", "Processed /path/to/loop_track.mp3", None))
+    result_queue.put.assert_called_once_with(
+        ("task_1", "/path/to/loop_track.mp3", "Processed /path/to/loop_track.mp3", None)
+    )
+
 
 def test_batch_processor_worker_loop_inference_error():
     from unittest.mock import MagicMock
-    import queue
 
     task_queue = MagicMock()
     result_queue = MagicMock()
@@ -108,28 +110,31 @@ def test_batch_processor_worker_loop_inference_error():
     def failing_callable(path):
         raise ValueError("Inference failed")
 
-    task_queue.get.side_effect = [
-        ("task_2", "/path/to/fail_track.mp3", failing_callable)
-    ]
+    task_queue.get.side_effect = [("task_2", "/path/to/fail_track.mp3", failing_callable)]
 
     AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event)
-    result_queue.put.assert_called_once_with(("task_2", "/path/to/fail_track.mp3", None, "Inference failed"))
+    result_queue.put.assert_called_once_with(
+        ("task_2", "/path/to/fail_track.mp3", None, "Inference failed")
+    )
+
 
 def test_batch_processor_get_results_empty():
-    import queue
-    from unittest.mock import patch
+
     processor = AIBatchProcessor(num_workers=0)
     processor._result_queue.empty = lambda: False
 
     def raise_empty():
         raise queue.Empty
+
     processor._result_queue.get_nowait = raise_empty
 
     results = processor.get_results()
     assert results == []
 
+
 def test_batch_processor_terminate_alive():
     from unittest.mock import MagicMock
+
     processor = AIBatchProcessor(num_workers=0)
     mock_process = MagicMock()
     mock_process.is_alive.return_value = True
