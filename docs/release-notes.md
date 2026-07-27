@@ -1,4 +1,4 @@
-# Release Notes v2.1.1 (Audit & Alignment)
+# Release Notes v2.1.2 (Audit & Alignment)
 
 ## Summary
 This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundation. We have verified the implementation of core audio processing, neural classification, and cloud integration modules, while identifying critical gaps in P2P security and meta-agent orchestration.
@@ -6,11 +6,12 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 ## Features & Fixes Completed (Verified)
 - **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`, `id-004-mfa-support`.
 - **Cloud:** `cld-001-provider-interface`, `cld-002-aws-s3`, `cld-003-gdrive`.
-- **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`.
+- **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`, `audio-005-dsp-engine`.
 - **AI:** `neu-001-instrument-resnet`, `neu-002-raga-clap-enhanced`, `neu-003-vocalist-analyzer`, `neu-005-drift-correction`.
-- **Database:** `db-001-ingestion-handler`, `db-003-aggregator-seed`, `db-004-ssl-pipeline`, `data-001-schema-v2`, `data-003-metadata-linkage`.
+- **Database:** `db-001-ingestion-handler`, `db-003-aggregator-seed`, `db-004-ssl-pipeline`, `data-001-schema-v2`, `data-003-metadata-linkage`, `data-005-datetime-formatting`.
 - **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway`, `api-002-jwt-auth`, `api-003-rate-limiting`.
 - **Plugins:** `plg-001-sandbox`.
+- **Testing:** `test-002-ai-batch-worker`, `test-003-coveragerc-omit`, `test-004-aggregators-coverage`.
 
 ## Identified Gaps (Backlogged)
 - Missing P2P Network Security implementation (`net-001`).
@@ -53,3 +54,8 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: data-003-metadata-linkage
 - **Verified**: id-004-mfa-support
 - **Verified**: sys-001-audit-pattern
+- **Verified**: data-005-datetime-formatting
+- **Verified**: audio-005-dsp-engine
+- **Verified**: test-002-ai-batch-worker
+- **Verified**: test-003-coveragerc-omit
+- **Verified**: test-004-aggregators-coverage

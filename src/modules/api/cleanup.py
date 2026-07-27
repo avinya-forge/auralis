@@ -11,7 +11,7 @@ def prune_expired_tokens(db_path: str):
     Prune expired JWT tokens and invalid session routes from the database.
     Cron-safe.
     """
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%f")
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
 
     try:
         with get_db_connection(db_path) as conn:

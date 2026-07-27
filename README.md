@@ -1,4 +1,4 @@
-# Auralis - Advanced Music File Management (v2.1.1)
+# Auralis - Advanced Music File Management (v2.1.2)
 
 > **"The Autonomous, High-Fidelity Music Neural Network."**
 > Auralis organizes, enhances, and secures your music library with neural intelligence and spatial awareness.
@@ -68,7 +68,7 @@ graph TD
 
 ## Legacy Documentation (0-Loss Audit)
 
-# Auralis - Advanced Music File Management (v2.1.1)
+# Auralis - Advanced Music File Management (v2.1.2)
 
 ![CI](https://github.com/patternseekers/auralis/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)

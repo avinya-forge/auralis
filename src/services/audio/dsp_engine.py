@@ -22,8 +22,15 @@ class DSPEngine:
 
     def __init__(self, sr: int = 22050, sample_rate: int = 22050):
         # Support both kwargs
-        self.sr = sr
-        self.sample_rate = sample_rate
+        if sr != 22050 and sample_rate == 22050:
+            self.sr = sr
+            self.sample_rate = sr
+        elif sample_rate != 22050 and sr == 22050:
+            self.sr = sample_rate
+            self.sample_rate = sample_rate
+        else:
+            self.sr = sr
+            self.sample_rate = sample_rate
 
     def extract_chroma(self, y: np.ndarray) -> Optional[np.ndarray]:
         """
