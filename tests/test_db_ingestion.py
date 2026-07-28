@@ -61,6 +61,61 @@ class TestDBIngestion(unittest.TestCase):
         result = extractor.extract_and_stage("non_existent.mp3", "file123")
         self.assertEqual(result["error"], "File not found")
 
+    def test_assembly_missing_chunk(self):
+        file_id = "missing_chunk_file"
+        self.handler.write_chunk(file_id, 0, b"data")
+        final_path = self.handler.assemble_file(file_id, 2, "hash")
+        self.assertIsNone(final_path)
+
+    def test_assembly_exception(self):
+        file_id = "exception_file"
+        self.handler.write_chunk(file_id, 0, b"data")
+
+        from unittest.mock import patch
+
+        with patch("builtins.open", side_effect=Exception("Mocked open failure")):
+            final_path = self.handler.assemble_file(file_id, 1, "hash")
+
+        self.assertIsNone(final_path)
+
+    def test_assembly_exception_with_existing_file(self):
+        file_id = "exception_file2"
+        self.handler.write_chunk(file_id, 0, b"data")
+
+        final_path_str = os.path.join(self.handler.upload_dir, f"{file_id}.audio")
+        with open(final_path_str, "w") as f:
+            f.write("dummy")
+
+        from unittest.mock import patch
+
+        original_open = open
+
+        def mock_open(path, *args, **kwargs):
+            if path.endswith(".part0"):
+                raise Exception("Mocked part open failure")
+            return original_open(path, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=mock_open):
+            final_path = self.handler.assemble_file(file_id, 1, "hash")
+
+        self.assertIsNone(final_path)
+        self.assertFalse(os.path.exists(final_path_str))
+
+    def test_metadata_extraction_exception(self):
+        mock_service = MagicMock()
+        mock_service.extract_metadata.side_effect = Exception("Extraction error")
+        extractor = StagingMetadataExtractor(mock_service)
+
+        dummy_file = os.path.join(self.test_dir, "test_err.mp3")
+        with open(dummy_file, "w") as f:
+            f.write("dummy")
+
+        result = extractor.extract_and_stage(dummy_file, "file123")
+
+        self.assertEqual(result["file_id"], "file123")
+        self.assertEqual(result["error"], "Extraction error")
+        self.assertEqual(result["status"], "extraction_failed")
+
 
 if __name__ == "__main__":
     unittest.main()
