@@ -9,12 +9,13 @@
 - **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
-- **[x] TASK:** fix-001-bare-exceptions | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
+- **[x] TASK:** fix-001-bare-exceptions | [DEBT] | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
 
 ## 🕵️ Bug Hunter Tasks
-- **[x] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
+- **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
+- **[x] TASK:** audio-006-audio-utils-coverage | **Spec:** Add comprehensive unit tests for src/utils/audio_utils.py to improve coverage | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 140
 - **[x] TASK:** data-005-datetime-formatting | **Spec:** Fix Python datetime SQLite formatting to include seconds
 - **[x] TASK:** audio-005-dsp-engine | **Spec:** Update DSPEngine.__init__ to mutually resolve sr and sample_rate
 - **[x] TASK:** test-002-ai-batch-worker | **Spec:** Implement direct worker loop invocation test in tests/test_ai_batch_processor.py
