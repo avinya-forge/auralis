@@ -1,4 +1,4 @@
-# Auralis Backlog (v2.1.1)
+# Auralis Backlog (v2.1.2)
 
 ## 🎯 Current Sprint: Phase 7 Hybrid Intelligence
 **North Star:** The Autonomous, High-Fidelity Music Neural Network.
@@ -15,6 +15,11 @@
 - **[x] TASK:** hunt-001-scan-modules | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
+- **[x] TASK:** data-005-datetime-formatting | **Spec:** Fix Python datetime SQLite formatting to include seconds
+- **[x] TASK:** audio-005-dsp-engine | **Spec:** Update DSPEngine.__init__ to mutually resolve sr and sample_rate
+- **[x] TASK:** test-002-ai-batch-worker | **Spec:** Implement direct worker loop invocation test in tests/test_ai_batch_processor.py
+- **[x] TASK:** test-003-coveragerc-omit | **Spec:** Update .coveragerc to exclude missing plugin test files
+- **[x] TASK:** test-004-aggregators-coverage | **Spec:** Remove spotipy mock and write exception simulation tests for aggregators.py
 - **[ ] AUDIT:** Pattern analysis across all neural modules.
 - **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
 - **[ ] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.

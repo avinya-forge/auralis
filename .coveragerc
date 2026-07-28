@@ -5,5 +5,6 @@ omit =
     create_env.py
     setup_audio_similarity.py
     setup_language_detection.py
+    src/modules/plg/test_*.py
     */site-packages/*
     */dist-packages/*

@@ -105,6 +105,54 @@ class TestDBAggregators(unittest.TestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0]["results"][0]["title"], "T1")
 
+    @patch("musicbrainzngs.search_recordings")
+    def test_musicbrainz_search_exception(self, mock_search):
+        mock_search.side_effect = Exception("MB error")
+        agg = MusicBrainzAggregator()
+        results = agg.search_recording("A", "T")
+        self.assertEqual(results, [])
+
+    @patch("musicbrainzngs.get_recording_by_id")
+    def test_musicbrainz_details_exception(self, mock_get):
+        mock_get.side_effect = Exception("MB get error")
+        agg = MusicBrainzAggregator()
+        details = agg.get_details("mbid123")
+        self.assertEqual(details, {})
+
+    @patch("spotipy.Spotify.search")
+    @patch("spotipy.oauth2.SpotifyClientCredentials")
+    def test_spotify_search_exception(self, mock_creds, mock_search):
+        mock_search.side_effect = Exception("Spotify error")
+
+        with patch("src.services.metadata.aggregators.SPOTIPY_AVAILABLE", True):
+            with patch(
+                "src.services.metadata.aggregators.SpotifyClientCredentials_class", mock_creds
+            ):
+                agg = SpotifyAggregator(client_id="id", client_secret="secret")
+
+        agg.client.search = mock_search
+        results = agg.search_track("A", "T")
+        self.assertEqual(results, [])
+
+    def test_spotipy_import_error(self):
+        import importlib
+        import sys
+
+        import src.services.metadata.aggregators as aggs
+
+        orig_spotipy = sys.modules.get("spotipy")
+        sys.modules["spotipy"] = None
+
+        try:
+            importlib.reload(aggs)
+            self.assertFalse(aggs.SPOTIPY_AVAILABLE)
+        finally:
+            if orig_spotipy:
+                sys.modules["spotipy"] = orig_spotipy
+            else:
+                del sys.modules["spotipy"]
+            importlib.reload(aggs)
+
 
 if __name__ == "__main__":
     unittest.main()

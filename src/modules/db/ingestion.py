@@ -88,7 +88,7 @@ class StagingMetadataExtractor:
                 "path": file_path,
                 "raw_tags": raw_metadata,
                 "status": "pending_validation",
-                "extracted_at": strftime("%Y-%m-%d %H:%M:%f"),
+                "extracted_at": strftime("%Y-%m-%d %H:%M:%S.%f"),
             }
             return staged_record
         except Exception as e:
