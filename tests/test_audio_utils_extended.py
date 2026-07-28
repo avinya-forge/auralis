@@ -1,25 +1,23 @@
-from unittest.mock import MagicMock, patch, PropertyMock
-from src.utils.audio_utils import (
-    AudioMetadataHandler,
-    get_audio_metadata,
-    set_audio_metadata,
-    get_album_art,
-    set_album_art,
-    get_audio_fingerprint,
-    is_audio_file,
-    MP3_TAG_MAP,
-    FLAC_TAG_MAP,
-    MP3_TAG_CLASSES
-)
-from mutagen.mp3 import MP3
+from unittest.mock import MagicMock, PropertyMock, patch
+
 from mutagen.flac import FLAC
-from mutagen.id3 import APIC, TALB, TCON, TDRC, TIT2, TPE1, TRCK
-import pytest
-import os
-import requests
+from mutagen.mp3 import MP3
+
+from src.utils.audio_utils import (
+    FLAC_TAG_MAP,
+    MP3_TAG_MAP,
+    AudioMetadataHandler,
+    get_album_art,
+    get_audio_fingerprint,
+    get_audio_metadata,
+    is_audio_file,
+    set_album_art,
+    set_audio_metadata,
+)
+
 
 class TestAudioMetadataHandler:
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_init_and_load_audio_success(self, mock_mutagen_file):
         mock_mutagen_file.return_value = MagicMock()
         handler = AudioMetadataHandler("test.mp3")
@@ -27,19 +25,19 @@ class TestAudioMetadataHandler:
         assert handler.ext == ".mp3"
         mock_mutagen_file.assert_called_once_with("test.mp3")
 
-    @patch('src.utils.audio_utils.mutagen.File', side_effect=Exception("Load error"))
+    @patch("src.utils.audio_utils.mutagen.File", side_effect=Exception("Load error"))
     def test_init_and_load_audio_failure(self, mock_mutagen_file):
         handler = AudioMetadataHandler("test.mp3")
         assert not handler.is_valid()
         assert handler.audio is None
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_none(self, mock_mutagen_file):
         mock_mutagen_file.side_effect = Exception("Load error")
         handler = AudioMetadataHandler("test.mp3")
         assert handler.get_metadata() == {}
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_mp3(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_audio.__class__ = FLAC
@@ -57,7 +55,7 @@ class TestAudioMetadataHandler:
         assert metadata["bitrate"] == 128000
         assert metadata["length"] == 120
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_flac(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_audio.__contains__.side_effect = lambda x: x in FLAC_TAG_MAP.values()
@@ -73,10 +71,17 @@ class TestAudioMetadataHandler:
         assert metadata["bitrate"] == 16 * 44100
         assert metadata["length"] == 180
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_metadata_generic(self, mock_mutagen_file):
-        mock_audio = MagicMock() # generic
-        mock_audio.__contains__.side_effect = lambda x: x in ["artist", "title", "album", "date", "genre", "tracknumber"]
+        mock_audio = MagicMock()  # generic
+        mock_audio.__contains__.side_effect = lambda x: x in [
+            "artist",
+            "title",
+            "album",
+            "date",
+            "genre",
+            "tracknumber",
+        ]
         mock_audio.__getitem__.side_effect = lambda x: [f"value_{x}"]
         mock_audio.info = MagicMock(length=200)
         del mock_audio.info.bitrate
@@ -92,13 +97,13 @@ class TestAudioMetadataHandler:
         assert metadata["length"] == 200
         assert "bitrate" not in metadata
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_none(self, mock_mutagen_file):
         mock_mutagen_file.side_effect = Exception("Load error")
         handler = AudioMetadataHandler("test.mp3")
-        assert handler.set_metadata({"artist": "test"}) == False
+        assert handler.set_metadata({"artist": "test"}) is False
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_mp3(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -110,7 +115,7 @@ class TestAudioMetadataHandler:
         assert mock_audio.__setitem__.call_count == 2
         mock_audio.save.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_flac(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -122,7 +127,7 @@ class TestAudioMetadataHandler:
         assert mock_audio.__setitem__.call_count == 2
         mock_audio.save.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_generic(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -135,7 +140,7 @@ class TestAudioMetadataHandler:
         mock_audio.__setitem__.assert_called_once_with("artist", "Test Artist")
         mock_audio.save.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_metadata_exception(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_audio.save.side_effect = Exception("Save error")
@@ -145,14 +150,14 @@ class TestAudioMetadataHandler:
         success = handler.set_metadata({"artist": "Test Artist"})
         assert not success
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_album_art_none(self, mock_mutagen_file):
         mock_mutagen_file.side_effect = Exception("Load error")
         handler = AudioMetadataHandler("test.mp3")
-        assert handler.set_album_art(image_data=b"data") == False
+        assert handler.set_album_art(image_data=b"data") is False
 
-    @patch('src.utils.audio_utils.mutagen.File')
-    @patch('src.utils.audio_utils.requests.get')
+    @patch("src.utils.audio_utils.mutagen.File")
+    @patch("src.utils.audio_utils.requests.get")
     def test_set_album_art_download_success(self, mock_get, mock_mutagen_file):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -170,17 +175,17 @@ class TestAudioMetadataHandler:
         mock_audio.tags.add.assert_called_once()
         mock_audio.save.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
-    @patch('src.utils.audio_utils.requests.get')
+    @patch("src.utils.audio_utils.mutagen.File")
+    @patch("src.utils.audio_utils.requests.get")
     def test_set_album_art_download_fail(self, mock_get, mock_mutagen_file):
         mock_response = MagicMock()
         mock_response.status_code = 404
         mock_get.return_value = mock_response
 
         handler = AudioMetadataHandler("test.mp3")
-        assert handler.set_album_art(image_url="http://example.com/image.jpg") == False
+        assert handler.set_album_art(image_url="http://example.com/image.jpg") is False
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_album_art_mp3_no_tags(self, mock_mutagen_file):
         mock_audio = MagicMock()
         del mock_audio.tags
@@ -192,7 +197,7 @@ class TestAudioMetadataHandler:
         assert success
         mock_audio.add_tags.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_album_art_flac(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -204,7 +209,7 @@ class TestAudioMetadataHandler:
         mock_audio.add_picture.assert_called_once()
         mock_audio.save.assert_called_once()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_set_album_art_invalid_format(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -213,13 +218,13 @@ class TestAudioMetadataHandler:
         success = handler.set_album_art(image_data=b"data")
         assert not success
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_none(self, mock_mutagen_file):
         mock_mutagen_file.side_effect = Exception("Load error")
         handler = AudioMetadataHandler("test.mp3")
         assert handler.get_album_art() is None
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_mp3_success(self, mock_mutagen_file):
         mock_tag = MagicMock()
         mock_tag.FrameID = "APIC"
@@ -232,7 +237,7 @@ class TestAudioMetadataHandler:
         handler = AudioMetadataHandler("test.mp3")
         assert handler.get_album_art() == b"image_data"
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_flac_success(self, mock_mutagen_file):
         mock_pic = MagicMock()
         mock_pic.data = b"image_data"
@@ -244,7 +249,7 @@ class TestAudioMetadataHandler:
         handler = AudioMetadataHandler("test.flac")
         assert handler.get_album_art() == b"image_data"
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_invalid_format(self, mock_mutagen_file):
         mock_audio = MagicMock()
         mock_mutagen_file.return_value = mock_audio
@@ -252,7 +257,7 @@ class TestAudioMetadataHandler:
         handler = AudioMetadataHandler("test.ogg")
         assert handler.get_album_art() is None
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_get_album_art_exception(self, mock_mutagen_file):
         mock_audio = MagicMock()
         type(mock_audio).tags = PropertyMock(side_effect=Exception("Access error"))
@@ -261,8 +266,9 @@ class TestAudioMetadataHandler:
         handler = AudioMetadataHandler("test.mp3")
         assert handler.get_album_art() is None
 
+
 class TestHelperFunctions:
-    @patch('src.utils.audio_utils.AudioMetadataHandler')
+    @patch("src.utils.audio_utils.AudioMetadataHandler")
     def test_get_audio_metadata(self, mock_handler_class):
         mock_handler = MagicMock()
         mock_handler.get_metadata.return_value = {"title": "Test"}
@@ -271,25 +277,25 @@ class TestHelperFunctions:
         assert get_audio_metadata("test.mp3") == {"title": "Test"}
         mock_handler_class.assert_called_once_with("test.mp3")
 
-    @patch('src.utils.audio_utils.AudioMetadataHandler')
+    @patch("src.utils.audio_utils.AudioMetadataHandler")
     def test_set_audio_metadata(self, mock_handler_class):
         mock_handler = MagicMock()
         mock_handler.set_metadata.return_value = True
         mock_handler_class.return_value = mock_handler
 
-        assert set_audio_metadata("test.mp3", {"title": "Test"}) == True
+        assert set_audio_metadata("test.mp3", {"title": "Test"}) is True
         mock_handler_class.assert_called_once_with("test.mp3")
 
-    @patch('src.utils.audio_utils.AudioMetadataHandler')
+    @patch("src.utils.audio_utils.AudioMetadataHandler")
     def test_set_album_art(self, mock_handler_class):
         mock_handler = MagicMock()
         mock_handler.set_album_art.return_value = True
         mock_handler_class.return_value = mock_handler
 
-        assert set_album_art("test.mp3", image_url="url", image_data=b"data") == True
+        assert set_album_art("test.mp3", image_url="url", image_data=b"data") is True
         mock_handler_class.assert_called_once_with("test.mp3")
 
-    @patch('src.utils.audio_utils.AudioMetadataHandler')
+    @patch("src.utils.audio_utils.AudioMetadataHandler")
     def test_get_album_art(self, mock_handler_class):
         mock_handler = MagicMock()
         mock_handler.get_album_art.return_value = b"data"
@@ -298,27 +304,27 @@ class TestHelperFunctions:
         assert get_album_art("test.mp3") == b"data"
         mock_handler_class.assert_called_once_with("test.mp3")
 
-    @patch('src.utils.audio_utils.acoustid.fingerprint_file')
+    @patch("src.utils.audio_utils.acoustid.fingerprint_file")
     def test_get_audio_fingerprint_success(self, mock_fingerprint):
         mock_fingerprint.return_value = (120.0, "fingerprint_string")
         assert get_audio_fingerprint("test.mp3") == (120.0, "fingerprint_string")
 
-    @patch('src.utils.audio_utils.acoustid.fingerprint_file')
+    @patch("src.utils.audio_utils.acoustid.fingerprint_file")
     def test_get_audio_fingerprint_failure(self, mock_fingerprint):
         mock_fingerprint.side_effect = Exception("Fingerprint error")
         assert get_audio_fingerprint("test.mp3") == (None, None)
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_is_audio_file_valid(self, mock_mutagen_file):
         mock_mutagen_file.return_value = MagicMock()
-        assert is_audio_file("test.mp3") == True
+        assert is_audio_file("test.mp3") is True
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_is_audio_file_invalid_ext(self, mock_mutagen_file):
-        assert is_audio_file("test.txt") == False
+        assert is_audio_file("test.txt") is False
         mock_mutagen_file.assert_not_called()
 
-    @patch('src.utils.audio_utils.mutagen.File')
+    @patch("src.utils.audio_utils.mutagen.File")
     def test_is_audio_file_exception(self, mock_mutagen_file):
         mock_mutagen_file.side_effect = Exception("Load error")
-        assert is_audio_file("test.mp3") == False
+        assert is_audio_file("test.mp3") is False
