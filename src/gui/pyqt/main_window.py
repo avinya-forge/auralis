@@ -107,10 +107,6 @@ class MainWindow(QMainWindow):
         # Stop system monitoring
         self.system_monitor.stop_monitoring()
 
-        # Prune play history
-        db_path = str(get_config("DB_PATH", "auralis.db"))
-        prune_play_history(db_path, days_old=365)
-
         # Stop UI timer
         if self.ui_timer:
             self.ui_timer.stop()
