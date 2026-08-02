@@ -1,114 +1,168 @@
-import sys
+import os
+import pytest
+import numpy as np
 from unittest.mock import MagicMock, patch
 
-import numpy as np
-import pytest
+from src.services.ai.instrument_classifier import (
+    InstrumentResNet,
+    InstrumentInferenceWrapper,
+    InstrumentClassifier,
+)
 
-from src.services.ai.instrument_classifier import InstrumentClassifier, InstrumentInferenceWrapper
+def test_resnet_init_and_forward():
+    # Test without torch
+    resnet = InstrumentResNet()
 
+    # Forward should raise RuntimeError if nn is None (or torch is None, but the mock will handle it)
+    with pytest.raises(RuntimeError):
+        resnet.forward(MagicMock())
 
-def test_fine_tune_success():
-    """Test fine tuning an instrument when torch is available."""
-    classifier = InstrumentClassifier()
-    # Assuming torch is available in test env, this should return True for Sitar
-    # If torch is not available, it might return False. We check sys.modules for torch.
-    if "torch" in sys.modules and sys.modules["torch"] is not None:
-        assert classifier.fine_tune("Sitar", num_epochs=5, data_path="/data") is True
-    else:
-        assert classifier.fine_tune("Sitar", num_epochs=5, data_path="/data") is False
+    # Test with torch mocked
+    mock_torch = MagicMock()
+    mock_nn = MagicMock()
 
+    class MockModule:
+        def __init__(self, *args, **kwargs):
+            pass
+        def __call__(self, *args, **kwargs):
+            return args[0]
 
-def test_fine_tune_invalid_instrument():
-    """Test fine tuning an unsupported instrument."""
-    classifier = InstrumentClassifier()
-    if "torch" in sys.modules and sys.modules["torch"] is not None:
-        assert classifier.fine_tune("Kazoo") is False
+    mock_nn.Module = MockModule
+    mock_nn.Conv2d = lambda *args, **kwargs: MagicMock()
+    mock_nn.BatchNorm2d = lambda *args, **kwargs: MagicMock()
+    mock_nn.ReLU = lambda *args, **kwargs: MagicMock()
+    mock_nn.MaxPool2d = lambda *args, **kwargs: MagicMock()
+    mock_nn.AdaptiveAvgPool2d = lambda *args, **kwargs: MagicMock()
+    mock_nn.Linear = lambda *args, **kwargs: MagicMock()
+    mock_nn.Sequential = lambda *args, **kwargs: MagicMock()
 
+    with patch("src.services.ai.instrument_classifier.nn", mock_nn), \
+         patch("src.services.ai.instrument_classifier.torch", mock_torch):
+        resnet_with_torch = InstrumentResNet()
+        assert resnet_with_torch.conv1 is not None
 
-@patch("src.services.ai.instrument_classifier.torch", None)
-def test_fine_tune_no_torch():
-    """Test fine tuning when torch is mocked as None."""
-    classifier = InstrumentClassifier()
-    assert classifier.fine_tune("Sitar") is False
+        # Test forward pass
+        dummy_input = MagicMock()
+        mock_torch.flatten.return_value = dummy_input
+        output = resnet_with_torch.forward(dummy_input)
+        assert output is not None
 
-
-def test_predict_mock():
-    """Test prediction when mock is forced (e.g. torchaudio missing)."""
-    with patch("src.services.ai.instrument_classifier.T", None):
-        classifier = InstrumentClassifier()
-        predictions = classifier.predict(np.zeros(10))
-        assert len(predictions) > 0
-        assert predictions[0]["instrument"] == "Guitar"
-
-
-@patch("src.services.ai.instrument_classifier.InstrumentResNet")
-def test_predict_torch(mock_resnet):
-    """Test prediction with mocked torch behavior."""
-    if "torch" not in sys.modules or sys.modules["torch"] is None:
-        pytest.skip("torch not available")
-
-    import torch
-
-    mock_model_instance = MagicMock()
-    mock_model_instance.return_value = torch.tensor(
-        [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
-    )
-    mock_resnet.return_value = mock_model_instance
-
-    classifier = InstrumentClassifier()
-    classifier.device = torch.device("cpu")
-    classifier.model = mock_model_instance
-
-    # Mock torchaudio transform
-    with patch("src.services.ai.instrument_classifier.T") as mock_T:
-        mock_transform = MagicMock()
-        mock_transform.return_value = torch.zeros((1, 1, 128, 100))
-        mock_T.MelSpectrogram.return_value = mock_transform
-
-        # Reinject mock_T if it's currently None
-        classifier.mel_transform = mock_transform
-
-        predictions = classifier.predict(np.zeros(22050))
-        assert len(predictions) == 10
-        # The probability calculation might vary based on softmax,
-        # but Guitar should be the top since its logit is 1.0 vs 0.0 for others.
-        assert predictions[0]["instrument"] == "Guitar"
-
-
-@patch("src.services.ai.instrument_classifier.NeuralInferenceEngine")
-def test_inference_wrapper_classify(mock_engine_cls):
-    """Test InstrumentInferenceWrapper classify method."""
-    mock_engine = MagicMock()
-    mock_engine_cls.return_value = mock_engine
-
-    # Setup mock results
-    mock_engine.run_classification.return_value = [
-        {"label": "Sitar", "score": 0.95},
-        {"label": "Tabla", "score": 0.05},
-    ]
-
+def test_inference_wrapper_classify():
     wrapper = InstrumentInferenceWrapper()
 
-    # Patch os.path.exists to return True
+    # Test file not found
+    assert wrapper.classify("/nonexistent/file.wav") == []
+
+    # Test classify with mock engine
     with patch("os.path.exists", return_value=True):
-        results = wrapper.classify("/fake/path.wav")
-        assert len(results) == 2
-        assert results[0]["label"] == "Sitar"
-        assert results[0]["score"] == 0.95
+        wrapper.engine.run_classification = MagicMock(return_value=[{"label": "guitar", "score": 0.9}])
+        result = wrapper.classify("dummy.wav")
+        assert result == [{"label": "guitar", "score": 0.9}]
 
+        # Test fallback when engine returns empty
+        wrapper.engine.run_classification = MagicMock(return_value=[])
+        result_empty = wrapper.classify("dummy.wav")
+        assert result_empty == [{"label": "guitar", "score": 0.8}]
 
-@patch("src.services.ai.instrument_classifier.NeuralInferenceEngine")
-def test_inference_wrapper_classify_fallback(mock_engine_cls):
-    """Test InstrumentInferenceWrapper fallback."""
-    mock_engine = MagicMock()
-    mock_engine_cls.return_value = mock_engine
+        # Test mapping labels
+        wrapper.engine.run_classification = MagicMock(return_value=[{"label": "unknown_inst", "score": 0.9}])
+        result_unmapped = wrapper.classify("dummy.wav")
+        assert result_unmapped == [{"label": "unknown_inst", "score": 0.9}]
 
-    # Return empty results to trigger fallback
-    mock_engine.run_classification.return_value = []
+def test_classifier_init_and_load():
+    # Test without torch
+    classifier = InstrumentClassifier()
+    assert classifier.mel_transform is None
 
-    wrapper = InstrumentInferenceWrapper()
+    # Test load_model without torch (should not raise)
+    classifier.load_model("dummy.pth")
 
-    with patch("os.path.exists", return_value=True):
-        results = wrapper.classify("/fake/path.wav")
-        assert len(results) == 1
-        assert results[0]["label"] == "guitar"
+    # Test with torch
+    mock_torch = MagicMock()
+    mock_torch.device.return_value = "cpu"
+    mock_torch.cuda.is_available.return_value = False
+
+    with patch("src.services.ai.instrument_classifier.torch", mock_torch), \
+         patch("src.services.ai.instrument_classifier.nn", MagicMock()):
+        # Mock InstrumentResNet inside the module
+        with patch("src.services.ai.instrument_classifier.InstrumentResNet") as mock_resnet_class:
+            mock_resnet_inst = MagicMock()
+            mock_resnet_class.return_value.to.return_value = mock_resnet_inst
+
+            classifier_with_torch = InstrumentClassifier(model_path="dummy.pth")
+            mock_torch.load.assert_called_with("dummy.pth", map_location=mock_torch.device())
+            mock_resnet_inst.load_state_dict.assert_called()
+
+            # Test exception path for load_model
+            mock_torch.load.side_effect = Exception("Load exception")
+            classifier_with_torch.load_model("dummy2.pth")
+
+def test_classifier_fine_tune():
+    classifier = InstrumentClassifier()
+
+    # Test without torch
+    assert classifier.fine_tune("Guitar") is False
+
+    mock_torch = MagicMock()
+    with patch("src.services.ai.instrument_classifier.torch", mock_torch), \
+         patch("src.services.ai.instrument_classifier.nn", MagicMock()):
+
+        with patch("src.services.ai.instrument_classifier.InstrumentResNet") as mock_resnet:
+            classifier_with_torch = InstrumentClassifier()
+
+            # Invalid instrument
+            assert classifier_with_torch.fine_tune("InvalidInst") is False
+
+            # Valid instrument
+            assert classifier_with_torch.fine_tune("Guitar") is True
+
+def test_classifier_predict():
+    classifier = InstrumentClassifier()
+    audio = np.zeros(1024)
+
+    # Test without torchaudio/torch (should return mock)
+    results = classifier.predict(audio)
+    assert len(results) == 3
+    assert results[0]["instrument"] == "Guitar"
+
+    # Test with torch and torchaudio mocked
+    mock_torch = MagicMock()
+    mock_torch.device.return_value = "cpu"
+    mock_T = MagicMock()
+
+    with patch("src.services.ai.instrument_classifier.torch", mock_torch), \
+         patch("src.services.ai.instrument_classifier.T", mock_T), \
+         patch("src.services.ai.instrument_classifier.nn", MagicMock()):
+
+        with patch("src.services.ai.instrument_classifier.InstrumentResNet") as mock_resnet_cls:
+            classifier_with_torch = InstrumentClassifier()
+            classifier_with_torch.mel_transform = mock_T
+
+            mock_tensor = MagicMock()
+            mock_tensor.dim.return_value = 1
+            mock_torch.from_numpy.return_value.float.return_value = mock_tensor
+
+            mock_logits = MagicMock()
+            classifier_with_torch.model.return_value = mock_logits
+
+            # Mock softmax returning probabilities
+            mock_probs = MagicMock()
+            mock_probs.squeeze.return_value.cpu.return_value.numpy.return_value = [0.1, 0.8, 0.1] + [0.0]*7
+            mock_torch.softmax.return_value = mock_probs
+
+            results_torch = classifier_with_torch.predict(audio)
+
+            assert len(results_torch) == 10
+            # Since probabilities are mocked, we can check that it sorted correctly
+            assert results_torch[0]["probability"] == 0.8
+            assert results_torch[0]["instrument"] == "Piano"  # second item in instrument list
+
+            # Test dim == 2 path
+            mock_tensor.dim.return_value = 2
+            classifier_with_torch.predict(audio)
+
+            # Test exception path
+            mock_torch.from_numpy.side_effect = Exception("Prediction error")
+            results_err = classifier_with_torch.predict(audio)
+            assert len(results_err) == 3
+            assert results_err[0]["instrument"] == "Guitar"

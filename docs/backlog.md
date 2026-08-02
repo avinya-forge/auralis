@@ -23,7 +23,12 @@
 - **[x] TASK:** test-004-aggregators-coverage | **Spec:** Remove spotipy mock and write exception simulation tests for aggregators.py
 - **[ ] AUDIT:** Pattern analysis across all neural modules.
 - **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
-- **[ ] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
+- **[x] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
+- **[x] TASK:** test-005-vocalist-analyzer-coverage | **Spec:** Add unit tests for src/services/ai/vocalist_analyzer.py to improve coverage
+- **[x] TASK:** test-006-dsp-engine-coverage | **Spec:** Add unit tests for src/services/audio/dsp_engine.py to improve coverage
+- **[x] TASK:** test-007-instrument-classifier-coverage | **Spec:** Add unit tests for src/services/ai/instrument_classifier.py to improve coverage
+- **[x] TASK:** test-008-file-utils-coverage | **Spec:** Add unit tests for src/utils/file_utils.py to improve coverage
+- **[x] TASK:** test-009-ssl-pipeline-coverage | **Spec:** Add unit tests for src/modules/neu/training/ssl_pipeline.py to improve coverage
 
 ## 🚀 Feature End-to-End Implementations
 > - **[BLOCKED] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
