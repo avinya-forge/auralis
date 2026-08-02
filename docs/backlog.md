@@ -15,6 +15,7 @@
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
+- **[x] TASK:** ui-001-prune-history-duplicate | **Spec:** Remove duplicate prune_play_history calls in PyQt closeEvent
 - **[x] TASK:** audio-006-audio-utils-coverage | **Spec:** Add comprehensive unit tests for src/utils/audio_utils.py to improve coverage | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 140
 - **[x] TASK:** data-005-datetime-formatting | **Spec:** Fix Python datetime SQLite formatting to include seconds
 - **[x] TASK:** audio-005-dsp-engine | **Spec:** Update DSPEngine.__init__ to mutually resolve sr and sample_rate
