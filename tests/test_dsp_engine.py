@@ -1,6 +1,6 @@
-import numpy as np
-import pytest
 from unittest.mock import MagicMock, patch
+
+import numpy as np
 
 from src.services.audio.dsp_engine import DSPEngine
 

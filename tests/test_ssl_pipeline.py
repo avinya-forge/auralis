@@ -1,14 +1,13 @@
-import os
-import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch
 
+import numpy as np
+
 from src.modules.neu.training.ssl_pipeline import (
-    AudioNormalizer,
     AudioDataset,
-    SSLTrainer,
+    AudioNormalizer,
     ContrastiveLoss,
-    SSLPipeline
+    SSLPipeline,
+    SSLTrainer,
 )
 
 
@@ -76,8 +75,9 @@ def test_contrastive_loss():
     mock_torch = MagicMock()
     mock_F = MagicMock()
 
-    with patch("src.modules.neu.training.ssl_pipeline.torch", mock_torch), \
-         patch("src.modules.neu.training.ssl_pipeline.F", mock_F):
+    with patch("src.modules.neu.training.ssl_pipeline.torch", mock_torch), patch(
+        "src.modules.neu.training.ssl_pipeline.F", mock_F
+    ):
 
         mock_F.normalize.side_effect = lambda x, dim: x
         mock_z1 = MagicMock()
@@ -118,8 +118,9 @@ def test_ssl_pipeline():
     mock_nn = MagicMock()
     mock_model2 = MagicMock()
 
-    with patch("src.modules.neu.training.ssl_pipeline.torch", mock_torch), \
-         patch("src.modules.neu.training.ssl_pipeline.nn", mock_nn):
+    with patch("src.modules.neu.training.ssl_pipeline.torch", mock_torch), patch(
+        "src.modules.neu.training.ssl_pipeline.nn", mock_nn
+    ):
 
         mock_torch.cuda.is_available.return_value = False
         mock_torch.device.return_value = "cpu"
@@ -151,8 +152,10 @@ def test_ssl_pipeline():
         mock_optim.step.assert_called()
 
         # Test train_epoch
-        dataloader = [mock_batch] * 12 # more than 10 to hit i % 10 == 0
-        def augment(b): return mock_aug
+        dataloader = [mock_batch] * 12  # more than 10 to hit i % 10 == 0
+
+        def augment(b):
+            return mock_aug
 
         avg_loss = pipe_torch.train_epoch(dataloader, augment)
         assert avg_loss == 2.5

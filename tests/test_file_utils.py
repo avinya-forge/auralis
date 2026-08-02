@@ -1,18 +1,16 @@
-import os
-import shutil
-import pytest
 from unittest.mock import patch
+
 from src.utils.file_utils import (
-    ensure_dir_exists,
-    move_file,
     calculate_file_hash,
-    get_file_size,
-    get_file_extension,
     clean_string,
-    sanitize_filename,
-    format_filename,
-    remove_empty_directories,
+    ensure_dir_exists,
     ensure_unique_filename,
+    format_filename,
+    get_file_extension,
+    get_file_size,
+    move_file,
+    remove_empty_directories,
+    sanitize_filename,
 )
 
 
@@ -58,9 +56,17 @@ def test_calculate_file_hash(tmp_path):
     # Expected sha1 is 2aae6c35c94fcfb415dbe95f408b9ce91ee846ed
     # Expected sha256 is b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
 
-    assert calculate_file_hash(str(test_file), algorithm="md5") == "5eb63bbbe01eeed093cb22bb8f5acdc3"
-    assert calculate_file_hash(str(test_file), algorithm="sha1") == "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"
-    assert calculate_file_hash(str(test_file), algorithm="sha256") == "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    assert (
+        calculate_file_hash(str(test_file), algorithm="md5") == "5eb63bbbe01eeed093cb22bb8f5acdc3"
+    )
+    assert (
+        calculate_file_hash(str(test_file), algorithm="sha1")
+        == "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed"
+    )
+    assert (
+        calculate_file_hash(str(test_file), algorithm="sha256")
+        == "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    )
 
     # Test unsupported algorithm
     assert calculate_file_hash(str(test_file), algorithm="md4") is None

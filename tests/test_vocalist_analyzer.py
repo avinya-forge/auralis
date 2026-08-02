@@ -1,4 +1,3 @@
-import os
 import tempfile
 from unittest.mock import MagicMock, patch
 
@@ -116,7 +115,9 @@ def test_load_model():
 
     with patch.dict("sys.modules", {"speechbrain": mock_speechbrain}):
         with patch("src.services.ai.vocalist_analyzer.speechbrain", mock_speechbrain):
-            with patch("src.services.ai.vocalist_analyzer.EncoderClassifier", mock_classifier, create=True):
+            with patch(
+                "src.services.ai.vocalist_analyzer.EncoderClassifier", mock_classifier, create=True
+            ):
                 analyzer = VocalistAnalyzer()
                 assert analyzer.classifier == "classifier_instance"
 
@@ -124,6 +125,7 @@ def test_load_model():
                 mock_classifier.from_hparams.side_effect = Exception("Load error")
                 analyzer_fail = VocalistAnalyzer()
                 assert analyzer_fail.classifier is None
+
 
 def test_analyze_vocal_characteristics(vocalist_analyzer):
     dummy_audio = np.zeros(16000, dtype=np.float32)
