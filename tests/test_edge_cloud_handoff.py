@@ -1,8 +1,6 @@
 import os
 from unittest.mock import MagicMock
 
-import pytest
-
 from src.modules.db.backup import backup_database
 from src.services.cloud.provider_interface import CloudProviderInterface
 
