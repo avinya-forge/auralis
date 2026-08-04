@@ -10,6 +10,8 @@
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
 - **[x] TASK:** fix-001-bare-exceptions | [DEBT] | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
+- **[ ] TASK:** debt-001-docstrings | **Spec:** Add missing docstrings to 85 functions across the codebase. | **Deps:** None | **LOC Estimate:** 85
+- **[ ] TASK:** feat-001-coversong | **Spec:** Implement CoverSongDetector logic in src/cli/cli_main.py. | **Deps:** None | **LOC Estimate:** 40
 
 ## 🕵️ Bug Hunter Tasks
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
@@ -22,9 +24,9 @@
 - **[x] TASK:** test-002-ai-batch-worker | **Spec:** Implement direct worker loop invocation test in tests/test_ai_batch_processor.py
 - **[x] TASK:** test-003-coveragerc-omit | **Spec:** Update .coveragerc to exclude missing plugin test files
 - **[x] TASK:** test-004-aggregators-coverage | **Spec:** Remove spotipy mock and write exception simulation tests for aggregators.py
-- **[ ] AUDIT:** Pattern analysis across all neural modules.
-- **[ ] VERIFY:** Integration testing for Edge-Cloud data handoff.
-- **[ ] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
+- **[x] AUDIT:** Pattern analysis across all neural modules.
+- **[x] VERIFY:** Integration testing for Edge-Cloud data handoff.
+- **[x] TASK:** maint-001-grooming | **Spec:** Review and categorize all new issues.
 
 ## 🚀 Feature End-to-End Implementations
 > - **[BLOCKED] TASK:** net-001-p2p-security | **Loc:** src/modules/net/p2p_security.py | **Spec:** Implement P2PNetworkSecurity with libp2p and Noise | **Deps:** libp2p | **Hygiene:** [TODO] | **LOC Estimate:** 150
