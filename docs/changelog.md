@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 ### Added
+- Completed neural modules pattern audit in `docs/audit_report.md`.
+- Added `tests/test_edge_cloud_handoff.py` to verify edge-cloud backup orchestration.
+- Groomed backlog and added tasks for missing docstrings, CoverSongDetector, and python-jose deprecation.
 - Added comprehensive test suite for `src/utils/audio_utils.py`, specifically targeting `AudioMetadataHandler` and helper functions.
 
 ### Fixed

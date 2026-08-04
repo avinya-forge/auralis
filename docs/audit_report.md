@@ -19,3 +19,12 @@
 ### 3. Recommendations
 - Implement LRU (Least Recently Used) cache purging at the UI layer.
 - Expand model validation thresholds in `DriftDetector` based on Raga classifications vs. basic instrument classification.
+
+### 4. Neural Modules Pattern Audit
+**Status:** AUDITED
+**Analysis:**
+- `AIBatchProcessor` effectively uses `multiprocessing.Queue` to run async AI tasks, avoiding UI freezes.
+- `EmbeddingDatabase` handles vector storage and knowledge graph linking via SQLite, confirmed by the presence of `upsert_embedding`, `link_knowledge_graph` and `search_similar` methods.
+- `OriginalVersionFinder` leverages `EmbeddingDatabase` and `musicbrainzngs` to determine original tracks via similarity and chronological release date resolution.
+- `ThresholdFilter` uses singleton `AIConfig` to consistently apply a dynamic `confidence_threshold` to incoming AI tag predictions.
+- **Recommendations:** Ensure consistent typing and add model-specific error fallback for `musicbrainzngs` lookups.
