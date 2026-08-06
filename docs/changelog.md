@@ -8,6 +8,7 @@
 - Added comprehensive test suite for `src/utils/audio_utils.py`, specifically targeting `AudioMetadataHandler` and helper functions.
 
 ### Fixed
+- Ignored deprecation warnings from python-jose and starlette in pyproject.toml.
 - Removed duplicate `prune_play_history` call in PyQt main window `closeEvent`.
 - Fixed bare `except Exception:` blocks across the codebase to adhere to flake8 standards by assigning the exception to a throwaway variable (`except Exception as e: _ = e`). Affected files:
   - `src/services/metadata_sanitizer.py`
