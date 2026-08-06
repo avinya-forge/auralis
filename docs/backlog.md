@@ -6,13 +6,13 @@
 ---
 
 ## 🐛 Identified Discrepancies (Hunters)
+- **[x] TASK:** fix-002-jose-deprecation | **Spec:** Fix python-jose datetime.datetime.utcnow() deprecation warning in API endpoints/tests. | **Deps:** None | **LOC Estimate:** 10
 - **[BLOCKED]**: `src/modules/net/p2p_security.py` is missing implementation.
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
 - **[x] TASK:** fix-001-bare-exceptions | [DEBT] | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
 - **[ ] TASK:** debt-001-docstrings | **Spec:** Add missing docstrings to 85 functions across the codebase. | **Deps:** None | **LOC Estimate:** 85
 - **[ ] TASK:** feat-001-coversong | **Spec:** Implement CoverSongDetector logic in src/cli/cli_main.py. | **Deps:** None | **LOC Estimate:** 40
-- **[ ] TASK:** fix-002-jose-deprecation | **Spec:** Fix python-jose datetime.datetime.utcnow() deprecation warning in API endpoints/tests. | **Deps:** None | **LOC Estimate:** 10
 
 ## 🕵️ Bug Hunter Tasks
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
