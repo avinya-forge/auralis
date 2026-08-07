@@ -18,6 +18,7 @@
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
+- **[ ] TASK:** ui-002-ux-overhaul | **Spec:** Perform a comprehensive UI/UX overhaul to ensure a zero-glitch, user-friendly interface across all frameworks (PyQt/wxPython). | **Deps:** None | **LOC Estimate:** 300
 - **[x] TASK:** ui-001-prune-history-duplicate | **Spec:** Remove duplicate prune_play_history calls in PyQt closeEvent
 - **[x] TASK:** audio-006-audio-utils-coverage | **Spec:** Add comprehensive unit tests for src/utils/audio_utils.py to improve coverage | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 140
 - **[x] TASK:** data-005-datetime-formatting | **Spec:** Fix Python datetime SQLite formatting to include seconds
@@ -40,6 +41,8 @@
 > - **[x] TASK:** api-003-rate-limiting | **Loc:** src/modules/api/main.py | **Spec:** Implement rate limiting for cloud endpoints | **Deps:** slowapi | **Hygiene:** [DONE] | **LOC Estimate:** 60
 
 ### Intelligence & AI
+- **[ ] TASK:** agent-003-headroom-skill | **Spec:** Add a "Headroom" skill to analyze and optimize existing codebase (reduce, reuse, optimize). | **Deps:** None | **LOC Estimate:** 100
+- **[ ] TASK:** agent-004-task-observer | **Spec:** Add a "Task Observer" skill to monitor agent progress and maintain metrics for the project dashboard. | **Deps:** None | **LOC Estimate:** 90
 - **[ ] TASK:** feat-002-spectrogram-detection | **Spec:** Implement real-time audio analysis and spectrogram generation for song detection similar to Merlin Bird ID. | **Deps:** librosa, torch | **LOC Estimate:** 150
 - **[ ] TASK:** feat-003-batch-song-comparison | **Spec:** Implement efficient batch processing to compare multiple songs simultaneously based on spectrogram features. | **Deps:** feat-002 | **LOC Estimate:** 120
 - **[ ] TASK:** feat-004-metadata-extraction | **Spec:** Enhance metadata extraction to gather all possible details and features from audio files, establishing a single source of truth. | **Deps:** None | **LOC Estimate:** 100
@@ -56,5 +59,6 @@
 > - **[x] TASK:** id-004-mfa-support | **Loc:** src/modules/id/auth.py | **Spec:** Support multi-factor authentication for user profiles | **Deps:** pyotp | **Hygiene:** [DONE] | **LOC Estimate:** 90
 
 ### System Maintenance
+- **[ ] TASK:** sys-004-continuous-audit | **Spec:** Implement scheduled, automated code auditing to proactively find bugs and add them to the backlog. | **Deps:** None | **LOC Estimate:** 80
 > - **[x] TASK:** sys-001-audit-pattern | **Loc:** docs/audit_report.md | **Spec:** Perform deep pattern analysis of neural drift and cache efficiency | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 50
 - **[x] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
