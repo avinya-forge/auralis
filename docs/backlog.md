@@ -19,6 +19,9 @@
 
 ## 🗂️ Backlog Maintenance
 - **[ ] TASK:** ui-002-ux-overhaul | **Spec:** Perform a comprehensive UI/UX overhaul to ensure a zero-glitch, user-friendly interface across all frameworks (PyQt/wxPython). | **Deps:** None | **LOC Estimate:** 300
+  - *Subtask 1:* Migrate hardcoded QSS styles to centralized `ThemeManager` variables.
+  - *Subtask 2:* Implement asynchronous loading indicators for all blocking I/O operations (e.g., scanning, metadata fetching).
+  - *Subtask 3:* Conduct cross-platform layout tests (Windows, Linux, macOS) to ensure consistent rendering.
 - **[x] TASK:** ui-001-prune-history-duplicate | **Spec:** Remove duplicate prune_play_history calls in PyQt closeEvent
 - **[x] TASK:** audio-006-audio-utils-coverage | **Spec:** Add comprehensive unit tests for src/utils/audio_utils.py to improve coverage | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 140
 - **[x] TASK:** data-005-datetime-formatting | **Spec:** Fix Python datetime SQLite formatting to include seconds
@@ -42,11 +45,28 @@
 
 ### Intelligence & AI
 - **[ ] TASK:** agent-003-headroom-skill | **Spec:** Add a "Headroom" skill to analyze and optimize existing codebase (reduce, reuse, optimize). | **Deps:** None | **LOC Estimate:** 100
+  - *Subtask 1:* Create AST parsing script to detect redundant functions and duplicate logic blocks.
+  - *Subtask 2:* Generate refactoring suggestions automatically via LLM orchestration.
+  - *Subtask 3:* Inject proposed optimizations into a new "Tech Debt" backlog queue.
 - **[ ] TASK:** agent-004-task-observer | **Spec:** Add a "Task Observer" skill to monitor agent progress and maintain metrics for the project dashboard. | **Deps:** None | **LOC Estimate:** 90
+  - *Subtask 1:* Implement state-machine monitoring hooks in the meta-router.
+  - *Subtask 2:* Automatically recalculate completion metrics and write to `docs/status.md`.
+  - *Subtask 3:* Trigger circuit-breakers upon detecting stuck tasks or infinite retry loops.
 - **[ ] TASK:** feat-002-spectrogram-detection | **Spec:** Implement real-time audio analysis and spectrogram generation for song detection similar to Merlin Bird ID. | **Deps:** librosa, torch | **LOC Estimate:** 150
+  - *Subtask 1:* Integrate `librosa` mel-spectrogram streaming for real-time microphone input.
+  - *Subtask 2:* Implement sliding window frame extraction for the neural classifier.
+  - *Subtask 3:* Map visual spectrogram anomalies to known acoustic fingerprint databases.
 - **[ ] TASK:** feat-003-batch-song-comparison | **Spec:** Implement efficient batch processing to compare multiple songs simultaneously based on spectrogram features. | **Deps:** feat-002 | **LOC Estimate:** 120
+  - *Subtask 1:* Implement `AIBatchProcessor` optimizations using `torch.utils.data.DataLoader` for spectrograms.
+  - *Subtask 2:* Vectorize similarity comparisons (cosine similarity) to support N x N matrix evaluations.
+  - *Subtask 3:* Develop a caching mechanism to avoid re-generating spectrograms for unchanged files.
 - **[ ] TASK:** feat-004-metadata-extraction | **Spec:** Enhance metadata extraction to gather all possible details and features from audio files, establishing a single source of truth. | **Deps:** None | **LOC Estimate:** 100
+  - *Subtask 1:* Extend `AudioMetadataHandler` to parse highly specific ID3 tags (e.g., precise BPM, Key, ReplayGain).
+  - *Subtask 2:* Cross-reference extracted tags with MusicBrainz knowledge graph to auto-fill missing attributes.
+  - *Subtask 3:* Enforce strict data schema validation before persisting to SQLite to ensure absolute accuracy.
 - **[ ] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
+  - *Subtask 1:* Finalize the "Merlin for Music" phase roadmap in `docs/architecture.md`.
+  - *Subtask 2:* Map user journey flows mapping spectrogram generation to UI feedback.
 > - **[x] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [DONE] | **LOC Estimate:** 90
 > - **[x] TASK:** neu-004-specialized-instruments | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Train/Fine-tune models for Sitar, Sarod, and Tabla | **Deps:** torch | **Hygiene:** [DONE] | **LOC Estimate:** 150
 > - **[x] TASK:** neu-005-drift-correction | **Loc:** src/utils/ai/drift_detector.py | **Spec:** Implement automated drift detection and model retraining trigger | **Deps:** numpy | **Hygiene:** [DONE] | **LOC Estimate:** 110
@@ -60,5 +80,8 @@
 
 ### System Maintenance
 - **[ ] TASK:** sys-004-continuous-audit | **Spec:** Implement scheduled, automated code auditing to proactively find bugs and add them to the backlog. | **Deps:** None | **LOC Estimate:** 80
+  - *Subtask 1:* Set up periodic cron job/GH Action to execute static analysis tools (flake8, bandit, mypy).
+  - *Subtask 2:* Parse analysis outputs and format them into `docs/backlog.md` "Identified Discrepancies".
+  - *Subtask 3:* Send slack/discord notifications upon detecting critical security or logic failures.
 > - **[x] TASK:** sys-001-audit-pattern | **Loc:** docs/audit_report.md | **Spec:** Perform deep pattern analysis of neural drift and cache efficiency | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 50
 - **[x] CLEANUP:** Refactor `src/gui/pyqt/main_window.py` to reduce complexity.
