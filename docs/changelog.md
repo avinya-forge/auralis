@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Implemented `CoverSongDetector` stub in `src/services/ai/cover_song_detector.py` and integrated it with `AIService` and `src/cli/cli_main.py` (resolving `feat-001-coversong`).
 - Completed neural modules pattern audit in `docs/audit_report.md`.
 - Added `tests/test_edge_cloud_handoff.py` to verify edge-cloud backup orchestration.
 - Groomed backlog and added tasks for missing docstrings, CoverSongDetector, and python-jose deprecation.

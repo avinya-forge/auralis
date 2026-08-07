@@ -141,14 +141,24 @@ class TestCLIAI(unittest.TestCase):
     def test_run_ai_covers_success(self, mock_isdir):
         args = argparse.Namespace(directory="/tmp")
 
-        from src.cli.cli_main import run_ai_covers
+        mock_service = MagicMock()
+        mock_service.detect_covers.return_value = [
+            {"original": "Song A", "cover": "Song B", "confidence": 0.95}
+        ]
 
-        with patch("sys.stdout", new=io.StringIO()) as fake_out:
-            run_ai_covers(args)
-            output = fake_out.getvalue()
+        with patch.dict(
+            sys.modules,
+            {"src.services.ai_service": MagicMock(AIService=MagicMock(return_value=mock_service))},
+        ):
+            from src.cli.cli_main import run_ai_covers
+
+            with patch("sys.stdout", new=io.StringIO()) as fake_out:
+                run_ai_covers(args)
+                output = fake_out.getvalue()
 
         self.assertIn("Analyzing covers in directory: /tmp", output)
-        self.assertIn("CoverSongDetector is currently a [TODO]", output)
+        self.assertIn("Found 1 potential covers.", output)
+        self.assertIn("Song A -> Song B (Confidence: 95.00%)", output)
 
 
 if __name__ == "__main__":

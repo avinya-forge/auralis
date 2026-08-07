@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 from src.services.ai.config import ai_config
 from src.services.ai.inference_engine import NeuralInferenceEngine
 from src.services.ai.raga_classifier import RagaClassifier
+from src.services.ai.cover_song_detector import CoverSongDetector
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class AIService:
         self.config = ai_config
         self.engine = NeuralInferenceEngine()
         self.raga_classifier = RagaClassifier()
+        self.cover_detector = CoverSongDetector()
 
     def check_health(self) -> Dict[str, Any]:
         """
@@ -85,6 +87,18 @@ class AIService:
             List[Dict[str, Any]]: List of classification results.
         """
         return self.engine.run_classification(file_path=file_path, model_name=model_name, task=task)
+
+    def detect_covers(self, directory: str) -> List[Dict[str, Any]]:
+        """
+        Detect cover songs in a directory.
+
+        Args:
+            directory (str): Path to directory.
+
+        Returns:
+            List[Dict[str, Any]]: List of potential cover songs.
+        """
+        return self.cover_detector.detect(directory)
 
     def clear_resources(self) -> None:
         """Free up GPU/RAM resources."""
