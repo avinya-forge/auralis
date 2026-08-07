@@ -1,15 +1,16 @@
-import os
 import logging
+import os
 from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
+
 
 class CoverSongDetector:
     """
     Detector for identifying cover songs in a given directory.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # We can eventually integrate with original_version_finder, audio_fingerprint_service, etc.
         pass
 

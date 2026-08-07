@@ -570,12 +570,16 @@ def run_ai_covers(args: argparse.Namespace) -> None:
 
     try:
         from src.services.ai_service import AIService
+
         service = AIService()
         results = service.detect_covers(directory)
 
         print(f"\nFound {len(results)} potential covers.")
         for result in results:
-            print(f"  - {result.get('original', 'Unknown')} -> {result.get('cover', 'Unknown')} (Confidence: {result.get('confidence', 0.0):.2%})")
+            original = result.get("original", "Unknown")
+            cover = result.get("cover", "Unknown")
+            conf = result.get("confidence", 0.0)
+            print(f"  - {original} -> {cover} (Confidence: {conf:.2%})")
 
     except ImportError as e:
         print(f"Error initializing AI Service: {e}")

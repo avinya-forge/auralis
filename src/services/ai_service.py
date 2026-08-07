@@ -6,9 +6,9 @@ import logging
 from typing import Any, Dict, List
 
 from src.services.ai.config import ai_config
+from src.services.ai.cover_song_detector import CoverSongDetector
 from src.services.ai.inference_engine import NeuralInferenceEngine
 from src.services.ai.raga_classifier import RagaClassifier
-from src.services.ai.cover_song_detector import CoverSongDetector
 
 logger = logging.getLogger(__name__)
 
