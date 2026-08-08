@@ -3,8 +3,9 @@
 
 
 ## Streamlined Vision: "Merlin for Music"
-The core ideology is to provide real-time audio detection and validation, leveraging a spectrogram-based approach similar to the Merlin Bird ID app. The goal is to:
-1. Detect what a song is internally after playing it by generating and analyzing its spectrogram.
-2. Efficiently compare multiple songs simultaneously based on their spectral features.
-3. Gather and centralize comprehensive metadata for every audio file to establish a single source of truth.
-4. Validate and utilize these technologies in a focused, step-by-step manner to ensure they perfectly fit the streamlined vision.
+The core ideology is to draw inspiration from the Merlin Bird ID app, applying its advanced spectrogram-based identification to music libraries, while expanding upon our foundational mission. The ultimate goal is to enable limitless possibilities for musical analysis:
+
+1. **Acoustic Identification & Deduplication**: Scan folders of music, generate a unique audio ID (Song ID) based on distinct acoustic factors (spectrogram features), and use these precise signatures to definitively compare and deduplicate files, ensuring every track is distinctly recognized.
+2. **Comprehensive Metadata Aggregation**: Use the generated Song IDs to automatically query free, highly accurate online libraries (like MusicBrainz or acoustic fingerprint databases) to gather all relevant metadata and gracefully rename/organize files into a single source of truth.
+3. **Deep Layered Analysis (The Merlin Inspiration)**: Capitalize on spectrogram technology to dissect the multiple layers of sound within a track. This includes identifying specific Indian Classical Ragas, detecting distinct patterns, and isolating individual instruments or vocalist signatures.
+4. **Real-time Detection & Limitless Scaling**: Leverage these capabilities not just for static libraries, but eventually for real-time internal detection after playing a song, validating and utilizing these technologies in a focused, step-by-step manner.
