@@ -56,6 +56,7 @@
   - *Subtask 1:* Integrate `librosa` mel-spectrogram streaming for real-time microphone input.
   - *Subtask 2:* Implement sliding window frame extraction for the neural classifier.
   - *Subtask 3:* Map visual spectrogram anomalies to known acoustic fingerprint databases.
+  - *Subtask 4:* Ensure "Song IDs" are generated from distinct acoustic features to definitively deduplicate files.
 - **[ ] TASK:** feat-003-batch-song-comparison | **Spec:** Implement efficient batch processing to compare multiple songs simultaneously based on spectrogram features. | **Deps:** feat-002 | **LOC Estimate:** 120
   - *Subtask 1:* Implement `AIBatchProcessor` optimizations using `torch.utils.data.DataLoader` for spectrograms.
   - *Subtask 2:* Vectorize similarity comparisons (cosine similarity) to support N x N matrix evaluations.
@@ -63,7 +64,9 @@
 - **[ ] TASK:** feat-004-metadata-extraction | **Spec:** Enhance metadata extraction to gather all possible details and features from audio files, establishing a single source of truth. | **Deps:** None | **LOC Estimate:** 100
   - *Subtask 1:* Extend `AudioMetadataHandler` to parse highly specific ID3 tags (e.g., precise BPM, Key, ReplayGain).
   - *Subtask 2:* Cross-reference extracted tags with MusicBrainz knowledge graph to auto-fill missing attributes.
-  - *Subtask 3:* Enforce strict data schema validation before persisting to SQLite to ensure absolute accuracy.
+  - *Subtask 3:* Enforce strict data schema validation before persisting to SQLite to ensure 100% metadata accuracy.
+  - *Subtask 4:* Implement sub-track disambiguation logic to distinguish between unplugged, live, or remastered versions based on spectral and metadata differences.
+  - *Subtask 5:* Develop robust UI-based filtering to dynamically sort libraries by identified structural patterns (e.g., piano-based, acoustic).
 - **[ ] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
   - *Subtask 1:* Finalize the "Merlin for Music" phase roadmap in `docs/architecture.md`.
   - *Subtask 2:* Map user journey flows mapping spectrogram generation to UI feedback.
