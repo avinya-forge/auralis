@@ -79,6 +79,10 @@
 > - **[x] TASK:** id-004-mfa-support | **Loc:** src/modules/id/auth.py | **Spec:** Support multi-factor authentication for user profiles | **Deps:** pyotp | **Hygiene:** [DONE] | **LOC Estimate:** 90
 
 ### System Maintenance
+- **[ ] TASK:** sys-005-deep-cleanup | **Spec:** Perform a deep cleanup of the codebase to remove obsolete files, dead code, and reduce the total number of files. | **Deps:** sys-004 | **LOC Estimate:** 200
+  - *Subtask 1:* Identify and safely remove deprecated modules and unused test scripts.
+  - *Subtask 2:* Consolidate redundant utility functions into unified modules.
+  - *Subtask 3:* Remove obsolete documentation and unneeded build artifacts.
 - **[ ] TASK:** sys-004-continuous-audit | **Spec:** Implement scheduled, automated code auditing to proactively find bugs and add them to the backlog. | **Deps:** None | **LOC Estimate:** 80
   - *Subtask 1:* Set up periodic cron job/GH Action to execute static analysis tools (flake8, bandit, mypy).
   - *Subtask 2:* Parse analysis outputs and format them into `docs/backlog.md` "Identified Discrepancies".
