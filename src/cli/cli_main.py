@@ -567,5 +567,22 @@ def run_ai_covers(args: argparse.Namespace) -> None:
         return
 
     print(f"Analyzing covers in directory: {directory}")
-    print("CoverSongDetector is currently a [TODO] feature. This command is a placeholder.")
-    # Future implementation will call AIService.detect_covers(directory) here.
+
+    try:
+        from src.services.ai_service import AIService
+
+        service = AIService()
+        results = service.detect_covers(directory)
+
+        print(f"\nFound {len(results)} potential covers.")
+        for result in results:
+            original = result.get("original", "Unknown")
+            cover = result.get("cover", "Unknown")
+            conf = result.get("confidence", 0.0)
+            print(f"  - {original} -> {cover} (Confidence: {conf:.2%})")
+
+    except ImportError as e:
+        print(f"Error initializing AI Service: {e}")
+        print("Please ensure AI dependencies are installed.")
+    except Exception as e:
+        print(f"Error analyzing covers: {e}")

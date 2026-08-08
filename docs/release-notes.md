@@ -59,3 +59,20 @@ This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundati
 - **Verified**: test-002-ai-batch-worker
 - **Verified**: test-003-coveragerc-omit
 - **Verified**: test-004-aggregators-coverage
+- **Verified**: fix-002-jose-deprecation
+- **Verified**: fix-001-bare-exceptions
+- **Verified**: feat-001-coversong
+- **Verified**: hunt-001-scan-modules
+- **Verified**: ui-001-prune-history-duplicate
+- **Verified**: audio-006-audio-utils-coverage
+- **Verified**: maint-001-grooming
+- **Verified**: >  db-003-aggregator-seed
+- **Verified**: >  api-002-jwt-auth
+- **Verified**: >  api-003-rate-limiting
+- **Verified**: >  neu-002-raga-clap-enhanced
+- **Verified**: >  neu-004-specialized-instruments
+- **Verified**: >  neu-005-drift-correction
+- **Verified**: >  data-001-schema-v2
+- **Verified**: >  data-003-metadata-linkage
+- **Verified**: >  id-004-mfa-support
+- **Verified**: >  sys-001-audit-pattern
