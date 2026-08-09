@@ -13,15 +13,13 @@ logger = logging.getLogger(__name__)
 def init_play_history_schema(db_path: str) -> None:
     """Initialize the play_history schema if it doesn't exist."""
     with get_db_connection(db_path) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS play_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 track_id TEXT NOT NULL,
                 played_at TEXT NOT NULL
             )
-        """
-        )
+        """)
 
 
 class StatsAggregator:

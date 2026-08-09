@@ -16,15 +16,13 @@ def prune_expired_tokens(db_path: str):
     try:
         with get_db_connection(db_path) as conn:
             # Create table if it doesn't exist for mock purposes/cron resilience
-            conn.execute(
-                """
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS sessions (
                     id TEXT PRIMARY KEY,
                     token TEXT,
                     expires_at TEXT
                 )
-            """
-            )
+            """)
 
             cursor = conn.cursor()
             cursor.execute("DELETE FROM sessions WHERE expires_at < ?", (current_time,))
