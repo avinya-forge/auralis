@@ -45,3 +45,9 @@ The core ideology is to draw inspiration from the Merlin Bird ID app, applying i
 
 ## Plugin API Documentation
 Every plugin in Auralis must inherit from `PluginInterface` and implement `name`, `version`, and `init()`. Event hooking patterns include `on_scan_start`, `on_track_played`, and `on_metadata_updated`.
+
+## Advanced Audio Analysis (Hugging Face AI Feasibility)
+Auralis leverages Hugging Face transformers for advanced audio analysis:
+1. **General Music Tagging & Classification:** Utilizing models like `m-a-p/MERT-v1-95M` or `laion/clap-htsat-unfused` for zero-shot classification to identify genre, mood, and instruments.
+2. **Raga Identification (Indian Classical Music):** Zero-shot classification using CLAP as a proof-of-concept, with potential fine-tuning of MERT on specific datasets.
+3. **Cover Song Identification (CSI) & Original/Singer Verification:** Utilizing MERT embeddings for audio similarity and Speaker/Singer Identification models (e.g., `speechbrain/spkrec-ecapa-voxceleb`) to determine if a song is an Original or a Cover based on voice signatures.
