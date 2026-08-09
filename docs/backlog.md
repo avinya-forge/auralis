@@ -15,9 +15,11 @@
 - **[x] TASK:** feat-001-coversong | **Spec:** Implement CoverSongDetector logic in src/cli/cli_main.py. | **Deps:** None | **LOC Estimate:** 40
 
 ## 🕵️ Bug Hunter Tasks
+- **[ ] TASK:** hunt-002-stuck-tasks | [DEBT] | **Loc:** TBD | **Spec:** Implement logic to detect and recover stuck AI processing tasks in batch queues | **Deps:** None | **LOC Estimate:** 30
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
+- **[ ] TASK:** doc-003-vision-refinement | **Spec:** Validate and refine the vision statement in architecture.md against the current feature set. Break down vision into granular EPICs. | **Deps:** None | **LOC Estimate:** 25
 - **[ ] TASK:** ui-002-ux-overhaul | **Spec:** Perform a comprehensive UI/UX overhaul to ensure a zero-glitch, user-friendly interface across all frameworks (PyQt/wxPython). | **Deps:** None | **LOC Estimate:** 300
   - *Subtask 1:* Migrate hardcoded QSS styles to centralized `ThemeManager` variables.
   - *Subtask 2:* Implement asynchronous loading indicators for all blocking I/O operations (e.g., scanning, metadata fetching).
@@ -67,7 +69,7 @@
   - *Subtask 3:* Enforce strict data schema validation before persisting to SQLite to ensure 100% metadata accuracy.
   - *Subtask 4:* Implement sub-track disambiguation logic to distinguish between unplugged, live, or remastered versions based on spectral and metadata differences.
   - *Subtask 5:* Develop robust UI-based filtering to dynamically sort libraries by identified structural patterns (e.g., piano-based, acoustic).
-- **[ ] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
+- **[x] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
   - *Subtask 1:* Finalize the "Merlin for Music" phase roadmap in `docs/architecture.md`.
   - *Subtask 2:* Map user journey flows mapping spectrogram generation to UI feedback.
 > - **[x] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [DONE] | **LOC Estimate:** 90

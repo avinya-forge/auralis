@@ -20,7 +20,7 @@ class TestDocumentation:
 
     def test_vision_exists(self):
         """Ensure vision.md exists and is not empty"""
-        path = Path("docs/vision.md")
+        path = Path("docs/architecture.md")
         assert path.exists()
         assert path.stat().st_size > 0
 
