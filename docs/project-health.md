@@ -1,3 +1,0 @@
-# Project Health
-
-Buffer: Green

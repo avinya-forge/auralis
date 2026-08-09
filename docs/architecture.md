@@ -41,3 +41,7 @@ The core ideology is to draw inspiration from the Merlin Bird ID app, applying i
 4. **Fingerprinting**: A unique 'Song ID' is generated based on the spectrogram features.
 5. **Metadata Matching**: The 'Song ID' is used to query external databases to verify/fetch accurate metadata.
 6. **UI Feedback**: The 'Organize' tab updates in real-time, displaying the newly identified song with its correct title, artist, album art, and advanced neural tags (e.g., 'Piano', 'Acoustic', 'Live'). The user sees a visual representation of the audio's unique signature.
+
+
+## Plugin API Documentation
+Every plugin in Auralis must inherit from `PluginInterface` and implement `name`, `version`, and `init()`. Event hooking patterns include `on_scan_start`, `on_track_played`, and `on_metadata_updated`.
