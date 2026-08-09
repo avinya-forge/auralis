@@ -67,7 +67,7 @@
   - *Subtask 3:* Enforce strict data schema validation before persisting to SQLite to ensure 100% metadata accuracy.
   - *Subtask 4:* Implement sub-track disambiguation logic to distinguish between unplugged, live, or remastered versions based on spectral and metadata differences.
   - *Subtask 5:* Develop robust UI-based filtering to dynamically sort libraries by identified structural patterns (e.g., piano-based, acoustic).
-- **[ ] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
+- **[x] TASK:** doc-002-vision-statement | **Spec:** Document the streamlined vision and detailed step-by-step feature prioritization (Merlin app style) in architecture/vision docs. | **Deps:** None | **LOC Estimate:** 50
   - *Subtask 1:* Finalize the "Merlin for Music" phase roadmap in `docs/architecture.md`.
   - *Subtask 2:* Map user journey flows mapping spectrogram generation to UI feedback.
 > - **[x] TASK:** neu-002-raga-clap-enhanced | **Loc:** src/services/ai/raga_classifier.py | **Spec:** Enhance CLAP zero-shot with specialized Indian Classical prompts | **Deps:** transformers | **Hygiene:** [DONE] | **LOC Estimate:** 90
