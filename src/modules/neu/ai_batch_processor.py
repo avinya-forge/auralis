@@ -108,7 +108,9 @@ class AIBatchProcessor:
         if not stuck_tasks:
             return []
 
-        logger.warning(f"Detected {len(stuck_tasks)} stuck tasks. Terminating workers for recovery.")
+        logger.warning(
+            f"Detected {len(stuck_tasks)} stuck tasks. Terminating workers for recovery."
+        )
         self.terminate()
 
         self._task_queue = multiprocessing.Queue()
@@ -124,12 +126,14 @@ class AIBatchProcessor:
 
         failed_results = []
         for task_id, task_info in stuck_tasks:
-            failed_results.append({
-                "task_id": task_id,
-                "path": task_info["path"],
-                "result": None,
-                "error": "Task timed out and was aborted.",
-            })
+            failed_results.append(
+                {
+                    "task_id": task_id,
+                    "path": task_info["path"],
+                    "result": None,
+                    "error": "Task timed out and was aborted.",
+                }
+            )
 
         return failed_results
 
