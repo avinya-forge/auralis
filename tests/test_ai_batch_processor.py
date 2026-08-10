@@ -142,3 +142,33 @@ def test_batch_processor_terminate_alive():
 
     processor.terminate()
     mock_process.terminate.assert_called_once()
+
+
+def test_recover_stuck_tasks():
+    processor = AIBatchProcessor(num_workers=0)  # No workers so tasks just queue up
+
+    task_id_1 = processor.enqueue_track("/path/stuck.mp3", mock_inference_success)
+    task_id_2 = processor.enqueue_track("/path/valid.mp3", mock_inference_success)
+
+    # Manually adjust the enqueue time of the first task to be very old
+    processor._pending_tasks[task_id_1]["enqueue_time"] = time.time() - 400
+
+    results = processor.recover_stuck_tasks(timeout=300)
+
+    # Should return the stuck task
+    assert len(results) == 1
+    assert results[0]["task_id"] == task_id_1
+    assert results[0]["path"] == "/path/stuck.mp3"
+    assert "aborted" in results[0]["error"]
+
+    # The valid task should still be pending and re-enqueued
+    assert task_id_2 in processor._pending_tasks
+    assert task_id_1 not in processor._pending_tasks
+
+    # We should have re-created queues and restarted workers
+    # Retrieve the item to ensure it was put back
+    task = processor._task_queue.get(timeout=1.0)
+    assert task[0] == task_id_2
+    assert task[1] == "/path/valid.mp3"
+
+    processor.terminate()
