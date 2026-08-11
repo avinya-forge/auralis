@@ -175,9 +175,11 @@ def mock_inference_sleep(path):
     time.sleep(0.4)
     return "Done"
 
+
 def mock_inference_hang_long(path):
     time.sleep(10.0)
     return "Done"
+
 
 def test_batch_processor_recover_stuck_tasks_multi_worker_collateral():
     # Note: Timing-based tests can be flaky, so we use precise times.
