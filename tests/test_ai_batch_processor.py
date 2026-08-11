@@ -75,6 +75,7 @@ def test_batch_processor_worker_loop():
     task_queue = MagicMock()
     result_queue = MagicMock()
     stop_event = MagicMock()
+    active_tasks = MagicMock()
 
     # We want the loop to run several times to hit all branches
     stop_event.is_set.side_effect = [False, False, False, False, True]
@@ -90,7 +91,7 @@ def test_batch_processor_worker_loop():
         queue.Empty,
     ]
 
-    AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event)
+    AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event, active_tasks)
 
     # Verify result queue received the success result
     result_queue.put.assert_called_once_with(
@@ -104,6 +105,7 @@ def test_batch_processor_worker_loop_inference_error():
     task_queue = MagicMock()
     result_queue = MagicMock()
     stop_event = MagicMock()
+    active_tasks = MagicMock()
 
     stop_event.is_set.side_effect = [False, True]
 
@@ -112,7 +114,7 @@ def test_batch_processor_worker_loop_inference_error():
 
     task_queue.get.side_effect = [("task_2", "/path/to/fail_track.mp3", failing_callable)]
 
-    AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event)
+    AIBatchProcessor._worker_loop(task_queue, result_queue, stop_event, active_tasks)
     result_queue.put.assert_called_once_with(
         ("task_2", "/path/to/fail_track.mp3", None, "Inference failed")
     )
@@ -142,3 +144,95 @@ def test_batch_processor_terminate_alive():
 
     processor.terminate()
     mock_process.terminate.assert_called_once()
+
+
+def mock_inference_hang(path):
+    time.sleep(2.0)
+    return "Done"
+
+
+def test_batch_processor_recover_stuck_tasks():
+    processor = AIBatchProcessor(num_workers=1, task_timeout=0.2)
+    try:
+        processor.enqueue_track("/path/to/stuck.mp3", mock_inference_hang)
+
+        # wait for it to be stuck
+        time.sleep(0.5)
+
+        processor.recover_stuck_tasks()
+
+        results = processor.get_results()
+        assert len(results) == 1
+        assert results[0]["path"] == "/path/to/stuck.mp3"
+        assert results[0]["result"] is None
+        assert results[0]["error"] == "Task timed out"
+    finally:
+        processor.terminate()
+
+
+def mock_inference_sleep(path):
+    # Sleeps for 0.4 seconds, won't time out if timeout is 0.5 and recover is called at 0.6
+    time.sleep(0.4)
+    return "Done"
+
+def mock_inference_hang_long(path):
+    time.sleep(10.0)
+    return "Done"
+
+def test_batch_processor_recover_stuck_tasks_multi_worker_collateral():
+    # Note: Timing-based tests can be flaky, so we use precise times.
+    # We will enqueue a task that hangs forever, wait 0.1s to ensure worker 1 starts it.
+    # Then we enqueue a long task (but it hasn't timed out yet when we call recover).
+    processor = AIBatchProcessor(num_workers=2, task_timeout=0.4)
+    try:
+        # Task 1: starts at t=0, will hang
+        processor.enqueue_track("/path/to/stuck.mp3", mock_inference_hang_long)
+        time.sleep(0.2)
+
+        # Task 2: starts at t=0.2, also hangs, but we recover at t=0.5
+        processor.enqueue_track("/path/to/collateral.mp3", mock_inference_hang_long)
+        time.sleep(0.3)
+
+        # At t=0.5: task 1 has run for 0.5s (>0.4s timeout) -> STUCK
+        # task 2 has run for 0.3s (<0.4s timeout) -> NOT STUCK yet.
+        processor.recover_stuck_tasks()
+
+        results = processor.get_results()
+        assert len(results) == 2
+
+        paths = [r["path"] for r in results]
+        assert "/path/to/stuck.mp3" in paths
+        assert "/path/to/collateral.mp3" in paths
+
+        for r in results:
+            if r["path"] == "/path/to/stuck.mp3":
+                assert r["error"] == "Task timed out"
+            elif r["path"] == "/path/to/collateral.mp3":
+                assert r["error"] == "Task aborted due to worker restart"
+    finally:
+        processor.terminate()
+
+
+def test_batch_processor_recover_stuck_tasks_queue_wait():
+    # Set timeout low, but wait should not trigger it if task is just queued
+    processor = AIBatchProcessor(num_workers=1, task_timeout=0.2)
+    try:
+        # Fill worker with one task
+        processor.enqueue_track("/path/to/stuck1.mp3", mock_inference_hang)
+        # Enqueue another task that waits in the queue
+        processor.enqueue_track("/path/to/waiting.mp3", mock_inference_hang)
+
+        # wait a bit, allowing the first task to start and become stuck
+        # but the second task should still be in the task queue
+        time.sleep(0.5)
+
+        processor.recover_stuck_tasks()
+
+        results = processor.get_results()
+        # Only the stuck task should be reported
+        assert len(results) == 1
+        assert results[0]["path"] == "/path/to/stuck1.mp3"
+        assert results[0]["result"] is None
+        assert results[0]["error"] == "Task timed out"
+    finally:
+        processor.terminate()
