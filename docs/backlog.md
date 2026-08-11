@@ -15,7 +15,7 @@
 - **[x] TASK:** feat-001-coversong | **Spec:** Implement CoverSongDetector logic in src/cli/cli_main.py. | **Deps:** None | **LOC Estimate:** 40
 
 ## 🕵️ Bug Hunter Tasks
-- **[ ] TASK:** hunt-002-stuck-tasks | [DEBT] | **Loc:** TBD | **Spec:** Implement logic to detect and recover stuck AI processing tasks in batch queues | **Deps:** None | **LOC Estimate:** 30
+- **[x] TASK:** hunt-002-stuck-tasks | [DEBT] | **Loc:** TBD | **Spec:** Implement logic to detect and recover stuck AI processing tasks in batch queues | **Deps:** None | **LOC Estimate:** 30
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
