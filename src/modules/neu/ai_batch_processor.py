@@ -41,7 +41,7 @@ class AIBatchProcessor:
         task_queue: multiprocessing.Queue,
         result_queue: multiprocessing.Queue,
         stop_event: Any,
-        active_tasks: Dict[str, float]
+        active_tasks: Dict[str, float],
     ):
         """Dedicated background worker to process tracks."""
         while not stop_event.is_set():
@@ -98,7 +98,8 @@ class AIBatchProcessor:
         current_time = time.time()
         active_items = dict(self._active_tasks)
         stuck_task_ids = [
-            t_id for t_id, start_time in active_items.items()
+            t_id
+            for t_id, start_time in active_items.items()
             if current_time - start_time > self._task_timeout
         ]
 
