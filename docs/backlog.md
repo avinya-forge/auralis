@@ -50,7 +50,7 @@
   - *Subtask 1:* Create AST parsing script to detect redundant functions and duplicate logic blocks.
   - *Subtask 2:* Generate refactoring suggestions automatically via LLM orchestration.
   - *Subtask 3:* Inject proposed optimizations into a new "Tech Debt" backlog queue.
-- **[ ] TASK:** agent-004-task-observer | **Spec:** Add a "Task Observer" skill to monitor agent progress and maintain metrics for the project dashboard. | **Deps:** None | **LOC Estimate:** 90
+- **[x] TASK:** agent-004-task-observer | **Spec:** Add a "Task Observer" skill to monitor agent progress and maintain metrics for the project dashboard. | **Deps:** None | **LOC Estimate:** 90
   - *Subtask 1:* Implement state-machine monitoring hooks in the meta-router.
   - *Subtask 2:* Automatically recalculate completion metrics and write to `docs/status.md`.
   - *Subtask 3:* Trigger circuit-breakers upon detecting stuck tasks or infinite retry loops.
