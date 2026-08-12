@@ -1,7 +1,11 @@
+import hashlib
 import logging
 import multiprocessing
+import random
+import re
 from typing import Any, Dict, Optional
 
+from src.modules.agent.task_observer import TaskObserver
 from src.services.ai.llm_orchestrator import LLMOrchestrator
 
 logger = logging.getLogger(__name__)
@@ -76,6 +80,7 @@ class MetaAgentTaskRouter:
     def __init__(self, llm_bridge: LLMOrchestrator):
         self.llm_bridge = llm_bridge
         self.registered_agents: Dict[str, list] = {}
+        self.task_observer = TaskObserver()
 
     def register_agent(self, role: str, capabilities: list):
         """Register an agent with specific capabilities."""
@@ -116,9 +121,35 @@ class MetaAgentTaskRouter:
         if role not in self.registered_agents:
             raise ValueError(f"Unknown agent role: {role}")
 
+        # Parse task_id from description if possible, otherwise hash
+        match = re.search(r"TASK:\s+([a-zA-Z0-9-]+)", task_description)
+        if match:
+            task_id = match.group(1)
+        else:
+            task_id = hashlib.md5(task_description.encode()).hexdigest()[:8]
+
         logger.info(f"Executing task via agent {role}: {task_description}")
+
+        # Simulate execution with occasional failure
+        status = "failed" if random.random() < 0.1 else "success"
+
+        # Circuit breaker check via observer
+        allowed = self.task_observer.record_task_attempt(task_id, status)
+
+        if not allowed:
+            logger.warning(f"Task {task_id} execution blocked by circuit breaker.")
+            self.task_observer.update_status_dashboard()
+            return {
+                "status": "blocked",
+                "agent": role,
+                "task": task_description,
+                "result": "Circuit breaker tripped",
+            }
+
+        self.task_observer.update_status_dashboard()
+
         return {
-            "status": "success",
+            "status": status,
             "agent": role,
             "task": task_description,
             "result": "Mock result",
