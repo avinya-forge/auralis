@@ -1,5 +1,3 @@
-import os
-import tempfile
 from unittest.mock import MagicMock
 
 from src.modules.agent.orchestrator import MetaAgentTaskRouter, TaskDispatcher, TaskRouter
@@ -51,7 +49,7 @@ def test_task_observer_circuit_breaker():
     assert observer.record_task_attempt(task_id, "failed") is True
     # Third attempt fails - circuit breaker trips
     assert observer.record_task_attempt(task_id, "failed") is False
-    # Next attempt should still return True because it resets or is handled by router, wait actually it should just return True because logic is simple and just checks >=3 on increment. Wait, if it's already >=3, it returns False if it fails again.
+    # Next attempt should still return False because failure count is >= 3
     assert observer.record_task_attempt(task_id, "failed") is False
 
     # Success resets it
