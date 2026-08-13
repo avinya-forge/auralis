@@ -11,7 +11,7 @@
 - **[DONE]**: `CloudSettingsWidget` is not integrated into `main_window.py`.
 - **[DONE]**: `prune_play_history` is not scheduled in any lifecycle hook.
 - **[x] TASK:** fix-001-bare-exceptions | [DEBT] | **Loc:** Multiple | **Spec:** Resolve bare `except Exception:` blocks across codebase to satisfy flake8 and typing requirements | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 15
-- **[ ] TASK:** debt-001-docstrings | **Spec:** Add missing docstrings to 85 functions across the codebase. | **Deps:** None | **LOC Estimate:** 85
+- **[PARKED] TASK:** debt-001-docstrings | **Spec:** Add missing docstrings to 85 functions across the codebase. | **Deps:** None | **LOC Estimate:** 85
 - **[x] TASK:** feat-001-coversong | **Spec:** Implement CoverSongDetector logic in src/cli/cli_main.py. | **Deps:** None | **LOC Estimate:** 40
 
 ## 🕵️ Bug Hunter Tasks
@@ -19,7 +19,7 @@
 - **[x] TASK:** hunt-001-scan-modules | [DEBT] | **Loc:** TBD | **Spec:** Perform static analysis scan to identify unhandled exceptions and inject bug tasks | **Deps:** None | **Hygiene:** [DONE] | **LOC Estimate:** 20
 
 ## 🗂️ Backlog Maintenance
-- **[ ] TASK:** doc-003-vision-refinement | **Spec:** Validate and refine the vision statement in architecture.md against the current feature set. Break down vision into granular EPICs. | **Deps:** None | **LOC Estimate:** 25
+- **[x] TASK:** doc-003-vision-refinement | **Spec:** Validate and refine the vision statement in architecture.md against the current feature set. Break down vision into granular EPICs. | **Deps:** None | **LOC Estimate:** 25
 - **[ ] TASK:** ui-002-ux-overhaul | **Spec:** Perform a comprehensive UI/UX overhaul to ensure a zero-glitch, user-friendly interface across all frameworks (PyQt/wxPython). | **Deps:** None | **LOC Estimate:** 300
   - *Subtask 1:* Migrate hardcoded QSS styles to centralized `ThemeManager` variables.
   - *Subtask 2:* Implement asynchronous loading indicators for all blocking I/O operations (e.g., scanning, metadata fetching).

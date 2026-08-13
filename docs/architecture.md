@@ -13,6 +13,13 @@ The core ideology is to draw inspiration from the Merlin Bird ID app, applying i
 6. **Sub-track Disambiguation**: The system must definitively understand *why* two seemingly identical songs differ (e.g., distinguishing between original, unplugged, live, or remastered versions) based on spectral differences and deeply embedded metadata tagging. We are essentially an advanced metadata processor powered by modern ML.
 
 
+## EPICs
+- **EPIC 1: Acoustic Deduplication & Song ID**: Build the core spectrogram engine to generate unique audio IDs based on distinct acoustic factors for definitive deduplication and accurate metadata matching (Maps to Phase 1).
+- **EPIC 2: Multi-source Metadata Aggregation**: Integrate external APIs (MusicBrainz, Discogs, Spotify) to create a comprehensive multi-modal knowledge graph for tracks, enriching metadata, lyrics, and biographies (Maps to Phase 2).
+- **EPIC 3: Hugging Face Deep Audio Analysis**: Implement sophisticated AI models for layered audio analysis, including MERT tagging, CLAP zero-shot Raga detection, instrument classification, and Cover Song ID based on voice signatures (Maps to Phase 3).
+- **EPIC 4: Real-time Contextual Filtering & Detection**: Enable dynamic filtering of libraries using neural tags and stream input analysis for instant identification using the microphone and batch processing optimizations (Maps to Phase 4).
+
+
 ## Phase Roadmap
 
 1. **Phase 1: Foundation (Acoustic Identification & Deduplication)**
