@@ -1,0 +1,47 @@
+name: Auralis Continuous Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --fix-missing libgtk-3-dev libnotify-dev freeglut3-dev libsdl2-dev libgstreamer-plugins-base1.0-dev libunwind-dev
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+    - name: Run Continuous Audit
+      env:
+        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      run: |
+        python scripts/continuous_audit.py
+    - name: Commit Backlog
+      run: |
+        git config --global user.name "Auralis Audit Bot"
+        git config --global user.email "bot@auralis.local"
+        git add docs/backlog.md
+        git commit -m "chore: auto-update backlog with continuous audit results" || echo "No changes to commit"
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "chore: auto-update backlog with continuous audit results"
+        title: "chore: Automated Code Audit"
+        body: "Automated Continuous Audit results injected into backlog."
+        branch: "automated-audit"
+        delete-branch: true
