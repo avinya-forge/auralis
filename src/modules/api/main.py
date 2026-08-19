@@ -134,7 +134,8 @@ async def upload_audio(request: Request, file: UploadFile = File(...)):
         file_content = await file.read()
         logger.info(f"Received audio upload: {file.filename}, size: {len(file_content)} bytes")
 
-        temp_path = os.path.join(tempfile.gettempdir(), file.filename)
+        filename = file.filename or "uploaded_audio.tmp"
+        temp_path = os.path.join(tempfile.gettempdir(), filename)
         with open(temp_path, "wb") as f:
             f.write(file_content)
 
