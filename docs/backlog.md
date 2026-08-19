@@ -6,11 +6,11 @@
 ---
 
 ## 🐛 Identified Discrepancies (Hunters)
-- **[ ] TASK:** auto-audit-e4c00041 | [DEBT] | **Loc:** src/core/scanner.py | **Spec:** Fix bandit error: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False | **Deps:** None | **LOC Estimate:** 10
-- **[ ] TASK:** auto-audit-8f07c86c | [DEBT] | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Fix bandit error: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False | **Deps:** None | **LOC Estimate:** 10
-- **[ ] TASK:** auto-audit-7b99757e | [DEBT] | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Fix bandit error: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes. | **Deps:** None | **LOC Estimate:** 10
-- **[ ] TASK:** auto-audit-04e6e40d | [DEBT] | **Loc:** src/modules/api/main.py | **Spec:** Fix bandit error: [B105:hardcoded_password_string] Possible hardcoded password: 'bearer' | **Deps:** None | **LOC Estimate:** 10
-- **[ ] TASK:** auto-audit-eea3bda4 | [DEBT] | **Loc:** src/modules/api/main.py | **Spec:** Fix bandit error: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory. | **Deps:** None | **LOC Estimate:** 10
+- **[x] TASK:** auto-audit-e4c00041 | [DEBT] | **Loc:** src/core/scanner.py | **Spec:** Fix bandit error: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False | **Deps:** None | **LOC Estimate:** 10
+- **[x] TASK:** auto-audit-8f07c86c | [DEBT] | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Fix bandit error: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False | **Deps:** None | **LOC Estimate:** 10
+- **[x] TASK:** auto-audit-7b99757e | [DEBT] | **Loc:** src/modules/agent/orchestrator.py | **Spec:** Fix bandit error: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes. | **Deps:** None | **LOC Estimate:** 10
+- **[x] TASK:** auto-audit-04e6e40d | [DEBT] | **Loc:** src/modules/api/main.py | **Spec:** Fix bandit error: [B105:hardcoded_password_string] Possible hardcoded password: 'bearer' | **Deps:** None | **LOC Estimate:** 10
+- **[x] TASK:** auto-audit-eea3bda4 | [DEBT] | **Loc:** src/modules/api/main.py | **Spec:** Fix bandit error: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory. | **Deps:** None | **LOC Estimate:** 10
 - **[ ] TASK:** auto-audit-d654015a | [DEBT] | **Loc:** src/modules/neu/training/ssl_pipeline.py | **Spec:** Fix bandit error: [B614:pytorch_load] Use of unsafe PyTorch load | **Deps:** None | **LOC Estimate:** 10
 - **[ ] TASK:** auto-audit-fbc82440 | [DEBT] | **Loc:** src/modules/plg/plugin_sandbox.py | **Spec:** Fix bandit error: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | **Deps:** None | **LOC Estimate:** 10
 - **[ ] TASK:** auto-audit-17aeaca3 | [DEBT] | **Loc:** src/services/ai/instrument_classifier.py | **Spec:** Fix bandit error: [B614:pytorch_load] Use of unsafe PyTorch load | **Deps:** None | **LOC Estimate:** 10

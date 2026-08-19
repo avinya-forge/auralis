@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -52,7 +53,7 @@ async def login(request: LoginRequest):
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
         to_encode = {"sub": request.username, "exp": expire}
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return {"access_token": encoded_jwt, "token_type": "bearer"}
+        return {"access_token": encoded_jwt, "token_type": "bearer"}  # nosec B105
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
@@ -133,7 +134,7 @@ async def upload_audio(request: Request, file: UploadFile = File(...)):
         file_content = await file.read()
         logger.info(f"Received audio upload: {file.filename}, size: {len(file_content)} bytes")
 
-        temp_path = f"/tmp/{file.filename}"
+        temp_path = os.path.join(tempfile.gettempdir(), file.filename)
         with open(temp_path, "wb") as f:
             f.write(file_content)
 

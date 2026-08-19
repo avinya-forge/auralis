@@ -460,7 +460,7 @@ class MusicScanner(QObject):
             str: MD5 hash of the file, or None on error.
         """
         try:
-            hasher = hashlib.md5()
+            hasher = hashlib.md5(usedforsecurity=False)
             with open(file_path, "rb") as f:
                 buf = f.read(block_size)
                 while len(buf) > 0:
