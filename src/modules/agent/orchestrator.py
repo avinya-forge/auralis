@@ -1,8 +1,8 @@
 import hashlib
 import logging
 import multiprocessing
-import random
 import re
+import secrets
 from typing import Any, Dict, Optional
 
 from src.modules.agent.task_observer import TaskObserver
@@ -126,12 +126,12 @@ class MetaAgentTaskRouter:
         if match:
             task_id = match.group(1)
         else:
-            task_id = hashlib.md5(task_description.encode()).hexdigest()[:8]
+            task_id = hashlib.md5(task_description.encode(), usedforsecurity=False).hexdigest()[:8]
 
         logger.info(f"Executing task via agent {role}: {task_description}")
 
         # Simulate execution with occasional failure
-        status = "failed" if random.random() < 0.1 else "success"
+        status = "failed" if secrets.randbelow(100) < 10 else "success"
 
         # Circuit breaker check via observer
         allowed = self.task_observer.record_task_attempt(task_id, status)

@@ -10,6 +10,11 @@
 - Added comprehensive test suite for `src/utils/audio_utils.py`, specifically targeting `AudioMetadataHandler` and helper functions.
 
 ### Fixed
+- Fixed bandit issue [B108:hardcoded_tmp_directory] by using `tempfile` in `src/modules/api/main.py` (resolving `auto-audit-eea3bda4`).
+- Fixed bandit issue [B105:hardcoded_password_string] for token_type in `src/modules/api/main.py` (resolving `auto-audit-04e6e40d`).
+- Fixed bandit issue [B311:blacklist] by replacing `random.random` with `secrets` in `src/modules/agent/orchestrator.py` (resolving `auto-audit-7b99757e`).
+- Fixed bandit issue [B324:hashlib] regarding weak MD5 hash in `src/modules/agent/orchestrator.py` (resolving `auto-audit-8f07c86c`).
+- Fixed bandit issue [B324:hashlib] regarding weak MD5 hash in `src/core/scanner.py` (resolving `auto-audit-e4c00041`).
 - Ignored deprecation warnings from python-jose and starlette in pyproject.toml.
 - Removed duplicate `prune_play_history` call in PyQt main window `closeEvent`.
 - Fixed bare `except Exception:` blocks across the codebase to adhere to flake8 standards by assigning the exception to a throwaway variable (`except Exception as e: _ = e`). Affected files:
