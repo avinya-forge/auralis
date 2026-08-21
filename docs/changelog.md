@@ -10,6 +10,9 @@
 - Added comprehensive test suite for `src/utils/audio_utils.py`, specifically targeting `AudioMetadataHandler` and helper functions.
 
 ### Fixed
+- Fixed bandit issue [B101:assert_used] by replacing assert with explicit check in `src/modules/plg/plugin_sandbox.py` (resolving `auto-audit-fbc82440`).
+- Fixed bandit issue [B614:pytorch_load] by adding `weights_only=True` to `torch.load` in `src/services/ai/instrument_classifier.py` (resolving `auto-audit-17aeaca3`).
+- Fixed bandit issues [B404:blacklist], [B603:subprocess_without_shell_equals_true], and [B607:start_process_with_partial_path] by using `sys.executable`, `shutil.which`, and adding nosec pragmas in `src/services/audio/demixer.py` (resolving `auto-audit-e6a386a7`, `auto-audit-06e93e21`, `auto-audit-e8cc5584`).
 - Fixed bandit issue [B614:pytorch_load] by adding weights_only=True in src/modules/neu/training/ssl_pipeline.py (resolving auto-audit-d654015a).
 - Fixed bandit issue [B108:hardcoded_tmp_directory] by using `tempfile` in `src/modules/api/main.py` (resolving `auto-audit-eea3bda4`).
 - Fixed bandit issue [B105:hardcoded_password_string] for token_type in `src/modules/api/main.py` (resolving `auto-audit-04e6e40d`).

@@ -117,7 +117,8 @@ def _sandboxed_import(
             raise ImportError(f"Sandbox violation: importing '{name}' is blocked.")
 
     # We know _original_import is not None here because it's set in enable_sandbox
-    assert _original_import is not None
+    if _original_import is None:
+        raise RuntimeError("Original import not set")
     return _original_import(name, globals, locals, fromlist, level)
 
 
