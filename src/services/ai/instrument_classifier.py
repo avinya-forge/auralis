@@ -177,7 +177,9 @@ class InstrumentClassifier:
     def load_model(self, path: str) -> None:
         if torch:
             try:
-                self.model.load_state_dict(torch.load(path, map_location=self.device, weights_only=True))
+                self.model.load_state_dict(
+                    torch.load(path, map_location=self.device, weights_only=True)
+                )
                 logger.info(f"Loaded instrument classifier model from {path}")
             except Exception as e:
                 logger.error(f"Failed to load model from {path}: {e}")

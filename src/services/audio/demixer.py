@@ -21,11 +21,20 @@ class DemucsWrapper:
         Runs the demucs source separation using subprocess for isolation.
         Returns the paths of the separated stems on success, None on failure.
         """
-        cmd = [sys.executable, "-m", "demucs.separate", "-n", self.model_name, "-o", out_dir, audio_path]
+        cmd = [
+            sys.executable,
+            "-m",
+            "demucs.separate",
+            "-n",
+            self.model_name,
+            "-o",
+            out_dir,
+            audio_path,
+        ]
 
         try:
             logger.info(f"Running Demucs on {audio_path}")
-            subprocess.run(cmd, capture_output=True, text=True, check=True)  # nosec B603 B607
+            subprocess.run(cmd, capture_output=True, text=True, check=True)  # nosec B603, B607
             # Demucs usually creates a folder inside out_dir based on model and track name.
             # Returning a mock dict for now
             return {
@@ -47,7 +56,9 @@ class DemucsWrapper:
     def is_demucs_available(self) -> bool:
         try:
             demucs_path = shutil.which("demucs") or "demucs"
-            result = subprocess.run([demucs_path, "--version"], capture_output=True, text=True)  # nosec B603 B607
+            result = subprocess.run(
+                [demucs_path, "--version"], capture_output=True, text=True
+            )  # nosec B603, B607
             return result.returncode == 0
         except FileNotFoundError:
             return False
