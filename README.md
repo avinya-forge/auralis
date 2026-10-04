@@ -11,7 +11,7 @@
 
 ### Local Launch
 ```bash
-git clone https://github.com/patternseekers/auralis.git
+git clone https://github.com/avinya-forge/auralis.git
 cd auralis
 pip install -r requirements.txt
 
@@ -70,7 +70,7 @@ graph TD
 
 # Auralis - Advanced Music File Management (v2.1.2)
 
-![CI](https://github.com/patternseekers/auralis/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/avinya-forge/auralis/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
@@ -153,7 +153,7 @@ graph TD
 
 1. Clone the repository:
    ```
-   git clone https://github.com/patternseekers/auralis.git
+   git clone https://github.com/avinya-forge/auralis.git
    cd auralis
    ```
 
@@ -309,4 +309,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Credits
 
-Developed by PatternSeekers
+Developed by avinya-forge

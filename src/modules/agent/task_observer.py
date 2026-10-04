@@ -74,22 +74,15 @@ class TaskObserver:
                 lines = f.readlines()
 
             for line in lines:
-                # Basic match for tasks, assuming format: - [ ] TASK: or - [x] TASK: or - [BLOCKED] TASK:
-                if re.match(r"^\s*-\s+\[.*?\]", line):
-                    # Exclude headers or things that aren't actually tasks if needed, but normally tasks start with - [ ]
-                    if (
-                        "TASK:" in line
-                        or "CLEANUP:" in line
-                        or "VERIFY:" in line
-                        or "AUDIT:" in line
-                    ):
-                        total_tasks += 1
-                        if "- [x]" in line or "- [DONE]" in line:
-                            completed_tasks += 1
-                        elif "- [BLOCKED]" in line:
-                            blocked_tasks += 1
-                        else:
-                            pending_tasks += 1
+                if re.search(r'^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC):', line, re.IGNORECASE) or re.search(r'^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC)\b', line, re.IGNORECASE):
+                    total_tasks += 1
+                    status_str = re.search(r'\[\s*(.*?)\s*\]', line).group(1).upper()
+                    if status_str in ["X", "DONE"]:
+                        completed_tasks += 1
+                    elif status_str == "BLOCKED":
+                        blocked_tasks += 1
+                    else:
+                        pending_tasks += 1
 
             completion_percentage = (
                 (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0.0

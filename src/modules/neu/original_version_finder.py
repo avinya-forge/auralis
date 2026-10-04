@@ -26,7 +26,7 @@ class OriginalVersionFinder:
         # Ensure useragent is set for MusicBrainz (usually set by metadata_service, but good to ensure here)
         try:
             musicbrainzngs.set_useragent(
-                "Auralis_OriginalFinder", "0.1", "https://github.com/patternseekers/auralis"
+                "Auralis_OriginalFinder", "0.1", "https://github.com/avinya-forge/auralis"
             )
         except Exception as e:
             _ = e

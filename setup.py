@@ -62,7 +62,7 @@ setup(
             "auralis=auralis:main",
         ],
     },
-    author="PatternSeekers",
+    author="avinya-forge",
     description="A modern, intelligent music library organizer",
     long_description=(
         open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else ""

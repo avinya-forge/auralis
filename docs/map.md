@@ -24,7 +24,7 @@ Welcome to Auralis, your advanced music library manager and player. This guide w
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/patternseekers/auralis.git
+    git clone https://github.com/avinya-forge/auralis.git
     cd auralis
     ```
 
