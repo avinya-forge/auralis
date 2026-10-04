@@ -74,9 +74,11 @@ class TaskObserver:
                 lines = f.readlines()
 
             for line in lines:
-                if re.search(r'^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC):', line, re.IGNORECASE) or re.search(r'^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC)\b', line, re.IGNORECASE):
+                pat1 = r"^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC):"
+                pat2 = r"^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC)\b"
+                if re.search(pat1, line, re.IGNORECASE) or re.search(pat2, line, re.IGNORECASE):
                     total_tasks += 1
-                    status_str = re.search(r'\[\s*(.*?)\s*\]', line).group(1).upper()
+                    status_str = re.search(r"\[\s*(.*?)\s*\]", line).group(1).upper()
                     if status_str in ["X", "DONE"]:
                         completed_tasks += 1
                     elif status_str == "BLOCKED":
