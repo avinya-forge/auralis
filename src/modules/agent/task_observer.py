@@ -78,7 +78,8 @@ class TaskObserver:
                 pat2 = r"^[>\s]*- (?:\*\*)?\[\s*(.*?)\s*\](?:\*\*)? (?:TASK|CLEANUP|VERIFY|AUDIT|EPIC)\b"
                 if re.search(pat1, line, re.IGNORECASE) or re.search(pat2, line, re.IGNORECASE):
                     total_tasks += 1
-                    status_str = re.search(r"\[\s*(.*?)\s*\]", line).group(1).upper()
+                    match = re.search(r"\[\s*(.*?)\s*\]", line)
+                    status_str = match.group(1).upper() if match else ""
                     if status_str in ["X", "DONE"]:
                         completed_tasks += 1
                     elif status_str == "BLOCKED":
