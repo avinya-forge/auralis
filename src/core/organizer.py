@@ -10,9 +10,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 # Import audio similarity service
 from src.services.audio_similarity_service import find_duplicates as find_similar_audio
-from src.services.audio_similarity_service import (
-    get_best_quality_version,
-)
+from src.services.audio_similarity_service import get_best_quality_version
 from src.services.audio_similarity_service import is_available as is_audio_similarity_available
 
 # Import language detection service

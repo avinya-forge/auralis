@@ -312,7 +312,7 @@ class MainWindow(wx.Frame):
             event (Any): The wxPython event object.
         """
         wx.MessageBox(
-            "Auralis\n\nAdvanced Music File Management\n\nDeveloped by PatternSeekers",
+            "Auralis\n\nAdvanced Music File Management\n\nDeveloped by avinya-forge",
             "About Auralis",
             wx.OK | wx.ICON_INFORMATION,
         )

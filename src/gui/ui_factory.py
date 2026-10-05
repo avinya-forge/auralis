@@ -81,7 +81,7 @@ class UIFactory:
             try:
                 import ctypes
 
-                app_id = "PatternSeekers.Auralis.1.0"
+                app_id = "avinya-forge.Auralis.1.0"
                 # mypy on non-windows might complain about windll
                 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)  # type: ignore
             except Exception as e:

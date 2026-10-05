@@ -145,7 +145,7 @@ class MusicBrainzSource(MetadataSource):
         super().__init__("MusicBrainz/AcoustID")
 
         # Set up MusicBrainz client
-        musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/patternseekers/auralis")
+        musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/avinya-forge/auralis")
 
         # AcoustID API key (should be configurable)
         self.acoustid_api_key = "1vOwZtEn"  # Example API key, register at https://acoustid.org/

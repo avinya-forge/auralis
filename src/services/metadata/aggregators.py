@@ -17,7 +17,7 @@ class MusicBrainzAggregator:
     """
 
     def __init__(self) -> None:
-        musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/patternseekers/auralis")
+        musicbrainzngs.set_useragent("Auralis", "0.1", "https://github.com/avinya-forge/auralis")
 
     def search_recording(self, artist: str, title: str) -> List[Dict[str, Any]]:
         """

@@ -48,7 +48,7 @@ def main():
     # Create application
     app = QApplication(sys.argv)
     app.setApplicationName("Auralis")
-    app.setOrganizationName("PatternSeekers")
+    app.setOrganizationName("avinya-forge")
 
     # Set application icon if available
     icon_path = UIFactory.get_icon_path("auralis.png")
