@@ -39,7 +39,9 @@ class CodeHeadroom:
                 self.generic_visit(n)
                 return n
 
-        return NodeTransformer().visit(node)
+        result = NodeTransformer().visit(node)
+        assert isinstance(result, ast.AST)
+        return result
 
     def analyze_file(self, filepath: str) -> List[Dict]:
         """
