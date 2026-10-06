@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Implemented `CodeHeadroom` skill in `src/modules/agent/headroom_skill.py` to proactively identify and suggest codebase optimizations via AST parsing and LLM orchestration (resolving `agent-003-headroom-skill`).
 - Documented streamlined vision, phase roadmap, and user journeys in `docs/architecture.md` (resolving `doc-002-vision-statement`).
 - Implemented `CoverSongDetector` stub in `src/services/ai/cover_song_detector.py` and integrated it with `AIService` and `src/cli/cli_main.py` (resolving `feat-001-coversong`).
 - Completed neural modules pattern audit in `docs/audit_report.md`.
