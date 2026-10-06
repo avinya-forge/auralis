@@ -11,6 +11,9 @@
 - Added comprehensive test suite for `src/utils/audio_utils.py`, specifically targeting `AudioMetadataHandler` and helper functions.
 
 ### Fixed
+- Fixed bandit issues [B404:blacklist], [B603:subprocess_without_shell_equals_true], and [B607:start_process_with_partial_path] by using safe subprocess execution with `shutil.which` and nosec pragmas in `src/services/metadata_service.py` (resolving `auto-audit-2e44d0a7`, `auto-audit-c89b1f63`, `auto-audit-4835d481`).
+- Fixed bandit issue [B105:hardcoded_password_string] by retrieving the Discogs token from an environment variable in `src/services/metadata_service.py` (resolving `auto-audit-d89bcfa9`).
+- Fixed bandit issue [B311:blacklist] by replacing `random.choice` with `secrets.choice` in `src/services/playlist_service.py` (resolving `auto-audit-2f9bab7a`).
 - Fixed bandit issue [B101:assert_used] by replacing assert with explicit check in `src/modules/plg/plugin_sandbox.py` (resolving `auto-audit-fbc82440`).
 - Fixed bandit issue [B614:pytorch_load] by adding `weights_only=True` to `torch.load` in `src/services/ai/instrument_classifier.py` (resolving `auto-audit-17aeaca3`).
 - Fixed bandit issues [B404:blacklist], [B603:subprocess_without_shell_equals_true], and [B607:start_process_with_partial_path] by using `sys.executable`, `shutil.which`, and adding nosec pragmas in `src/services/audio/demixer.py` (resolving `auto-audit-e6a386a7`, `auto-audit-06e93e21`, `auto-audit-e8cc5584`).
