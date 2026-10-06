@@ -349,7 +349,9 @@ class DiscogsSource(MetadataSource):
 
         # Discogs API token (should be configurable)
         # Note: Get your own token at https://www.discogs.com/settings/developers
-        self.discogs_token = os.environ.get('DISCOGS_TOKEN', '')  # Replace with your token  # nosec B105
+        self.discogs_token = os.environ.get(
+            "DISCOGS_TOKEN", ""
+        )  # Replace with your token  # nosec B105
 
         # Set up Discogs client
         try:
