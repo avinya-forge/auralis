@@ -159,8 +159,8 @@ class MusicBrainzSource(MetadataSource):
             bool: True if fpcalc is available, False otherwise.
         """
         try:
-            import subprocess  # nosec B404
             import shutil
+            import subprocess  # nosec B404
 
             fpcalc_path = shutil.which("fpcalc")
             if not fpcalc_path:
