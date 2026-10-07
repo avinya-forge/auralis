@@ -7,6 +7,7 @@ Handles fetching and updating metadata from online sources
 import concurrent.futures
 import json
 import os
+import shutil
 import threading
 import time
 from pathlib import Path
@@ -159,10 +160,14 @@ class MusicBrainzSource(MetadataSource):
             bool: True if fpcalc is available, False otherwise.
         """
         try:
-            import subprocess
+            import subprocess  # nosec B404
 
-            result = subprocess.run(
-                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            fpcalc_path = shutil.which("fpcalc")
+            if not fpcalc_path:
+                return False
+
+            result = subprocess.run(  # nosec B603
+                [fpcalc_path, "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             return result.returncode == 0
         except BaseException:
@@ -344,7 +349,7 @@ class DiscogsSource(MetadataSource):
 
         # Discogs API token (should be configurable)
         # Note: Get your own token at https://www.discogs.com/settings/developers
-        self.discogs_token = "ExampleDiscogsToken"  # Replace with your token
+        self.discogs_token = os.environ.get("DISCOGS_TOKEN", "")  # Replace with your token
 
         # Set up Discogs client
         try:
