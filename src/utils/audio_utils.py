@@ -203,7 +203,7 @@ class AudioMetadataHandler:
             return False
 
     def _download_image(self, image_url: str) -> Optional[bytes]:
-        response = requests.get(image_url)
+        response = requests.get(image_url, timeout=10)
         if response.status_code != 200:
             return None
         return bytes(response.content)
@@ -422,7 +422,8 @@ class AudioUtils:
         """
         trim_ms = 0  # ms
 
-        assert chunk_size > 0  # to avoid infinite loop
+        if chunk_size <= 0:
+            raise ValueError("chunk_size must be greater than 0")
 
         while (
             trim_ms < len(sound) and sound[trim_ms : trim_ms + chunk_size].dBFS < silence_threshold

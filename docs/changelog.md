@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Resolved various Bandit security warnings (e.g. `B404`, `B603`, `B607`, `B105`, `B311`, `B113`, `B101`) in `metadata_service.py`, `playlist_service.py`, and `audio_utils.py`.
 - Implemented `CodeHeadroom` skill in `src/modules/agent/headroom_skill.py` to proactively identify and suggest codebase optimizations via AST parsing and LLM orchestration (resolving `agent-003-headroom-skill`).
 - Documented streamlined vision, phase roadmap, and user journeys in `docs/architecture.md` (resolving `doc-002-vision-statement`).
 - Implemented `CoverSongDetector` stub in `src/services/ai/cover_song_detector.py` and integrated it with `AIService` and `src/cli/cli_main.py` (resolving `feat-001-coversong`).
