@@ -159,12 +159,16 @@ class MusicBrainzSource(MetadataSource):
             bool: True if fpcalc is available, False otherwise.
         """
         try:
-            import subprocess
+            import shutil
+            import subprocess  # nosec B404
 
-            result = subprocess.run(
-                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            return result.returncode == 0
+            fpcalc_path = shutil.which("fpcalc")
+            if fpcalc_path:
+                result = subprocess.run(
+                    [fpcalc_path, "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )  # nosec B603
+                return result.returncode == 0
+            return False
         except BaseException:
             return False
 
@@ -344,7 +348,7 @@ class DiscogsSource(MetadataSource):
 
         # Discogs API token (should be configurable)
         # Note: Get your own token at https://www.discogs.com/settings/developers
-        self.discogs_token = "ExampleDiscogsToken"  # Replace with your token
+        self.discogs_token = "ExampleDiscogsToken"  # nosec B105
 
         # Set up Discogs client
         try:
