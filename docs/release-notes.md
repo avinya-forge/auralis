@@ -1,157 +1,22 @@
-# Release Notes v2.1.2 (Audit & Alignment)
+# Auralis Release Notes
 
 ## Summary
-This release focuses on auditing the "Hybrid Edge-Cloud Neural Network" foundation. We have verified the implementation of core audio processing, neural classification, and cloud integration modules, while identifying critical gaps in P2P security and meta-agent orchestration.
+These release notes document the verified and completed tasks categorized by version.
 
-## Features & Fixes Completed (Verified)
+## Version 2.1.2 (Audit & Alignment)
+
+### Features & Fixes Completed (Verified)
 - **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`, `id-004-mfa-support`.
 - **Cloud:** `cld-001-provider-interface`, `cld-002-aws-s3`, `cld-003-gdrive`.
-- **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`, `audio-005-dsp-engine`.
+- **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`, `audio-005-dsp-engine`, `audio-006-audio-utils-coverage`.
 - **AI:** `neu-001-instrument-resnet`, `neu-002-raga-clap-enhanced`, `neu-003-vocalist-analyzer`, `neu-005-drift-correction`.
-- **Database:** `db-001-ingestion-handler`, `db-003-aggregator-seed`, `db-004-ssl-pipeline`, `data-001-schema-v2`, `data-003-metadata-linkage`, `data-005-datetime-formatting`.
-- **Orchestration:** `agent-001-meta-router` (Stub), `agent-002-llm-orchestrator`, `api-001-rest-gateway`, `api-002-jwt-auth`, `api-003-rate-limiting`.
+- **Database:** `db-001-ingestion-handler`, `db-003-aggregator-seed`, `db-004-ssl-pipeline`, `db-005-ssl-refinement`, `data-001-schema-v2`, `data-002-pack-manager`, `data-003-metadata-linkage`, `data-005-datetime-formatting`.
+- **Orchestration:** `agent-001-meta-router`, `agent-002-llm-orchestrator`, `agent-003-headroom-skill`, `agent-004-task-observer`, `api-001-rest-gateway`, `api-002-jwt-auth`, `api-003-rate-limiting`.
 - **Plugins:** `plg-001-sandbox`.
 - **Testing:** `test-002-ai-batch-worker`, `test-003-coveragerc-omit`, `test-004-aggregators-coverage`.
+- **System:** `sys-001-audit-pattern`, `sys-002-cleanup-orphans`, `sys-003-automated-backups`, `sys-004-continuous-audit`.
+- **Documentation:** `doc-002-vision-statement`, `doc-003-vision-refinement`.
+- **Other:** `feat-001-coversong`, `fix-001-bare-exceptions`, `fix-002-jose-deprecation`, `hunt-001-scan-modules`, `hunt-002-stuck-tasks`, `maint-001-grooming`, `ui-001-prune-history-duplicate`.
 
-## Identified Gaps (Backlogged)
-- Missing P2P Network Security implementation (`net-001`).
-- Missing specialized Indian Classical instrument models (`neu-004`).
-- Missing Gamified Validation UI (`db-002`).
-
-## Technical Debt / Cleanup
-- `Meta-Agent Task Router` requires robust LLM-prompting refinement.
-- `SSL Pipeline` requires actual contrastive loss and augmentation logic.
-
-## Release Modules
-### Version 2.1.2
-- **Verified**: agent-001-meta-router
-- **Verified**: agent-002-llm-orchestrator
-- **Verified**: agent-003-headroom-skill
-- **Verified**: agent-004-task-observer
-- **Verified**: api-001-rest-gateway
-- **Verified**: api-002-jwt-auth
-- **Verified**: api-003-rate-limiting
-- **Verified**: audio-001-demucs-wrapper
-- **Verified**: audio-002-dsp-engine
-- **Verified**: audio-003-spec-gen
-- **Verified**: audio-005-dsp-engine
-- **Verified**: audio-006-audio-utils-coverage
-- **Verified**: auto-audit-026276ab
-- **Verified**: auto-audit-04e6e40d
-- **Verified**: auto-audit-06e93e21
-- **Verified**: auto-audit-08ac020b
-- **Verified**: auto-audit-08b8bbb9
-- **Verified**: auto-audit-0963196d
-- **Verified**: auto-audit-0bc55e55
-- **Verified**: auto-audit-0c1d8e84
-- **Verified**: auto-audit-0d440167
-- **Verified**: auto-audit-11a1d466
-- **Verified**: auto-audit-11c739d4
-- **Verified**: auto-audit-1558965d
-- **Verified**: auto-audit-17aeaca3
-- **Verified**: auto-audit-19f49620
-- **Verified**: auto-audit-1e12e3f2
-- **Verified**: auto-audit-292795eb
-- **Verified**: auto-audit-2b9e51bd
-- **Verified**: auto-audit-2c0ea966
-- **Verified**: auto-audit-2dacffaa
-- **Verified**: auto-audit-2e049a2b
-- **Verified**: auto-audit-2e1d7460
-- **Verified**: auto-audit-407235dd
-- **Verified**: auto-audit-413a5b02
-- **Verified**: auto-audit-494e0109
-- **Verified**: auto-audit-4de072e2
-- **Verified**: auto-audit-4fd11ef5
-- **Verified**: auto-audit-54516826
-- **Verified**: auto-audit-55b50426
-- **Verified**: auto-audit-5613aac5
-- **Verified**: auto-audit-6320078f
-- **Verified**: auto-audit-6ed3f72f
-- **Verified**: auto-audit-70c3f6b9
-- **Verified**: auto-audit-747e8b4f
-- **Verified**: auto-audit-7650a420
-- **Verified**: auto-audit-78c2cf49
-- **Verified**: auto-audit-7b43a0fc
-- **Verified**: auto-audit-7b99757e
-- **Verified**: auto-audit-7c623cdf
-- **Verified**: auto-audit-7db3a3b2
-- **Verified**: auto-audit-7decd42e
-- **Verified**: auto-audit-806692ad
-- **Verified**: auto-audit-8435abeb
-- **Verified**: auto-audit-85aca4ae
-- **Verified**: auto-audit-8caf6a6f
-- **Verified**: auto-audit-8f07c86c
-- **Verified**: auto-audit-93c22ecb
-- **Verified**: auto-audit-9436202f
-- **Verified**: auto-audit-983e5398
-- **Verified**: auto-audit-9a02709e
-- **Verified**: auto-audit-a3885727
-- **Verified**: auto-audit-a495c7c3
-- **Verified**: auto-audit-b0e40352
-- **Verified**: auto-audit-b133cafc
-- **Verified**: auto-audit-b5031515
-- **Verified**: auto-audit-bece688d
-- **Verified**: auto-audit-c1b93fa6
-- **Verified**: auto-audit-c34c2a06
-- **Verified**: auto-audit-c6ab4ebc
-- **Verified**: auto-audit-c70e69c9
-- **Verified**: auto-audit-cc6fdc8a
-- **Verified**: auto-audit-d3f302f9
-- **Verified**: auto-audit-d485ccb1
-- **Verified**: auto-audit-d654015a
-- **Verified**: auto-audit-de453e14
-- **Verified**: auto-audit-ded42955
-- **Verified**: auto-audit-dfc42ff6
-- **Verified**: auto-audit-dfc80fa7
-- **Verified**: auto-audit-e4c00041
-- **Verified**: auto-audit-e6a386a7
-- **Verified**: auto-audit-e8cc5584
-- **Verified**: auto-audit-eb9bd724
-- **Verified**: auto-audit-ebb2b931
-- **Verified**: auto-audit-ee463839
-- **Verified**: auto-audit-eea3bda4
-- **Verified**: auto-audit-efd57765
-- **Verified**: auto-audit-f81baba1
-- **Verified**: auto-audit-fbc82440
-- **Verified**: auto-audit-fc980468
-- **Verified**: auto-audit-fdb07f76
-- **Verified**: auto-audit-fed32432
-- **Verified**: auto-audit-ff82a554
-- **Verified**: auto-audit-ffe7c738
-- **Verified**: cld-001-provider-interface
-- **Verified**: cld-002-aws-s3
-- **Verified**: cld-003-gdrive
-- **Verified**: data-001-schema-v2
-- **Verified**: data-002-pack-manager
-- **Verified**: data-003-metadata-linkage
-- **Verified**: data-005-datetime-formatting
-- **Verified**: db-001-ingestion-handler
-- **Verified**: db-002-validation-ui
-- **Verified**: db-003-aggregator-seed
-- **Verified**: db-004-ssl-pipeline
-- **Verified**: db-005-ssl-refinement
-- **Verified**: doc-002-vision-statement
-- **Verified**: doc-003-vision-refinement
-- **Verified**: feat-001-coversong
-- **Verified**: fix-001-bare-exceptions
-- **Verified**: fix-002-jose-deprecation
-- **Verified**: hunt-001-scan-modules
-- **Verified**: hunt-002-stuck-tasks
-- **Verified**: id-001-stats-aggregator
-- **Verified**: id-002-profile-sync
-- **Verified**: id-003-history-pruning
-- **Verified**: id-004-mfa-support
-- **Verified**: maint-001-grooming
-- **Verified**: neu-001-instrument-resnet
-- **Verified**: neu-002-raga-clap-enhanced
-- **Verified**: neu-003-vocalist-analyzer
-- **Verified**: neu-005-drift-correction
-- **Verified**: plg-001-sandbox
-- **Verified**: sys-001-audit-pattern
-- **Verified**: sys-002-cleanup-orphans
-- **Verified**: sys-003-automated-backups
-- **Verified**: sys-004-continuous-audit
-- **Verified**: test-002-ai-batch-worker
-- **Verified**: test-003-coveragerc-omit
-- **Verified**: test-004-aggregators-coverage
-- **Verified**: ui-001-prune-history-duplicate
+### Auto-Audit Completed Tasks
+- **Verified Audits:** `auto-audit-026276ab`, `auto-audit-04e6e40d`, `auto-audit-06e93e21`, `auto-audit-08ac020b`, `auto-audit-08b8bbb9`, `auto-audit-0963196d`, `auto-audit-0bc55e55`, `auto-audit-0c1d8e84`, `auto-audit-0d440167`, `auto-audit-11a1d466`, `auto-audit-11c739d4`, `auto-audit-1558965d`, `auto-audit-17aeaca3`, `auto-audit-19f49620`, `auto-audit-1e12e3f2`, `auto-audit-292795eb`, `auto-audit-2b9e51bd`, `auto-audit-2c0ea966`, `auto-audit-2dacffaa`, `auto-audit-2e049a2b`, `auto-audit-2e1d7460`, `auto-audit-407235dd`, `auto-audit-413a5b02`, `auto-audit-494e0109`, `auto-audit-4de072e2`, `auto-audit-4fd11ef5`, `auto-audit-54516826`, `auto-audit-55b50426`, `auto-audit-5613aac5`, `auto-audit-6320078f`, `auto-audit-6ed3f72f`, `auto-audit-70c3f6b9`, `auto-audit-747e8b4f`, `auto-audit-7650a420`, `auto-audit-78c2cf49`, `auto-audit-7b43a0fc`, `auto-audit-7b99757e`, `auto-audit-7c623cdf`, `auto-audit-7db3a3b2`, `auto-audit-7decd42e`, `auto-audit-806692ad`, `auto-audit-8435abeb`, `auto-audit-85aca4ae`, `auto-audit-8caf6a6f`, `auto-audit-8f07c86c`, `auto-audit-93c22ecb`, `auto-audit-9436202f`, `auto-audit-983e5398`, `auto-audit-9a02709e`, `auto-audit-a3885727`, `auto-audit-a495c7c3`, `auto-audit-b0e40352`, `auto-audit-b133cafc`, `auto-audit-b5031515`, `auto-audit-bece688d`, `auto-audit-c1b93fa6`, `auto-audit-c34c2a06`, `auto-audit-c6ab4ebc`, `auto-audit-c70e69c9`, `auto-audit-cc6fdc8a`, `auto-audit-d3f302f9`, `auto-audit-d485ccb1`, `auto-audit-d654015a`, `auto-audit-de453e14`, `auto-audit-ded42955`, `auto-audit-dfc42ff6`, `auto-audit-dfc80fa7`, `auto-audit-e4c00041`, `auto-audit-e6a386a7`, `auto-audit-e8cc5584`, `auto-audit-eb9bd724`, `auto-audit-ebb2b931`, `auto-audit-ee463839`, `auto-audit-eea3bda4`, `auto-audit-efd57765`, `auto-audit-f81baba1`, `auto-audit-fbc82440`, `auto-audit-fc980468`, `auto-audit-fdb07f76`, `auto-audit-fed32432`, `auto-audit-ff82a554`, `auto-audit-ffe7c738`.
