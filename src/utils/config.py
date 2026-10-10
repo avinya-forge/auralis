@@ -21,10 +21,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "ACOUSTID_API_KEY": "1vOwZtEn",  # Default public key, limited usage
     # Discogs API
     "DISCOGS_CONSUMER_KEY": "RZdEfCsofXBPZDLXkKHr",
-    "DISCOGS_CONSUMER_SECRET": "AmqQvwMQzTJHVhxHtTUVLHlyeKGcldYh",
-    "DISCOGS_REQUEST_TOKEN_URL": "https://api.discogs.com/oauth/request_token",
+    "DISCOGS_CONSUMER_SECRET": os.environ.get("DISCOGS_CONSUMER_SECRET", ""),
+    "DISCOGS_REQUEST_TOKEN_URL": "https://api.discogs.com/oauth/request_token",  # nosec B105
     "DISCOGS_AUTHORIZE_URL": "https://www.discogs.com/oauth/authorize",
-    "DISCOGS_ACCESS_TOKEN_URL": "https://api.discogs.com/oauth/access_token",
+    "DISCOGS_ACCESS_TOKEN_URL": "https://api.discogs.com/oauth/access_token",  # nosec B105
     # File paths (platform-specific defaults)
     "DEFAULT_INPUT_DIR": "",
     "DEFAULT_OUTPUT_DIR": "",

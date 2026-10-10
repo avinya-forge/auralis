@@ -8,6 +8,7 @@ import ctypes.util
 import importlib
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -327,8 +328,27 @@ class DependencyChecker:
         Returns:
             bool: True if installation was successful.
         """
+
+        # Sanitize packages to prevent command injection
+        sanitized_packages = []
+        for pkg in packages:
+            # Only allow alphanumeric characters, hyphens, underscores, and periods
+            if re.match(r"^[a-zA-Z0-9_.-]+$", pkg):
+                sanitized_packages.append(pkg)
+            else:
+                return False
+
+        if not sanitized_packages:
+            return False
+
+        executable = shutil.which(sys.executable)
+        if not executable:
+            return False
+
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
+            subprocess.check_call(
+                [executable, "-m", "pip", "install"] + sanitized_packages, shell=False
+            )
             return True
         except subprocess.CalledProcessError:
             return False
