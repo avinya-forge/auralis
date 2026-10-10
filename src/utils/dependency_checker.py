@@ -8,12 +8,12 @@ import ctypes.util
 import importlib
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from typing import Any, Dict, List, Optional
-import re
 
 
 class DependencyChecker:
