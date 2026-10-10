@@ -166,7 +166,8 @@ class SystemMonitor(QObject):
                 if reduction == "half":
                     return max(1, optimal // 2)
                 else:
-                    assert isinstance(reduction, int)
+                    if not isinstance(reduction, int):
+                        raise ValueError("reduction must be int")
                     return max(1, optimal - reduction)
         return optimal
 

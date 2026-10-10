@@ -158,15 +158,8 @@ class MusicBrainzSource(MetadataSource):
         Returns:
             bool: True if fpcalc is available, False otherwise.
         """
-        try:
-            import subprocess
-
-            result = subprocess.run(
-                ["fpcalc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-            return result.returncode == 0
-        except BaseException:
-            return False
+        import shutil
+        return shutil.which("fpcalc") is not None
 
     def get_metadata(self, file_info: Dict[str, Any]) -> Tuple[Dict[str, Any], bool, float]:
         """
@@ -344,7 +337,7 @@ class DiscogsSource(MetadataSource):
 
         # Discogs API token (should be configurable)
         # Note: Get your own token at https://www.discogs.com/settings/developers
-        self.discogs_token = "ExampleDiscogsToken"  # Replace with your token
+        self.discogs_token = os.environ.get("DISCOGS_API_TOKEN", "ExampleDiscogsToken")  # Replace with your token
 
         # Set up Discogs client
         try:
