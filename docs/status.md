@@ -1,10 +1,10 @@
 # Project Status Dashboard
 
 ## Overall Progress
-- **Total Backlog Items:** 26
+- **Total Backlog Items:** 29
 - **Completed Items:** 0
-- **Pending Items:** 26
-- **Blocked Items:** 0
+- **Pending Items:** 28
+- **Blocked Items:** 1
 - **Completion Percentage:** 0.00%
 
 ## Priority Breakdown
