@@ -333,7 +333,7 @@ class DependencyChecker:
         sanitized_packages = []
         for pkg in packages:
             # Only allow alphanumeric characters, hyphens, underscores, and periods
-            if re.match(r'^[a-zA-Z0-9_.-]+$', pkg):
+            if re.match(r"^[a-zA-Z0-9_.-]+$", pkg):
                 sanitized_packages.append(pkg)
             else:
                 return False
@@ -347,8 +347,7 @@ class DependencyChecker:
 
         try:
             subprocess.check_call(
-                [executable, "-m", "pip", "install"] + sanitized_packages,
-                shell=False
+                [executable, "-m", "pip", "install"] + sanitized_packages, shell=False
             )
             return True
         except subprocess.CalledProcessError:
