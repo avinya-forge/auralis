@@ -6,10 +6,10 @@
 ---
 
 ## EPIC 1: Acoustic Deduplication & Song ID
-- **[ ] TASK:** feat-002-spectrogram-detection-core | **Spec:** Implement real-time audio analysis using librosa to generate Mel-spectrograms. | **Deps:** librosa, torch | **LOC Estimate:** 80
-- **[ ] TASK:** feat-002-spectrogram-detection-fingerprint | **Spec:** Generate unique Song ID based on distinct spectrogram features. | **Deps:** feat-002-spectrogram-detection-core | **LOC Estimate:** 70
-- **[ ] TASK:** feat-003-batch-song-comparison-engine | **Spec:** Build concurrent batch processing engine for loading multiple audio files simultaneously. | **Deps:** feat-002-spectrogram-detection-fingerprint | **LOC Estimate:** 60
-- **[ ] TASK:** feat-003-batch-song-comparison-logic | **Spec:** Implement deduplication logic by comparing spectrogram features across batched files. | **Deps:** feat-003-batch-song-comparison-engine | **LOC Estimate:** 60
+- **[x] TASK:** feat-002-spectrogram-detection-core | **Spec:** Implement real-time audio analysis using librosa to generate Mel-spectrograms. | **Deps:** librosa, torch | **LOC Estimate:** 80
+- **[x] TASK:** feat-002-spectrogram-detection-fingerprint | **Spec:** Generate unique Song ID based on distinct spectrogram features. | **Deps:** feat-002-spectrogram-detection-core | **LOC Estimate:** 70
+- **[x] TASK:** feat-003-batch-song-comparison-engine | **Spec:** Build concurrent batch processing engine for loading multiple audio files simultaneously. | **Deps:** feat-002-spectrogram-detection-fingerprint | **LOC Estimate:** 60
+- **[x] TASK:** feat-003-batch-song-comparison-logic | **Spec:** Implement deduplication logic by comparing spectrogram features across batched files. | **Deps:** feat-003-batch-song-comparison-engine | **LOC Estimate:** 60
 
 ## EPIC 2: Multi-source Metadata Aggregation
 - **[x] TASK:** auto-audit-2e44d0a7 | [DEBT] | **Loc:** src/services/metadata_service.py | **Spec:** Refactor metadata_service.py to remove subprocess module and replace with secure API calls. | **Deps:** None | **LOC Estimate:** 20
