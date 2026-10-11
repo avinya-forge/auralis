@@ -8,7 +8,7 @@ audio analysis data (BPM, Key, Mood).
 import json
 import logging
 import os
-import random
+import secrets
 import time
 from typing import Any, Dict, List, Optional, Set, cast
 
@@ -213,7 +213,7 @@ class PlaylistGenerator:
             return []
 
         playlist = []
-        current_track = start_track if start_track in valid_files else random.choice(valid_files)
+        current_track = start_track if start_track in valid_files else secrets.choice(valid_files)
         playlist.append(current_track)
 
         # Keep track of used files to avoid duplicates
@@ -291,7 +291,7 @@ class PlaylistGenerator:
                 matches.append(track)
 
         if matches:
-            return random.choice(matches)
+            return secrets.choice(matches)
         return None
 
     def export_playlist(self, playlist: List[Dict[str, Any]], filepath: str) -> bool:
