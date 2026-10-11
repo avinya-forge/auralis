@@ -1,7 +1,7 @@
+import importlib
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
-import sys
-import importlib
 
 
 class TestSpectrogramService(unittest.TestCase):

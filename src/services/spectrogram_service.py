@@ -6,10 +6,10 @@ using librosa and compute distinct Song IDs based on these features for deduplic
 It also provides concurrent batch processing capabilities.
 """
 
+import concurrent.futures
+import hashlib
 import logging
 from typing import Any, Dict, List, Optional
-import hashlib
-import concurrent.futures
 
 logger = logging.getLogger(__name__)
 
