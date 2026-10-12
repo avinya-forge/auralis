@@ -6,15 +6,17 @@ from unittest.mock import MagicMock, patch
 
 class TestSpectrogramService(unittest.TestCase):
     def setUp(self):
-        # Mock librosa and numpy
+        # Mock librosa, numpy, and acoustid
         self.mock_librosa = MagicMock()
         self.mock_numpy = MagicMock()
+        self.mock_acoustid = MagicMock()
 
         self.modules_patcher = patch.dict(
             sys.modules,
             {
                 "librosa": self.mock_librosa,
                 "numpy": self.mock_numpy,
+                "acoustid": self.mock_acoustid,
             },
         )
         self.modules_patcher.start()
@@ -107,27 +109,97 @@ class TestSpectrogramService(unittest.TestCase):
                 mock_logger_batch.error.assert_called()
 
     def test_find_duplicates_in_batch(self):
-        with patch.object(self.service, "process_batch") as mock_process:
-            mock_process.return_value = {
-                "file1.mp3": "id1",
-                "file2.mp3": "id2",
-                "file3.mp3": "id1",
-                "file4.mp3": None,
-                "file5.mp3": "id3",
+        with patch.object(self.service, "_process_chroma_batch") as mock_chroma, patch.object(
+            self.service, "process_batch"
+        ) as mock_process:
+
+            # chroma hashes:
+            # file1 and file3 are exact duplicates
+            # file2, file4, file5 are unique by chroma hash
+            # file6 chroma hash failed (None)
+            mock_chroma.return_value = {
+                "file1.mp3": "chroma1",
+                "file2.mp3": "chroma2",
+                "file3.mp3": "chroma1",
+                "file4.mp3": "chroma3",
+                "file5.mp3": "chroma4",
+                "file6.mp3": None,
             }
 
-            paths = ["file1.mp3", "file2.mp3", "file3.mp3", "file4.mp3", "file5.mp3"]
+            # deep spectrogram computation (only for fallback paths: file2, file4, file5, file6)
+            mock_process.return_value = {
+                "file2.mp3": "id2",
+                "file4.mp3": "id4",
+                "file5.mp3": "id2",  # file2 and file5 match by spectrogram
+                "file6.mp3": None,
+            }
+
+            paths = ["file1.mp3", "file2.mp3", "file3.mp3", "file4.mp3", "file5.mp3", "file6.mp3"]
             duplicates = self.service.find_duplicates_in_batch(paths)
 
-            self.assertIn("id1", duplicates)
-            self.assertEqual(len(duplicates["id1"]), 2)
-            self.assertIn("file1.mp3", duplicates["id1"])
-            self.assertIn("file3.mp3", duplicates["id1"])
+            # verify chroma duplicates
+            self.assertIn("chroma_chroma1", duplicates)
+            self.assertEqual(len(duplicates["chroma_chroma1"]), 2)
+            self.assertIn("file1.mp3", duplicates["chroma_chroma1"])
+            self.assertIn("file3.mp3", duplicates["chroma_chroma1"])
 
-            # id2, id3, and None should not be in duplicates
-            self.assertNotIn("id2", duplicates)
-            self.assertNotIn("id3", duplicates)
+            # verify spectrogram fallback duplicates
+            self.assertIn("id2", duplicates)
+            self.assertEqual(len(duplicates["id2"]), 2)
+            self.assertIn("file2.mp3", duplicates["id2"])
+            self.assertIn("file5.mp3", duplicates["id2"])
+
+            # No other duplicates
+            self.assertNotIn("id4", duplicates)
             self.assertNotIn(None, duplicates)
+
+            # Ensure process_batch was called only with fallback paths
+            mock_process.assert_called_once()
+            called_paths = mock_process.call_args[0][0]
+            self.assertCountEqual(
+                called_paths, ["file2.mp3", "file4.mp3", "file5.mp3", "file6.mp3"]
+            )
+
+    def test_generate_chroma_hash_success(self):
+        self.mock_acoustid.fingerprint_file.return_value = (120, b"fake_fingerprint")
+        result = self.service.generate_chroma_hash("test.mp3")
+        self.assertEqual(result, "fake_fingerprint")
+        self.mock_acoustid.fingerprint_file.assert_called_with("test.mp3")
+
+    def test_generate_chroma_hash_str(self):
+        self.mock_acoustid.fingerprint_file.return_value = (120, "fake_fingerprint_str")
+        result = self.service.generate_chroma_hash("test.mp3")
+        self.assertEqual(result, "fake_fingerprint_str")
+
+    def test_generate_chroma_hash_no_acoustid(self):
+        self.service.has_acoustid = False
+        result = self.service.generate_chroma_hash("test.mp3")
+        self.assertIsNone(result)
+
+    def test_generate_chroma_hash_error(self):
+        self.mock_acoustid.fingerprint_file.side_effect = Exception("Acoustid error")
+        with patch("src.services.spectrogram_service.logger") as mock_logger:
+            result = self.service.generate_chroma_hash("test.mp3")
+            self.assertIsNone(result)
+            mock_logger.error.assert_called()
+
+    def test_process_chroma_batch(self):
+        with patch.object(self.service, "generate_chroma_hash") as mock_gen_chroma:
+            mock_gen_chroma.side_effect = lambda path: f"chroma_{path}"
+
+            paths = ["path1.mp3", "path2.mp3"]
+            result = self.service._process_chroma_batch(paths, max_workers=2)
+
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result["path1.mp3"], "chroma_path1.mp3")
+            self.assertEqual(result["path2.mp3"], "chroma_path2.mp3")
+
+    def test_process_chroma_batch_no_deps(self):
+        self.service.has_acoustid = False
+        paths = ["path1.mp3", "path2.mp3"]
+        result = self.service._process_chroma_batch(paths)
+        self.assertIsNone(result["path1.mp3"])
+        self.assertIsNone(result["path2.mp3"])
 
     @patch("src.services.spectrogram_service.hashlib")
     def test_generate_song_id_success(self, mock_hashlib):

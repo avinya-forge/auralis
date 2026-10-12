@@ -22,6 +22,7 @@ class SpectrogramService:
     def __init__(self) -> None:
         """Initialize the SpectrogramService."""
         self.has_dependencies = self._check_dependencies()
+        self.has_acoustid = self._check_acoustid_dependency()
 
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
@@ -37,6 +38,16 @@ class SpectrogramService:
             return True
         except ImportError:
             logger.warning("Librosa or numpy not installed. Spectrogram features disabled.")
+            return False
+
+    def _check_acoustid_dependency(self) -> bool:
+        """Check if acoustid is available for fast chromaprint hash."""
+        try:
+            import acoustid  # noqa: F401
+
+            return True
+        except ImportError:
+            logger.warning("acoustid not installed. Fast chromaprint hashing disabled.")
             return False
 
     def generate_mel_spectrogram(
@@ -75,6 +86,32 @@ class SpectrogramService:
             return S_dB
         except Exception as e:
             logger.error(f"Error generating Mel-spectrogram for {file_path}: {e}")
+            return None
+
+    def generate_chroma_hash(self, file_path: str) -> Optional[str]:
+        """
+        Generate a fast chromaprint hash using acoustid.
+
+        Args:
+            file_path (str): Path to the audio file.
+
+        Returns:
+            Optional[str]: The chromaprint hash, or None if it failed.
+        """
+        if not self.has_acoustid:
+            return None
+
+        try:
+            import acoustid
+
+            duration, fingerprint = acoustid.fingerprint_file(file_path)
+            if fingerprint:
+                if isinstance(fingerprint, bytes):
+                    return fingerprint.decode("utf-8")
+                return str(fingerprint)
+            return None
+        except Exception as e:
+            logger.error(f"Error generating chroma hash for {file_path}: {e}")
             return None
 
     def generate_song_id(self, file_path: str) -> Optional[str]:
@@ -144,24 +181,69 @@ class SpectrogramService:
 
         return results
 
-    def find_duplicates_in_batch(
+    def _process_chroma_batch(
         self, file_paths: List[str], max_workers: int = 4
-    ) -> Dict[str, List[str]]:
+    ) -> Dict[str, Optional[str]]:
         """
-        Identify duplicate files within a batch using their generated Song IDs.
+        Process a batch of audio files concurrently to generate their chroma hashes.
 
         Args:
             file_paths (List[str]): List of paths to audio files.
             max_workers (int): Maximum number of concurrent workers.
 
         Returns:
-            Dict[str, List[str]]: A dictionary mapping each unique Song ID to a list
-                                  of duplicate file paths that share that ID.
-                                  Only IDs with more than one file are returned.
+            Dict[str, Optional[str]]: A dictionary mapping file paths to their generated chroma hashes.
         """
-        song_ids_map = self.process_batch(file_paths, max_workers)
+        results = {}
+        if not self.has_acoustid:
+            return {path: None for path in file_paths}
 
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_path = {
+                executor.submit(self.generate_chroma_hash, path): path for path in file_paths
+            }
+            for future in concurrent.futures.as_completed(future_to_path):
+                path = future_to_path[future]
+                try:
+                    chroma_hash = future.result()
+                    results[path] = chroma_hash
+                except Exception as e:
+                    logger.error(f"Error processing chroma hash for {path} in batch: {e}")
+                    results[path] = None
+
+        return results
+
+    def _group_by_chroma(
+        self, chroma_results: Dict[str, Optional[str]]
+    ) -> tuple[Dict[str, List[str]], List[str], Dict[str, List[str]]]:
+        """Helper to group files by chroma hash and separate fallback paths."""
+        chroma_id_to_paths: Dict[str, List[str]] = {}
+        fallback_paths: List[str] = []
+
+        for path, chroma_hash in chroma_results.items():
+            if chroma_hash is None:
+                fallback_paths.append(path)
+            else:
+                if chroma_hash not in chroma_id_to_paths:
+                    chroma_id_to_paths[chroma_hash] = []
+                chroma_id_to_paths[chroma_hash].append(path)
+
+        duplicates: Dict[str, List[str]] = {}
+        for chroma_hash, paths in chroma_id_to_paths.items():
+            if len(paths) > 1:
+                duplicates[f"chroma_{chroma_hash}"] = paths
+            elif len(paths) == 1:
+                fallback_paths.append(paths[0])
+
+        return chroma_id_to_paths, fallback_paths, duplicates
+
+    def _process_fallback_paths(
+        self, fallback_paths: List[str], max_workers: int, duplicates: Dict[str, List[str]]
+    ) -> None:
+        """Helper to process fallback paths with deep spectrogram computation."""
+        song_ids_map = self.process_batch(fallback_paths, max_workers)
         id_to_paths: Dict[str, List[str]] = {}
+
         for path, song_id in song_ids_map.items():
             if song_id is None:
                 continue
@@ -169,7 +251,33 @@ class SpectrogramService:
                 id_to_paths[song_id] = []
             id_to_paths[song_id].append(path)
 
-        # Filter for only those with multiple files
-        duplicates = {song_id: paths for song_id, paths in id_to_paths.items() if len(paths) > 1}
+        for song_id, paths in id_to_paths.items():
+            if len(paths) > 1:
+                duplicates[song_id] = paths
+
+    def find_duplicates_in_batch(
+        self, file_paths: List[str], max_workers: int = 4
+    ) -> Dict[str, List[str]]:
+        """
+        Identify duplicate files within a batch using their generated Song IDs.
+        Uses fast chroma hash first, and falls back to spectrogram for the rest.
+
+        Args:
+            file_paths (List[str]): List of paths to audio files.
+            max_workers (int): Maximum number of concurrent workers.
+
+        Returns:
+            Dict[str, List[str]]: A dictionary mapping each unique Song ID (or chroma hash) to a list
+                                  of duplicate file paths that share that ID.
+                                  Only IDs with more than one file are returned.
+        """
+        # First pass: Fast chroma hash
+        chroma_results = self._process_chroma_batch(file_paths, max_workers)
+
+        _, fallback_paths, duplicates = self._group_by_chroma(chroma_results)
+
+        # Second pass: Deep spectrogram computation for the rest
+        if fallback_paths:
+            self._process_fallback_paths(fallback_paths, max_workers, duplicates)
 
         return duplicates
