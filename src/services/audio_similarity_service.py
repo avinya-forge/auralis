@@ -33,12 +33,12 @@ class AudioSimilarityService:
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
         try:
+            import acoustid  # noqa: F401
+            import chromaprint  # noqa: F401
             import librosa  # noqa: F401
             import numpy  # noqa: F401
             import pydub  # noqa: F401
             from sklearn.metrics.pairwise import cosine_similarity  # noqa: F401
-            import acoustid  # noqa: F401
-            import chromaprint  # noqa: F401
 
             return True
         except ImportError:
