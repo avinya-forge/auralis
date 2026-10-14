@@ -78,7 +78,7 @@ class AudioSimilarityService:
             fp_hash = chromaprint.hash_fingerprint(decoded)
 
             self.chroma_hash_cache[file_path] = fp_hash
-            return fp_hash
+            return int(fp_hash)
         except Exception as e:
             logger.error(f"Error computing chroma hash for {file_path}: {str(e)}")
             return None
