@@ -236,7 +236,7 @@ class TestAudioSimilarityService:
             return None
 
         service.compute_chroma_hash = MagicMock(side_effect=mock_compute_chroma_hash_specific)
-        service.compute_fingerprint = MagicMock(return_value=None) # Ensure it doesn't fallback
+        service.compute_fingerprint = MagicMock(return_value=None)  # Ensure it doesn't fallback
 
         duplicates = service.find_duplicates(files)
 

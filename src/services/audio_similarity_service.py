@@ -226,6 +226,37 @@ class AudioSimilarityService:
 
         return duration_groups
 
+    def _is_duplicate_pair(
+        self,
+        file1: Dict[str, Any],
+        file2: Dict[str, Any],
+        hash1: Optional[int],
+        fingerprint1: Optional[Any],
+    ) -> tuple[bool, Optional[Any]]:
+        """Helper to check if two files are duplicates"""
+        is_duplicate = False
+        hash2 = self.compute_chroma_hash(file2["path"])
+
+        if hash1 is not None and hash2 is not None:
+            # Calculate Hamming distance between hashes
+            hamming_distance = bin(hash1 ^ hash2).count("1")
+            if hamming_distance <= 2:
+                is_duplicate = True
+
+        if not is_duplicate:
+            # Fallback to deep spectrogram compute if hash comparison fails or wasn't conclusive
+            if fingerprint1 is None:
+                fingerprint1 = self.compute_fingerprint(file1["path"])
+
+            if fingerprint1 is not None:
+                fingerprint2 = self.compute_fingerprint(file2["path"])
+                if fingerprint2 is not None:
+                    similarity = self.compute_similarity(fingerprint1, fingerprint2)
+                    if similarity >= self.similarity_threshold:
+                        is_duplicate = True
+
+        return is_duplicate, fingerprint1
+
     def _find_duplicates_in_group(
         self, files: List[Dict[str, Any]], processed_files: Set[str]
     ) -> List[List[Dict[str, Any]]]:
@@ -256,27 +287,9 @@ class AudioSimilarityService:
                 if file2["path"] in processed_files:
                     continue
 
-                # Fast path: exact duplicate detection using chroma hash
-                is_duplicate = False
-                hash2 = self.compute_chroma_hash(file2["path"])
-
-                if hash1 is not None and hash2 is not None:
-                    # Calculate Hamming distance between hashes
-                    hamming_distance = bin(hash1 ^ hash2).count('1')
-                    if hamming_distance <= 2:
-                        is_duplicate = True
-
-                if not is_duplicate:
-                    # Fallback to deep spectrogram compute if hash comparison fails or wasn't conclusive
-                    if fingerprint1 is None:
-                        fingerprint1 = self.compute_fingerprint(file1["path"])
-
-                    if fingerprint1 is not None:
-                        fingerprint2 = self.compute_fingerprint(file2["path"])
-                        if fingerprint2 is not None:
-                            similarity = self.compute_similarity(fingerprint1, fingerprint2)
-                            if similarity >= self.similarity_threshold:
-                                is_duplicate = True
+                is_duplicate, fingerprint1 = self._is_duplicate_pair(
+                    file1, file2, hash1, fingerprint1
+                )
 
                 if is_duplicate:
                     current_duplicates.append(file2)
