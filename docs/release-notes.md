@@ -6,7 +6,7 @@ These release notes document the verified and completed tasks categorized by ver
 ## Version 2.1.2 (Audit & Alignment)
 
 ### Features & Fixes Completed (Verified)
-- **Acoustic Deduplication:** `feat-002-spectrogram-detection-core`, `feat-002-spectrogram-detection-fingerprint`, `feat-003-batch-song-comparison-engine`, `feat-003-batch-song-comparison-logic`.
+- **Acoustic Deduplication:** `feat-002-spectrogram-detection-core`, `feat-002-spectrogram-detection-fingerprint`, `feat-003-batch-song-comparison-engine`, `feat-003-batch-song-comparison-logic`, `feat-003-fast-chroma-hash`.
 - **Identity:** `id-001-stats-aggregator`, `id-002-profile-sync`, `id-003-history-pruning`, `id-004-mfa-support`.
 - **Cloud:** `cld-001-provider-interface`, `cld-002-aws-s3`, `cld-003-gdrive`.
 - **Audio:** `audio-001-demucs-wrapper`, `audio-002-dsp-engine`, `audio-003-spec-gen`, `audio-005-dsp-engine`, `audio-006-audio-utils-coverage`.

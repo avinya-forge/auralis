@@ -24,12 +24,17 @@ class AudioSimilarityService:
         # Use Any to avoid direct dependency on numpy in signature
         self.fingerprint_cache: Dict[str, Any] = {}
 
+        # Cache for fast chromaprint hashes
+        self.chroma_hash_cache: Dict[str, int] = {}
+
         # Threshold for similarity (0.0 to 1.0)
         self.similarity_threshold = 0.85
 
     def _check_dependencies(self) -> bool:
         """Check if required dependencies are available."""
         try:
+            import acoustid  # noqa: F401
+            import chromaprint  # noqa: F401
             import librosa  # noqa: F401
             import numpy  # noqa: F401
             import pydub  # noqa: F401
@@ -39,9 +44,44 @@ class AudioSimilarityService:
         except ImportError:
             logger.warning(
                 "Audio similarity detection dependencies not installed. "
-                "Please install: librosa, soundfile, scikit-learn, mutagen, pydub"
+                "Please install: librosa, soundfile, scikit-learn, mutagen, pydub, pyacoustid"
             )
             return False
+
+    def compute_chroma_hash(self, file_path: str) -> Optional[int]:
+        """
+        Compute fast chromaprint hash for exact/near-exact duplicate detection.
+
+        Args:
+            file_path (str): Path to the audio file
+
+        Returns:
+            int or None: 32-bit integer hash of the chromaprint fingerprint, or None if failed.
+        """
+        if not self.available:
+            return None
+
+        if file_path in self.chroma_hash_cache:
+            return self.chroma_hash_cache[file_path]
+
+        try:
+            import acoustid
+            import chromaprint
+
+            # Get the base64 chromaprint
+            duration, fp = acoustid.fingerprint_file(file_path)
+
+            # Decode to raw fingerprint
+            decoded, algo = chromaprint.decode_fingerprint(fp)
+
+            # Hash to a 32-bit int
+            fp_hash = chromaprint.hash_fingerprint(decoded)
+
+            self.chroma_hash_cache[file_path] = fp_hash
+            return int(fp_hash)
+        except Exception as e:
+            logger.error(f"Error computing chroma hash for {file_path}: {str(e)}")
+            return None
 
     def compute_fingerprint(self, file_path: str) -> Optional[Any]:
         """
@@ -186,6 +226,37 @@ class AudioSimilarityService:
 
         return duration_groups
 
+    def _is_duplicate_pair(
+        self,
+        file1: Dict[str, Any],
+        file2: Dict[str, Any],
+        hash1: Optional[int],
+        fingerprint1: Optional[Any],
+    ) -> tuple[bool, Optional[Any]]:
+        """Helper to check if two files are duplicates"""
+        is_duplicate = False
+        hash2 = self.compute_chroma_hash(file2["path"])
+
+        if hash1 is not None and hash2 is not None:
+            # Calculate Hamming distance between hashes
+            hamming_distance = bin(hash1 ^ hash2).count("1")
+            if hamming_distance <= 2:
+                is_duplicate = True
+
+        if not is_duplicate:
+            # Fallback to deep spectrogram compute if hash comparison fails or wasn't conclusive
+            if fingerprint1 is None:
+                fingerprint1 = self.compute_fingerprint(file1["path"])
+
+            if fingerprint1 is not None:
+                fingerprint2 = self.compute_fingerprint(file2["path"])
+                if fingerprint2 is not None:
+                    similarity = self.compute_similarity(fingerprint1, fingerprint2)
+                    if similarity >= self.similarity_threshold:
+                        is_duplicate = True
+
+        return is_duplicate, fingerprint1
+
     def _find_duplicates_in_group(
         self, files: List[Dict[str, Any]], processed_files: Set[str]
     ) -> List[List[Dict[str, Any]]]:
@@ -205,9 +276,9 @@ class AudioSimilarityService:
             if file1["path"] in processed_files:
                 continue
 
-            fingerprint1 = self.compute_fingerprint(file1["path"])
-            if fingerprint1 is None:
-                continue
+            # Fast path: compute chroma hash first
+            hash1 = self.compute_chroma_hash(file1["path"])
+            fingerprint1 = None
 
             current_duplicates = [file1]
 
@@ -216,13 +287,11 @@ class AudioSimilarityService:
                 if file2["path"] in processed_files:
                     continue
 
-                fingerprint2 = self.compute_fingerprint(file2["path"])
-                if fingerprint2 is None:
-                    continue
+                is_duplicate, fingerprint1 = self._is_duplicate_pair(
+                    file1, file2, hash1, fingerprint1
+                )
 
-                similarity = self.compute_similarity(fingerprint1, fingerprint2)
-
-                if similarity >= self.similarity_threshold:
+                if is_duplicate:
                     current_duplicates.append(file2)
 
             if len(current_duplicates) > 1:
