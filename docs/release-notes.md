@@ -3,6 +3,34 @@
 ## Summary
 These release notes document the verified and completed tasks categorized by version.
 
+## Version 2.1.3 (Security Hardening & Refactoring)
+
+### Features & Fixes Completed (Verified)
+- **Metadata Refactoring & Security:**
+  - `auto-audit-2e44d0a7` - Refactor metadata_service.py to remove subprocess module and replace with secure API calls.
+  - `auto-audit-c89b1f63` - Update subprocess calls to use absolute paths to mitigate PATH-based execution attacks.
+  - `auto-audit-4835d481` - Ensure shell=False is passed and sanitize inputs for subprocess calls to prevent shell injection.
+  - `auto-audit-d89bcfa9` - Remove hardcoded password 'ExampleDiscogsToken', move to environment variables.
+- **Dependency & Config Security:**
+  - `auto-audit-67a56f1d` - Remove hardcoded config token, use secure env load.
+  - `auto-audit-fb22eb48` - Fix bandit B105 warning on Discogs request token URL.
+  - `auto-audit-dcd89a61` - Fix bandit B105 warning on Discogs access token URL.
+  - `auto-audit-b85d40d9` - Refactor subprocess usage in dependency checker for security implications.
+  - `auto-audit-d7dbe7b2` - Check untrusted inputs in subprocess call inside dependency checker.
+- **Cryptography & Utility Refactoring:**
+  - `auto-audit-2f9bab7a` - Replace standard pseudo-random generators with secrets module for cryptographic safety.
+  - `auto-audit-875306fc` - Add timeouts to all requests module calls to prevent hanging connections.
+  - `auto-audit-2dc3aa8d` - Replace assert statements with ValueError or proper exception handling.
+  - `auto-audit-cf8c7ee4` - Set usedforsecurity=False for MD5 hash in hashlib to suppress B324.
+  - `auto-audit-c7051bfe` - Set usedforsecurity=False for SHA1 hash in hashlib to suppress B324.
+  - `auto-audit-21f58679` - Replace assert statements in system_utils.py for safe optimized bytecode.
+- **Acoustic Deduplication:**
+  - `feat-002-spectrogram-detection-core` - Implement real-time audio analysis using librosa to generate Mel-spectrograms.
+  - `feat-002-spectrogram-detection-fingerprint` - Generate unique Song ID based on distinct spectrogram features.
+  - `feat-003-batch-song-comparison-engine` - Build concurrent batch processing engine for loading multiple audio files simultaneously.
+  - `feat-003-batch-song-comparison-logic` - Implement deduplication logic by comparing spectrogram features across batched files.
+  - `feat-003-fast-chroma-hash` - Implement fast chromaprint hash comparison to bypass deep spectrogram compute for exact duplicates.
+
 ## Version 2.1.2 (Audit & Alignment)
 
 ### Features & Fixes Completed (Verified)
