@@ -146,3 +146,21 @@ error.log
 .memory/
 
 src/services/cache/
+
+# Local databases, catalogs, and scratch caches
+*.db
+*.sqlite
+*.sqlite3
+cached_*.json
+engine_decision_cache.json
+exact_untitled_origins.json
+misplacements_audit.json
+music_inventory_catalog.json
+organized_verification_report.json
+demo_journey_report.json
+dry_run_review.html
+transcription_results.txt
+whisper_*.txt
+unresolved_list.txt
+generic_sample_check.txt
+scripts/*.txt

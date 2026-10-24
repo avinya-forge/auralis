@@ -137,7 +137,7 @@ mock_mutagen.mp3 = mock_mp3
 
 
 mock_id3 = types.ModuleType("mutagen.id3")
-for name in ["APIC", "TALB", "TCON", "TDRC", "TIT2", "TPE1", "TRCK", "ID3", "USLT"]:
+for name in ["APIC", "TALB", "TCON", "TDRC", "TYER", "TIT2", "TPE1", "TPE2", "TRCK", "ID3", "USLT", "TCOM", "TEXT"]:
     setattr(mock_id3, name, MagicMock)  # Assign class not instance
 # Add ID3NoHeaderError
 
@@ -159,12 +159,46 @@ class EasyID3(MagicMock):
 mock_easyid3.EasyID3 = EasyID3
 mock_mutagen.easyid3 = mock_easyid3
 
+# mock asf
+mock_asf = types.ModuleType("mutagen.asf")
+class ASF(MagicMock):
+    pass
+mock_asf.ASF = ASF
+mock_mutagen.asf = mock_asf
+
+# mock oggvorbis
+mock_oggvorbis = types.ModuleType("mutagen.oggvorbis")
+class OggVorbis(MagicMock):
+    pass
+mock_oggvorbis.OggVorbis = OggVorbis
+mock_mutagen.oggvorbis = mock_oggvorbis
+
+# mock mp4
+mock_mp4 = types.ModuleType("mutagen.mp4")
+class MP4(MagicMock):
+    pass
+mock_mp4.MP4 = MP4
+class MP4Cover(MagicMock):
+    FORMAT_JPEG = 13
+mock_mp4.MP4Cover = MP4Cover
+
+mock_wave = types.ModuleType("mutagen.wave")
+class WAVE(MagicMock):
+    pass
+mock_wave.WAVE = WAVE
+mock_mutagen.wave = mock_wave
+sys.modules["mutagen.wave"] = mock_wave
+mock_mutagen.mp4 = mock_mp4
+
 # Register in sys.modules
 sys.modules["mutagen"] = mock_mutagen
 sys.modules["mutagen.flac"] = mock_flac
 sys.modules["mutagen.mp3"] = mock_mp3
 sys.modules["mutagen.id3"] = mock_id3
 sys.modules["mutagen.easyid3"] = mock_easyid3
+sys.modules["mutagen.asf"] = mock_asf
+sys.modules["mutagen.oggvorbis"] = mock_oggvorbis
+sys.modules["mutagen.mp4"] = mock_mp4
 
 # Also patch mutagen.File
 mock_mutagen.File = MagicMock()

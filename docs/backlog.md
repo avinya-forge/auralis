@@ -1,54 +1,89 @@
-# Auralis Backlog (v2.1.3)
+# Auralis Backlog (v7.0.0 - Deep Audio Analysis, Sanskrit Sukta Disambiguation & AirLLM Engine)
 
-## 🌌 6–8 Month Strategic Roadmap & Horizon Plan
-
-| Horizon | Core Strategic Milestone | Lead Focus | Key Deliverables |
-|:---:|:---|:---|:---|
-| **Month 1–2** | **Acoustic Deduplication & Clean Architecture** | Audio Signal Processing | Spectrogram batch comparisons, Mel-scale feature extraction, Bandit/flake8 hardening |
-| **Month 3–4** | **Multi-Source Metadata Aggregation & Neural Fingerprinting** | MusicBrainz & Discogs API | AcousticID extraction, Discogs enrichment, resilient rate-limited HTTP client |
-| **Month 5–6** | **Spatial Audio Tagging & Smart Playlist Synthesis** | LLM Playlist Clustering | Local vector clustering for mood/tempo, lossless FLAC/ALAC bit-perfect validator |
-| **Month 7–8** | **P2P Decentralized Audio Sync & Edge Streaming** | Libp2p & Local Mesh | P2P node initialization, ed25519 identity, LAN zero-config library syncing |
+## 🎯 Current Sprint: Deep Per-File Analysis, Vedic Sukta Disambiguation & Full Library Reorganization
+**North Star:** Strict 1-File-At-A-Time Analysis Pipeline, Sanskrit Sukta & Stotra Disambiguation, Bollywood Disambiguation (e.g. Omkara), ID3v2.4 & ASF Deep Tagging, Quality-Aware Stream Hashing Deduplication, and AirLLM Architecture Support.
 
 ---
 
-## 🎯 Current Sprint: Phase 7 Hybrid Intelligence
-**North Star:** The Autonomous, High-Fidelity Music Neural Network.
+## 📊 Backlog Priority Matrix
+
+| Priority | EPIC | Focus Area | Deliverable | Status |
+|:---:|:---|:---|:---|:---:|
+| **DONE** | **EPIC 19: Artist-Centric Architecture & Category Reduction** | Pure Taxonomy & Artist Directories | Consolidated Hindi non-film into `Hindi\Artists` (44 artists), purged Albums and Ghazals, re-homed misplaced Bollywood tracks, extracted Marathi Natyasangeet artists to root, established `English\Singles`, 0 empty folders, 5-loop verification 100% green | **DONE** |
+| **DONE** | **EPIC 18: Directory Streamlining & Synonym Consolidation** | Structural Hygiene & Part Disambiguation | Purged empty folders (0 left), consolidated Devotional & Bhajans, Rock & Pop, Hamrahi/Humrahi, Atif Aslam non-film, eliminated fake Love Story album, resolved all 13 cryptic part files with authentic tags, 5-loop verification 100% green | **DONE** |
+| **DONE** | **EPIC 17: Precision Polishing & Marathi Linguistic Resolution** | Forensic Perfection & Typography | Re-homed 26 Lata Mangeshkar Marathi masterpieces to Marathi, stripped 17 soundtrack movie prefixes, solved Windows NTFS case-insensitive typography (161 files renamed, 152 tags updated), 34/34 passing tests | **DONE** |
+| **DONE** | **EPIC 16: Multi-Source Reliable Metadata & 100% Embedded Artwork** | Online Discography & Universal Art | Built `ReliableMetadataClient` (iTunes + MusicBrainz WS API + SQLite cache), integrated into `MasterOrganizer`, 100% embedded artwork (6,801/6,801), 5-loop verification passing with 0 flaws, 30/30 unit tests | **DONE** |
+| **DONE** | **EPIC 15: Acoustic Waveform Dedupe & Language Architecture** | Spectrum Matching & Pure Taxonomy | Raw PCM waveform hashing, 1,104 acoustic duplicates archived, 0 brackets, 0 Evergreen Classics, P.L. Deshpande in Marathi, The Doors merged, Hotel California deduplicated, 44 GB free space | **DONE** |
+| **DONE** | **EPIC 14: Ground-Truth Pravachan & Katha Preservation** | Sequential Day/Session Structure | Preserved Ghaisasi Guruji (Day 01-05, Day 06-10, Artya), Kavishwar Maharaj, Shankar Abhyankar (Gita Adhyays 01-18), Aparna Abhyankar (Gita Pathan 01-18), 0 brackets, 100% dedicated collections | **DONE** |
+| **DONE** | **EPIC 13: 4-Pass Taxonomy Refinement & Zero Brackets** | Granular Categorization | 100% elimination of Evergreen Classics (0 tracks), 0 brackets, 0 dirty symbols, 0 repeated prefixes | **DONE** |
+| **DONE** | **EPIC 10: Deep Audio Inspection & Disambiguation** | Deep Metadata & Tagging | Multi-threaded per-file inspection, ID3v2.4/ASF embedded tag writing, stream hash dedupe | **DONE** |
+| **DONE** | **EPIC 11: Sanskrit Sacred Audio Disambiguation** | Vedic Taxonomy | Separated Vedic Suktas, Stotras & Ashtakams, and Vedic Samhita; resolved Omkara & Nirvana | **DONE** |
+| **DONE** | **EPIC 12: AirLLM Architecture & Fallbacks** | Intelligence Integration | AirLLM loader with CPU/CUDA detection and sub-millisecond linguistic classification | **DONE** |
+| **DONE** | **EPIC 1: Multi-Drive Inventory & Tier-0 Dedupe** | Multi-Drive Discovery | 50,236 tracks cataloged across D, F, J; 36,363 duplicates mapped | **DONE** |
+| **DONE** | **EPIC 2: High-Speed NVMe Staging & Rollback** | NVMe Staging | 5,535 clean tracks staged in 31s; rollback scripts generated | **DONE** |
+| **DONE** | **EPIC 3: Master Organizer & Bollywood Consolidation** | Standalone CLI Engine | `python auralis.py organize-nvme` processed 6,116 tracks in 114s | **DONE** |
+| **DONE** | **EPIC 4: Universal ID3v2.4 Tag Writer & Permissions** | Universal Metadata | 5,536 ID3v2.4 tags written, Windows NTFS ReadOnly attribute clearing | **DONE** |
+| **DONE** | **EPIC 5: 5-Channel Parallel Engine & Uniform 2-Level Hierarchy** | Parallel Processing & Clean Architecture | 5-channel concurrent workers, in-process embedded intelligence (<50MB RAM), uniform 2-level directory structure | **DONE** |
+| **DONE** | **EPIC 6: Quality-Aware Bitrate Dedupe & Artist Canonicalization** | Multi-Tier Deduplication | Keep 320kbps over 192kbps, collapse 1,111 duplicates, consolidate artists | **DONE** |
+| **DONE** | **EPIC 7: Unified Autonomous Pipeline & AirLLM AutoModel** | End-to-End Autonomous Lifecycle | `python auralis.py auto-pipeline` ingests external chunk, scans, deduplicates, tags, and audits | **DONE** |
+| **P0** | **EPIC 8: Cross-Drive Incremental Ingest (F: and J:)** | Cold Vault Continuous Ingest | Ingest remaining ~7,900 unique tracks from external HDDs (`F:\` and `J:\`) via `auto-pipeline` | **READY** |
+| **P1** | **EPIC 9: Car USB Synchronization** | Output Delivery | Mirror clean organized library to `E:\BMW-Music` with 0 duplicate tracks | **QUEUED** |
 
 ---
 
-## EPIC 1: Acoustic Deduplication & Song ID
-*(All planned tasks in this epic have been completed and moved to release notes)*
+## EPIC 19: Artist-Centric Architecture & Category Reduction (COMPLETED)
+- **[x] TASK:** feat-045-hindi-artist-consolidation | **Spec:** Consolidated non-film artists from `Hindi\Albums`, `Hindi\Ghazals`, and `Devotional\Anup Jalota` into `Hindi\Artists` (44 artists). Purged empty Albums and Ghazals folders. | **LOC:** 120
+- **[x] TASK:** feat-046-bollywood-track-rehoming | **Spec:** Re-homed misplaced Bollywood songs in English Trance and Assorted Pop & Rock to their authentic movie soundtracks in `Hindi\Soundtracks`. | **LOC:** 80
+- **[x] TASK:** feat-047-marathi-artist-restructuring | **Spec:** Extracted Natyasangeet artists to `Marathi\<Artist>` and re-homed vocal masterworks to Pt. Bhimsen Joshi, Asha Bhosle, Suman Kalyanpur, and Pt. Vasantrao Deshpande. | **LOC:** 95
+- **[x] TASK:** feat-048-english-artist-and-singles-architecture | **Spec:** Re-homed English tracks to canonical artists and established `English\Singles` for single-track releases, strictly enforcing $\ge 2$ tracks per folder. | **LOC:** 150
+- **[x] TASK:** feat-049-5-loop-verification-and-zero-empty-sweep | **Spec:** Executed bottom-up directory sweep (71 empty folders purged, 0 left) and confirmed 100% pass across all 5 verification loops over 6,784 files. | **LOC:** 50
 
-## EPIC 2: Multi-source Metadata Aggregation
-- **[ ] TASK:** feat-004-metadata-extraction-audio | **Spec:** Extract baseline metadata directly from audio file headers. | **Deps:** None | **LOC Estimate:** 50
-- **[ ] TASK:** feat-004-metadata-extraction-enrich | **Spec:** Enrich extracted metadata by querying external APIs using the generated Song ID. | **Deps:** feat-004-metadata-extraction-audio | **LOC Estimate:** 50
-- **[ ] TASK:** feat-005-spotify-metadata-resolver | **Spec:** Integrate Spotify web API client with OAuth2 token caching for rich album art and genre classification. | **Deps:** feat-004-metadata-extraction-enrich | **LOC Estimate:** 110
+---
 
-## EPIC 3: Spatial Audio & High-Resolution Tagging (Months 5–6)
-- **[ ] TASK:** feat-006-flac-hi-res-inspector | **Spec:** Validate FLAC sample rate (96kHz/192kHz) and bit depth (24-bit/32-bit float) using mutagen. | **Deps:** None | **LOC Estimate:** 85
-- **[ ] TASK:** feat-007-album-art-optimizer | **Spec:** Extract, sanitize, and embed maximum-resolution album covers into audio headers without quality degradation. | **Deps:** None | **LOC Estimate:** 75
-- **[ ] TASK:** feat-008-semantic-mood-classifier | **Spec:** Classify audio tracks by valence and energy using lightweight local audio embedding model. | **Deps:** None | **LOC Estimate:** 120
+## EPIC 18: Directory Streamlining & Synonym Consolidation (COMPLETED)
+- **[x] TASK:** feat-041-synonym-folder-consolidator | **Spec:** Built `scripts/consolidate_synonyms_and_parts.py` consolidating synonymous directories: `Hindi\Devotional` + `Devotional & Bhajans`, `English\Rock & Pop` + `Assorted Pop & Rock`, `Hamrahi` + `Humrahi` (192kbps upgrade), `Atif Aslam` non-film albums. | **LOC:** 215
+- **[x] TASK:** feat-042-empty-dir-and-junk-sweeper | **Spec:** Built `scripts/audit_empty_and_synonym_folders.py` to recursively sweep and verify 0 empty directories, 0 junk files, and 0 single-file subfolders ($\ge 2$ tracks per folder). | **LOC:** 102
+- **[x] TASK:** feat-043-part-tracks-forensic-resolution | **Spec:** Forensically matched all 13 cryptic part tracks against `auralis_inventory.db` ingest records and updated with authentic ID3 tags and canonical filenames. | **LOC:** 80
+- **[x] TASK:** feat-044-multi-loop-verification-audit | **Spec:** Re-executed comprehensive 5-loop verification across all 6,786 physical files with 100.00% pass rate. | **LOC:** 40
 
-## EPIC 4: Real-time Contextual Filtering & Detection
-- **[ ] TASK:** net-001-p2p-security-core | **Spec:** Initialize libp2p node and generate ed25519 keypair for self-sovereign identity. | **Deps:** None | **LOC Estimate:** 50
-- **[ ] TASK:** net-002-lan-discovery-mdns | **Spec:** Implement multicast DNS (mDNS) discovery for auto-detecting running Auralis nodes on local network. | **Deps:** net-001-p2p-security-core | **LOC Estimate:** 95
-- **[ ] TASK:** net-003-p2p-differential-library-sync | **Spec:** Exchange cryptographic library manifests to synchronize tracks over encrypted stream. | **Deps:** net-002-lan-discovery-mdns | **LOC Estimate:** 140
+---
 
-## EPIC 5: Cross-Repository Architecture
-- **[ ] TASK:** arch-001-cross-repo-evaluation | **Spec:** Evaluate Agent Reach cross-repository dependencies and identify if changes here require sister-repo updates (e.g., Avinya Forge ecosystem). Assess cross-system blast radiuses and update documentation. | **Deps:** None | **LOC Estimate:** 0
+## EPIC 17: Precision Polishing & Marathi Linguistic Resolution (COMPLETED)
+- **[x] TASK:** feat-037-precision-polisher-engine | **Spec:** Built `src/engine/precision_polisher.py` executing 6-pass perfection pipeline across 6,794 files. | **LOC:** 440
+- **[x] TASK:** feat-038-marathi-linguistic-rehoming | **Spec:** Re-homed 26 immortal Marathi Bhavgeet tracks from `Hindi\Artists\Lata Mangeshkar` to `Marathi\Lata Mangeshkar` with authentic tags. | **LOC:** 65
+- **[x] TASK:** feat-039-soundtrack-prefix-liquidation | **Spec:** Eliminated 17 redundant movie title prefixes across Dum Maaro Dum, Ek Deewana Tha, Choti Si Baat, Jism 2, etc. | **LOC:** 55
+- **[x] TASK:** feat-040-windows-ntfs-case-renamer | **Spec:** Engineered two-step temporary rename protocol (`__tmp_ren_`) to fix 161 English contraction and ordinal capitalizations on Windows NTFS. | **LOC:** 45
 
-## EPIC 6: UI/UX Quality & Polishing
-- **[ ] TASK:** ui-002-1 | **Spec:** Migrate hardcoded QSS styles to centralized ThemeManager variables for maintainability. | **Deps:** None | **LOC Estimate:** 100
-- **[ ] TASK:** ui-002-2 | **Spec:** Implement asynchronous loading indicators for all blocking I/O operations to improve UX flow. | **Deps:** None | **LOC Estimate:** 100
-- **[ ] TASK:** ui-002-3 | **Spec:** Conduct cross-platform layout tests (Windows, Linux, macOS) to ensure consistent UI. | **Deps:** None | **LOC Estimate:** 100
+---
 
-## EPIC 7: Security Hardening & Bug Hunts
-- **[ ] TASK:** sec-001-hardcoded-passwords | **Loc:** src/modules/api/main.py | **Spec:** Remove hardcoded password 'AURALIS_ADMIN_PASS' default value in `src/modules/api/main.py` and enforce secure environment loading to meet OWASP standards. | **Deps:** None | **LOC Estimate:** 15
-- **[ ] TASK:** sec-002-assert-in-production | **Loc:** src/modules/agent/headroom_skill.py | **Spec:** Replace `assert isinstance(result, ast.AST)` with proper error handling/validation in `src/modules/agent/headroom_skill.py` (Bandit B101). | **Deps:** None | **LOC Estimate:** 10
-- **[ ] TASK:** sec-003-untrusted-subprocess | **Loc:** src/utils/dependency_checker.py | **Spec:** Validate and sanitize input for `subprocess.check_call` in `src/utils/dependency_checker.py` to prevent shell injection vulnerabilities (Bandit B603). | **Deps:** None | **LOC Estimate:** 15
+## EPIC 16: Multi-Source Reliable Metadata & 100% Embedded Artwork (COMPLETED)
+- **[x] TASK:** feat-033-reliable-metadata-client | **Spec:** Built `src/engine/reliable_metadata_client.py` with iTunes Search API, MusicBrainz Web Service API, and SQLite local caching (`data/reliable_metadata_cache.db`). Integrated into `MasterOrganizer` in `src/engine/master_organizer.py`. | **LOC:** 220
+- **[x] TASK:** feat-034-multi-pass-reiteration-pipeline | **Spec:** Implemented `scripts/reiterate_reliable_metadata_sync.py` executing multi-pass discography enrichment and artwork embedding across library tracks. | **LOC:** 140
+- **[x] TASK:** feat-035-universal-embedded-artwork-coverage | **Spec:** Integrated Pillow 12.1.1 to achieve 100.0% embedded cover art coverage across all 6,801 audio tracks (ID3v2.4 `APIC`, MP4 `covr`, ASF `WM/Picture`). | **LOC:** 180
+- **[x] TASK:** feat-036-comprehensive-5-loop-verifier | **Spec:** Built `scripts/verify_organized_files.py` auditing stream integrity, path sanitization, tag quality, categorical placement, and stream deduplication. All 5 loops pass with 0 flaws. | **LOC:** 362
 
-## System Maintenance & Tech Debt
-- **[PARKED] TASK:** debt-001-docstrings | **Spec:** Add missing docstrings to 85 functions across the codebase. | **Deps:** None | **LOC Estimate:** 85
-- **[ ] TASK:** sys-005-1 | **Spec:** Identify and safely remove deprecated modules and unused test scripts. | **Deps:** None | **LOC Estimate:** 60
-- **[ ] TASK:** sys-005-2 | **Spec:** Consolidate redundant utility functions into unified modules. | **Deps:** sys-005-1 | **LOC Estimate:** 80
-- **[ ] TASK:** sys-005-3 | **Spec:** Remove obsolete documentation and unneeded build artifacts. | **Deps:** None | **LOC Estimate:** 60
+---
+
+## EPIC 10 & 11: Deep Audio Inspection & Vedic Sukta Disambiguation (COMPLETED)
+- **[x] TASK:** feat-030-deep-audio-organizer-engine | **Spec:** Built `src/engine/deep_audio_organizer.py` with multi-threading, physical tag extraction, Windows path sanitization, audio stream hashing, and embedded tag writing (ID3v2.4/ASF). | **LOC:** 350
+- **[x] TASK:** feat-031-sanskrit-sukta-stotra-disambiguation | **Spec:** Refactored `pattern_classifier.py` to prevent Omkara substring traps, cleanly disambiguate Purusha Suktam, Shree Suktam, Shri Rudram, and Nirvana Shatakam into separate Vedic Suktas vs Stotras & Ashtakams vs Vedic Samhita. | **LOC:** 120
+- **[x] TASK:** feat-032-airllm-integration-and-hardware-audit | **Spec:** Audited environment (PyTorch 2.6.0 CPU, airllm 4.0.0), implemented `load_airllm_model` with CUDA/CPU handling and fallback in `embedded_intelligence.py`. | **LOC:** 45
+
+---
+
+## EPIC 6: Quality-Aware Bitrate Dedupe & Artist Canonicalization (COMPLETED)
+- **[x] TASK:** feat-027-quality-bitrate-deduplication | **Spec:** Compare song titles within same artist/collection; keep highest bitrate (e.g. 320kbps), route lower bitrates to `_duplicates_backup`. | **LOC:** 65
+- **[x] TASK:** feat-028-canonical-artist-alias-folding | **Spec:** Resolve aliases and inverted `Song - Artist` patterns into single canonical artist directories. | **LOC:** 90
+- **[x] TASK:** feat-029-airllm-library-integration | **Spec:** Installed and verified `airllm` with PyTorch CPU runtime, Accelerate, and Transformers. | **LOC:** 35
+
+---
+
+## EPIC 5: Next Sprint Tasks (In Priority Order)
+- **[ ] TASK:** feat-024-cross-drive-delta-ingest | **Spec:** Compare `master_cross_drive_catalog.db` against `D:\Songs\organized` to ingest remaining ~8,300 unique tracks from `F:\Music` and `J:\Music`. | **Deps:** master_organizer | **LOC Estimate:** 140
+- **[ ] TASK:** feat-025-acoustid-chromaprint-fingerprint-validator | **Spec:** Spectrogram & Chromaprint audio fingerprinting verification on remaining generic tracks (`Track 1`). | **Deps:** pyacoustid | **LOC Estimate:** 95
+- **[ ] TASK:** feat-026-car-usb-sync-mirror | **Spec:** High-speed incremental mirror sync from `D:\Songs\organized` to `E:\BMW-Music`. | **Deps:** feat-024 | **LOC Estimate:** 75
+
+---
+
+## 🛑 Parked Items
+- **[PARKED]** Libp2p P2P mesh network, LAN mDNS sync, 192kHz spatial audio inspector.

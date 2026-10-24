@@ -180,6 +180,92 @@ def setup_parser() -> argparse.ArgumentParser:
     ai_covers_parser = ai_subparsers.add_parser("covers", help="Find cover songs in directory")
     ai_covers_parser.add_argument("directory", help="Directory to scan for cover songs")
 
+    # Organize NVMe command (High-Speed Engine)
+    nvme_parser = subparsers.add_parser(
+        "organize-nvme",
+        aliases=["master-organize"],
+        help="High-speed NVMe music library organization & deduplication"
+    )
+    nvme_parser.add_argument(
+        "--source-db",
+        default=r"D:\Code\avinya-forge\auralis\auralis_inventory.db",
+        help="Path to inventory SQLite database"
+    )
+    nvme_parser.add_argument(
+        "--destination",
+        default=r"D:\Songs\organized",
+        help="Destination organized library folder"
+    )
+    nvme_parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limit number of tracks to process"
+    )
+    nvme_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Simulate without copying files"
+    )
+    nvme_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=5,
+        help="Number of concurrent language channels (default: 5)"
+    )
+    nvme_parser.add_argument(
+        "--enable-airllm",
+        action="store_true",
+        help="Enable AirLLM layer-streaming adapter if installed"
+    )
+    nvme_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Execute physical file reorganization and ID3 tagging based on verified dry-run blueprint"
+    )
+
+    # Autonomous Pipeline command (End-to-end continuous lifecycle)
+    pipeline_parser = subparsers.add_parser(
+        "auto-pipeline",
+        aliases=["run-cycle"],
+        help="Autonomous end-to-end cycle: Ingest next chunk, scan inventory, 5-channel organize with AirLLM & audit"
+    )
+    pipeline_parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=500,
+        help="Number of new unique tracks to ingest from cold vault (default: 500)"
+    )
+    pipeline_parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limit number of tracks to organize in this pass"
+    )
+    pipeline_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=5,
+        help="Number of concurrent language channels (default: 5)"
+    )
+    pipeline_parser.add_argument(
+        "--enable-airllm",
+        action="store_true",
+        default=True,
+        help="Enable AirLLM layer-streaming adapter (default: True)"
+    )
+    pipeline_parser.add_argument(
+        "--loop",
+        action="store_true",
+        help="Run continuously in a loop across all chunks until all songs are cataloged and organized"
+    )
+    pipeline_parser.add_argument(
+        "--max-iterations",
+        type=int,
+        default=None,
+        help="Maximum loop iterations to execute when --loop is enabled"
+    )
+
     return parser
 
 
@@ -209,6 +295,28 @@ def run_cli() -> None:
     # If check command, run it without requiring PyQt6 or other dependencies
     if args.command == "check":
         run_check(args)
+        return
+
+    # High-speed NVMe organizer runs standalone without requiring PyQt6
+    if args.command in ["organize-nvme", "master-organize"]:
+        run_organize_nvme(args)
+        return
+
+    # Autonomous end-to-end pipeline
+    if args.command in ["auto-pipeline", "run-cycle"]:
+        from src.engine.autonomous_pipeline import AuralisAutonomousPipeline
+        pipeline = AuralisAutonomousPipeline(
+            parallel_workers=args.parallel_workers,
+            enable_airllm=args.enable_airllm
+        )
+        if getattr(args, "loop", False):
+            pipeline.run_continuous_loop(
+                chunk_size=args.chunk_size,
+                max_iterations=args.max_iterations,
+                sync_external=True
+            )
+        else:
+            pipeline.run_full_cycle(chunk_size=args.chunk_size, limit=args.limit)
         return
 
     # AI check also doesn't require PyQt6
@@ -586,3 +694,83 @@ def run_ai_covers(args: argparse.Namespace) -> None:
         print("Please ensure AI dependencies are installed.")
     except Exception as e:
         print(f"Error analyzing covers: {e}")
+
+
+def run_organize_nvme(args: argparse.Namespace) -> None:
+    """Execute high-speed NVMe organization and deduplication pass."""
+    if getattr(args, "apply", False):
+        from src.engine.master_dry_run_engine import MasterDryRunEngine
+        print("=" * 68)
+        print("  AURALIS - PHYSICAL REORGANIZATION & CANONICAL ID3 TAGGING")
+        print("=" * 68)
+        print("[*] Loading verified blueprint from cached_dry_run_results.json...")
+        engine = MasterDryRunEngine(
+            root_paths=[r"D:\Songs\organized", r"D:\Songs\unorganized"],
+            min_folder_threshold=3
+        )
+        res = engine.execute_physical_organization()
+        print("\n" + "=" * 68)
+        print("  PHYSICAL REORGANIZATION SUMMARY")
+        print("=" * 68)
+        print(f"  Total Tracks Audited      : {res['total_processed']}")
+        print(f"  Physical Files Moved      : {res['moved']}")
+        print(f"  Metadata Tags Updated     : {res['tags_updated']}")
+        print(f"  Duplicates Archived       : {res['duplicates_archived']}")
+        print(f"  Errors Encountered        : {len(res['errors'])}")
+        print("=" * 68)
+        return
+
+    from src.engine.master_organizer import MasterOrganizer
+
+    print("=" * 68)
+    print("  AURALIS - HIGH-SPEED NVME MUSIC LIBRARY ORGANIZER & ENGINE")
+    print("=" * 68)
+    print(f"[*] Inventory Database : {args.source_db}")
+    print(f"[*] Target Destination : {args.destination}")
+    print(f"[*] Dry Run Mode       : {args.dry_run}")
+    print(f"[*] Parallel Workers   : {args.parallel_workers} concurrent language channels")
+    print(f"[*] AirLLM Adapter     : {args.enable_airllm}")
+    if args.limit:
+        print(f"[*] Limit              : {args.limit} tracks")
+    print("-" * 68)
+
+    organizer = MasterOrganizer(
+        db_path=args.source_db,
+        output_root=args.destination,
+        enable_airllm=args.enable_airllm,
+        parallel_workers=args.parallel_workers
+    )
+
+    print("[*] Generating Master Organization Plan...")
+    plan = organizer.build_organization_plan()
+    print(f"  -> Total Evaluated Files  : {plan['total_evaluated']}")
+    print(f"  -> Unique Tracks to Route : {plan['unique_to_organize']}")
+    print(f"  -> Exact Duplicate Backups: {plan['redundant_duplicates']}")
+    print(f"  -> Corrupted / Zero-Byte  : {plan['corrupted_files']}")
+    print("-" * 68)
+
+    def print_progress(cur: int, total: int, fname: str) -> None:
+        if cur % 100 == 0 or cur == total:
+            pct = (cur / total) * 100
+            print(f"[{cur}/{total}] ({pct:.1f}%) Processing: {fname[:40]}")
+
+    print("[*] Commencing High-Speed Organization Pipeline...")
+    res = organizer.execute(
+        limit=args.limit,
+        dry_run=args.dry_run,
+        progress_callback=print_progress
+    )
+
+    print("\n" + "=" * 68)
+    print("  ORGANIZATION RUN SUMMARY & AUDIT")
+    print("=" * 68)
+    print(f"  Files Processed & Routed : {res['total_processed']}")
+    print(f"  Files Organized & Copied : {res['files_organized_and_copied']}")
+    print(f"  ID3v2.4 Tags Written     : {res['tags_written_and_verified']}")
+    print(f"  Elapsed Duration         : {res['elapsed_seconds']}s")
+    if res['elapsed_seconds'] > 0:
+        rate = res['files_organized_and_copied'] / res['elapsed_seconds']
+        print(f"  Processing Velocity      : {rate:.1f} files/sec")
+    print(f"  Rollback Safety Script   : {res['rollback_script']}")
+    print("=" * 68)
+

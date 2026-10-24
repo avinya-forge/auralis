@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auralis - Multi-Loop Verification & Live Feedback Engine</title>
+    <style>
+        :root {
+            --bg-primary: #0a0f1d;
+            --bg-secondary: #131b2e;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #10b981;
+            --red: #ef4444;
+            --purple: #a855f7;
+            --amber: #f59e0b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: var(--accent);
+        }
+        .header p {
+            margin: 4px 0 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .btn {
+            background: var(--accent);
+            color: #0a0f1d;
+            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-rerun {
+            background: #8b5cf6;
+            color: #fff;
+            margin-left: 8px;
+        }
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .metric-card .title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+        .metric-card .val { font-size: 26px; font-weight: bold; margin-top: 6px; }
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filters input, .filters select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .filters input { flex: 1; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        th { background: #0f172a; color: var(--text-muted); font-weight: 600; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-sanskrit { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .badge-hindi { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-english { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        .badge-marathi { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-pravachan { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+        .badge-approved { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid var(--green); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid var(--red); }
+        .badge-pending { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.15s;
+        }
+        .btn-action:hover { transform: scale(1.1); }
+        .btn-tick:hover { background: var(--green); color: #fff; border-color: var(--green); }
+        .btn-cross:hover { background: var(--red); color: #fff; border-color: var(--red); }
+        .lyrics-snippet {
+            font-size: 11px;
+            color: #cbd5e1;
+            background: #090e17;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            border-left: 2px solid var(--accent);
+        }
+        .path-display {
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+        }
+        .target-path {
+            color: #34d399;
+            font-weight: 500;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            width: 480px;
+            max-width: 90%;
+        }
+        .modal-card h3 { margin-top: 0; color: var(--red); }
+        .modal-field { margin-bottom: 12px; }
+        .modal-field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .modal-field input, .modal-field select {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 10px;
+            border-radius: 4px;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Auralis Multi-Loop Dry-Run & Live Feedback Engine</h1>
+            <p>Focus 1 file at a time • Interactive Tick & Cross Verification • Continuous Code & Accuracy Optimization</p>
+        </div>
+        <div>
+            <button class="btn" onclick="fetchTracks(1)">Refresh View</button>
+            <button class="btn btn-rerun" onclick="triggerReRun()">Re-Run Engine Loop</button>
+        </div>
+    </div>
+
+    <div class="metrics-bar" id="metricsBar">
+        <div class="metric-card">
+            <div class="title">Current Accuracy Rate</div>
+            <div class="val" id="valAccuracy" style="color: var(--green);">100%</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">Reviewed Tracks</div>
+            <div class="val" id="valReviewed">0</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">Approved (✅ Ticks)</div>
+            <div class="val" id="valApproved" style="color: var(--green);">0</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">Rejected & Corrected (❌)</div>
+            <div class="val" id="valRejected" style="color: var(--red);">0</div>
+        </div>
+        <div class="metric-card">
+            <div class="title">Total Unique Tracks</div>
+            <div class="val" id="valTotal">9,185</div>
+        </div>
+    </div>
+
+    <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search track name, artist, lyrics, or path..." onkeyup="handleSearch()">
+        <select id="langSelect" onchange="fetchTracks(1)">
+            <option value="">All Languages</option>
+            <option value="Sanskrit">Sanskrit</option>
+            <option value="Hindi">Hindi</option>
+            <option value="English">English</option>
+            <option value="Marathi">Marathi</option>
+            <option value="Pravachan">Pravachan</option>
+        </select>
+        <select id="typeSelect" onchange="fetchTracks(1)">
+            <option value="">All Verification Status</option>
+            <option value="pending">Pending Human Review</option>
+            <option value="generic">Generic / Audio Listened</option>
+            <option value="rejected">Rejected & Corrected</option>
+            <option value="duplicate">Duplicates</option>
+        </select>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 100px;">Review</th>
+                <th style="width: 90px;">Language</th>
+                <th style="width: 220px;">Resolved Song & Artist</th>
+                <th>Source File & Audio Waveform Lyrics</th>
+                <th>Proposed Target Path</th>
+                <th style="width: 130px;">Decision Logic</th>
+            </tr>
+        </thead>
+        <tbody id="trackTableBody">
+            <tr><td colspan="6" style="text-align: center; padding: 24px;">Loading live audio inventory...</td></tr>
+        </tbody>
+    </table>
+
+    <!-- Correction Modal -->
+    <div class="modal" id="correctionModal">
+        <div class="modal-card">
+            <h3>❌ Reject & Provide Ground Truth Correction</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">This correction will be permanently cached and applied on every subsequent loop iteration.</p>
+            <input type="hidden" id="modalHash">
+            
+            <div class="modal-field">
+                <label>Language</label>
+                <select id="modalLang">
+                    <option value="Sanskrit">Sanskrit</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="English">English</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Pravachan">Pravachan</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>Category (Movie / Band / Collection / Vedic Sukta)</label>
+                <input type="text" id="modalCategory" placeholder="e.g. Soundtracks\Omkara, Vedic Suktas, Nirvana">
+            </div>
+            <div class="modal-field">
+                <label>Song Title</label>
+                <input type="text" id="modalTitle" placeholder="e.g. Purusha Suktam, Beedi, Europa">
+            </div>
+            <div class="modal-field">
+                <label>Artist</label>
+                <input type="text" id="modalArtist" placeholder="e.g. Traditional Vedic Chants, Vishal Bhardwaj">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" style="background: var(--bg-card); color: var(--text-main);" onclick="closeModal()">Cancel</button>
+                <button class="btn" style="background: var(--red); color: #fff;" onclick="submitCorrection()">Save & Update Engine</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let searchTimer = null;
+
+        async function updateStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                document.getElementById('valAccuracy').innerText = data.accuracy_rate + '%';
+                document.getElementById('valReviewed').innerText = data.approved + data.rejected;
+                document.getElementById('valApproved').innerText = data.approved;
+                document.getElementById('valRejected').innerText = data.rejected;
+                document.getElementById('valTotal').innerText = data.unique_tracks.toLocaleString();
+            } catch (e) {
+                console.error("Status update error", e);
+            }
+        }
+
+        async function fetchTracks(page = 1) {
+            const lang = document.getElementById('langSelect').value;
+            const filterType = document.getElementById('typeSelect').value;
+            const search = document.getElementById('searchInput').value;
+
+            const url = `/api/tracks?page=${page}&page_size=50&lang=${lang}&filter_type=${filterType}&search=${encodeURIComponent(search)}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                renderTable(data.tracks);
+            } catch (e) {
+                console.error("Failed to fetch tracks", e);
+            }
+        }
+
+        function renderTable(tracks) {
+            const tbody = document.getElementById('trackTableBody');
+            if (!tracks || tracks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px;">No matching tracks found.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            tracks.forEach(t => {
+                const badgeClass = `badge-${t.language.toLowerCase()}`;
+                const encodedSrc = encodeURIComponent(t.source_path || '');
+                const encodedProposed = encodeURIComponent(t.proposed_path || '');
+                const audioPlayerHtml = `<div style="margin-top: 6px;"><audio controls preload="none" style="height: 28px; width: 220px;" src="/api/stream?path=${encodedSrc}&alt_path=${encodedProposed}"></audio></div>`;
+                
+                let reviewBadge = `<span class="badge badge-pending">Pending</span>`;
+                if (t.user_feedback === 'approved') reviewBadge = `<span class="badge badge-approved">Approved</span>`;
+                if (t.user_feedback === 'rejected') reviewBadge = `<span class="badge badge-rejected">Corrected</span>`;
+
+                html += `
+                <tr>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-action btn-tick" title="Approve proposed result (Tick)" onclick="approveTrack('${t.audio_hash}')">✓</button>
+                            <button class="btn-action btn-cross" title="Reject & correct (Cross)" onclick="openCorrectionModal('${t.audio_hash}', '${encodeURIComponent(t.title)}', '${encodeURIComponent(t.artist)}', '${encodeURIComponent(t.category)}', '${t.language}')">✕</button>
+                        </div>
+                        <div style="margin-top: 4px;">${reviewBadge}</div>
+                    </td>
+                    <td><span class="badge ${badgeClass}">${t.language}</span></td>
+                    <td>
+                        <strong>${t.title}</strong><br>
+                        <small style="color: var(--text-muted);">${t.artist}</small>
+                        ${audioPlayerHtml}
+                    </td>
+                    <td>
+                        <div class="path-display">${t.source_path}</div>
+                        ${lyricsHtml}
+                    </td>
+                    <td>
+                        <div class="path-display target-path">${t.proposed_path}</div>
+                    </td>
+                    <td><small style="color: var(--text-muted);">${t.decision_source}</small></td>
+                </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function approveTrack(hash) {
+            await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audio_hash: hash, status: 'approved' })
+            });
+            updateStatus();
+            fetchTracks(1);
+        }
+
+        function openCorrectionModal(hash, title, artist, category, lang) {
+            document.getElementById('modalHash').value = hash;
+            document.getElementById('modalTitle').value = decodeURIComponent(title);
+            document.getElementById('modalArtist').value = decodeURIComponent(artist);
+            document.getElementById('modalCategory').value = decodeURIComponent(category);
+            document.getElementById('modalLang').value = lang;
+            document.getElementById('correctionModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('correctionModal').style.display = 'none';
+        }
+
+        async function submitCorrection() {
+            const hash = document.getElementById('modalHash').value;
+            const correction = {
+                title: document.getElementById('modalTitle').value,
+                artist: document.getElementById('modalArtist').value,
+                category: document.getElementById('modalCategory').value,
+                language: document.getElementById('modalLang').value
+            };
+
+            await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    audio_hash: hash,
+                    status: 'rejected',
+                    correction: correction
+                })
+            });
+
+            closeModal();
+            updateStatus();
+            fetchTracks(1);
+        }
+
+        async function triggerReRun() {
+            const btn = document.querySelector('.btn-rerun');
+            btn.innerText = 'Re-running Loop...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/re-run', { method: 'POST' });
+                const data = await res.json();
+                alert('Engine loop completed with latest feedback incorporated!');
+            } catch (e) {
+                alert('Error re-running engine: ' + e);
+            } finally {
+                btn.innerText = 'Re-Run Engine Loop';
+                btn.disabled = false;
+                updateStatus();
+                fetchTracks(1);
+            }
+        }
+
+        function handleSearch() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => fetchTracks(1), 300);
+        }
+
+        // Init
+        updateStatus();
+        fetchTracks(1);
+    </script>
+</body>
+</html>
