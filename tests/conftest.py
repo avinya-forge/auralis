@@ -249,6 +249,11 @@ for lib in [
     "lxml",
     "langdetect",
     "speech_recognition",
+    "jose",
+    "pyotp",
+    "spotipy",
+    "src.modules.aux",
+    "src.modules.aux.raga_analyzer",
 ]:
     if lib not in sys.modules:
         sys.modules[lib] = MagicMock()

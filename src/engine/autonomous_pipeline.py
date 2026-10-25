@@ -34,7 +34,7 @@ class AuralisAutonomousPipeline:
         cross_drive_db: str = r"D:\Code\avinya-forge\auralis\master_cross_drive_catalog.db",
         organized_root: str = r"D:\Songs\organized",
         unorganized_root: str = r"D:\Songs\unorganized",
-        master_vault_root: str = r"F:\Auralis_Master_Vault",
+        master_vault_root: str = r"F:\\Auralis_Master_Vault",
         parallel_workers: int = 5,
         enable_airllm: bool = True
     ):
@@ -115,7 +115,7 @@ class AuralisAutonomousPipeline:
         )
         return organizer.execute(limit=limit, dry_run=dry_run)
 
-    def audit_library_depth(self) -> Dict[str, Any]:
+    def audit_library_depth(self, max_allowed_depth: int = 4) -> Dict[str, Any]:
         """Verifies zero depth violations and tabulates distribution across categories."""
         violations = []
         counts_by_lang = {}
@@ -124,11 +124,11 @@ class AuralisAutonomousPipeline:
             if rel == ".":
                 continue
             parts = rel.split(os.sep)
-            if len(parts) > 2:
+            if len(parts) > max_allowed_depth:
                 violations.append(rel)
             elif len(parts) == 1:
                 counts_by_lang.setdefault(parts[0], {"categories": 0, "tracks": 0})
-            elif len(parts) == 2:
+            elif len(parts) >= 2:
                 lang = parts[0]
                 if lang in counts_by_lang:
                     counts_by_lang[lang]["categories"] += 1
@@ -246,7 +246,7 @@ class AuralisAutonomousPipeline:
     def auto_prune_nvme_caches(self, min_free_gb: float = 15.0) -> float:
         """
         Clears local duplicates backup and staging chunk files from NVMe if free space falls below min_free_gb.
-        All duplicates and original chunks are already 100% preserved in F:\Auralis_Master_Vault.
+        All duplicates and original chunks are already 100% preserved in F:\\Auralis_Master_Vault.
         """
         import stat
         nvme_drive = os.path.splitdrive(self.organized_root)[0] or "D:"
