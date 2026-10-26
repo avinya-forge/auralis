@@ -8,8 +8,8 @@ import os
 import sqlite3
 import shutil
 
-ORGANIZED_ROOT = r"C:\Users\kaush\AppData\Local\Temp\tmpg_qoqklp\organized_pass2"
-DB_PATH = r"C:\Users\kaush\AppData\Local\Temp\tmpg_qoqklp\pass2.db"
+ORGANIZED_ROOT = r"C:\Users\kaush\AppData\Local\Temp\tmp7la1u1qe\organized"
+DB_PATH = r"C:\Users\kaush\AppData\Local\Temp\tmp7la1u1qe\test_inv.db"
 
 def rollback():
     print(f"[*] Removing organized library: {ORGANIZED_ROOT}...")

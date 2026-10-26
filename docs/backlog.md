@@ -1,7 +1,7 @@
-# Auralis Backlog (v7.0.0 - Deep Audio Analysis, Sanskrit Sukta Disambiguation & AirLLM Engine)
+# Auralis Backlog (v8.0.0 - Rare Marathi Natyasangeet, Soundtrack Integration & Forensics)
 
-## 🎯 Current Sprint: Deep Per-File Analysis, Vedic Sukta Disambiguation & Full Library Reorganization
-**North Star:** Strict 1-File-At-A-Time Analysis Pipeline, Sanskrit Sukta & Stotra Disambiguation, Bollywood Disambiguation (e.g. Omkara), ID3v2.4 & ASF Deep Tagging, Quality-Aware Stream Hashing Deduplication, and AirLLM Architecture Support.
+## 🎯 Current Sprint: Rare Marathi Natyasangeet, Canonical Soundtrack Albums & Library Perfection
+**North Star:** Deep Per-File Analysis, Natyasangeet Cultural Heritage Cataloging, Canonical Soundtrack Disambiguation (*Hum Aapke Hain Koun..!*), Quality-Aware Stream Deduplication, 100% Embedded Artwork, 0 Empty Folders, and $\ge 2$ Tracks Per Folder Architecture.
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Priority | EPIC | Focus Area | Deliverable | Status |
 |:---:|:---|:---|:---|:---:|
+| **DONE** | **EPIC 20: Rare Marathi Natyasangeet Acquisition & Soundtrack Integration** | Rare Cultural Heritage & Forensics | Automated acquisition pipeline with yt-dlp & FFmpeg (320kbps MP3), expanded Natyasangeet catalog to 61 tracks across 10 canonical Sangeet Natak plays, solved Sachin Barad forensics (*Hum Aapke Hain Koun..!*), downloaded canonical master soundtrack, 0 empty folders, 5-loop verification 100% green | **DONE** |
 | **DONE** | **EPIC 19: Artist-Centric Architecture & Category Reduction** | Pure Taxonomy & Artist Directories | Consolidated Hindi non-film into `Hindi\Artists` (44 artists), purged Albums and Ghazals, re-homed misplaced Bollywood tracks, extracted Marathi Natyasangeet artists to root, established `English\Singles`, 0 empty folders, 5-loop verification 100% green | **DONE** |
 | **DONE** | **EPIC 18: Directory Streamlining & Synonym Consolidation** | Structural Hygiene & Part Disambiguation | Purged empty folders (0 left), consolidated Devotional & Bhajans, Rock & Pop, Hamrahi/Humrahi, Atif Aslam non-film, eliminated fake Love Story album, resolved all 13 cryptic part files with authentic tags, 5-loop verification 100% green | **DONE** |
 | **DONE** | **EPIC 17: Precision Polishing & Marathi Linguistic Resolution** | Forensic Perfection & Typography | Re-homed 26 Lata Mangeshkar Marathi masterpieces to Marathi, stripped 17 soundtrack movie prefixes, solved Windows NTFS case-insensitive typography (161 files renamed, 152 tags updated), 34/34 passing tests | **DONE** |
@@ -28,6 +29,15 @@
 | **DONE** | **EPIC 7: Unified Autonomous Pipeline & AirLLM AutoModel** | End-to-End Autonomous Lifecycle | `python auralis.py auto-pipeline` ingests external chunk, scans, deduplicates, tags, and audits | **DONE** |
 | **P0** | **EPIC 8: Cross-Drive Incremental Ingest (F: and J:)** | Cold Vault Continuous Ingest | Ingest remaining ~7,900 unique tracks from external HDDs (`F:\` and `J:\`) via `auto-pipeline` | **READY** |
 | **P1** | **EPIC 9: Car USB Synchronization** | Output Delivery | Mirror clean organized library to `E:\BMW-Music` with 0 duplicate tracks | **QUEUED** |
+
+---
+
+## EPIC 20: Rare Marathi Natyasangeet Acquisition & Soundtrack Integration (COMPLETED)
+- **[x] TASK:** feat-050-rare-natyasangeet-downloader | **Spec:** Developed `scripts/download_marathi_natyasangeet.py` and `scripts/download_targeted_natyasangeet.py` utilizing `yt-dlp` and `imageio_ffmpeg` with 320kbps MP3 extraction, cover art conversion, and ID3v2 tag embedding. | **LOC:** 345
+- **[x] TASK:** feat-051-natyasangeet-play-restructuring | **Spec:** Reorganized all 18 loose root tracks into classic play collections (*Katyar Kaljat Ghusali*, *Sangeet Manapman*, *Sangeet Saubhadra*, *Sangeet Swayamvar*, *Sangeet Sanshaykallol*, *Sangeet Ekach Pyala*, *Sangeet Sharada*, *Sangeet Matsyagandha*, *Sangeet Shakuntal*, *Evergreen Natyageete*). Library now houses 61 tracks with $\ge 2$ tracks per folder. | **LOC:** 90
+- **[x] TASK:** feat-052-sachin-barad-forensics-and-hahk-album | **Spec:** Forensically identified `PehlaPehlaPyarhain-SungbySachinBarad.mp3` as cover version of *Hum Aapke Hain Koun..!*, renamed to `Pehla Pehla Pyar - Cover.mp3`, downloaded canonical master soundtrack into `Hindi\Soundtracks\Hum Aapke Hain Koun`. | **LOC:** 180
+- **[x] TASK:** feat-053-credit-pattern-sanitization | **Spec:** Normalized credit patterns (`Ft.`, `feat.`, `sungby`) and purged redundant lower-bitrate duplicates (`State of Shock`, `Tere Liye Unplugged`). | **LOC:** 65
+- **[x] TASK:** feat-054-5-loop-verification-and-zero-empty-sweep | **Spec:** Re-ran 5-loop physical verification across all 6,810 tracks with 100.00% pass rate (0 errors, 0 empty folders, 0 single-file subfolders). | **LOC:** 40
 
 ---
 
