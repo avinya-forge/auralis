@@ -1,7 +1,11 @@
-# Project Status Dashboard (v14.0.0)
+# Project Status Dashboard (v15.0.0)
 
-## Milestone Achieved: Artist-Centric Architecture, Category Reduction, Zero Empty Folders & Flawless 5-Loop Verification
+## Milestone Achieved: Deep Audio Analysis, Sanskrit Sukta Disambiguation & AirLLM Engine
 
+- **Security Hardening (NEW):** Auditing and fixing hardcoded secrets and cryptographic hashing across the codebase.
+- **Deep Audio Analysis:** Integrated deep per-file analysis pipeline, ID3v2.4 & ASF deep tagging.
+- **Sanskrit Disambiguation:** Differentiated Vedic Sukta from Stotra.
+- **AirLLM Engine:** AirLLM architecture support configured.
 - **Total Physical Audio Files in `D:\Songs\organized`:** **6,784 pristine, verified audio tracks** (2 duplicate streams archived to `_duplicates_backup`)
 - **Directory Hygiene & Clean Tree:** **EXACTLY ZERO (0) Empty Directories | EXACTLY ZERO (0) Junk Files | EXACTLY ZERO (0) Single-File Subfolders** (Every subfolder contains $\ge 2$ tracks)
 - **Category Reduction & Artist-Centric Architecture:**

@@ -3,6 +3,53 @@
 ## Summary
 These release notes document verified, completed features, bug fixes, and architectural milestones.
 
+
+## Version 15.0.0 (Artist-Centric Architecture & Deep Audio Analysis)
+
+### Features & Infrastructure Completed (Verified)
+- **Artist-Centric Architecture & Category Reduction (EPIC 19):**
+  - Consolidated Hindi non-film into `Hindi\Artists` (44 artists), purged Albums and Ghazals, re-homed misplaced Bollywood tracks.
+  - Extracted Marathi Natyasangeet artists to root.
+  - Established `English\Singles`.
+  - Achieved 0 empty folders with a 5-loop verification (100% green).
+- **Directory Streamlining & Synonym Consolidation (EPIC 18):**
+  - Purged empty folders (0 left), consolidated Devotional & Bhajans, Rock & Pop, Hamrahi/Humrahi, Atif Aslam non-film.
+  - Eliminated fake Love Story album.
+  - Resolved all 13 cryptic part files with authentic tags. 5-loop verification 100% green.
+- **Precision Polishing & Marathi Linguistic Resolution (EPIC 17):**
+  - Re-homed 26 Lata Mangeshkar Marathi masterpieces to Marathi, stripped 17 soundtrack movie prefixes.
+  - Solved Windows NTFS case-insensitive typography (161 files renamed, 152 tags updated).
+- **Multi-Source Reliable Metadata & 100% Embedded Artwork (EPIC 16):**
+  - Built `ReliableMetadataClient` (iTunes + MusicBrainz WS API + SQLite cache), integrated into `MasterOrganizer`.
+  - Achieved 100% embedded artwork (6,801/6,801).
+- **Acoustic Waveform Dedupe & Language Architecture (EPIC 15):**
+  - Implemented raw PCM waveform hashing, 1,104 acoustic duplicates archived.
+  - Re-homed P.L. Deshpande in Marathi, merged The Doors, deduplicated Hotel California. 44 GB free space.
+- **Ground-Truth Pravachan & Katha Preservation (EPIC 14):**
+  - Preserved Ghaisasi Guruji, Kavishwar Maharaj, Shankar Abhyankar, Aparna Abhyankar with 100% dedicated collections.
+- **4-Pass Taxonomy Refinement (EPIC 13):**
+  - 100% elimination of Evergreen Classics (0 tracks), 0 brackets, 0 dirty symbols, 0 repeated prefixes.
+- **Deep Audio Inspection & Disambiguation (EPIC 10):**
+  - Multi-threaded per-file inspection, ID3v2.4/ASF embedded tag writing, stream hash dedupe.
+- **Sanskrit Sacred Audio Disambiguation (EPIC 11):**
+  - Separated Vedic Suktas, Stotras & Ashtakams, and Vedic Samhita; resolved Omkara & Nirvana.
+- **AirLLM Architecture & Fallbacks (EPIC 12):**
+  - AirLLM loader with CPU/CUDA detection and sub-millisecond linguistic classification.
+- **Multi-Drive Inventory & Tier-0 Dedupe (EPIC 1):**
+  - 50,236 tracks cataloged across D, F, J; 36,363 duplicates mapped.
+- **High-Speed NVMe Staging & Rollback (EPIC 2):**
+  - 5,535 clean tracks staged in 31s; rollback scripts generated.
+- **Master Organizer & Bollywood Consolidation (EPIC 3):**
+  - `python auralis.py organize-nvme` processed 6,116 tracks in 114s.
+- **Universal ID3v2.4 Tag Writer & Permissions (EPIC 4):**
+  - 5,536 ID3v2.4 tags written, Windows NTFS ReadOnly attribute clearing.
+- **5-Channel Parallel Engine & Uniform 2-Level Hierarchy (EPIC 5):**
+  - 5-channel concurrent workers, in-process embedded intelligence (<50MB RAM), uniform 2-level directory structure.
+- **Quality-Aware Bitrate Dedupe & Artist Canonicalization (EPIC 6):**
+  - Keep 320kbps over 192kbps, collapse 1,111 duplicates, consolidate artists.
+- **Unified Autonomous Pipeline & AirLLM AutoModel (EPIC 7):**
+  - `python auralis.py auto-pipeline` ingests external chunk, scans, deduplicates, tags, and audits.
+
 ## Version 14.0.0 (Artist-Centric Architecture, Category Reduction & Zero Empty Folders)
 
 ### Features & Infrastructure Completed (Verified)
