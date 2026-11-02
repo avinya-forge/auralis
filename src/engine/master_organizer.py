@@ -92,7 +92,8 @@ class MasterOrganizer:
         album_artist: str = "",
         composer: str = "",
         lyricist: str = "",
-        artwork_bytes: Optional[bytes] = None
+        artwork_bytes: Optional[bytes] = None,
+        overwrite_artwork: bool = False
     ) -> bool:
         """Writes universal standard tags across MP3, WMA, M4A, WAV with optional artwork for complete media player fidelity."""
         try:
@@ -144,7 +145,11 @@ class MasterOrganizer:
                     audio["TCOM"] = TCOM(encoding=3, text=composer)
                 if lyricist:
                     audio["TEXT"] = TEXT(encoding=3, text=lyricist)
-                if artwork_bytes and not any(k.startswith("APIC") for k in audio.keys()):
+                if artwork_bytes and (overwrite_artwork or not any(k.startswith("APIC") for k in audio.keys())):
+                    if overwrite_artwork:
+                        for k in list(audio.keys()):
+                            if k.startswith("APIC"):
+                                del audio[k]
                     audio.add(APIC(
                         encoding=3,
                         mime="image/jpeg",
@@ -194,7 +199,7 @@ class MasterOrganizer:
                     mp4.tags["\xa9day"] = [year]
                 if composer:
                     mp4.tags["\xa9wrt"] = [composer]
-                if artwork_bytes and ("covr" not in mp4.tags or not mp4.tags["covr"]):
+                if artwork_bytes and (overwrite_artwork or "covr" not in mp4.tags or not mp4.tags["covr"]):
                     mp4.tags["covr"] = [MP4Cover(artwork_bytes, imageformat=MP4Cover.FORMAT_JPEG)]
                 mp4.save()
                 return True

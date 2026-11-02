@@ -1,6 +1,6 @@
 """
 Unit tests for ReliableMetadataClient in src/engine/reliable_metadata_client.py.
-Tests online querying, caching, artwork fetching, and fallback behaviors.
+Tests online querying, caching, artwork fetching, Deezer, and fallback behaviors.
 """
 
 import os
@@ -65,6 +65,79 @@ def test_reliable_metadata_client_query_itunes_success():
         assert res["artist"] == "Eagles"
         assert res["year"] == "1976"
         assert "600x600bb" in res["artwork_url"]
+
+def test_reliable_metadata_client_query_itunes_album():
+    client = ReliableMetadataClient()
+    mock_response = {
+        "resultCount": 1,
+        "results": [{
+            "collectionName": "Rockstar (Original Motion Picture Soundtrack)",
+            "artistName": "A.R. Rahman",
+            "releaseDate": "2011-09-30T07:00:00Z",
+            "primaryGenreName": "Bollywood",
+            "artworkUrl100": "https://example.com/100x100bb.jpg",
+        }]
+    }
+
+    with patch("urllib.request.urlopen") as mock_urlopen:
+        mock_cm = MagicMock()
+        mock_cm.read.return_value = json.dumps(mock_response).encode("utf-8")
+        mock_cm.__enter__.return_value = mock_cm
+        mock_urlopen.return_value = mock_cm
+
+        res = client.query_itunes_album("Rockstar", "A.R. Rahman")
+        assert res is not None
+        assert res["album"] == "Rockstar (Original Motion Picture Soundtrack)"
+        assert res["album_artist"] == "A.R. Rahman"
+        assert res["year"] == "2011"
+        assert "600x600bb" in res["artwork_url"]
+
+def test_reliable_metadata_client_query_deezer():
+    client = ReliableMetadataClient()
+    mock_deezer = {
+        "data": [{
+            "title": "Enter Sandman",
+            "artist": {"name": "Metallica"},
+            "album": {
+                "title": "Metallica (Remastered 2021)",
+                "cover_xl": "https://example.com/1000x1000.jpg"
+            }
+        }]
+    }
+
+    with patch("urllib.request.urlopen") as mock_urlopen:
+        mock_cm = MagicMock()
+        mock_cm.read.return_value = json.dumps(mock_deezer).encode("utf-8")
+        mock_cm.__enter__.return_value = mock_cm
+        mock_urlopen.return_value = mock_cm
+
+        res = client.query_deezer("Enter Sandman Metallica")
+        assert res is not None
+        assert res["title"] == "Enter Sandman"
+        assert res["artist"] == "Metallica"
+        assert res["artwork_url"] == "https://example.com/1000x1000.jpg"
+
+def test_reliable_metadata_client_query_deezer_album():
+    client = ReliableMetadataClient()
+    mock_deezer_album = {
+        "data": [{
+            "title": "Gangster",
+            "artist": {"name": "Pritam"},
+            "cover_xl": "https://example.com/gangster_1000x1000.jpg"
+        }]
+    }
+
+    with patch("urllib.request.urlopen") as mock_urlopen:
+        mock_cm = MagicMock()
+        mock_cm.read.return_value = json.dumps(mock_deezer_album).encode("utf-8")
+        mock_cm.__enter__.return_value = mock_cm
+        mock_urlopen.return_value = mock_cm
+
+        res = client.query_deezer_album("Gangster", "Pritam")
+        assert res is not None
+        assert res["album"] == "Gangster"
+        assert res["album_artist"] == "Pritam"
+        assert res["artwork_url"] == "https://example.com/gangster_1000x1000.jpg"
 
 def test_reliable_metadata_client_query_musicbrainz_success():
     client = ReliableMetadataClient()

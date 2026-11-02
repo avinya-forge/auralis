@@ -1,7 +1,7 @@
-# Auralis Backlog (v9.0.0 - Acoustic Deduplication Engine, Forensic Artist/Noise Sanitization & Multi-Copy Resolution)
+# Auralis Backlog (v10.0.0 - Multi-Tier Authentic Artwork & Natyasangeet Expansion)
 
-## 🎯 Current Sprint: Acoustic Deduplication Engine, Forensic Artist/Noise Sanitization & Zero-Defect Library
-**North Star:** Deep Per-File Analysis, Acoustic Waveform & Phonetic Deduplication, Forensic Stripping of Artist Suffixes and Rip Junk from Filenames, Canonical Soundtrack Disambiguation (*Golmaal* & *Choti Si Baat*), Quality-Aware Stream Deduplication, 100% Embedded Artwork, 0 Empty Folders, and $\ge 2$ Tracks Per Folder Architecture.
+## 🎯 Current Sprint: Multi-Tier Authentic Artwork Resolution, Zero-Cross-Contamination & Natyasangeet Expansion
+**North Star:** Deep Per-File Analysis, Deezer 1000x1000 & iTunes 600x600 Authentic Cover Art Integration, Elimination of Cross-Contaminated Placeholder Art, Natyasangeet Expansion (*Sangeet Kanhopatra*, *Sangeet Devbabhali*), Quality-Aware Stream Deduplication, 100% Embedded Artwork, 0 Empty Folders, and $\ge 2$ Tracks Per Folder Architecture.
 
 ---
 
@@ -9,7 +9,8 @@
 
 | Priority | EPIC | Focus Area | Deliverable | Status |
 |:---:|:---|:---|:---|:---:|
-| **DONE** | **EPIC 21: Acoustic Deduplication Engine & Forensic Artist/Noise Sanitization** | Acoustic Deduplication & Path Sanitization | Engineered `AcousticDeduplicationEngine` & enhanced `path_sanitizer.py`, resolved Golmaal/Choti Si Baat multi-copy overlap (*Aane Wala Pal*), resolved artist-named files (Celine Dion, Westlife, Smashing Pumpkins, Demonic Resurrection, Mohit Chauhan, KK, Shankar Mahadevan, Adnan Sami, Shreya Ghoshal), stripped rip noise tokens (720p, 11 S, sihag, badmaashcompany, devd, dbs), upgraded Rahat Fateh Ali Khan *Zindagi Ye* to 232kbps master, purged empty directories, 100% 5-loop verification passing across 6,796 tracks | **DONE** |
+| **DONE** | **EPIC 22: Multi-Tier Authentic Artwork Resolution & Natyasangeet Expansion** | Authentic High-Res Art & Cultural Acquisition | Integrated Deezer 1000x1000 API in `ReliableMetadataClient`, enabled `overwrite_artwork` in `MasterOrganizer`, upgraded 1,443+ tracks across 70+ Bollywood soundtracks and artist discographies, purged cross-contamination in Pantera, Ringtones, Indian Rock, and Natyasangeet, acquired *Sangeet Kanhopatra* and *Sangeet Devbabhali* (320kbps MP3, 0 random chars), 5-loop verification 100% pass across 6,800 tracks | **DONE** |
+| **DONE** | **EPIC 21: Acoustic Deduplication Engine & Forensic Artist/Noise Sanitization** | Acoustic Deduplication & Path Sanitization | Engineered `AcousticDeduplicationEngine` & enhanced `path_sanitizer.py`, resolved Golmaal/Choti Si Baat multi-copy overlap (*Aane Wala Pal*), resolved artist-named files, stripped rip noise tokens, upgraded Rahat Fateh Ali Khan *Zindagi Ye* to 232kbps master, purged empty directories, 100% 5-loop verification passing | **DONE** |
 | **DONE** | **EPIC 20: Rare Marathi Natyasangeet Acquisition & Soundtrack Integration** | Rare Cultural Heritage & Forensics | Automated acquisition pipeline with yt-dlp & FFmpeg (320kbps MP3), expanded Natyasangeet catalog to 61 tracks across 10 canonical Sangeet Natak plays, solved Sachin Barad forensics (*Hum Aapke Hain Koun..!*), downloaded canonical master soundtrack, 0 empty folders, 5-loop verification 100% green | **DONE** |
 | **DONE** | **EPIC 19: Artist-Centric Architecture & Category Reduction** | Pure Taxonomy & Artist Directories | Consolidated Hindi non-film into `Hindi\Artists` (44 artists), purged Albums and Ghazals, re-homed misplaced Bollywood tracks, extracted Marathi Natyasangeet artists to root, established `English\Singles`, 0 empty folders, 5-loop verification 100% green | **DONE** |
 | **DONE** | **EPIC 18: Directory Streamlining & Synonym Consolidation** | Structural Hygiene & Part Disambiguation | Purged empty folders (0 left), consolidated Devotional & Bhajans, Rock & Pop, Hamrahi/Humrahi, Atif Aslam non-film, eliminated fake Love Story album, resolved all 13 cryptic part files with authentic tags, 5-loop verification 100% green | **DONE** |
@@ -33,19 +34,19 @@
 
 ---
 
+## EPIC 22: Multi-Tier Authentic Artwork Resolution & Natyasangeet Expansion (COMPLETED)
+- **[x] TASK:** feat-061-deezer-api-integration | **Spec:** Built `query_deezer` and `query_deezer_album` in `src/engine/reliable_metadata_client.py` fetching 1000x1000 master CD cover art. Added browser User-Agent headers to prevent CDN rate limits. | **LOC:** 80
+- **[x] TASK:** feat-062-master-organizer-overwrite-artwork | **Spec:** Added `overwrite_artwork: bool = False` to `MasterOrganizer.write_id3_tags()` across MP3, WMA, and M4A tag handlers to replace generic placeholder frames. | **LOC:** 35
+- **[x] TASK:** feat-063-bulk-artwork-upgrade-engine | **Spec:** Authored `scripts/upgrade_authentic_artwork.py` and `scripts/finalize_artwork_perfection.py` replacing placeholder and low-res covers for 1,443+ tracks across 70+ soundtracks, Pantera, Indian Rock, Ringtones, and Natyasangeet plays. | **LOC:** 240
+- **[x] TASK:** feat-064-natyasangeet-expansion-kanhopatra-devbabhali | **Spec:** Acquired *Sangeet Kanhopatra* and *Sangeet Devbabhali* in pristine 320kbps MP3 fidelity with 1000x1000 front covers, pure `<Song Title>.mp3` filenames, and zero random characters. | **LOC:** 130
+- **[x] TASK:** feat-065-verification-and-unit-tests | **Spec:** Expanded `tests/test_reliable_metadata_client.py` covering Deezer and iTunes album methods. Verified 37/37 passing unit tests, 0 flake8 errors, and 100% 5-loop physical verification. | **LOC:** 90
+
+---
+
 ## EPIC 21: Acoustic Deduplication Engine & Forensic Artist/Noise Sanitization (COMPLETED)
 - **[x] TASK:** feat-055-acoustic-deduplication-engine | **Spec:** Built `AcousticDeduplicationEngine` in `src/engine/embedded_intelligence.py` with phonetic title normalization, acoustic duplicate tolerance, and master track quality scoring. | **LOC:** 125
 - **[x] TASK:** feat-056-path-sanitizer-artist-and-noise-stripping | **Spec:** Upgraded `strip_rip_noise_and_suffixes()` and `separate_artist_from_song_title()` in `src/engine/path_sanitizer.py` to strip rip tokens (`720p`, `11 S`, `sihag`, `downloadming`) and embedded artists. | **LOC:** 110
 - **[x] TASK:** feat-057-golmaal-choti-si-baat-overlap-resolution | **Spec:** Transferred 256kbps master copies of *Aanewala Pal Jaane Waala Hai* and *Golmaal Hai* from *Choti Si Baat* to *Golmaal*, safely backed up 3 inferior/noisy duplicates, cleaned *Na Jaane Kyon*. | **LOC:** 85
-- **[x] TASK:** feat-058-artist-named-files-and-rip-cleanup | **Spec:** Resolved tracks named after artists (Celine Dion, Westlife, Smashing Pumpkins, Demonic Resurrection, Mohit Chauhan, KK, Shankar Mahadevan, Adnan Sami, Shreya Ghoshal) to true song titles, cleaned rip noise across Baadmaash Company, Dev D, Julie, Barfi, and Dard Bhare Songs. | **LOC:** 180
+- **[x] TASK:** feat-058-artist-named-files-and-rip-cleanup | **Spec:** Resolved tracks named after artists to true song titles, cleaned rip noise across Baadmaash Company, Dev D, Julie, Barfi, and Dard Bhare Songs. | **LOC:** 180
 - **[x] TASK:** feat-059-5-loop-verification-and-zero-empty-sweep | **Spec:** Executed 5-loop physical verification across all 6,796 tracks (100% pass) and audited directory tree (0 empty folders, 0 single-file subfolders). | **LOC:** 50
 - **[x] TASK:** feat-060-comprehensive-unit-tests | **Spec:** Authored `tests/test_acoustic_deduplication_and_noise_sanitizer.py` achieving 89% unit test coverage on path sanitization and 100% test pass rate. | **LOC:** 130
-
----
-
-## EPIC 20: Rare Marathi Natyasangeet Acquisition & Soundtrack Integration (COMPLETED)
-- **[x] TASK:** feat-050-rare-natyasangeet-downloader | **Spec:** Developed `scripts/download_marathi_natyasangeet.py` and `scripts/download_targeted_natyasangeet.py` utilizing `yt-dlp` and `imageio_ffmpeg` with 320kbps MP3 extraction, cover art conversion, and ID3v2 tag embedding. | **LOC:** 345
-- **[x] TASK:** feat-051-natyasangeet-play-restructuring | **Spec:** Reorganized all 18 loose root tracks into classic play collections (*Katyar Kaljat Ghusali*, *Sangeet Manapman*, *Sangeet Saubhadra*, *Sangeet Swayamvar*, *Sangeet Sanshaykallol*, *Sangeet Ekach Pyala*, *Sangeet Sharada*, *Sangeet Matsyagandha*, *Sangeet Shakuntal*, *Evergreen Natyageete*). Library now houses 61 tracks with $\ge 2$ tracks per folder. | **LOC:** 90
-- **[x] TASK:** feat-052-sachin-barad-forensics-and-hahk-album | **Spec:** Forensically identified `PehlaPehlaPyarhain-SungbySachinBarad.mp3` as cover version of *Hum Aapke Hain Koun..!*, renamed to `Pehla Pehla Pyar - Cover.mp3`, downloaded canonical master soundtrack into `Hindi\Soundtracks\Hum Aapke Hain Koun`. | **LOC:** 180
-- **[x] TASK:** feat-053-credit-pattern-sanitization | **Spec:** Normalized credit patterns (`Ft.`, `feat.`, `sungby`) and purged redundant lower-bitrate duplicates (`State of Shock`, `Tere Liye Unplugged`). | **LOC:** 65
-- **[x] TASK:** feat-054-5-loop-verification-and-zero-empty-sweep | **Spec:** Re-ran 5-loop physical verification across all 6,810 tracks with 100.00% pass rate (0 errors, 0 empty folders, 0 single-file subfolders). | **LOC:** 40

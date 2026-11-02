@@ -128,7 +128,7 @@ class ReliableMetadataClient:
             "limit": 1
         })
         url = f"https://itunes.apple.com/search?{params}"
-        req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"})
 
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
@@ -158,6 +158,98 @@ class ReliableMetadataClient:
             pass
         return None
 
+    def query_itunes_album(self, album_name: str, artist: str = "") -> Optional[Dict[str, Any]]:
+        """Queries the official iTunes Search API for authoritative album metadata and high-res cover art."""
+        term = f"{album_name} {artist}".strip()
+        clean_term = re.sub(r"[_\-\.]+", " ", term)
+        clean_term = re.sub(r"\s+", " ", clean_term).strip()
+        params = urllib.parse.urlencode({
+            "term": clean_term,
+            "entity": "album",
+            "limit": 3
+        })
+        url = f"https://itunes.apple.com/search?{params}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"})
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results = data.get("results", [])
+                if results:
+                    item = results[0]
+                    for res in results:
+                        if album_name.lower() in res.get("collectionName", "").lower():
+                            item = res
+                            break
+                    art_url = item.get("artworkUrl100", "")
+                    if art_url:
+                        art_url = art_url.replace("100x100bb", "600x600bb")
+                    release_date = item.get("releaseDate", "")
+                    year = release_date[:4] if release_date else ""
+                    return {
+                        "source": "iTunes Album",
+                        "album": item.get("collectionName", "").strip(),
+                        "album_artist": item.get("artistName", "").strip(),
+                        "year": year,
+                        "genre": item.get("primaryGenreName", "").strip(),
+                        "artwork_url": art_url,
+                    }
+        except Exception:
+            pass
+        return None
+
+    def query_deezer(self, term: str) -> Optional[Dict[str, Any]]:
+        """Queries the Deezer API for authoritative song metadata and ultra-high-res 1000x1000 cover art."""
+        url = "https://api.deezer.com/search?q=" + urllib.parse.quote(term.strip())
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results = data.get("data", [])
+                if results:
+                    item = results[0]
+                    album = item.get("album", {})
+                    artist = item.get("artist", {})
+                    art_url = album.get("cover_xl") or album.get("cover_big") or album.get("cover_medium") or ""
+                    return {
+                        "source": "Deezer",
+                        "title": item.get("title", "").strip(),
+                        "artist": artist.get("name", "").strip(),
+                        "album": album.get("title", "").strip(),
+                        "album_artist": artist.get("name", "").strip(),
+                        "year": "",
+                        "genre": "",
+                        "artwork_url": art_url,
+                    }
+        except Exception:
+            pass
+        return None
+
+    def query_deezer_album(self, album_name: str, artist: str = "") -> Optional[Dict[str, Any]]:
+        """Queries the Deezer Album API for authentic album metadata and 1000x1000 cover art."""
+        term = f"{album_name} {artist}".strip()
+        url = "https://api.deezer.com/search/album?q=" + urllib.parse.quote(term)
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                results = data.get("data", [])
+                if results:
+                    album = results[0]
+                    art_url = album.get("cover_xl") or album.get("cover_big") or ""
+                    return {
+                        "source": "Deezer Album",
+                        "album": album.get("title", "").strip(),
+                        "album_artist": album.get("artist", {}).get("name", "").strip(),
+                        "year": "",
+                        "genre": "",
+                        "artwork_url": art_url,
+                    }
+        except Exception:
+            pass
+        return None
+
     def query_musicbrainz(self, recording: str, artist: str = "") -> Optional[Dict[str, Any]]:
         """Queries the MusicBrainz Web Service API for canonical recording credits."""
         if artist:
@@ -167,7 +259,7 @@ class ReliableMetadataClient:
 
         params = urllib.parse.urlencode({"query": query, "fmt": "json", "limit": 1})
         url = f"https://musicbrainz.org/ws/2/recording/?{params}"
-        req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"})
 
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
@@ -199,7 +291,7 @@ class ReliableMetadataClient:
         """Downloads official cover art bytes from reliable artwork URL."""
         if not url:
             return None
-        req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"})
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 return resp.read()
@@ -237,6 +329,12 @@ class ReliableMetadataClient:
         if res and res.get("title"):
             self.save_cache(search_title, search_artist, res, source="iTunes")
             return res
+
+        # 2b. Query Deezer
+        res_dz = self.query_deezer(search_term)
+        if res_dz and res_dz.get("title"):
+            self.save_cache(search_title, search_artist, res_dz, source="Deezer")
+            return res_dz
 
         # 3. Query MusicBrainz
         if search_artist:
