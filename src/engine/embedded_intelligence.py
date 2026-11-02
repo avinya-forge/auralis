@@ -514,3 +514,66 @@ class EmbeddedLanguageIntelligence:
             "title": cleaned_stem.title(),
             "artist": artist or "Various Artists"
         }
+
+class AcousticDeduplicationEngine:
+    """
+    Acoustic and Title Spectrum Deduplication Engine.
+    Disambiguates songs with polluted or divergent filenames that represent the
+    same acoustic track (e.g. Aane Wala Pal -Golmaal.mp3 vs Aanewala Pal.mp3).
+    """
+
+    @staticmethod
+    def normalize_title(title: str) -> str:
+        """Normalize title by stripping rip tags, noise, and non-alphanumeric chars."""
+        if not title:
+            return ""
+        t = title.lower()
+        t = re.sub(r"(\d{3,4}p|hd\s*song|\d{1,2}\s*[sS]|sihag|downloadming|fmw11|songs\.pk)", "", t)
+        t = re.sub(r"\b(alt|remix|cover|unplugged|reprise|part\s*\d+)\b", "", t)
+        t = re.sub(r"[^a-z0-9]", "", t)
+        return t
+
+    @classmethod
+    def are_tracks_duplicate(cls, t1_name: str, t2_name: str, dur1: float, dur2: float, tol_seconds: float = 35.0) -> bool:
+        """Determines if two tracks in the same context are the same song."""
+        n1 = cls.normalize_title(t1_name)
+        n2 = cls.normalize_title(t2_name)
+        if not n1 or not n2:
+            return False
+
+        is_title_match = (
+            n1 == n2 or
+            (len(n1) >= 8 and len(n2) >= 8 and (n1.startswith(n2[:8]) or n2.startswith(n1[:8]))) or
+            (n1 in n2 or n2 in n1)
+        )
+        if not is_title_match:
+            return False
+
+        if dur1 > 0 and dur2 > 0:
+            if abs(dur1 - dur2) <= tol_seconds:
+                return True
+            return False
+        return is_title_match
+
+    @classmethod
+    def select_best_master_track(cls, tracks: list) -> tuple:
+        """
+        From a group of duplicate tracks, selects the single best quality master track.
+        Returns: (master_track, [inferior_duplicates])
+        """
+        if not tracks:
+            return None, []
+        if len(tracks) == 1:
+            return tracks[0], []
+
+        def sort_key(t):
+            br = t.get("bitrate", 0) or 0
+            dur = t.get("duration", 0) or 0
+            name = t.get("filename", "")
+            penalty = 0
+            if re.search(r"(\d+s|sihag|720p|hdsong|\-golmaal)", name, re.IGNORECASE):
+                penalty = -50000
+            return (br + penalty, dur)
+
+        sorted_tracks = sorted(tracks, key=sort_key, reverse=True)
+        return sorted_tracks[0], sorted_tracks[1:]

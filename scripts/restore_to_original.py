@@ -8,11 +8,11 @@ import os
 import sqlite3
 import shutil
 
-DB_PATH = r"C:\Users\kaush\AppData\Local\Temp\tmpzw3d1h85\test_inventory.db"
+DB_PATH = r"C:\Users\kaush\AppData\Local\Temp\tmp31w9386u\test_inventory.db"
 STAGING_DIRS = [
-    r"C:\Users\kaush\AppData\Local\Temp\tmpzw3d1h85\staging",
-    r"C:\Users\kaush\AppData\Local\Temp\tmpzw3d1h85\dupes",
-    r"C:\Users\kaush\AppData\Local\Temp\tmpzw3d1h85\corrupt"
+    r"C:\Users\kaush\AppData\Local\Temp\tmp31w9386u\staging",
+    r"C:\Users\kaush\AppData\Local\Temp\tmp31w9386u\dupes",
+    r"C:\Users\kaush\AppData\Local\Temp\tmp31w9386u\corrupt"
 ]
 
 def rollback():
