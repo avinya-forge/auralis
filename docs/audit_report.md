@@ -28,3 +28,17 @@
 - `OriginalVersionFinder` leverages `EmbeddingDatabase` and `musicbrainzngs` to determine original tracks via similarity and chronological release date resolution.
 - `ThresholdFilter` uses singleton `AIConfig` to consistently apply a dynamic `confidence_threshold` to incoming AI tag predictions.
 - **Recommendations:** Ensure consistent typing and add model-specific error fallback for `musicbrainzngs` lookups.
+
+### 5. Security & OWASP Violations Audit
+**Status:** ACTION REQUIRED
+**Analysis:**
+- **Hardcoded Secrets:**
+  - `src/utils/config.py` contains a hardcoded default public key: `"ACOUSTID_API_KEY": "1vOwZtEn"`.
+  - `src/modules/api/main.py` contains a hardcoded default JWT secret fallback: `SECRET_KEY = os.getenv("AURALIS_JWT_SECRET", "default-unsafe-secret-for-testing")`.
+- **Mitigation:** Remove hardcoded defaults. Secrets must strictly rely on environment variables (`.env`) or securely injected configuration. Ensure failure if secrets are absent, rather than falling back to hardcoded strings.
+
+### 6. Cross-Repository Dependency & Agent Reach Audit
+**Status:** EVALUATED
+**Analysis:**
+- **Avinya Forge Ecosystem:** Auralis is part of the Avinya Forge ecosystem. Changes to API schemas, database contracts, or shared libraries within Auralis must be evaluated for their blast radius across sister repositories in the Avinya Forge ecosystem.
+- **Action:** Any future API schema modifications must include cross-repo tasks to update dependent ecosystem repositories, documented in `docs/release-notes.md`.

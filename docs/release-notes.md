@@ -3,6 +3,75 @@
 ## Summary
 These release notes document verified, completed features, bug fixes, and architectural milestones.
 
+## Version 16.0.0 (Recent Epic Completions & Architecture Enhancements)
+
+### Features & Infrastructure Completed (Verified)
+
+**EPIC 20: Rare Marathi Natyasangeet Acquisition & Soundtrack Integration**
+- Developed scripts (`download_marathi_natyasangeet.py`, `download_targeted_natyasangeet.py`) utilizing yt-dlp & imageio_ffmpeg with 320kbps MP3 extraction, cover art conversion, and ID3v2 tag embedding.
+- Reorganized 18 loose root tracks into classic play collections (Katyar Kaljat Ghusali, etc.), expanding Natyasangeet catalog to 61 tracks.
+- Forensically identified and fixed Sachin Barad tracks (e.g., *Hum Aapke Hain Koun..!*), downloaded canonical master soundtrack, and placed in `Hindi\Soundtracks`.
+- Normalized credit patterns and purged redundant lower-bitrate duplicates.
+- Re-ran 5-loop physical verification across all 6,810 tracks with 100.00% pass rate.
+
+**EPIC 19: Artist-Centric Architecture & Category Reduction**
+- Consolidated Hindi non-film into `Hindi\Artists` (44 artists). Purged Albums and Ghazals folders.
+- Re-homed misplaced Bollywood tracks to `Hindi\Soundtracks`.
+- Extracted Marathi Natyasangeet artists to `Marathi\<Artist>`.
+- Established `English\Singles` and enforced tracks per folder architecture.
+- Executed bottom-up directory sweep, purging 71 empty folders.
+
+**EPIC 18: Directory Streamlining & Synonym Consolidation**
+- Consolidated synonymous directories: Devotional & Bhajans, Assorted Pop & Rock, etc.
+- Recursively swept and verified 0 empty directories, 0 junk files, and 0 single-file subfolders.
+- Forensically matched cryptic part tracks against ingest records and updated authentic ID3 tags.
+- Re-executed comprehensive 5-loop verification across all 6,786 physical files.
+
+**EPIC 17: Precision Polishing & Marathi Linguistic Resolution**
+- Built `precision_polisher.py` executing a 6-pass perfection pipeline.
+- Re-homed 26 immortal Marathi Bhavgeet tracks.
+- Eliminated redundant movie title prefixes.
+- Solved Windows NTFS case-insensitive typography for contractions and ordinals.
+
+**EPIC 16: Multi-Source Reliable Metadata & 100% Embedded Artwork**
+- Built `ReliableMetadataClient` using iTunes and MusicBrainz APIs.
+- Executed multi-pass discography enrichment and artwork embedding.
+- Integrated Pillow to achieve 100.0% embedded cover art coverage.
+- Audited stream integrity, path sanitization, tag quality, categorical placement, and stream deduplication with 0 flaws.
+
+
+**EPIC 15: Acoustic Waveform Dedupe & Language Architecture**
+- Raw PCM waveform hashing, 1,104 acoustic duplicates archived.
+- Cleaned directory structures, removed brackets and Evergreen Classics.
+- Deduplicated tracks like Hotel California and saved 44 GB space.
+
+**EPIC 14: Ground-Truth Pravachan & Katha Preservation**
+- Preserved sequential Day/Session structure for discourses (Ghaisasi Guruji, Kavishwar Maharaj, Shankar Abhyankar).
+- Eliminated brackets and maintained 100% dedicated collections.
+
+**EPIC 13: 4-Pass Taxonomy Refinement & Zero Brackets**
+- Granular categorization removing all Evergreen Classics (0 tracks remaining).
+- Maintained 0 brackets, 0 dirty symbols, and 0 repeated prefixes.
+
+**EPIC 10 & 11: Deep Audio Inspection & Vedic Sukta Disambiguation**
+- Built `deep_audio_organizer.py` with multi-threading, physical tag extraction, path sanitization, and audio stream hashing.
+- Disambiguated Vedic Suktas vs Stotras & Ashtakams vs Vedic Samhita.
+- Audited PyTorch/AirLLM environment and implemented `load_airllm_model` with CUDA/CPU handling and local heuristic fallback.
+
+**EPIC 6: Quality-Aware Bitrate Dedupe & Artist Canonicalization**
+- Compared song titles within same artist/collection, keeping highest bitrate (e.g., 320kbps).
+- Resolved aliases and inverted patterns into single canonical artist directories.
+- Installed and verified `airllm` with PyTorch CPU runtime, Accelerate, and Transformers.
+
+**EPIC 1-5, 7: Core Organizer & Autonomous Pipeline**
+- Cataloged 50,236 tracks and mapped 36,363 duplicates.
+- Staged 5,535 clean tracks in 31s with rollback script generation.
+- Processed 6,116 tracks in 114s via standalone CLI engine.
+- Wrote 5,536 ID3v2.4 tags and cleared Windows NTFS ReadOnly attributes.
+- Implemented 5-channel concurrent workers and in-process embedded intelligence.
+- Deployed unified autonomous pipeline (`auto-pipeline`) for external chunk ingestion, deduplication, and auditing.
+
+
 ## Version 15.0.0 (Rare Marathi Natyasangeet Expansion, Soundtrack Integration & Forensics)
 
 ### Features & Infrastructure Completed (Verified)
